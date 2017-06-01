@@ -2,7 +2,7 @@
 
 var BaseFrame = require("BaseFrame");
 cc.Class({
-    extends: cc.Component, BaseFrame: BaseFrame,
+    extends: BaseFrame,
 
     properties: {
         label: {

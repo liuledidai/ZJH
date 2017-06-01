@@ -6,7 +6,7 @@ cc._RFpush(module, '280c3rsZJJKnZ9RqbALVwtK', 'HelloWorld');
 
 var BaseFrame = require("BaseFrame");
 cc.Class({
-    extends: cc.Component, BaseFrame: BaseFrame,
+    extends: BaseFrame,
 
     properties: {
         label: {

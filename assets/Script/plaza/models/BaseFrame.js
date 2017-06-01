@@ -1,5 +1,5 @@
 var BaseFrame = cc.Class({
-    // extends: cc.Component,
+    extends: cc.Component,
 
     properties: {
         // foo: {
@@ -15,16 +15,7 @@ var BaseFrame = cc.Class({
     },
 
     // use this for initialization
-    // onLoad: function () {
-
-    // },
-
-    // called every frame, uncomment this function to activate update callback
-    // update: function (dt) {
-
-    // },
-    name: "BaseFrame",
-    ctor: function(){
+    onLoad: function () {
         // this._viewFrame = view;
         this._threadid = undefined;
         this._socket = undefined;
@@ -32,8 +23,23 @@ var BaseFrame = cc.Class({
         
         this._gameFrame = undefined;
         this.m_tabCacheMsg = {};
-        
     },
+
+    // called every frame, uncomment this function to activate update callback
+    update: function (dt) {
+
+    },
+    // name: "BaseFrame",
+    // ctor: function(){
+    //     // this._viewFrame = view;
+    //     this._threadid = undefined;
+    //     this._socket = undefined;
+    //     // this._callBack = callback;
+        
+    //     this._gameFrame = undefined;
+    //     this.m_tabCacheMsg = {};
+        
+    // },
     setCallBack: function(callback){
       this._callBack = callback;  
     },

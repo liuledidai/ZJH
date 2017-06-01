@@ -2,10 +2,11 @@
 cc._RFpush(module, '280c3rsZJJKnZ9RqbALVwtK', 'HelloWorld');
 // Script/HelloWorld.js
 
-'use strict';
+"use strict";
 
+var BaseFrame = require("BaseFrame");
 cc.Class({
-    extends: cc.Component,
+    extends: BaseFrame,
 
     properties: {
         label: {

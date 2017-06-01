@@ -100,19 +100,33 @@
         "timeline"
       ]
     },
-    "window-1496195399461": {
+    "window-1496278398896": {
       "main": false,
-      "url": "packages://code-editor/panel/index.html",
-      "windowType": "simple",
-      "x": -1053,
-      "y": 225,
-      "width": 1842,
-      "height": 808,
-      "layout": null,
+      "url": "unpack://static/window.html",
+      "windowType": "dockable",
+      "x": 533,
+      "y": 90,
+      "width": 500,
+      "height": 722,
+      "layout": {
+        "children": [
+          {
+            "active": 0,
+            "children": [
+              "builder"
+            ],
+            "height": 700,
+            "type": "panel",
+            "width": 500
+          }
+        ],
+        "type": "dock-v"
+      },
       "panels": [
-        "code-editor"
+        "builder"
       ]
-    }
+    },
+    "worker": {}
   },
   "panels": {
     "builder": {
@@ -122,7 +136,7 @@
       "height": 722
     },
     "code-editor": {
-      "x": -1053,
+      "x": -1842,
       "y": 225,
       "width": 1842,
       "height": 808
