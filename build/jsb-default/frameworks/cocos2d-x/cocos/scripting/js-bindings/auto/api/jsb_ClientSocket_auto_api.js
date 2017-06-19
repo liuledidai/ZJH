@@ -26,12 +26,14 @@ ccmd_data
  * @method ConnectSocket
  * @param {char} arg0
  * @param {unsigned short} arg1
+ * @return {bool}
  */
 ConnectSocket : function (
 char, 
 short 
 )
 {
+    return false;
 },
 
 /**

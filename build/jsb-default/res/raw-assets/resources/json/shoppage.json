@@ -1,0 +1,48 @@
+{
+  "shop": {
+    "base": [
+      {
+        "id": "com.jjhgame.zhajinhua.tier1",
+        "name": "一小袋金币(40000)",
+        "gold": "40000",
+        "iosprice": "6",
+        "price": "3"
+      },
+      {
+         "id": "com.jjhgame.zhajinhua.tier2",
+         "name": "一中袋金币(150000)",
+         "gold": "150000",
+         "iosprice": "12",
+         "price": "10"
+      },
+      {
+         "id": "com.jjhgame.zhajinhua.tier4",
+         "name": "一大袋金币(450000)",
+         "gold": "450000",
+         "iosprice": "25",
+         "price": "30"
+      },
+      {
+         "id": "com.jjhgame.zhajinhua.tier6",
+         "name": "一小箱金币(750000)",
+         "gold": "750000",
+         "iosprice": "40",
+         "price": "50"
+      },
+      {
+         "id": "com.jjhgame.zhajinhua.tier10",
+         "name": "一中箱金币(1600000)",
+         "gold": "1600000",
+         "iosprice": "68",
+         "price": "100"
+      },
+      {
+         "id": "com.jjhgame.zhajinhua.tier13",
+         "name": "一大箱金币(3400000)",
+         "gold": "3400000",
+         "iosprice": "88",
+         "price": "200"
+     }
+    ]
+  }
+}

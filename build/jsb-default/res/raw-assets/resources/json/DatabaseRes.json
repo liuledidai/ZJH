@@ -1,0 +1,16 @@
+{
+    "DataBase": [
+    {
+        "path": "db/QPGameScoreDB.db"
+    },
+    {
+        "path": "db/QPGameUserDB.db"
+    },
+    {
+        "path": "db/QPServerInfoDB.db"
+    },
+    {
+        "path": "db/QPTreasureDB.db"
+    }
+   ]
+}

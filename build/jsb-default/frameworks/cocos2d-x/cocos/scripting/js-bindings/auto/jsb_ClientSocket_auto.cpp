@@ -80,8 +80,10 @@ bool js_ClientSocket_ClientSocket_ConnectSocket(JSContext *cx, uint32_t argc, js
         std::string arg0_tmp; ok &= jsval_to_std_string(cx, args.get(0), &arg0_tmp); arg0 = arg0_tmp.c_str();
         ok &= jsval_to_ushort(cx, args.get(1), &arg1);
         JSB_PRECONDITION2(ok, cx, false, "js_ClientSocket_ClientSocket_ConnectSocket : Error processing arguments");
-        cobj->ConnectSocket(arg0, arg1);
-        args.rval().setUndefined();
+        bool ret = cobj->ConnectSocket(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
         return true;
     }
 

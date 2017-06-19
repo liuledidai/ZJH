@@ -1,0 +1,31 @@
+{
+    "Game":
+    {
+        "LostScore":2000000,
+        "WinScore":0,
+        "GameTime":0,
+        "LimitIPCount":11,
+        "LimitEnterRoomSpeed":11
+    },
+    "Limit":{
+        "LimitTableCount":10,
+        "LimitPlayerCount":2,
+        "FrontLimitTableCount":25,
+        "FrontLimitPlayerCount":3,
+        "LimitBank":1,
+        "NoLimitBankNum":5,
+        "NoLimitGameID1":1,
+        "NoLimitGameID2":1,
+        "NoLimitGameID3":1,
+        "NoLimitGameID4":2,
+        "NoLimitGameID5":3,
+        "LimitServerGold":80000000
+    },
+    "RoomCfg":{
+        "ServiceFee":500
+    }
+    
+}
+
+
+

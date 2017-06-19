@@ -1,0 +1,15 @@
+{
+    "DataBase":
+    {
+        "AccreditID":"",
+        "CenterServerAddr":"127.0.0.1",
+        "GameUserDBAddr":"127.0.0.1",
+        "GameUserDBPass":"",
+        "GameUserDBPort":1433,
+        "GameUserDBUser":"",
+        "ServerInfoDBAddr":"127.0.0.1",
+        "ServerInfoDBPass":"",
+        "ServerInfoDBPort":1433,
+        "ServerInfoDBUser":"QPServerInfoDB.db"
+    }
+}

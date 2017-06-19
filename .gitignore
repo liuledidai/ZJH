@@ -2,8 +2,9 @@
 # Fireball Projects
 #/////////////////////////////////////////////////////////////////////////////
 
-#library/
-#temp/
+library/
+build/jsb-default/res/import/
+temp/
 #local/
 #build/
 *.pyc

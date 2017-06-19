@@ -45,12 +45,23 @@ bool js_CCmd_Data_CCmd_Data_pushdouble(JSContext *cx, uint32_t argc, jsval *vp)
 bool js_CCmd_Data_CCmd_Data_readfloat(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readfloat : Invalid Native Object");
     if (argc == 0) {
         double ret = cobj->readfloat();
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readfloat : Error processing arguments");
+        double ret = cobj->readfloat(arg0);
         JS::RootedValue jsret(cx);
         jsret = DOUBLE_TO_JSVAL(ret);
         args.rval().set(jsret);
@@ -63,12 +74,23 @@ bool js_CCmd_Data_CCmd_Data_readfloat(JSContext *cx, uint32_t argc, jsval *vp)
 bool js_CCmd_Data_CCmd_Data_readint64(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readint64 : Invalid Native Object");
     if (argc == 0) {
         long long ret = cobj->readint64();
+        JS::RootedValue jsret(cx);
+        jsret = long_long_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readint64 : Error processing arguments");
+        long long ret = cobj->readint64(arg0);
         JS::RootedValue jsret(cx);
         jsret = long_long_to_jsval(cx, ret);
         args.rval().set(jsret);
@@ -121,12 +143,23 @@ bool js_CCmd_Data_CCmd_Data_pushbyte(JSContext *cx, uint32_t argc, jsval *vp)
 bool js_CCmd_Data_CCmd_Data_readshort(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readshort : Invalid Native Object");
     if (argc == 0) {
         int32_t ret = cobj->readshort();
+        JS::RootedValue jsret(cx);
+        #pragma warning NO CONVERSION FROM NATIVE FOR short;
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readshort : Error processing arguments");
+        int32_t ret = cobj->readshort(arg0);
         JS::RootedValue jsret(cx);
         #pragma warning NO CONVERSION FROM NATIVE FOR short;
         args.rval().set(jsret);
@@ -157,6 +190,7 @@ bool js_CCmd_Data_CCmd_Data_getmain(JSContext *cx, uint32_t argc, jsval *vp)
 bool js_CCmd_Data_CCmd_Data_readint(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
@@ -168,8 +202,36 @@ bool js_CCmd_Data_CCmd_Data_readint(JSContext *cx, uint32_t argc, jsval *vp)
         args.rval().set(jsret);
         return true;
     }
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readint : Error processing arguments");
+        int ret = cobj->readint(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = int32_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
 
     JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_readint : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_CCmd_Data_CCmd_Data_getReadOffset(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_getReadOffset : Invalid Native Object");
+    if (argc == 0) {
+        unsigned short ret = cobj->getReadOffset();
+        JS::RootedValue jsret(cx);
+        jsret = ushort_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_getReadOffset : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_CCmd_Data_CCmd_Data_pushpacket(JSContext *cx, uint32_t argc, jsval *vp)
@@ -193,6 +255,35 @@ bool js_CCmd_Data_CCmd_Data_pushpacket(JSContext *cx, uint32_t argc, jsval *vp)
     }
 
     JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_pushpacket : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_CCmd_Data_CCmd_Data_readdword(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readdword : Invalid Native Object");
+    if (argc == 0) {
+        unsigned int ret = cobj->readdword();
+        JS::RootedValue jsret(cx);
+        jsret = uint32_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readdword : Error processing arguments");
+        unsigned int ret = cobj->readdword(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = uint32_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_readdword : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_CCmd_Data_CCmd_Data_setcmdinfo(JSContext *cx, uint32_t argc, jsval *vp)
@@ -257,22 +348,65 @@ bool js_CCmd_Data_CCmd_Data_pushint64(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_pushint64 : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_CCmd_Data_CCmd_Data_getsub(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCmd_Data_CCmd_Data_readstring(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_getsub : Invalid Native Object");
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readstring : Invalid Native Object");
     if (argc == 0) {
-        unsigned short ret = cobj->getsub();
+        std::string ret = cobj->readstring();
         JS::RootedValue jsret(cx);
-        jsret = ushort_to_jsval(cx, ret);
+        jsret = std_string_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 1) {
+        unsigned short arg0 = 0;
+        ok &= jsval_to_ushort(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readstring : Error processing arguments");
+        std::string ret = cobj->readstring(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = std_string_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 2) {
+        unsigned short arg0 = 0;
+        bool arg1;
+        ok &= jsval_to_ushort(cx, args.get(0), &arg0);
+        arg1 = JS::ToBoolean(args.get(1));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readstring : Error processing arguments");
+        std::string ret = cobj->readstring(arg0, arg1);
+        JS::RootedValue jsret(cx);
+        jsret = std_string_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_getsub : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_readstring : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
+bool js_CCmd_Data_CCmd_Data_setmaxsize(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_setmaxsize : Invalid Native Object");
+    if (argc == 1) {
+        unsigned short arg0 = 0;
+        ok &= jsval_to_ushort(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_setmaxsize : Error processing arguments");
+        cobj->setmaxsize(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_setmaxsize : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_CCmd_Data_CCmd_Data_pushstring(JSContext *cx, uint32_t argc, jsval *vp)
@@ -320,12 +454,23 @@ bool js_CCmd_Data_CCmd_Data_pushshort(JSContext *cx, uint32_t argc, jsval *vp)
 bool js_CCmd_Data_CCmd_Data_readbool(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readbool : Invalid Native Object");
     if (argc == 0) {
         bool ret = cobj->readbool();
+        JS::RootedValue jsret(cx);
+        jsret = BOOLEAN_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readbool : Error processing arguments");
+        bool ret = cobj->readbool(arg0);
         JS::RootedValue jsret(cx);
         jsret = BOOLEAN_TO_JSVAL(ret);
         args.rval().set(jsret);
@@ -338,12 +483,23 @@ bool js_CCmd_Data_CCmd_Data_readbool(JSContext *cx, uint32_t argc, jsval *vp)
 bool js_CCmd_Data_CCmd_Data_readdouble(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
     JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readdouble : Invalid Native Object");
     if (argc == 0) {
         double ret = cobj->readdouble();
+        JS::RootedValue jsret(cx);
+        jsret = DOUBLE_TO_JSVAL(ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readdouble : Error processing arguments");
+        double ret = cobj->readdouble(arg0);
         JS::RootedValue jsret(cx);
         jsret = DOUBLE_TO_JSVAL(ret);
         args.rval().set(jsret);
@@ -409,22 +565,33 @@ bool js_CCmd_Data_CCmd_Data_getDataBuffer(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_getDataBuffer : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_CCmd_Data_CCmd_Data_readdword(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCmd_Data_CCmd_Data_readword(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readdword : Invalid Native Object");
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readword : Invalid Native Object");
     if (argc == 0) {
-        unsigned int ret = cobj->readdword();
+        unsigned short ret = cobj->readword();
         JS::RootedValue jsret(cx);
-        jsret = uint32_to_jsval(cx, ret);
+        jsret = ushort_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readword : Error processing arguments");
+        unsigned short ret = cobj->readword(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = ushort_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_readdword : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_readword : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_CCmd_Data_CCmd_Data_cleanData(JSContext *cx, uint32_t argc, jsval *vp)
@@ -463,44 +630,26 @@ bool js_CCmd_Data_CCmd_Data_pushword(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_pushword : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_CCmd_Data_CCmd_Data_readstring(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCmd_Data_CCmd_Data_readbyte(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readstring : Invalid Native Object");
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readbyte : Invalid Native Object");
     if (argc == 0) {
-        std::string ret = cobj->readstring();
+        uint16_t ret = cobj->readbyte();
         JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
+        jsret = uint32_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
     }
     if (argc == 1) {
-        unsigned short arg0 = 0;
-        ok &= jsval_to_ushort(cx, args.get(0), &arg0);
-        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readstring : Error processing arguments");
-        std::string ret = cobj->readstring(arg0);
-        JS::RootedValue jsret(cx);
-        jsret = std_string_to_jsval(cx, ret);
-        args.rval().set(jsret);
-        return true;
-    }
-
-    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_readstring : wrong number of arguments: %d, was expecting %d", argc, 0);
-    return false;
-}
-bool js_CCmd_Data_CCmd_Data_readbyte(JSContext *cx, uint32_t argc, jsval *vp)
-{
-    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
-    js_proxy_t *proxy = jsb_get_js_proxy(obj);
-    CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readbyte : Invalid Native Object");
-    if (argc == 0) {
-        uint16_t ret = cobj->readbyte();
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readbyte : Error processing arguments");
+        uint16_t ret = cobj->readbyte(arg0);
         JS::RootedValue jsret(cx);
         jsret = uint32_to_jsval(cx, ret);
         args.rval().set(jsret);
@@ -530,22 +679,22 @@ bool js_CCmd_Data_CCmd_Data_pushfloat(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_pushfloat : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_CCmd_Data_CCmd_Data_readword(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCmd_Data_CCmd_Data_getsub(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readword : Invalid Native Object");
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_getsub : Invalid Native Object");
     if (argc == 0) {
-        unsigned short ret = cobj->readword();
+        unsigned short ret = cobj->getsub();
         JS::RootedValue jsret(cx);
         jsret = ushort_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_readword : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_getsub : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_CCmd_Data_CCmd_Data_create(JSContext *cx, uint32_t argc, jsval *vp)
@@ -633,11 +782,14 @@ void js_register_CCmd_Data_CCmd_Data(JSContext *cx, JS::HandleObject global) {
         JS_FN("readshort", js_CCmd_Data_CCmd_Data_readshort, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getmain", js_CCmd_Data_CCmd_Data_getmain, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("readint", js_CCmd_Data_CCmd_Data_readint, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getReadOffset", js_CCmd_Data_CCmd_Data_getReadOffset, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushpacket", js_CCmd_Data_CCmd_Data_pushpacket, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("readdword", js_CCmd_Data_CCmd_Data_readdword, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setcmdinfo", js_CCmd_Data_CCmd_Data_setcmdinfo, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushdword", js_CCmd_Data_CCmd_Data_pushdword, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushint64", js_CCmd_Data_CCmd_Data_pushint64, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getsub", js_CCmd_Data_CCmd_Data_getsub, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("readstring", js_CCmd_Data_CCmd_Data_readstring, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setmaxsize", js_CCmd_Data_CCmd_Data_setmaxsize, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushstring", js_CCmd_Data_CCmd_Data_pushstring, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushshort", js_CCmd_Data_CCmd_Data_pushshort, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("readbool", js_CCmd_Data_CCmd_Data_readbool, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -645,13 +797,12 @@ void js_register_CCmd_Data_CCmd_Data(JSContext *cx, JS::HandleObject global) {
         JS_FN("pushint", js_CCmd_Data_CCmd_Data_pushint, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getDataSize", js_CCmd_Data_CCmd_Data_getDataSize, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getDataBuffer", js_CCmd_Data_CCmd_Data_getDataBuffer, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("readdword", js_CCmd_Data_CCmd_Data_readdword, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("readword", js_CCmd_Data_CCmd_Data_readword, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("cleanData", js_CCmd_Data_CCmd_Data_cleanData, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushword", js_CCmd_Data_CCmd_Data_pushword, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("readstring", js_CCmd_Data_CCmd_Data_readstring, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("readbyte", js_CCmd_Data_CCmd_Data_readbyte, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushfloat", js_CCmd_Data_CCmd_Data_pushfloat, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("readword", js_CCmd_Data_CCmd_Data_readword, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getsub", js_CCmd_Data_CCmd_Data_getsub, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
 

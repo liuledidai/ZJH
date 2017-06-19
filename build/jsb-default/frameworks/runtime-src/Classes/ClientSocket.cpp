@@ -23,7 +23,7 @@ ClientSocket::~ClientSocket()
 }
 
 
-void ClientSocket::ConnectSocket(const char* ip, WORD wPort)
+bool ClientSocket::ConnectSocket(const char* ip, WORD wPort)
 {
     if(m_Socket)
     {
@@ -31,7 +31,7 @@ void ClientSocket::ConnectSocket(const char* ip, WORD wPort)
     }
     m_Socket = new CTCPSocket();
     m_Socket->setTcpSink(this);
-    m_Socket->socketConnect(ip,wPort);
+    return m_Socket->socketConnect(ip,wPort);
 }
 void ClientSocket::releaseSocket()
 {

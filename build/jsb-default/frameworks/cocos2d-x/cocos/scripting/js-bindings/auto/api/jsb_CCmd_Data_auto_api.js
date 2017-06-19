@@ -85,6 +85,16 @@ readint : function (
 },
 
 /**
+ * @method getReadOffset
+ * @return {unsigned short}
+ */
+getReadOffset : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method pushpacket
  * @param {void} arg0
  * @param {unsigned short} arg1
@@ -94,6 +104,16 @@ void,
 short 
 )
 {
+},
+
+/**
+ * @method readdword
+ * @return {unsigned int}
+ */
+readdword : function (
+)
+{
+    return 0;
 },
 
 /**
@@ -129,13 +149,23 @@ long long
 },
 
 /**
- * @method getsub
- * @return {unsigned short}
+ * @method readstring
+ * @return {String}
  */
-getsub : function (
+readstring : function (
 )
 {
-    return 0;
+    return ;
+},
+
+/**
+ * @method setmaxsize
+ * @param {unsigned short} arg0
+ */
+setmaxsize : function (
+short 
+)
+{
 },
 
 /**
@@ -211,10 +241,10 @@ getDataBuffer : function (
 },
 
 /**
- * @method readdword
- * @return {unsigned int}
+ * @method readword
+ * @return {unsigned short}
  */
-readdword : function (
+readword : function (
 )
 {
     return 0;
@@ -239,16 +269,6 @@ short
 },
 
 /**
- * @method readstring
- * @return {String}
- */
-readstring : function (
-)
-{
-    return ;
-},
-
-/**
  * @method readbyte
  * @return {unsigned char}
  */
@@ -269,10 +289,10 @@ float
 },
 
 /**
- * @method readword
+ * @method getsub
  * @return {unsigned short}
  */
-readword : function (
+getsub : function (
 )
 {
     return 0;

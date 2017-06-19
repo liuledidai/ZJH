@@ -22,7 +22,7 @@ public:
     ClientSocket();
     ~ClientSocket();
 //    bool init();
-    void ConnectSocket(const char* ip, WORD wPort);
+    bool ConnectSocket(const char* ip, WORD wPort);
     void releaseSocket();
     void sendSocketData(CCmd_Data* cmd_data);
     static ClientSocket* createSocket(const std::function<void (const CCmd_Data*)> callback);

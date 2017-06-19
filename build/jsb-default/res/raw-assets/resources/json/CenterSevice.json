@@ -1,0 +1,9 @@
+{
+    "DataBase":
+    {
+        "ServerDataBaseAddr":"127.0.0.1",
+        "ServerDataBasePass":"",
+        "ServerDataBasePort":1433,
+        "ServerDataBaseUser":"QPServerInfoDB.db",
+    }
+}

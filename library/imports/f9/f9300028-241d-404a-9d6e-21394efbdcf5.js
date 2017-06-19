@@ -19,6 +19,7 @@ var BaseFrame = cc.Class({
     // use this for initialization
     onLoad: function onLoad() {
         // this._viewFrame = view;
+        console.log("BaseFrame onLoad");
         this._threadid = undefined;
         this._socket = undefined;
         // this._callBack = callback;
@@ -69,14 +70,17 @@ var BaseFrame = cc.Class({
         }
         this._szServerUrl = szUrl;
         this._nServerPort = nPort;
+        var self = this;
         this._SocketFun = function (pData) {
-            this.onSocketCallBack(pData);
+            self.onSocketCallBack(pData);
         };
         this._socket = ClientSocket.createSocket(this._SocketFun);
+        console.log(this.name);
         if (this._socket.ConnectSocket(this._szServerUrl, this._nServerPort) === true) {
             this._threadid = 0;
             return true;
         } else {
+            console.log("onCreateSocket close");
             this.onCloseSocket();
             return false;
         }
@@ -85,11 +89,12 @@ var BaseFrame = cc.Class({
         if (pData === undefined) {
             return;
         }
-        if (this._callBack === undefined) {
-            console.log('no callback');
-            this.onCloseSocket();
-            return;
-        }
+        // if(this._callBack === undefined)
+        // {
+        //     console.log('no callback');
+        //     this.onCloseSocket();
+        //     return;
+        // }
         var main = pData.getmain();
         var sub = pData.getsub();
         console.log("onSocketCallBack main: " + main + " #sub: " + sub);
