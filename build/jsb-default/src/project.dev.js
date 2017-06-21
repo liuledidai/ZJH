@@ -177,7 +177,7 @@ cc.Class({
                 GlobalFun.showAlert(cc.director.getScene(), "金额或密码不能为空!");
                 return;
             }
-            if (szGoldCount <= 0 || szGoldCount > GlobalUserData.llInsureScore) {
+            if (Number(szGoldCount) <= 0 || Number(szGoldCount) > GlobalUserData.llInsureScore) {
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出银行的金额限制！");
                 GlobalFun.showAlert(cc.director.getScene(), "数值不合法或超出银行的金额限制!");
@@ -197,7 +197,7 @@ cc.Class({
                 GlobalFun.showAlert(cc.director.getScene(), "金额不能为空！");
                 return;
             }
-            if (szGoldCount <= 0 || szGoldCount > GlobalUserData.llGameScore) {
+            if (Number(szGoldCount) <= 0 || Number(szGoldCount) > Number(GlobalUserData.llGameScore)) {
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出身上金额！");
                 GlobalFun.showAlert(cc.director.getScene(), "数值不合法或超出身上金额！");
@@ -1569,7 +1569,81 @@ zjh_cmd.SUB_C_LAST_ADD = 8; //孤注一掷
 module.exports = zjh_cmd;
 
 cc._RFpop();
-},{}],"GameServerItem":[function(require,module,exports){
+},{}],"ChoosePayTypeView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '272a7LNBahFsobsZA3ESISQ', 'ChoosePayTypeView');
+// Script/plaza/views/plaza/ChoosePayTypeView.js
+
+"use strict";
+
+var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
+var GlobalDef = require("GlobalDef");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_Label_productName: cc.Label,
+        m_Label_productPrice: cc.Label,
+        m_Label_payPrice: cc.Label
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    init: function init(params) {
+        this._params = params;
+        if (this._params) {
+            this.m_Label_productName.string = this._params["goods_name"];
+            this.m_Label_productPrice.string = this._params["pay_amt"] + "元";
+            this.m_Label_payPrice.string = this._params["pay_amt"] + "元";
+        }
+        console.log("[ChoosePayTypeView][init] " + JSON.stringify(this._params));
+    },
+    onEnable: function onEnable() {
+        // cc.director.on('onChangeUserFace',this.onChangeUserFace,this);
+        console.log("[ChoosePayTypeView][onEnable]");
+    },
+    onDisable: function onDisable() {
+        // cc.director.off('onChangeUserFace',this.onChangeUserFace,this);
+        console.log("[ChoosePayTypeView][onDisable]");
+    },
+    onChangeUserFace: function onChangeUserFace(params) {
+        // GlobalUserData.wFaceID = params.detail.faceID;
+        // this._faceID = params.detail.faceID;
+        // this.onClickCloseButton();
+        // console.log("[ChoosePayTypeView][onChangeUserFace] faceID = "+ JSON.stringify(params.detail));
+        // cc.director.emit("onChangeUserFace",params.detail);
+    },
+    onDestroy: function onDestroy() {
+        cc.sys.garbageCollect();
+        console.log("[ChoosePayTypeView][onDestroy]");
+    },
+    onClickCloseButton: function onClickCloseButton() {
+        // var FaceID = this._faceID;
+        cc.loader.loadRes("prefab/ShopView", function (err, prefab) {
+            var newNode = cc.instantiate(prefab);
+            cc.director.getScene().getChildByName("Canvas").addChild(newNode);
+            GlobalFun.ActionShowTanChuang(newNode, function () {
+                console.log("[ChoosePayTypeView][onClickUserProfile] ActionShowTanChuang callback");
+            });
+        });
+        this.node.destroy();
+        console.log("[ChoosePayTypeView][onClickCloseButton] destroy");
+    }
+});
+
+cc._RFpop();
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GameServerItem":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'c2e88fJn+RCy7BT7oSlWT7S', 'GameServerItem');
 // Script/GameServerItem.js
@@ -1817,18 +1891,20 @@ var GlobalUserData = {
     dwInsureCoupon: undefined, //银行贝壳
     dwMatchTicket: undefined, //参赛券
     isFirstBank: undefined, // 首次使用
+
+    roomList: [],
     init: function init() {
         if (cc.sys.os == cc.sys.OS_IOS) {
             this.isOpenIAP = true;
         } else {
             this.isOpenIAP = false;
         }
-        var self = this;
         cc.loader.loadRes("json/shoppage", function (err, content) {
             console.log(content);
-            self.shopData = content;
-            console.log("[GlobalUserData][init] " + JSON.stringify(self.shopData));
+            GlobalUserData.shopData = content;
+            console.log("[GlobalUserData][init] " + JSON.stringify(GlobalUserData.shopData));
         });
+        this.roomList = [];
     },
     onLoadData: function onLoadData(pData) {
         // struct CMD_GP_LogonSuccessMobile
@@ -1870,6 +1946,16 @@ var GlobalUserData = {
             if (typeof this[prop] == "function") continue;
             console.log('this.' + prop, '=', this[prop]);
         }
+    },
+    getRoomByGame: function getRoomByGame(wKindID) {
+        var roomList = [];
+        for (var index = 0; index < this.roomList.length; index++) {
+            var element = this.roomList[index];
+            if (element.wKindID == wKindID) {
+                roomList.push(element);
+            }
+        }
+        return roomList;
     }
 };
 
@@ -2094,6 +2180,7 @@ cc.Class({
                     if (typeof pGameServer[prop] == "function") continue;
                     console.log('pGameServer.' + prop, '=', pGameServer[prop]);
                 }
+                GlobalUserData.roomList.push(pGameServer);
                 // console.log(pGameServer);
                 break;
             default:
@@ -2707,7 +2794,67 @@ cc.md5Encode = function (data) {
 };
 
 cc._RFpop();
-},{}],"PlazaView":[function(require,module,exports){
+},{}],"PlazaRoomItem":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '621c5iAlGtM0puy21Gwuy3w', 'PlazaRoomItem');
+// Script/plaza/views/plaza/PlazaRoomItem.js
+
+"use strict";
+
+var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
+var GlobalDef = require("GlobalDef");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_Image_back: cc.Sprite,
+        m_Image_col: cc.Sprite,
+        m_Image_title: cc.Sprite,
+        m_Label_scoreLimit: cc.Label,
+        plazaAtalas: cc.SpriteAtlas
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    init: function init(params) {
+        // var index = params.index;
+        this._index = params.index;
+        // var roomInfo = params.roomInfo;
+        this._roomInfo = params.roomInfo;
+        this.m_Image_back.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_back_" + this._index);
+        this.m_Image_col.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_col_" + this._index);
+        this.m_Image_title.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_down_" + this._index);
+        if (this._roomInfo && this._roomInfo.lLimitScore) {
+            this.m_Label_scoreLimit.string = this._roomInfo.lLimitScore;
+        }
+    },
+    onClick: function onClick(params) {
+        console.log("[PlazaRoomItem][onClick]");
+        if (!this._roomInfo) {
+            GlobalFun.showAlert(cc.director.getScene(), "房间暂未开放，请稍后再试");
+            return;
+        }
+        if (GlobalUserData.llGameScore >= this._roomInfo.lLimitScore) {
+            GlobalFun.showAlert(cc.director.getScene(), "进入房间");
+        } else {
+            GlobalFun.showToast(cc.director.getScene(), "进入房间需要" + this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!");
+        }
+    }
+});
+
+cc._RFpop();
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"PlazaView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '52d5546nrtCUJireJfeVAhU', 'PlazaView');
 // Script/PlazaView.js
@@ -2717,6 +2864,7 @@ cc._RFpush(module, '52d5546nrtCUJireJfeVAhU', 'PlazaView');
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
+var zjh_cmd = require("CMD_ZaJinHua");
 cc.Class({
     extends: cc.Component,
 
@@ -2747,6 +2895,10 @@ cc.Class({
             default: null,
             type: cc.Prefab
         },
+        plazaRoomItem: {
+            default: null,
+            type: cc.Prefab
+        },
         m_Image_userFace: {
             default: null,
             type: cc.Sprite
@@ -2767,6 +2919,7 @@ cc.Class({
 
     // use this for initialization
     onLoad: function onLoad() {
+        // GlobalUserData.init();
         console.log("Plaza onLoad");
         this.refreshUI();
     },
@@ -2783,6 +2936,19 @@ cc.Class({
             faceID = 1;
         }
         this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+
+        this.refreshRoomList();
+    },
+    refreshRoomList: function refreshRoomList() {
+        var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
+        console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList));
+        var roomListPanel = this.node.getChildByName("m_Panel_center");
+        roomListPanel.removeAllChildren();
+        for (var index = 0; index < 3; index++) {
+            var item = cc.instantiate(this.plazaRoomItem);
+            item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
+            roomListPanel.addChild(item);
+        }
     },
     refreshData: function refreshData() {
         var url = GlobalDef.httpBaseUrl;
@@ -2907,7 +3073,7 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"PopWaitView":[function(require,module,exports){
+},{"CMD_ZaJinHua":"CMD_ZaJinHua","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"PopWaitView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'b62aboUA7hHj6uWOgxgWCqy', 'PopWaitView');
 // Script/external/PopWaitView.js
@@ -3171,7 +3337,59 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalUserData":"GlobalUserData"}],"ShopView":[function(require,module,exports){
+},{"GlobalUserData":"GlobalUserData"}],"ShopItem":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '0332dr8AGZOoahYR3nJs/re', 'ShopItem');
+// Script/plaza/views/plaza/ShopItem.js
+
+"use strict";
+
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_Image_shopItem: {
+            default: null,
+            type: cc.Sprite
+        },
+        shopItemAtals: {
+            default: null,
+            type: cc.SpriteAtlas
+        },
+        _shopID: 0,
+        _goodsID: 0
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    init: function init(params) {
+        var shopID = params.shopID;
+        this._shopID = shopID;
+        this._goodsID = shopID % 6;
+        this.m_Image_shopItem.spriteFrame = this.shopItemAtals.getSpriteFrame("shop_icon_" + shopID);
+    },
+    onClick: function onClick(params) {
+        console.log("[ShopItem][onClick] shopID = " + this._shopID);
+        cc.director.emit('onInCharge', { goodsID: this._goodsID });
+    }
+    // called every frame, uncomment this function to activate update callback
+    // update: function (dt) {
+
+    // },
+});
+
+cc._RFpop();
+},{}],"ShopView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'd9f64TYV25HYKL062f4Ojzg', 'ShopView');
 // Script/plaza/views/plaza/ShopView.js
@@ -3180,6 +3398,7 @@ cc._RFpush(module, 'd9f64TYV25HYKL062f4Ojzg', 'ShopView');
 
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
+var GlobalDef = require("GlobalDef");
 cc.Class({
     extends: cc.Component,
 
@@ -3207,27 +3426,128 @@ cc.Class({
 
     // use this for initialization
     onLoad: function onLoad() {
-        for (var index = 0; index < this.shopItemCount; index++) {
-            var item = cc.instantiate(this.shopItemPrefab);
-            // item.getComponent("UserFaceItem").init({faceID:index});
-            this.shopItemList.content.addChild(item);
-        }
+        this.refreshUI();
         console.log("[ShopView][onLoad] " + JSON.stringify(GlobalUserData.shopData));
     },
+    refreshUI: function refreshUI(params) {
+        this.shopItemList.content.removeAllChildren();
+        for (var index = 0; index < this.shopItemCount; index++) {
+            var item = cc.instantiate(this.shopItemPrefab);
+            var shopID;
+            if (GlobalUserData.isOpenIAP) {
+                shopID = index;
+            } else {
+                shopID = index + 6;
+            }
+            item.getComponent("ShopItem").init({ shopID: index });
+            this.shopItemList.content.addChild(item);
+        }
+    },
     onEnable: function onEnable() {
-        // cc.director.on('onChangeUserFace',this.onChangeUserFace,this);
-        // console.log("[UserFaceView][onEnable]");
+        cc.director.on('onInCharge', this.onInCharge, this);
+        console.log("[ShopView][onEnable]");
     },
     onDisable: function onDisable() {
-        // cc.director.off('onChangeUserFace',this.onChangeUserFace,this);
-        // console.log("[UserFaceView][onDisable]");
+        cc.director.off('onInCharge', this.onInCharge, this);
+        console.log("[ShopView][onDisable]");
     },
-    onChangeUserFace: function onChangeUserFace(params) {
-        // GlobalUserData.wFaceID = params.detail.faceID;
-        // this._faceID = params.detail.faceID;
-        // this.onClickCloseButton();
-        // console.log("[UserFaceView][onChangeUserFace] faceID = "+ JSON.stringify(params.detail));
-        // cc.director.emit("onChangeUserFace",params.detail);
+    onInCharge: function onInCharge(params) {
+        console.log("[ShopView][onInCharge]");
+        var goodsID = params.detail.goodsID;
+        var shopDataArray = GlobalUserData.shopData.shop.base;
+        if (goodsID < 0 || goodsID >= shopDataArray.length) {
+            console.log("[ShopView][onInCharge] shopDataArray length = " + shopDataArray.length);
+            return;
+        }
+        var itemVal = shopDataArray[goodsID];
+        var params = {};
+
+        if (cc.sys.os == cc.sys.OS_ANDROID) {
+            params["userid"] = GlobalUserData.dwUserID;
+            params["goods_name"] = itemVal.name;
+            params["goods_num"] = "1";
+            params["remark"] = "zhajinhuaGame";
+            params["goods_note"] = "集结号拼三张";
+            params["user_ip"] = "127.0.0.1"; //todo
+            params["user_identity"] = "usertoken"; //todo
+            params["productid"] = itemVal.id;
+            params["os"] = "1";
+            params["versionnum"] = "1.1";
+            params["channelid"] = GlobalDef.CHANNELID_center;
+            params["pay_amt"] = itemVal.price;
+
+            var url = GlobalDef.httpBaseUrl;
+            url += "/HZMobile/PayInit2_0.ashx";
+            params["url"] = url;
+
+            this.onChoosePaytype(params);
+        } else if (cc.sys.os == cc.sys.OS_IOS) {
+            params["userid"] = GlobalUserData.dwUserID;
+            params["goods_name"] = itemVal.name;
+            params["goods_num"] = "1";
+            params["remark"] = "zhajinhuaGame";
+            params["goods_note"] = "集结号拼三张";
+            params["user_ip"] = "127.0.0.1"; //todo
+            params["user_identity"] = "usertoken"; //todo
+            params["pay_type"] = "8";
+            params["productid"] = itemVal.id;
+            params["os"] = "2";
+            params["versionnum"] = "1.1";
+            params["channelid"] = GlobalDef.CHANNELID_center;
+
+            if (GlobalUserData.isOpenIAP) {
+                params["pay_amt"] = itemVal.iosprice;
+                var url = GlobalDef.httpBaseUrl;
+                url += "/HZMobile/PayInit2_0.ashx";
+                var paramString = GlobalFun.buildRequestParam(params);
+                var xhr = new XMLHttpRequest();
+                var self = this;
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
+                        var response = xhr.responseText;
+                        console.log(response);
+                        var value = JSON.parse(response);
+                        if (value.status == 1) {
+                            if (value.errorcode == 10026) {
+                                GlobalUserData.isOpenIAP = false;
+                                self.refreshUI();
+                            }
+                        } else {
+                            if (value.msg !== undefined) {
+                                GlobalFun.showAlert(cc.director.getScene(), value.msg);
+                            }
+                        }
+                        cc.director.emit("ShopCompleted");
+                    }
+                };
+                GlobalFun.showPopWaiting(cc.director.getScene(), {
+                    closeEvent: "ShopCompleted",
+                    callBackFunc: function callBackFunc() {
+                        console.log("[ShopView][onInCharge] callbackfunc");
+                    }
+                });
+                xhr.open("POST", url, true);
+                // xhr.setRequestHeader("Content-Type","application/json");
+                xhr.send(paramString);
+                // this.onChoosePaytype(params);
+            } else {
+                params["pay_amt"] = itemVal.price;
+                this.onChoosePaytype(params);
+            }
+        }
+        // this.onChoosePaytype(params);
+    },
+    onChoosePaytype: function onChoosePaytype(params) {
+        console.log("[ShopView][onChoosePaytype]");
+        cc.loader.loadRes("prefab/ChoosePayTypeView", function (err, prefab) {
+            var newNode = cc.instantiate(prefab);
+            newNode.getComponent("ChoosePayTypeView").init(params);
+            cc.director.getScene().getChildByName("Canvas").addChild(newNode);
+            GlobalFun.ActionShowTanChuang(newNode, function () {
+                console.log("[ShopView][onChoosePaytype]ActionShowTanChuang callback");
+            });
+        });
+        this.node.destroy();
     },
     onDestroy: function onDestroy() {
         cc.sys.garbageCollect();
@@ -3240,7 +3560,7 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"ToastView":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"ToastView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '96256eD5t9ERKAMm0bGe6YP', 'ToastView');
 // Script/external/ToastView.js
@@ -3785,4 +4105,4 @@ cc.Class({
 });
 
 cc._RFpop();
-},{}]},{},["GameServerItem","GlobalDef","GlobalUserData","HelloWorld","MD5","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","LogonFrame","LogonView","RegisterView","BankView","SettingView","ShopView","UserFaceItem","UserFaceView","UserProfileView"]);
+},{}]},{},["GameServerItem","GlobalDef","GlobalUserData","HelloWorld","MD5","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","PlazaRoomItem","SettingView","ShopItem","ShopView","UserFaceItem","UserFaceView","UserProfileView"]);

@@ -115,6 +115,7 @@ cc.Class({
                     if (typeof(pGameServer[prop]) == "function") continue;
                     console.log('pGameServer.' + prop, '=', pGameServer[prop]);
                 }
+                GlobalUserData.roomList.push(pGameServer);
                 // console.log(pGameServer);
                 break;
             default:

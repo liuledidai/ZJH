@@ -122,7 +122,7 @@ cc.Class({
                 GlobalFun.showAlert(cc.director.getScene(),"金额或密码不能为空!");
                 return;
             }
-            if(szGoldCount <= 0 || szGoldCount > GlobalUserData.llInsureScore){
+            if(Number(szGoldCount) <= 0 || Number(szGoldCount) > (GlobalUserData.llInsureScore)){
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出银行的金额限制！");
                 GlobalFun.showAlert(cc.director.getScene(),"数值不合法或超出银行的金额限制!");
@@ -143,7 +143,7 @@ cc.Class({
                 GlobalFun.showAlert(cc.director.getScene(),"金额不能为空！");
                 return;
             }
-            if(szGoldCount <= 0 || szGoldCount > GlobalUserData.llGameScore){
+            if(Number(szGoldCount) <= 0 || Number(szGoldCount) > Number(GlobalUserData.llGameScore)){
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出身上金额！");
                 GlobalFun.showAlert(cc.director.getScene(),"数值不合法或超出身上金额！");

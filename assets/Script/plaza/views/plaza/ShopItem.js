@@ -21,6 +21,7 @@ cc.Class({
             type: cc.SpriteAtlas,
         },
         _shopID: 0,
+        _goodsID: 0,
     },
 
     // use this for initialization
@@ -30,11 +31,12 @@ cc.Class({
     init: function (params) {
         var shopID = params.shopID;
         this._shopID = shopID;
+        this._goodsID = shopID % 6;
         this.m_Image_shopItem.spriteFrame = this.shopItemAtals.getSpriteFrame("shop_icon_" + (shopID));
     },
     onClick: function (params) {
         console.log("[ShopItem][onClick] shopID = "+this._shopID);
-        // cc.director.emit('onChangeUserFace',{faceID:this._faceID+1});
+        cc.director.emit('onInCharge',{goodsID:this._goodsID});
     }
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

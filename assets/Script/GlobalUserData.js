@@ -27,6 +27,8 @@ var GlobalUserData = {
     dwInsureCoupon: undefined,                 //银行贝壳
     dwMatchTicket: undefined,                  //参赛券
     isFirstBank: undefined,					// 首次使用
+
+    roomList: [],
     init: function () {
         if(cc.sys.os == cc.sys.OS_IOS){
             this.isOpenIAP = true;
@@ -37,8 +39,9 @@ var GlobalUserData = {
         cc.loader.loadRes("json/shoppage", function (err, content) {
             console.log(content);
             GlobalUserData.shopData = content;
-            console.log("[GlobalUserData][init] "+JSON.stringify(self.shopData));
+            console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.shopData));
         });
+        this.roomList = [];
     },
     onLoadData: function(pData){
         // struct CMD_GP_LogonSuccessMobile
@@ -80,6 +83,16 @@ var GlobalUserData = {
             if (typeof(this[prop]) == "function") continue;
             console.log('this.' + prop, '=', this[prop]);
         }
+    },
+    getRoomByGame: function (wKindID) {
+        var roomList = [];
+        for (var index = 0; index < this.roomList.length; index++) {
+            var element = this.roomList[index];
+            if (element.wKindID == wKindID) {
+                roomList.push(element);
+            }
+        }
+        return roomList;
     },
 };
 

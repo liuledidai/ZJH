@@ -66,6 +66,10 @@ _CCSettings = {
                 "Texture/shop.png",
                 "cc.Texture2D"
             ],
+            "72fa31ed-1cf7-4b3b-9f33-e47d464a1344": [
+                "resources/prefab/ChoosePayTypeView.prefab",
+                "cc.Prefab"
+            ],
             "829fc42d-2231-497c-a9e8-88526abaa940": [
                 "Texture/gameplaza_back.jpg",
                 "cc.Texture2D"
@@ -109,6 +113,10 @@ _CCSettings = {
             "b7a45744-8b5f-4824-a7ae-7f00ed90dcd2": [
                 "Texture/loginScene.png",
                 "cc.Texture2D"
+            ],
+            "be3157b7-62ac-47b3-bf39-ca6093fd4baf": [
+                "resources/prefab/PlazaRoomItem.prefab",
+                "cc.Prefab"
             ],
             "cbbd3a58-ebd6-4986-8eb5-dbfb2b8024ef": [
                 "resources/prefab/PopWaitingView.prefab",

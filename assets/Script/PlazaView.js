@@ -1,6 +1,7 @@
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
+var zjh_cmd = require("CMD_ZaJinHua");
 cc.Class({
     extends: cc.Component,
 
@@ -31,6 +32,10 @@ cc.Class({
             default: null,
             type: cc.Prefab,
         },
+        plazaRoomItem: {
+            default: null,
+            type: cc.Prefab,
+        },
         m_Image_userFace: {
             default: null,
             type: cc.Sprite,
@@ -51,6 +56,7 @@ cc.Class({
 
     // use this for initialization
     onLoad: function () {
+        // GlobalUserData.init();
         console.log("Plaza onLoad");
         this.refreshUI();
     },
@@ -67,6 +73,19 @@ cc.Class({
             faceID = 1;
         }
         this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
+
+        this.refreshRoomList();
+    },
+    refreshRoomList: function () {
+        var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
+        console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList));
+        var roomListPanel = this.node.getChildByName("m_Panel_center");
+        roomListPanel.removeAllChildren();
+        for (var index = 0; index < 3; index++) {
+            var item = cc.instantiate(this.plazaRoomItem);
+            item.getComponent("PlazaRoomItem").init({index:index+1,roomInfo:roomList[index]});
+            roomListPanel.addChild(item);
+        }
     },
     refreshData: function () {
         var url = GlobalDef.httpBaseUrl;
