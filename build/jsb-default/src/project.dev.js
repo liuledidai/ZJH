@@ -1703,110 +1703,25 @@ cc.Class({
     onConnectCompeleted: function onConnectCompeleted() {
         this.sendLogonPacket();
     },
-    // _socketEventCallback: {
-    //     [game_cmd.MDM_GR_LOGON] : this.OnSocketMainLogon,//登录消息
-    //     [game_cmd.MDM_GR_USER] : this.OnSocketMainUser,//用户消息
-    //     [game_cmd.MDM_GR_INFO] : this.OnSocketMainInfo,
-    //     [game_cmd.MDM_GR_STATUS] : this.OnSocketMainStatus,
-    //     [game_cmd.MDM_GR_SYSTEM] : this.OnSocketMainSystem,
-    //     [game_cmd.MDM_GR_SERVER_INFO] : this.OnSocketMainServerInfo,
-    //     [GlobalDef.MDM_GF_GAME] : function (sub, pData) {
-    //         cc.director.emit("onEventGameMessage",{
-    //             sub:sub,
-    //             pData:pData,
-    //         })
-    //     },
-    //     [GlobalDef.MDM_GF_FRAME] : this.OnSocketMainGameFrame,
-    //     [GlobalDef.MDM_GF_PRESENT] : function (sub, pData) {
-
-    //     },
-    // },
     onSocketEvent: function onSocketEvent(main, sub, pData) {
-        var self = this;
         console.log("[GameFrame][onSocketEvent] pData len = " + pData.getDataSize());
         if (!this._socketEventCallback) {
             var _socketEventCallback;
 
             this._socketEventCallback = (_socketEventCallback = {}, _defineProperty(_socketEventCallback, game_cmd.MDM_GR_LOGON, this.OnSocketMainLogon), _defineProperty(_socketEventCallback, game_cmd.MDM_GR_USER, this.OnSocketMainUser), _defineProperty(_socketEventCallback, game_cmd.MDM_GR_INFO, this.OnSocketMainInfo), _defineProperty(_socketEventCallback, game_cmd.MDM_GR_STATUS, this.OnSocketMainStatus), _defineProperty(_socketEventCallback, game_cmd.MDM_GR_SYSTEM, this.OnSocketMainSystem), _defineProperty(_socketEventCallback, game_cmd.MDM_GR_SERVER_INFO, this.OnSocketMainServerInfo), _defineProperty(_socketEventCallback, GlobalDef.MDM_GF_GAME, function (sub, pData) {
+                //游戏消息
                 cc.director.emit("onEventGameMessage", {
                     sub: sub,
                     pData: pData
                 });
             }), _defineProperty(_socketEventCallback, GlobalDef.MDM_GF_FRAME, this.OnSocketMainGameFrame), _defineProperty(_socketEventCallback, GlobalDef.MDM_GF_PRESENT, function (sub, pData) {}), _socketEventCallback);
         }
-        // if (!this._socketEventCallback) {
-        //     this._socketEventCallback = {
-        //         [game_cmd.MDM_GR_LOGON] : function (sub, pData) {//登录消息
-        //             self.OnSocketMainLogon(sub,pData);
-        //         },
-        //         [game_cmd.MDM_GR_USER] : function (sub, pData) {//用户消息
-        //             console.log("[GameFrame][onSocketEvent][MDM_GR_USER] pData len = " + pData.getDataSize());
-        //             self.OnSocketMainUser(sub,pData);
-        //         },
-        //         [game_cmd.MDM_GR_INFO] : function (sub, pData) {
-        //             self.OnSocketMainInfo(sub,pData);
-        //         },
-        //         [game_cmd.MDM_GR_STATUS] : function (sub, pData) {
-        //             self.OnSocketMainStatus(sub,pData);
-        //         },
-        //         [game_cmd.MDM_GR_SYSTEM] : function (sub, pData) {
-        //             self.OnSocketMainSystem(sub,pData);
-        //         },
-        //         [game_cmd.MDM_GR_SERVER_INFO] : function (sub, pData) {
-        //             self.OnSocketMainServerInfo(sub,pData);
-        //         },
-        //         [GlobalDef.MDM_GF_GAME] : function (sub, pData) {
-        //             cc.director.emit("onEventGameMessage",{
-        //                 sub:sub,
-        //                 pData:pData,
-        //             })
-        //         },
-        //         [GlobalDef.MDM_GF_FRAME] : function (sub, pData) {
-        //             self.OnSocketMainGameFrame(sub,pData);
-        //         },
-        //         [GlobalDef.MDM_GF_PRESENT] : function (sub, pData) {
-
-        //         },
-        //     }
-        // }
         if (this._socketEventCallback && this._socketEventCallback[main]) {
             var fun = this._socketEventCallback[main];
             fun.call(this, sub, pData);
-            // Function.call(this,func);
         } else {
             console.log("[GameFrame][onSocketEvent] main = " + main + "sub = " + sub + " not find");
         }
-        // if(main === game_cmd.MDM_GR_LOGON){ //登录消息
-        //     this.OnSocketMainLogon(sub,pData);
-        // }
-        // else if(main === game_cmd.MDM_GR_USER){//用户消息
-        //     this.OnSocketMainUser(sub,pData);
-        // }  
-        // else if(main === game_cmd.MDM_GR_INFO){ //配置消息
-        //     this.OnSocketMainInfo(sub,pData);
-        // }
-        // else if(main === game_cmd.MDM_GR_STATUS){//状态消息
-        //     this.OnSocketMainStatus(sub,pData);
-        // }
-        // else if(main === game_cmd.MDM_GR_SYSTEM){//系统消息
-        //     this.OnSocketMainSystem(sub,pData);
-        // }
-        // else if(main === game_cmd.MDM_GR_SERVER_INFO){//房间消息
-        //     this.OnSocketMainServerInfo(sub,pData);
-        // }
-        // //游戏消息 框架消息 礼物消息
-        // else if(main === GlobalDef.MDM_GF_GAME) {//游戏消息
-        //     cc.director.emit("onEventGameMessage",{
-        //         sub:sub,
-        //         pData:pData,
-        //     })
-        // }
-        // else if(main === GlobalDef.MDM_GF_FRAME){//框架消息
-        //     this.OnSocketMainGameFrame(sub,pData);
-        // }
-        // else if(main ===GlobalDef.MDM_GF_PRESENT) {
-
-        // }
     },
     OnSocketMainLogon: function OnSocketMainLogon(sub, pData) {
         console.log("[GameFrame][OnSocketMainLogon]");
@@ -1833,108 +1748,20 @@ cc.Class({
     },
     OnSocketMainUser: function OnSocketMainUser(sub, pData) {
         console.log("[GameFrame][OnSocketMainUser]");
-        console.log("[GameFrame][OnSocketMainUser] pData len = " + pData.getDataSize());
-        var self = this;
         if (!this._socketMainUserCallback) {
             var _socketMainUserCallba;
 
-            this._socketMainUserCallback = (_socketMainUserCallba = {}, _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_COME, function (sub, pData) {
-                console.log("SUB_GR_USER_COME");
-                this.OnSocketSubUserCome(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_STATUS, function (sub, pData) {
-                console.log("SUB_GR_USER_STATUS");
-                this.OnSocketSubStatus(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_SCORE, function (sub, pData) {
-                console.log("SUB_GR_USER_SCORE");
-                this.OnSocketSubScore(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_RIGHT, function (sub, pData) {
-                console.log("SUB_GR_USER_RIGHT");
-                this.OnSocketSubRight(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_MEMBER_ORDER, function (sub, pData) {
-                console.log("SUB_GR_MEMBER_ORDER");
-                this.OnSocketSubMemberOrder(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_SIT_FAILED, function (sub, pData) {
-                console.log("SUB_GR_SIT_FAILED");
-                this.OnSocketSubSitFailed(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_CHAT, function (sub, pData) {
-                console.log("SUB_GR_USER_CHAT");
-                this.OnSocketSubChat(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_WISPER, function (sub, pData) {
-                console.log("SUB_GR_USER_WISPER");
-                this.OnSocketSubWisper(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_INVITE, function (sub, pData) {
-                console.log("SUB_GR_USER_INVITE");
-                this.OnSocketSubUserInvite(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_QUERY_GOLD, function (sub, pData) {
-                console.log("SUB_GR_QUERY_GOLD");
-                this.OnSocketSubQueryGold(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_PRESEND_QUERY, function (sub, pData) {
-                console.log("SUB_GR_PRESEND_QUERY");
-                this.OnSocketSubPresentQuery(sub, pData);
-            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_PRESENT_ERROR, function (sub, pData) {
+            this._socketMainUserCallback = (_socketMainUserCallba = {}, _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_COME, this.OnSocketSubUserCome), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_STATUS, this.OnSocketSubStatus), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_SCORE, this.OnSocketSubScore), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_RIGHT, this.OnSocketSubRight), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_MEMBER_ORDER, this.OnSocketSubMemberOrder), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_SIT_FAILED, this.OnSocketSubSitFailed), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_CHAT, this.OnSocketSubChat), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_WISPER, this.OnSocketSubWisper), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_INVITE, this.OnSocketSubUserInvite), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_QUERY_GOLD, this.OnSocketSubQueryGold), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_PRESEND_QUERY, this.OnSocketSubPresentQuery), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_PRESENT_ERROR, function (sub, pData) {
                 console.log("SUB_GR_PRESENT_ERROR");
                 // this.OnSocketSubUserCome(sub,pData);
             }), _socketMainUserCallba);
         }
         if (this._socketMainUserCallback && this._socketMainUserCallback[sub]) {
             var fun = this._socketMainUserCallback[sub];
-            // fun(sub, pData);
             fun.call(this, sub, pData);
         } else {
             console.log("[GameFrame][OnSocketMainUser] sub = " + sub + " not find");
         }
-        // switch(sub){
-        //     case game_cmd.SUB_GR_USER_COME:
-        //         console.log("SUB_GR_USER_COME");
-        //         this.OnSocketSubUserCome(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_USER_STATUS:
-        //         console.log("SUB_GR_USER_STATUS");
-        //         this.OnSocketSubStatus(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_USER_SCORE:
-        //         console.log("SUB_GR_USER_SCORE");
-        //         this.OnSocketSubScore(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_USER_RIGHT:
-        //         console.log("SUB_GR_USER_RIGHT");
-        //         this.OnSocketSubRight(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_MEMBER_ORDER:
-        //         console.log("SUB_GR_MEMBER_ORDER");
-        //         this.OnSocketSubMemberOrder(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_SIT_FAILED:
-        //         console.log("SUB_GR_SIT_FAILED");
-        //         this.OnSocketSubSitFailed(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_USER_CHAT:
-        //         console.log("SUB_GR_USER_CHAT");
-        //         this.OnSocketSubChat(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_USER_WISPER:
-        //         console.log("SUB_GR_USER_WISPER");
-        //         this.OnSocketSubWisper(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_USER_INVITE:
-        //         console.log("SUB_GR_USER_INVITE");
-        //         this.OnSocketSubUserInvite(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_QUERY_GOLD:
-        //         console.log("SUB_GR_QUERY_GOLD");
-        //         this.OnSocketSubQueryGold(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_PRESEND_QUERY:
-        //         console.log("SUB_GR_PRESEND_QUERY");
-        //         this.OnSocketSubPresentQuery(sub,pData);
-        //         break;
-        //     case game_cmd.SUB_GR_PRESENT_ERROR:
-        //         console.log("SUB_GR_PRESENT_ERROR");
-        //         // this.OnSocketSubUserCome(sub,pData);
-        //         break;
-        //     default:
-        //         break;
-        // }
     },
     OnSocketMainInfo: function OnSocketMainInfo(sub, pData) {
         console.log("[GameFrame][OnSocketMainInfo]");
