@@ -100,19 +100,33 @@
         "timeline"
       ]
     },
-    "window-1498025302344": {
+    "window-1498117217173": {
       "main": false,
-      "url": "packages://store/panel/main.html",
-      "windowType": "simple",
-      "x": 320,
-      "y": 99,
-      "width": 800,
-      "height": 622,
-      "layout": null,
+      "url": "unpack://static/window.html",
+      "windowType": "dockable",
+      "x": -860,
+      "y": 223,
+      "width": 500,
+      "height": 722,
+      "layout": {
+        "children": [
+          {
+            "active": 0,
+            "children": [
+              "builder"
+            ],
+            "height": 700,
+            "type": "panel",
+            "width": 500
+          }
+        ],
+        "type": "dock-v"
+      },
       "panels": [
-        "store"
+        "builder"
       ]
-    }
+    },
+    "worker": {}
   },
   "panels": {
     "builder": {

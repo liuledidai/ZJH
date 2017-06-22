@@ -61,6 +61,7 @@ cc.Class({
             GlobalUserData.onLoadData(pData);
             var bRememberPwd = cc.sys.localStorage.getItem("bRememberPwd");
             if(GlobalUserData.isGuest !== true) {
+                GlobalUserData.szPassWord = cc.md5Encode(this._szPassword);
                 if (bRememberPwd == 'true') {
                     cc.sys.localStorage.setItem('account', this._szAccount);
                     cc.sys.localStorage.setItem('password', this._szPassword);

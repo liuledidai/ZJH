@@ -83,7 +83,103 @@ var GlobalDef = {
     MOBILEPHONE_LEN: 32,                                  //∏ˆ–‘«©√˚
 
     //GlobalFrame.h
-    
+    //宏定义
+
+    //游戏状态
+    GS_FREE: 0,                               //空闲状态
+    GS_PLAYING: 100,                             //游戏状态
+
+    //////////////////////////////////////////////////////////////////////////
+    //IPC 网络事件
+
+    IPC_MAIN_SOCKET: 1,                               //网络消息
+
+    IPC_SUB_SOCKET_SEND: 1,                               //网络发送
+    IPC_SUB_SOCKET_RECV: 2,                               //网络接收
+
+    IPC_MAIN_CONFIG: 2,                               //配置信息
+
+    IPC_SUB_SERVER_INFO: 1,                               //房间信息
+    IPC_SUB_COLUMN_INFO: 2,                               //列表信息
+
+    //////////////////////////////////////////////////////////////////////////
+    //IPC 用户信息
+
+    IPC_MAIN_USER: 3,                               //用户信息
+
+    IPC_SUB_USER_COME: 1,                               //用户信息
+    IPC_SUB_USER_STATUS: 2,                               //用户状态
+    IPC_SUB_USER_SCORE: 3,                               //用户积分
+    IPC_SUB_GAME_START: 4,                               //游戏开始
+    IPC_SUB_GAME_FINISH: 5,                               //游戏结束
+    IPC_SUB_UPDATE_FACE: 6,                               //更新头像
+    IPC_SUB_MEMBERORDER: 7,                               //更新头像
+
+    //////////////////////////////////////////////////////////////////////////
+    //IPC 控制信息
+
+    IPC_MAIN_CONCTROL: 4,                               //控制信息
+
+    IPC_SUB_START_FINISH: 1,                               //启动完成
+    IPC_SUB_CLOSE_FRAME: 2,                               //关闭框架
+    IPC_SUB_JOIN_IN_GAME: 3,                               //加入游戏
+
+    //////////////////////////////////////////////////////////////////////////
+    //网络命令码
+
+    MDM_GF_GAME: 99,                              //游戏消息
+    MDM_GF_FRAME: 98,                              //框架消息
+    MDM_GF_PRESENT: 97,                              //礼物消息
+    MDM_GF_BANK: 96,                              //银行消息
+
+    SUB_GF_INFO: 111,                             //游戏信息
+    SUB_GF_USER_READY: 112,                             //用户同意
+    SUB_GF_LOOKON_CONTROL: 113,                             //旁观控制
+    SUB_GF_KICK_TABLE_USER: 114,                             //踢走用户
+    SUB_GF_WRITE_MATCH_SCORE: 115,                             //写比赛成绩
+
+    SUB_GF_OPTION: 116,                             //游戏配置
+    SUB_GF_SCENE: 117,                             //场景信息
+
+    SUB_GF_USER_CHAT: 118,                             //用户聊天
+
+    SUB_GF_MESSAGE: 119,                             //系统消息
+
+    //SUB_GF_GIFT: 400,                             //赠送消息
+
+    SUB_GF_BANK_STORAGE: 250,                             //银行存储
+    SUB_GF_BANK_GET: 251,                             //银行提取
+    SUB_GF_BANK_PRESENT: 252,                             //赠送金币
+    SUB_GF_BANK_MODIFY_PASS: 253,                             //修改密码
+    SUB_GF_BANK_QUERY: 254,                             //查询金币
+    SUB_GF_BANK_PRESENT_QUREY: 255,                             //查询用户
+    SUB_GF_BANK_CLOSE: 256,                             //退出
+    SUB_GF_TRAN_RECORD: 257,                             //转帐记录
+    SUB_GF_USER_INFO_QUREY: 258,                             //查询用户
+    SUB_GF_USER_RECHARGE: 259,                             //用户充值
+
+    SUB_GF_FLOWER_ATTRIBUTE: 530,                             //鲜花属性
+    SUB_GF_FLOWER: 531,                             //鲜花消息
+    SUB_GF_EXCHANGE_CHARM: 532,                             //兑换魅力
+
+    SUB_GF_PROPERTY: 510,                             //道具消息
+    SUB_GF_PROPERTY_RESULT: 511,                             //道具结果
+    SUB_GF_RESIDUAL_PROPERTY: 512,                             //剩余道具
+    SUB_GF_PROP_ATTRIBUTE: 513,                             //道具属性
+    SUB_GF_PROP_BUGLE: 514,                             //喇叭道具
+    SUB_GF_QUERY_USER_INFO: 515,                             //鲜花消息
+    SUB_GF_SEND_HONG_BAO: 516,                             //发红包
+    SUB_GF_QIANG_HONG_BAO: 517,                             //发红包
+
+    //消息类型
+    SMT_INFO: 0x0001,                          //信息消息
+    SMT_EJECT: 0x0002,                          //弹出消息
+    SMT_GLOBAL: 0x0004,                          //全局消息
+    SMT_CLOSE_GAME: 0x1000,                          //关闭游戏
+
+    //发送场所
+    LOCATION_GAME_ROOM: 1,                               //游戏房间
+    LOCATION_PLAZA_ROOM: 2,                               //大厅房间
 
 }
 module.exports = GlobalDef;

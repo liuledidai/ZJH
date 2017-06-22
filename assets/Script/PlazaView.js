@@ -58,6 +58,14 @@ cc.Class({
     onLoad: function () {
         // GlobalUserData.init();
         console.log("Plaza onLoad");
+        var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
+        if (GameFrameNode){
+            console.log("[PlazaView][onLoad] 获取GameFrame 所在节点 并设置为常驻节点");
+            cc.game.addPersistRootNode(GameFrameNode);
+            this._gameFrame = GameFrameNode.getComponent("GameFrame");
+        }
+        
+        // this._gameFrame = this.getScene().getChildByName("GameFrame").getComponent("GameFrame");
         this.refreshUI();
     },
     refreshUI: function () {
@@ -139,6 +147,7 @@ cc.Class({
         cc.director.on('onChangeUserFaceSuccess',this.onChangeUserFaceSuccess,this);
         cc.director.on('onChangeNameSuccess',this.onChangeUserFaceSuccess,this);
         cc.director.on('onBankSuccess',this.onBankSuccess,this);
+        cc.director.on('onLogonRoom',this.onLogonRoom,this);
         console.log("[PlazaView][onEnable]");
 
     },
@@ -146,7 +155,12 @@ cc.Class({
         cc.director.off('onChangeUserFaceSuccess',this.onChangeUserFaceSuccess,this);
         cc.director.off('onChangeNameSuccess',this.onChangeUserFaceSuccess,this);
         cc.director.off('onBankSuccess',this.onBankSuccess,this);
+        cc.director.off('onLogonRoom',this.onLogonRoom,this);
         console.log("[PlazaView][onDisable]");
+    },
+    onLogonRoom: function (params) {
+        console.log("[PlazaView][onLogonRoom]");
+        this._gameFrame.onLogonRoom(params.detail.roomInfo);
     },
     onChangeUserFaceSuccess: function () {
         // var faceID = GlobalUserData.wFaceID;

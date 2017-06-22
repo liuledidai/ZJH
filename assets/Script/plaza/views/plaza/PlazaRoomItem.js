@@ -45,7 +45,8 @@ cc.Class({
             return;
         }
         if(GlobalUserData.llGameScore >= this._roomInfo.lLimitScore) {
-            GlobalFun.showAlert(cc.director.getScene(),"进入房间");
+            // GlobalFun.showAlert(cc.director.getScene(),"进入房间");
+            cc.director.emit("onLogonRoom",{roomInfo:this._roomInfo});
         }
         else {
             GlobalFun.showToast(cc.director.getScene(),"进入房间需要"+ this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!");

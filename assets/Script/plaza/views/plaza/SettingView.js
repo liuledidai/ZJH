@@ -33,6 +33,11 @@ cc.Class({
         console.log("[SettingView][onClickCloseButton] destroy");
     },
     onClickSwitchAccount: function () {
+        var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
+        if (GameFrameNode){
+            console.log("[SettingView][onClickSwitchAccount] 获取GameFrame 所在节点 并取消为常驻节点");
+            cc.game.removePersistRootNode(GameFrameNode);
+        }
         cc.director.loadScene("LoginScene");
         cc.sys.garbageCollect();
     },

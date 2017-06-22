@@ -1643,7 +1643,782 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GameServerItem":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GameFrame":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '0917fhGquREZ5AtcS81ZpEL', 'GameFrame');
+// Script/plaza/models/GameFrame.js
+
+"use strict";
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var BaseFrame = require("BaseFrame");
+require("MD5");
+var game_cmd = require("CMD_Game");
+var plaza_cmd = require("CMD_Plaza");
+var zjh_cmd = require("CMD_ZaJinHua");
+var GlobalUserData = require("GlobalUserData");
+var GameServerItem = require("GameServerItem");
+var GlobalDef = require("GlobalDef");
+var GlobalFun = require("GlobalFun");
+var GameUserItem = require("GameUserItem");
+cc.Class({
+    extends: BaseFrame,
+
+    properties: {},
+
+    // use this for initialization
+    onLoad: function onLoad() {
+        this._super();
+        this.init();
+    },
+    init: function init(params) {
+        this._wTableCount = 0;
+        this._wChairCount = 0;
+        this._wServerType = 0;
+        this._dwServerRule = 0;
+        this._cbGameStatus = 0;
+        this._cbAllowLookon = 0;
+        this._cbHideUserInfo = false;
+        this._userList = {};
+        this._tableUserList = {};
+        this._tableStatus = {};
+        this._wTableID = GlobalDef.INVALID_TABLE;
+        this._wChairID = GlobalDef.INVALID_CHAIR;
+    },
+    onLogonRoom: function onLogonRoom(roomInfo) {
+        this._roomInfo = roomInfo;
+        if (!this._roomInfo) {
+            console.log("[GameFrame][onLogonRoom] 获取房间信息失败");
+            return;
+        }
+        console.log("[GameFrame][onLogonRoom] 登录房间: " + GlobalFun.numberToIp(this._roomInfo.dwServerAddr) + "# " + this._roomInfo.wServerPort);
+        if (this.onCreateSocket(GlobalFun.numberToIp(this._roomInfo.dwServerAddr), this._roomInfo.wServerPort) === false) {
+            console.log("[GameFrame][onLogonRoom][onCreateSocket] fail");
+            return false;
+        }
+        console.log("[GameFrame][onLogonRoom][onCreateSocket] success");
+        return true;
+    },
+    onConnectCompeleted: function onConnectCompeleted() {
+        this.sendLogonPacket();
+    },
+    // _socketEventCallback: {
+    //     [game_cmd.MDM_GR_LOGON] : this.OnSocketMainLogon,//登录消息
+    //     [game_cmd.MDM_GR_USER] : this.OnSocketMainUser,//用户消息
+    //     [game_cmd.MDM_GR_INFO] : this.OnSocketMainInfo,
+    //     [game_cmd.MDM_GR_STATUS] : this.OnSocketMainStatus,
+    //     [game_cmd.MDM_GR_SYSTEM] : this.OnSocketMainSystem,
+    //     [game_cmd.MDM_GR_SERVER_INFO] : this.OnSocketMainServerInfo,
+    //     [GlobalDef.MDM_GF_GAME] : function (sub, pData) {
+    //         cc.director.emit("onEventGameMessage",{
+    //             sub:sub,
+    //             pData:pData,
+    //         })
+    //     },
+    //     [GlobalDef.MDM_GF_FRAME] : this.OnSocketMainGameFrame,
+    //     [GlobalDef.MDM_GF_PRESENT] : function (sub, pData) {
+
+    //     },
+    // },
+    onSocketEvent: function onSocketEvent(main, sub, pData) {
+        var self = this;
+        console.log("[GameFrame][onSocketEvent] pData len = " + pData.getDataSize());
+        if (!this._socketEventCallback) {
+            var _socketEventCallback;
+
+            this._socketEventCallback = (_socketEventCallback = {}, _defineProperty(_socketEventCallback, game_cmd.MDM_GR_LOGON, this.OnSocketMainLogon), _defineProperty(_socketEventCallback, game_cmd.MDM_GR_USER, this.OnSocketMainUser), _defineProperty(_socketEventCallback, game_cmd.MDM_GR_INFO, this.OnSocketMainInfo), _defineProperty(_socketEventCallback, game_cmd.MDM_GR_STATUS, this.OnSocketMainStatus), _defineProperty(_socketEventCallback, game_cmd.MDM_GR_SYSTEM, this.OnSocketMainSystem), _defineProperty(_socketEventCallback, game_cmd.MDM_GR_SERVER_INFO, this.OnSocketMainServerInfo), _defineProperty(_socketEventCallback, GlobalDef.MDM_GF_GAME, function (sub, pData) {
+                cc.director.emit("onEventGameMessage", {
+                    sub: sub,
+                    pData: pData
+                });
+            }), _defineProperty(_socketEventCallback, GlobalDef.MDM_GF_FRAME, this.OnSocketMainGameFrame), _defineProperty(_socketEventCallback, GlobalDef.MDM_GF_PRESENT, function (sub, pData) {}), _socketEventCallback);
+        }
+        // if (!this._socketEventCallback) {
+        //     this._socketEventCallback = {
+        //         [game_cmd.MDM_GR_LOGON] : function (sub, pData) {//登录消息
+        //             self.OnSocketMainLogon(sub,pData);
+        //         },
+        //         [game_cmd.MDM_GR_USER] : function (sub, pData) {//用户消息
+        //             console.log("[GameFrame][onSocketEvent][MDM_GR_USER] pData len = " + pData.getDataSize());
+        //             self.OnSocketMainUser(sub,pData);
+        //         },
+        //         [game_cmd.MDM_GR_INFO] : function (sub, pData) {
+        //             self.OnSocketMainInfo(sub,pData);
+        //         },
+        //         [game_cmd.MDM_GR_STATUS] : function (sub, pData) {
+        //             self.OnSocketMainStatus(sub,pData);
+        //         },
+        //         [game_cmd.MDM_GR_SYSTEM] : function (sub, pData) {
+        //             self.OnSocketMainSystem(sub,pData);
+        //         },
+        //         [game_cmd.MDM_GR_SERVER_INFO] : function (sub, pData) {
+        //             self.OnSocketMainServerInfo(sub,pData);
+        //         },
+        //         [GlobalDef.MDM_GF_GAME] : function (sub, pData) {
+        //             cc.director.emit("onEventGameMessage",{
+        //                 sub:sub,
+        //                 pData:pData,
+        //             })
+        //         },
+        //         [GlobalDef.MDM_GF_FRAME] : function (sub, pData) {
+        //             self.OnSocketMainGameFrame(sub,pData);
+        //         },
+        //         [GlobalDef.MDM_GF_PRESENT] : function (sub, pData) {
+
+        //         },
+        //     }
+        // }
+        if (this._socketEventCallback && this._socketEventCallback[main]) {
+            var fun = this._socketEventCallback[main];
+            fun.call(this, sub, pData);
+            // Function.call(this,func);
+        } else {
+            console.log("[GameFrame][onSocketEvent] main = " + main + "sub = " + sub + " not find");
+        }
+        // if(main === game_cmd.MDM_GR_LOGON){ //登录消息
+        //     this.OnSocketMainLogon(sub,pData);
+        // }
+        // else if(main === game_cmd.MDM_GR_USER){//用户消息
+        //     this.OnSocketMainUser(sub,pData);
+        // }  
+        // else if(main === game_cmd.MDM_GR_INFO){ //配置消息
+        //     this.OnSocketMainInfo(sub,pData);
+        // }
+        // else if(main === game_cmd.MDM_GR_STATUS){//状态消息
+        //     this.OnSocketMainStatus(sub,pData);
+        // }
+        // else if(main === game_cmd.MDM_GR_SYSTEM){//系统消息
+        //     this.OnSocketMainSystem(sub,pData);
+        // }
+        // else if(main === game_cmd.MDM_GR_SERVER_INFO){//房间消息
+        //     this.OnSocketMainServerInfo(sub,pData);
+        // }
+        // //游戏消息 框架消息 礼物消息
+        // else if(main === GlobalDef.MDM_GF_GAME) {//游戏消息
+        //     cc.director.emit("onEventGameMessage",{
+        //         sub:sub,
+        //         pData:pData,
+        //     })
+        // }
+        // else if(main === GlobalDef.MDM_GF_FRAME){//框架消息
+        //     this.OnSocketMainGameFrame(sub,pData);
+        // }
+        // else if(main ===GlobalDef.MDM_GF_PRESENT) {
+
+        // }
+    },
+    OnSocketMainLogon: function OnSocketMainLogon(sub, pData) {
+        console.log("[GameFrame][OnSocketMainLogon]");
+        if (sub === game_cmd.SUB_GR_LOGON_SUCCESS) {
+            console.log("[GameFrame][OnSocketMainLogon] logon success");
+            this._userList = {};
+            // cc.director.emit("LogonSuccess");
+        } else if (sub === game_cmd.SUB_GR_LOGON_ERROR) {
+            //登录失败
+            // struct CMD_GR_LogonError
+            // {
+            //     LONG							lErrorCode;							//错误代码
+            //     TCHAR							szErrorDescribe[128];				//错误消息
+            // };
+            var logonError = {};
+            logonError.lErrorCode = pData.readint();
+            logonError.szErrorDescribe = pData.readstring(128);
+            console.log("[GameFrame][OnSocketMainLogon] errorCode = " + logonError.lErrorCode + " des = " + logonError.szErrorDescribe);
+            this.onCloseSocket();
+            // console.log("logonframe login error");
+        } else if (sub === game_cmd.SUB_GR_LOGON_FINISH) {
+            console.log("[GameFrame][OnSocketMainLogon] Logon Finish");
+        }
+    },
+    OnSocketMainUser: function OnSocketMainUser(sub, pData) {
+        console.log("[GameFrame][OnSocketMainUser]");
+        console.log("[GameFrame][OnSocketMainUser] pData len = " + pData.getDataSize());
+        var self = this;
+        if (!this._socketMainUserCallback) {
+            var _socketMainUserCallba;
+
+            this._socketMainUserCallback = (_socketMainUserCallba = {}, _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_COME, function (sub, pData) {
+                console.log("SUB_GR_USER_COME");
+                this.OnSocketSubUserCome(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_STATUS, function (sub, pData) {
+                console.log("SUB_GR_USER_STATUS");
+                this.OnSocketSubStatus(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_SCORE, function (sub, pData) {
+                console.log("SUB_GR_USER_SCORE");
+                this.OnSocketSubScore(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_RIGHT, function (sub, pData) {
+                console.log("SUB_GR_USER_RIGHT");
+                this.OnSocketSubRight(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_MEMBER_ORDER, function (sub, pData) {
+                console.log("SUB_GR_MEMBER_ORDER");
+                this.OnSocketSubMemberOrder(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_SIT_FAILED, function (sub, pData) {
+                console.log("SUB_GR_SIT_FAILED");
+                this.OnSocketSubSitFailed(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_CHAT, function (sub, pData) {
+                console.log("SUB_GR_USER_CHAT");
+                this.OnSocketSubChat(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_WISPER, function (sub, pData) {
+                console.log("SUB_GR_USER_WISPER");
+                this.OnSocketSubWisper(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_USER_INVITE, function (sub, pData) {
+                console.log("SUB_GR_USER_INVITE");
+                this.OnSocketSubUserInvite(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_QUERY_GOLD, function (sub, pData) {
+                console.log("SUB_GR_QUERY_GOLD");
+                this.OnSocketSubQueryGold(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_PRESEND_QUERY, function (sub, pData) {
+                console.log("SUB_GR_PRESEND_QUERY");
+                this.OnSocketSubPresentQuery(sub, pData);
+            }), _defineProperty(_socketMainUserCallba, game_cmd.SUB_GR_PRESENT_ERROR, function (sub, pData) {
+                console.log("SUB_GR_PRESENT_ERROR");
+                // this.OnSocketSubUserCome(sub,pData);
+            }), _socketMainUserCallba);
+        }
+        if (this._socketMainUserCallback && this._socketMainUserCallback[sub]) {
+            var fun = this._socketMainUserCallback[sub];
+            // fun(sub, pData);
+            fun.call(this, sub, pData);
+        } else {
+            console.log("[GameFrame][OnSocketMainUser] sub = " + sub + " not find");
+        }
+        // switch(sub){
+        //     case game_cmd.SUB_GR_USER_COME:
+        //         console.log("SUB_GR_USER_COME");
+        //         this.OnSocketSubUserCome(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_USER_STATUS:
+        //         console.log("SUB_GR_USER_STATUS");
+        //         this.OnSocketSubStatus(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_USER_SCORE:
+        //         console.log("SUB_GR_USER_SCORE");
+        //         this.OnSocketSubScore(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_USER_RIGHT:
+        //         console.log("SUB_GR_USER_RIGHT");
+        //         this.OnSocketSubRight(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_MEMBER_ORDER:
+        //         console.log("SUB_GR_MEMBER_ORDER");
+        //         this.OnSocketSubMemberOrder(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_SIT_FAILED:
+        //         console.log("SUB_GR_SIT_FAILED");
+        //         this.OnSocketSubSitFailed(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_USER_CHAT:
+        //         console.log("SUB_GR_USER_CHAT");
+        //         this.OnSocketSubChat(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_USER_WISPER:
+        //         console.log("SUB_GR_USER_WISPER");
+        //         this.OnSocketSubWisper(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_USER_INVITE:
+        //         console.log("SUB_GR_USER_INVITE");
+        //         this.OnSocketSubUserInvite(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_QUERY_GOLD:
+        //         console.log("SUB_GR_QUERY_GOLD");
+        //         this.OnSocketSubQueryGold(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_PRESEND_QUERY:
+        //         console.log("SUB_GR_PRESEND_QUERY");
+        //         this.OnSocketSubPresentQuery(sub,pData);
+        //         break;
+        //     case game_cmd.SUB_GR_PRESENT_ERROR:
+        //         console.log("SUB_GR_PRESENT_ERROR");
+        //         // this.OnSocketSubUserCome(sub,pData);
+        //         break;
+        //     default:
+        //         break;
+        // }
+    },
+    OnSocketMainInfo: function OnSocketMainInfo(sub, pData) {
+        console.log("[GameFrame][OnSocketMainInfo]");
+        switch (sub) {
+            case game_cmd.SUB_GR_SERVER_INFO:
+                console.log("SUB_GR_SERVER_INFO");
+                //游戏房间信息
+                // struct CMD_GR_ServerInfo
+                // {
+                //     //房间属性
+                //     WORD							wChairCount;						//椅子数目
+                //     WORD							wGameGenre;							//游戏类型
+                //     WORD							wTableCount;						//桌子数目
+                //     WORD							wKindID;							//类型 I D
+                //     DWORD							dwVideoAddr;						//视频地址
+                //     BYTE							cbHideUserInfo;						//隐藏信息
+                // };
+                var serverInfo = {};
+                serverInfo.wChairCount = pData.readword();
+                serverInfo.wGameGenre = pData.readword();
+                serverInfo.wTableCount = pData.readword();
+                serverInfo.wKindID = pData.readword();
+                serverInfo.dwVideoAddr = pData.readdword();
+                serverInfo.cbHideUserInfo = pData.readbyte();
+
+                this._wChairCount = serverInfo.wChairCount;
+                this._wTableCount = serverInfo.wTableCount;
+                this._cbHideUserInfo = serverInfo.cbHideUserInfo;
+                this._wGameGenre = serverInfo.wGameGenre;
+                this._wKindID = serverInfo.wKindID;
+
+                break;
+            case game_cmd.SUB_GR_COLUMN_INFO:
+                console.log("SUB_GR_COLUMN_INFO");
+                break;
+            case game_cmd.SUB_GR_CONFIG_FINISH:
+                console.log("SUB_GR_CONFIG_FINISH");
+                break;
+            default:
+                break;
+        }
+    },
+    OnSocketMainStatus: function OnSocketMainStatus(sub, pData) {
+        console.log("[GameFrame][OnSocketMainStatus]");
+        switch (sub) {
+            case game_cmd.SUB_GR_TABLE_INFO:
+                console.log("SUB_GR_TABLE_INFO");
+                break;
+            case game_cmd.SUB_GR_TABLE_STATUS:
+                console.log("SUB_GR_TABLE_STATUS");
+                break;
+            default:
+                break;
+        }
+    },
+    //系统消息
+    OnSocketMainSystem: function OnSocketMainSystem(sub, pData) {
+        console.log("[GameFrame][OnSocketMainSystem]");
+        switch (sub) {
+            case game_cmd.SUB_GR_MESSAGE:
+                console.log("SUB_GR_MESSAGE");
+                //消息数据包
+                // struct CMD_GR_Message
+                // {
+                //     WORD							wMessageType;						//消息类型
+                //     WORD							wMessageLength;						//消息长度
+                //     TCHAR							szContent[1024];					//消息内容
+                // };
+                //消息处理
+                var message = {};
+                message.wMessageType = pData.readword();
+                message.wMessageLength = pData.readword();
+                message.szContent = pData.readstring(message.wMessageLength);
+                //关闭连接
+                var bIntermet = false;
+                if (message.wMessageType & game_cmd.SMT_INTERMIT_LINE) {
+                    bIntermet = true;
+                } else if (message.wMessageType & game_cmd.SMT_CLOSE_ROOM) {
+                    bIntermet = true;
+                }
+                if (bIntermet) {
+                    console.log("[GameFrame][OnSocketMainSystem] " + message.szContent);
+                    this.onCloseSocket();
+                }
+                break;
+            default:
+                break;
+        }
+    },
+    //房间消息
+    OnSocketMainServerInfo: function OnSocketMainServerInfo(sub, pData) {
+        console.log("[GameFrame][OnSocketMainServerInfo]");
+        switch (sub) {
+            case game_cmd.SUB_GR_ONLINE_COUNT_INFO:
+                console.log("SUB_GR_ONLINE_COUNT_INFO");
+                break;
+            default:
+                break;
+        }
+    },
+    OnSocketMainGameFrame: function OnSocketMainGameFrame(sub, pData) {
+        console.log("[GameFrame][OnSocketMainGameFrame]");
+        switch (sub) {
+            case GlobalDef.SUB_GF_OPTION:
+                console.log("SUB_GF_OPTION");
+                //游戏配置
+                // struct CMD_GF_Option
+                // {
+                //     BYTE								bGameStatus;					//游戏状态
+                //     BYTE								bAllowLookon;					//允许旁观
+                // };
+                this._cbGameStatus = pData.readbyte();
+                this._cbAllowLookon = pData.readbyte();
+                break;
+            case GlobalDef.SUB_GF_USER_CHAT:
+                console.log("SUB_GF_USER_CHAT");
+                break;
+            case GlobalDef.SUB_GF_MESSAGE:
+                console.log("SUB_GF_MESSAGE");
+                //消息数据包
+                // struct CMD_GR_Message
+                // {
+                //     WORD							wMessageType;						//消息类型
+                //     WORD							wMessageLength;						//消息长度
+                //     TCHAR							szContent[1024];					//消息内容
+                // };
+                //消息处理
+                var message = {};
+                message.wMessageType = pData.readword();
+                message.wMessageLength = pData.readword();
+                message.szContent = pData.readstring(message.wMessageLength);
+                console.log("[GameFrame][OnSocketMainGameFrame] message = " + message.szContent);
+                if (message.wMessageType & GlobalDef.SMT_CLOSE_GAME) {
+                    this.onCloseSocket();
+                }
+                if (message.wMessageType & GlobalDef.SMT_EJECT) {
+                    console.log("[GameFrame][OnSocketMainGameFrame] message = " + message.szContent + " type = " + message.wMessageType);
+                }
+                if (message.wMessageType & GlobalDef.SMT_GLOBAL) {}
+                break;
+            case GlobalDef.SUB_GF_SCENE:
+                //游戏场景
+                console.log("SUB_GF_SCENE");
+                cc.director.emit("onEventGameScene", {
+                    cbGameStatus: this._cbGameStatus,
+                    pData: pData
+                });
+                break;
+            default:
+                break;
+        }
+    },
+    //用户进入
+    OnSocketSubUserCome: function OnSocketSubUserCome(sub, pData) {
+        console.log("[GameFrame][OnSocketSubUserCome]");
+        console.log("[GameFrame][OnSocketSubUserCome] pData len = " + pData.getDataSize());
+        var userItem = new GameUserItem();
+        userItem.initDataByUserInfoHead(pData);
+        console.log("[GameFrame][OnSocketSubUserCome] " + JSON.stringify(userItem));
+        var item = this._userList[userItem.dwUserID];
+        // if (item) {
+        this._userList[userItem.dwUserID] = userItem;
+        // }
+        //记录自己的桌号
+        if (userItem.dwUserID === GlobalUserData.dwUserID) {
+            this._wTableID = userItem.wTableID;
+            this._wChairID = userItem.wChairID;
+        }
+        if (userItem.wTableID !== GlobalDef.INVALID_TABLE && userItem.wChairID !== GlobalDef.INVALID_CHAIR) {
+            this.onUpDataTableUser(userItem.wTableID, userItem.wChairID, userItem);
+            cc.director.emit("onEventUserEnter", {
+                wTableID: userItem.wTableID,
+                wChairID: userItem.wChairID,
+                userItem: userItem
+            });
+        }
+    },
+    OnSocketSubStatus: function OnSocketSubStatus(sub, pData) {
+        console.log("[GameFrame][OnSocketSubStatus]");
+        //用户状态
+        // struct CMD_GR_UserStatus
+        // {
+        //     WORD							wTableID;							//桌子位置
+        //     DWORD							dwUserID;							//数据库 ID
+        //     BYTE							cbUserStatus;						//用户状态
+        //     WORD							wChairID;							//椅子位置
+        // };
+        var userStatus = {};
+        userStatus.wTableID = pData.readword();
+        userStatus.dwUserID = pData.readdword();
+        userStatus.cbUserStatus = pData.readbyte();
+        userStatus.wChairID = pData.readword();
+
+        var userItem = this.searchUserByUserID(userStatus.dwUserID);
+        var myUserItem = this.getMeUserItem();
+        if (!myUserItem) {
+            console.log("[GameFrame][OnSocketSubStatus] 未找到自己");
+            return;
+        }
+        //找不到用户
+        if (!userItem) {
+            console.log("[GameFrame][OnSocketSubStatus] 找不到用户");
+            return;
+        }
+        //记录旧状态
+        var oldStatus = {};
+        oldStatus.wTableID = userItem.wTableID;
+        oldStatus.wChairID = userItem.wChairID;
+        oldStatus.cbUserStatus = userItem.cbUserStatus;
+
+        //更新信息
+        userItem.cbUserStatus = userStatus.cbUserStatus;
+        userItem.wTableID = userStatus.wTableID;
+        userItem.wChairID = userStatus.wChairID;
+
+        //清除旧桌子椅子记录
+        if (oldStatus.wTableID !== GlobalDef.INVALID_TABLE) {
+            //新旧桌子不同 新旧椅子不同
+            if (oldStatus.wTableID !== userStatus.wTableID || oldStatus.wChairID !== userStatus.wChairID) {
+                this.onUpDataTableUser(oldStatus.wTableID, oldStatus.wChairID, undefined);
+            }
+        }
+        //新桌子记录
+        if (userStatus.wTableID !== GlobalDef.INVALID_TABLE) {
+            this.onUpDataTableUser(userStatus.wTableID, userStatus.wChairID, userItem);
+        }
+
+        //自己状态
+        if (myUserItem.dwUserID === userStatus.dwUserID) {
+            this._wTableID = userStatus.wTableID;
+            this._wChairID = userStatus.wChairID;
+
+            //离开
+            if (userStatus.cbUserStatus === GlobalDef.US_NULL) {
+                console.log("[GameFrame][OnSocketSubStatus] 自己离开");
+                cc.director.emit("onExitRoom");
+            }
+            //起立
+            else if (userStatus.cbUserStatus === GlobalDef.US_FREE && oldStatus.cbUserStatus > GlobalDef.US_FREE) {
+                    console.log("[GameFrame][OnSocketSubStatus] 自己起立");
+                    cc.director.emit("onExitTable");
+                }
+                //坐下
+                else if (userStatus.cbUserStatus > GlobalDef.US_FREE && oldStatus.cbUserStatus < GlobalDef.US_SIT) {
+                        console.log("[GameFrame][OnSocketSubStatus] 自己坐下");
+                        cc.director.emit("onEnterTable");
+                        cc.director.emit("onEventUserStatus", {
+                            userItem: userItem,
+                            newStatus: userStatus,
+                            oldStatus: oldStatus
+                        });
+                    }
+                    //换位
+                    else if (userStatus.wTableID !== GlobalDef.INVALID_TABLE) {
+                            console.log("[GameFrame][OnSocketSubStatus] 换位");
+                            cc.director.emit("onEnterTable");
+                            cc.director.emit("onEventUserStatus", {
+                                userItem: userItem,
+                                newStatus: userStatus,
+                                oldStatus: oldStatus
+                            });
+                        } else {
+                            console.log("[GameFrame][OnSocketSubStatus] 自己新状态 " + JSON.stringify(userStatus));
+                            cc.director.emit("onEventUserStatus", {
+                                userItem: userItem,
+                                newStatus: userStatus,
+                                oldStatus: oldStatus
+                            });
+                        }
+        }
+        //他人状态
+        else {
+                //更新用户
+                if (oldStatus.wTableID !== GlobalDef.INVALID_TABLE || userStatus.wTableID !== GlobalDef.INVALID_TABLE) {
+                    cc.director.emit("onEventUserStatus", {
+                        userItem: userItem,
+                        newStatus: userStatus,
+                        oldStatus: oldStatus
+                    });
+                }
+                //删除用户
+                if (userStatus.cbUserStatus === GlobalDef.US_NULL) {
+                    this.onRemoveUser(userStatus.dwUserID);
+                }
+            }
+    },
+    OnSocketSubScore: function OnSocketSubScore(sub, pData) {
+        console.log("[GameFrame][OnSocketSubScore]");
+        //用户分数
+        // struct CMD_GR_UserScore
+        // {
+        //     LONG							lLoveliness;						//用户魅力
+        //     //LONG							lInsureScore;						//消费金豆
+        //     //LONG							lGameGold;							//游戏金豆
+        //     DWORD							dwUserID;							//用户 I D
+        //     tagUserScore					UserScore;							//积分信息
+        // struct tagUserScore
+        // {
+        //     LONGLONG							lScore;								//用户分数
+        //     LONGLONG							lGameGold;							//游戏金币
+        //     LONGLONG							lInsureScore;						//存储金币
+        //     LONG								lWinCount;							//胜利盘数
+        //     LONG								lLostCount;							//失败盘数
+        //     LONG								lDrawCount;							//和局盘数
+        //     LONG								lFleeCount;							//断线数目
+        //     LONG								lExperience;						//用户经验
+        // };
+        // };
+        var userScore = {};
+        userScore.lLoveliness = pData.readint(); //用户魅力
+        userScore.dwUserID = pData.readdword(); //用户ID
+        //用户积分
+        userScore.UserScore = {};
+        userScore.UserScore.lScore = pData.readint64(); //用户分数
+        userScore.UserScore.lGameGold = pData.readint64(); //游戏金币
+        userScore.UserScore.lInsureScore = pData.readint64(); //存储金币
+        userScore.UserScore.lWinCount = pData.readint(); //胜利盘数
+        userScore.UserScore.lLostCount = pData.readint(); //失败盘数
+        userScore.UserScore.lDrawCount = pData.readint(); //和局盘数
+        userScore.UserScore.lFleeCount = pData.readint(); //断线数目
+        userScore.UserScore.lExperience = pData.readint(); //用户经验
+
+        //自己信息
+        var myUserItem = this.getMeUserItem();
+        if (userScore.dwUserID == myUserItem.dwUserID) {
+            console.log("[GameFrame][OnSocketSubScore] 更新 " + JSON.stringify(userScore));
+            myUserItem.lScore = userScore.UserScore.lScore;
+            myUserItem.lGameGold = userScore.UserScore.lGameGold;
+            myUserItem.lWinCount = userScore.UserScore.lWinCount;
+            myUserItem.lLostCount = userScore.UserScore.lLostCount;
+            myUserItem.lDrawCount = userScore.UserScore.lDrawCount;
+            myUserItem.lFleeCount = userScore.UserScore.lFleeCount;
+            myUserItem.lExperience = userScore.UserScore.lExperience;
+            myUserItem.lLoveliness = userScore.lLoveliness;
+        }
+        //通知更新界面
+        if (myUserItem.wTableID !== GlobalDef.INVALID_TABLE) {
+            cc.director.emit("onEventUserScore", {
+                userScore: userScore
+            });
+        }
+    },
+    OnSocketSubRight: function OnSocketSubRight(sub, pData) {
+        console.log("[GameFrame][OnSocketSubRight]");
+    },
+    OnSocketSubMemberOrder: function OnSocketSubMemberOrder(sub, pData) {
+        console.log("[GameFrame][OnSocketSubMemberOrder]");
+    },
+    OnSocketSubSitFailed: function OnSocketSubSitFailed(sub, pData) {
+        console.log("[GameFrame][OnSocketSubSitFailed]");
+        //坐下失败
+        // struct CMD_GR_SitFailed
+        // {
+        //     TCHAR							szFailedDescribe[256];				//错误描述
+        // };
+        var szFailedDescribe = pData.readstring(256);
+        console.log("[GameFrame][OnSocketSubSitFailed] " + szFailedDescribe);
+    },
+    OnSocketSubChat: function OnSocketSubChat(sub, pData) {
+        console.log("[GameFrame][OnSocketSubChat]");
+    },
+    OnSocketSubWisper: function OnSocketSubWisper(sub, pData) {
+        console.log("[GameFrame][OnSocketSubWisper]");
+    },
+    OnSocketSubUserInvite: function OnSocketSubUserInvite(sub, pData) {
+        console.log("[GameFrame][OnSocketSubUserInvite]");
+    },
+    OnSocketSubQueryGold: function OnSocketSubQueryGold(sub, pData) {
+        console.log("[GameFrame][OnSocketSubQueryGold]");
+    },
+    OnSocketSubPresentQuery: function OnSocketSubPresentQuery(sub, pData) {
+        console.log("[GameFrame][OnSocketSubPresentQuery]");
+    },
+    sendLogonPacket: function sendLogonPacket() {
+        console.log("[GameFrame][sendLogonPacket]");
+        var logonData = CCmd_Data.create();
+        logonData.setcmdinfo(game_cmd.MDM_GR_LOGON, game_cmd.SUB_GR_LOGON_MOBILE);
+        logonData.pushword(GlobalUserData.wEncryptID);
+        logonData.pushword(GlobalUserData.wCodeCheckID);
+        logonData.pushdword(0);
+        logonData.pushdword(GlobalUserData.dwUserID);
+
+        var dwMobileSysType = 1;
+        if (cc.sys.os == cc.sys.OS_IOS) {
+            dwMobileSysType = 1;
+        } else if (cc.sys.os == cc.sys.OS_ANDROID) {
+            dwMobileSysType = 2;
+        }
+        logonData.pushdword(dwMobileSysType);
+
+        logonData.pushdword(1);
+        logonData.pushstring(GlobalUserData.szPassWord, 33);
+        console.log("[GameFrame][sendLogonPacket] password = " + GlobalUserData.szPassWord);
+        logonData.pushstring("", 33);
+        this.sendSocketData(logonData);
+        // //手机登陆
+        // struct CMD_GR_LogonByUserIDMobile
+        // {
+        //     WORD							wEncryptID;							//随机码1
+        //     WORD							wCodeCheckID;						//随机码2
+        //     DWORD							dwWeiXinCheckID;					//微信验证码
+        //     DWORD							dwUserID;							//用户 I D
+        //     DWORD							dwMobileSysType;					//手机操作系统类型(1苹果系统 2安卓系统)
+        //     DWORD							dwMobileAppVersion;					//游戏APP版本号(与登陆大厅相同)
+        //     TCHAR							szPassWord[PASS_LEN];				//登录密码
+        //     TCHAR							szMobileMachine[COMPUTER_ID_LEN];	//机器序列号
+        // };
+    },
+    //坐下请求
+    sendSitDownPacket: function sendSitDownPacket(wTableID, wChairID, szPassWord) {
+        //请求坐下
+        // struct CMD_GR_UserSitReq
+        // {
+        //     BYTE							cbPassLen;							//密码长度
+        //     //DWORD							dwAnswerID;							//回答 I D//兼容积分游戏入座问题
+        //     WORD							wChairID;							//椅子位置
+        //     WORD							wTableID;							//桌子位置
+        //     TCHAR							szTablePass[PASS_LEN];				//桌子密码
+        // };
+        var sitData = CCmd_Data.create();
+        sitData.setcmdinfo(game_cmd.MDM_GR_USER, game_cmd.SUB_GR_USER_SIT_REQ);
+        if (szPassWord) {
+            sitData.pushbyte(szPassWord.length);
+        } else {
+            sitData.pushbyte(0);
+        }
+        sitData.pushword(wChairID);
+        sitData.pushword(wTableID);
+        sitData.pushstring(szPassWord, GlobalDef.PASS_LEN);
+
+        this.sendSocketData(sitData);
+    },
+    //站起来
+    sendStandupPacket: function sendStandupPacket() {
+        var data = CCmd_Data.create();
+        data.setcmdinfo(game_cmd.MDM_GR_USER, game_cmd.SUB_GR_USER_STANDUP_REQ);
+
+        this.sendSocketData(data);
+    },
+    sendLeftGamePacket: function sendLeftGamePacket() {
+        var data = CCmd_Data.create();
+        data.setcmdinfo(game_cmd.MDM_GR_USER, game_cmd.SUB_GR_USER_LEFT_GAME_REQ);
+
+        this.sendSocketData(data);
+    },
+    //发送准备
+    sendUserReady: function sendUserReady() {
+        var data = CCmd_Data.create();
+        data.setcmdinfo(GlobalDef.MDM_GF_FRAME, GlobalDef.SUB_GF_USER_READY);
+
+        this.sendSocketData(data);
+    },
+    onUpDataTableUser: function onUpDataTableUser(tableid, chairid, useritem) {
+        var id = tableid;
+        var idex = chairid;
+        if (!this._tableUserList[id]) {
+            this._tableUserList[id] = {};
+        }
+        if (useritem) {
+            this._tableUserList[id][idex] = useritem;
+        } else {
+            this._tableUserList[id][idex] = undefined;
+        }
+    },
+    getTableUserItem: function getTableUserItem(tableid, chairid) {
+        var id = tableid;
+        var idex = chairid;
+        if (this._tableUserList[id]) {
+            return this._tableUserList[id][idex];
+        }
+    },
+    getMeUserItem: function getMeUserItem() {
+        return this._userList[GlobalUserData.dwUserID];
+    },
+    searchUserByUserID: function searchUserByUserID(dwUserID) {
+        return this._userList[dwUserID];
+    },
+    onRemoveUser: function onRemoveUser(dwUserID) {
+        this._userList[dwUserID] = undefined;
+    }
+});
+
+cc._RFpop();
+},{"BaseFrame":"BaseFrame","CMD_Game":"CMD_Game","CMD_Plaza":"CMD_Plaza","CMD_ZaJinHua":"CMD_ZaJinHua","GameServerItem":"GameServerItem","GameUserItem":"GameUserItem","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MD5":"MD5"}],"GameServerItem":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'c2e88fJn+RCy7BT7oSlWT7S', 'GameServerItem');
 // Script/GameServerItem.js
@@ -1724,7 +2499,244 @@ var GameServerItem = cc.Class({
 module.exports = GameServerItem;
 
 cc._RFpop();
-},{}],"GlobalDef":[function(require,module,exports){
+},{}],"GameUserItem":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, 'a4e148RJJ9PfYCgtqaAeCye', 'GameUserItem');
+// Script/GameUserItem.js
+
+"use strict";
+
+var GlobalUserData = require("GlobalUserData");
+var GameUserItem = cc.Class({
+    //用户信息结构
+    // struct tagUserData
+    // {
+    //     //用户属性
+    //     WORD								wFaceID;							//头像索引
+    //     DWORD								dwCustomFaceVer;					//上传头像
+    //     DWORD								dwUserID;							//用户 I D
+    //     DWORD								dwGroupID;							//社团索引
+    //     DWORD								dwGameID;							//用户 I D
+    //     DWORD								dwUserRight;						//用户等级
+    //     LONG								lLoveliness;						//用户魅力
+    //     DWORD								dwMasterRight;						//管理权限
+    //     TCHAR								szName[32];					//用户名字
+    //     TCHAR								szGroupName[32];				//社团名字
+    //     TCHAR								szUnderWrite[32];		//个性签名
+
+    //     //用户属性
+    //     BYTE								cbGender;							//用户性别
+    //     BYTE								cbMemberOrder;						//会员等级
+    //     BYTE								cbMasterOrder;						//管理等级
+
+    //     //用户积分
+    //     LONGLONG							lInsureScore;						//消费金币
+    //     LONGLONG							lGameGold;							//游戏金币
+    //     LONGLONG							lScore;								//用户分数
+    //     LONG								lWinCount;							//胜利盘数
+    //     LONG								lLostCount;							//失败盘数
+    //     LONG								lDrawCount;							//和局盘数
+    //     LONG								lFleeCount;							//断线数目
+    //     LONG								lExperience;						//用户经验
+
+    //     //用户状态
+    //     WORD								wTableID;							//桌子号码
+    //     WORD								wChairID;							//椅子位置
+    //     BYTE								cbUserStatus;						//用户状态
+
+    //     //其他信息
+    //     BYTE								cbCompanion;						//用户关系
+    //     DWORD								dwPropResidualTime[15];	//道具时间
+    // };
+    //用户属性
+    wFaceID: undefined, //头像索引
+    dwCustomFaceVer: undefined, //上传头像
+    dwUserID: undefined, //用户 I D
+    dwGroupID: undefined, //社团索引
+    dwGameID: undefined, //用户 I D
+    dwUserRight: undefined, //用户等级
+    lLoveliness: undefined, //用户魅力
+    dwMasterRight: undefined, //管理权限
+    szName: undefined, //用户名字
+    szGroupName: undefined, //社团名字
+    szUnderWrite: undefined, //个性签名
+
+    //用户属性
+    cbGender: undefined, //用户性别
+    cbMemberOrder: undefined, //会员等级
+    cbMasterOrder: undefined, //管理等级
+
+    //用户积分
+    lInsureScore: undefined, //消费金币
+    lGameGold: undefined, //游戏金币
+    lScore: undefined, //用户分数
+    lWinCount: undefined, //胜利盘数
+    lLostCount: undefined, //失败盘数
+    lDrawCount: undefined, //和局盘数
+    lFleeCount: undefined, //断线数目
+    lExperience: undefined, //用户经验
+
+    //用户状态
+    wTableID: undefined, //桌子号码
+    wChairID: undefined, //椅子位置
+    cbUserStatus: undefined, //用户状态
+
+    // //其他信息
+    // cbCompanion:undefined,                        //用户关系
+    // dwPropResidualTime:undefined, //道具时间
+    initDataByUserInfoHead: function initDataByUserInfoHead(pData) {
+        var userInfoHead = this.readUserInfoHead(pData);
+        this.dwUserID = userInfoHead.dwUserID;
+        this.wTableID = userInfoHead.wTableID;
+        this.wChairID = userInfoHead.wChairID;
+        this.cbUserStatus = userInfoHead.cbUserStatus;
+        this.dwUserRight = userInfoHead.dwUserRight;
+        this.dwMasterRight = userInfoHead.dwMasterRight;
+        if (userInfoHead.dwUserID === GlobalUserData.dwUserID || true) {
+            this.wFaceID = userInfoHead.wFaceID;
+            this.dwCustomFaceVer = userInfoHead.dwCustomFaceVer;
+            this.cbGender = userInfoHead.cbGender;
+            this.cbMemberOrder = userInfoHead.cbMemberOrder;
+            this.cbMasterOrder = userInfoHead.cbMasterOrder;
+            this.dwGameID = userInfoHead.dwGameID;
+            this.dwGroupID = userInfoHead.dwGroupID;
+            this.lLoveliness = userInfoHead.lLoveliness;
+
+            this.lScore = userInfoHead.UserScoreInfo.lScore;
+            this.lGameGold = userInfoHead.UserScoreInfo.lGameGold;
+            this.lInsureScore = userInfoHead.UserScoreInfo.lInsureScore;
+            this.lWinCount = userInfoHead.UserScoreInfo.lWinCount;
+            this.lLostCount = userInfoHead.UserScoreInfo.lLostCount;
+            this.lDrawCount = userInfoHead.UserScoreInfo.lDrawCount;
+            this.lFleeCount = userInfoHead.UserScoreInfo.lFleeCount;
+            this.lExperience = userInfoHead.UserScoreInfo.lExperience;
+        }
+        while (true) {
+            //默认信息
+            // #define DTP_NULL					0								//无效数据
+            //房间信息
+            // #define	DTP_USER_ACCOUNTS			3								//用户帐号
+            // #define	DTP_UNDER_WRITE				9								//个性签名
+            // #define DTP_USER_GROUP_NAME			301								//社团名字
+
+            // pData.setmaxsize(1);
+            var dataSize = pData.readword(true);
+            var dataDescribe = pData.readword(true);
+            console.log("size = " + dataSize + " describe = " + dataDescribe);
+            if (dataDescribe === 0) {
+                break;
+            }
+            // pData.setmaxsize(1);
+            switch (dataDescribe) {
+                case 3:
+                    this.szName = "游戏用户";
+                    if (userInfoHead.dwUserID === GlobalUserData.dwUserID || true) {
+                        this.szName = pData.readstring(dataSize);
+                    }
+                    break;
+                case 9:
+                    if (userInfoHead.dwUserID === GlobalUserData.dwUserID || true) {
+                        this.szUnderWrite = pData.readstring(dataSize);
+                    }
+                    break;
+                case 301:
+                    if (userInfoHead.dwUserID === GlobalUserData.dwUserID || true) {
+                        this.szGroupName = pData.readstring(dataSize);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    },
+    readUserInfoHead: function readUserInfoHead(pData) {
+        //用户基本信息结构
+        // struct tagUserInfoHead
+        // {
+        //     //用户属性
+        //     WORD								wFaceID;							//头像索引
+        //     DWORD								dwUserID;							//用户 I D
+        //     DWORD								dwGameID;							//游戏 I D
+        //     DWORD								dwGroupID;							//社团索引
+        //     DWORD								dwUserRight;						//用户等级
+        //     LONG								lLoveliness;						//用户魅力
+        //     DWORD								dwMasterRight;						//管理权限
+
+        //     //用户属性
+        //     BYTE								cbGender;							//用户性别
+        //     BYTE								cbMemberOrder;						//会员等级
+        //     BYTE								cbMasterOrder;						//管理等级
+
+        //     //用户状态
+        //     WORD								wTableID;							//桌子号码
+        //     WORD								wChairID;							//椅子位置
+        //     BYTE								cbUserStatus;						//用户状态
+
+        //     //用户积分
+        //     tagUserScore						UserScoreInfo;						//积分信息
+        //         //用户积分信息
+        // struct tagUserScore
+        // {
+        //     LONGLONG							lScore;								//用户分数
+        //     LONGLONG							lGameGold;							//游戏金币
+        //     LONGLONG							lInsureScore;						//存储金币
+        //     LONG								lWinCount;							//胜利盘数
+        //     LONG								lLostCount;							//失败盘数
+        //     LONG								lDrawCount;							//和局盘数
+        //     LONG								lFleeCount;							//断线数目
+        //     LONG								lExperience;						//用户经验
+        // };
+
+        //     //扩展信息
+        //     //LONG								lInsureScore;						//消费金币
+        //     //LONG								lGameGold;							//游戏金币
+        //     DWORD								dwCustomFaceVer;					//上传头像
+        //     DWORD								dwPropResidualTime[15];	//道具时间
+        // };
+        var userInfoHead = {};
+        userInfoHead.wFaceID = pData.readword(); //头像索引
+        userInfoHead.dwUserID = pData.readdword(); //用户 I D
+        userInfoHead.dwGameID = pData.readdword(); //游戏 I D
+        userInfoHead.dwGroupID = pData.readdword(); //社团索引
+        userInfoHead.dwUserRight = pData.readdword(); //用户等级
+        userInfoHead.lLoveliness = pData.readint(); //用户魅力
+        userInfoHead.dwMasterRight = pData.readdword(); //管理权限
+
+        //用户属性
+        userInfoHead.cbGender = pData.readbyte(); //用户性别
+        userInfoHead.cbMemberOrder = pData.readbyte(); //会员等级
+        userInfoHead.cbMasterOrder = pData.readbyte(); //管理等级
+
+        //用户状态
+        userInfoHead.wTableID = pData.readword(); //桌子号码
+        userInfoHead.wChairID = pData.readword(); //椅子位置
+        userInfoHead.cbUserStatus = pData.readbyte(); //用户状态
+
+        //用户积分
+        userInfoHead.UserScoreInfo = {};
+        userInfoHead.UserScoreInfo.lScore = pData.readint64(); //用户分数
+        userInfoHead.UserScoreInfo.lGameGold = pData.readint64(); //游戏金币
+        userInfoHead.UserScoreInfo.lInsureScore = pData.readint64(); //存储金币
+        userInfoHead.UserScoreInfo.lWinCount = pData.readint(); //胜利盘数
+        userInfoHead.UserScoreInfo.lLostCount = pData.readint(); //失败盘数
+        userInfoHead.UserScoreInfo.lDrawCount = pData.readint(); //和局盘数
+        userInfoHead.UserScoreInfo.lFleeCount = pData.readint(); //断线数目
+        userInfoHead.UserScoreInfo.lExperience = pData.readint(); //用户经验
+
+        userInfoHead.dwCustomFaceVer = pData.readdword(); //上传头像
+        userInfoHead.dwPropResidualTime = []; //道具时间
+        for (var index = 0; index < 15; index++) {
+            var val = pData.readdword();
+            userInfoHead.dwPropResidualTime.push(val);
+        }
+        return userInfoHead;
+    }
+});
+
+module.exports = GameUserItem;
+
+cc._RFpop();
+},{"GlobalUserData":"GlobalUserData"}],"GlobalDef":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'd85baIYnERFsIqEdSH5SyZY', 'GlobalDef');
 // Script/GlobalDef.js
@@ -1732,6 +2744,20 @@ cc._RFpush(module, 'd85baIYnERFsIqEdSH5SyZY', 'GlobalDef');
 "use strict";
 
 var GlobalDef = {
+    MAX_CHAIR: 100, //◊Ó¥Û“Œ◊”
+    MAX_CHAIR_NORMAL: 8, //◊Ó¥Û»À ˝
+
+    INVALID_TABLE: -1, //Œﬁ–ß◊¿◊”∫≈
+    INVALID_CHAIR: -1, //Œﬁ–ß“Œ◊”∫≈
+
+    HMATCH_PORT_MIN: 10000, //–° ±»¸◊Ó–°∂Àø⁄∫≈
+    HMATCH_PORT_MAX: 20000, //–° ±»¸◊Ó¥Û∂Àø⁄∫≈
+    HMATCH_SIGN_MAX: 99, //–° ±»¸µ•≥°±»»¸±®√˚»À ˝…œœﬁ
+    HMATCH_MAXONLINE: 500,
+
+    MAX_ANDROID: 10, //最大机器
+    MAX_CHAT_LEN: 128, //聊天长度
+    LIMIT_CHAT_TIMES: 1200, //限时聊天
     //正式服务器地址
     httpInitUrl: "http://ver.jjhgame.com/Handle/hz/init.ashx", //app初始化接口地址
     httpBaseUrl: "http://interface.jjhgame.com/Handle", //web接口地址
@@ -1748,7 +2774,157 @@ var GlobalDef = {
     CHANNELID_init: 1, //渠道号
     CHANNELID_center: 7, //渠道号
     //网络数据定义
-    SOCKET_VER: 0x8C };
+    SOCKET_VER: 0x8C, //网络版本
+    SOCKET_BUFFER: 8192, //网络缓冲
+    SOCKET_PACKET: 8192,
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+
+    //内核命令码
+    MDM_KN_COMMAND: 3, //内核命令
+    SUB_KN_DETECT_SOCKET: 5, //检测命令
+    SUB_KN_SHUT_DOWN_SOCKET: 9, //中断网络
+
+    //IPC 数据定义
+    IPC_VER: 0x0001, //IPC 版本
+    IPC_IDENTIFIER: 0x0001, //标识号码
+    IPC_PACKAGE: 4096, //最大 IPC 包
+    IPC_BUFFER: 4096, //缓冲长度
+
+    TYPE_LEN: 32, //÷÷¿‡≥§∂»
+    KIND_LEN: 32, //¿‡–Õ≥§∂»
+    STATION_LEN: 32, //’æµ„≥§∂»
+    SERVER_LEN: 32, //∑øº‰≥§∂»
+    MODULE_LEN: 32, //Ω¯≥Ã≥§∂»
+
+    //–‘±∂®“Â
+    GENDER_NULL: 0, //Œ¥÷™–‘±
+    GENDER_BOY: 1, //ƒ––‘–‘±
+    GENDER_GIRL: 2, //≈Æ–‘–‘±
+
+    //”Œœ∑¿‡–Õ
+    GAME_GENRE_SCORE: 0x0001, //µ„÷µ¿‡–Õ
+    GAME_GENRE_GOLD: 0x0002, //¿÷∂π¿‡–Õ
+    GAME_GENRE_MATCH: 0x0004, //±»»¸¿‡–Õ
+    GAME_GENRE_EDUCATE: 0x0008, //—µ¡∑¿‡–Õ
+    GAME_GENRE_QTHERMATCH: 0x0016, //自定义比赛类型
+
+    //”√ªß◊¥Ã¨∂®“Â
+    US_NULL: 0x00, //没有状态
+    US_FREE: 0x01, //站立状态
+    US_SIT: 0x02, //坐下状态
+    US_READY: 0x03, //同意状态
+    US_LOOKON: 0x04, //旁观状态
+    US_PLAY: 0x05, //游戏状态
+    US_OFFLINE: 0x06, //断线状态
+
+    //≥§∂»∫Í∂®“Â
+    NAME_LEN: 32, //√˚◊÷≥§∂»
+    PASS_LEN: 33, //√‹¬Î≥§∂»
+    EMAIL_LEN: 32, //” œ‰≥§∂»
+    GROUP_LEN: 32, //…ÁÕ≈≥§∂»
+    COMPUTER_ID_LEN: 33, //ª˙∆˜–Ú¡–
+    UNDER_WRITE_LEN: 32, //∏ˆ–‘«©√˚
+    MOBILEPHONE_LEN: 32, //∏ˆ–‘«©√˚
+
+    //GlobalFrame.h
+    //宏定义
+
+    //游戏状态
+    GS_FREE: 0, //空闲状态
+    GS_PLAYING: 100, //游戏状态
+
+    //////////////////////////////////////////////////////////////////////////
+    //IPC 网络事件
+
+    IPC_MAIN_SOCKET: 1, //网络消息
+
+    IPC_SUB_SOCKET_SEND: 1, //网络发送
+    IPC_SUB_SOCKET_RECV: 2, //网络接收
+
+    IPC_MAIN_CONFIG: 2, //配置信息
+
+    IPC_SUB_SERVER_INFO: 1, //房间信息
+    IPC_SUB_COLUMN_INFO: 2, //列表信息
+
+    //////////////////////////////////////////////////////////////////////////
+    //IPC 用户信息
+
+    IPC_MAIN_USER: 3, //用户信息
+
+    IPC_SUB_USER_COME: 1, //用户信息
+    IPC_SUB_USER_STATUS: 2, //用户状态
+    IPC_SUB_USER_SCORE: 3, //用户积分
+    IPC_SUB_GAME_START: 4, //游戏开始
+    IPC_SUB_GAME_FINISH: 5, //游戏结束
+    IPC_SUB_UPDATE_FACE: 6, //更新头像
+    IPC_SUB_MEMBERORDER: 7, //更新头像
+
+    //////////////////////////////////////////////////////////////////////////
+    //IPC 控制信息
+
+    IPC_MAIN_CONCTROL: 4, //控制信息
+
+    IPC_SUB_START_FINISH: 1, //启动完成
+    IPC_SUB_CLOSE_FRAME: 2, //关闭框架
+    IPC_SUB_JOIN_IN_GAME: 3, //加入游戏
+
+    //////////////////////////////////////////////////////////////////////////
+    //网络命令码
+
+    MDM_GF_GAME: 99, //游戏消息
+    MDM_GF_FRAME: 98, //框架消息
+    MDM_GF_PRESENT: 97, //礼物消息
+    MDM_GF_BANK: 96, //银行消息
+
+    SUB_GF_INFO: 111, //游戏信息
+    SUB_GF_USER_READY: 112, //用户同意
+    SUB_GF_LOOKON_CONTROL: 113, //旁观控制
+    SUB_GF_KICK_TABLE_USER: 114, //踢走用户
+    SUB_GF_WRITE_MATCH_SCORE: 115, //写比赛成绩
+
+    SUB_GF_OPTION: 116, //游戏配置
+    SUB_GF_SCENE: 117, //场景信息
+
+    SUB_GF_USER_CHAT: 118, //用户聊天
+
+    SUB_GF_MESSAGE: 119, //系统消息
+
+    //SUB_GF_GIFT: 400,                             //赠送消息
+
+    SUB_GF_BANK_STORAGE: 250, //银行存储
+    SUB_GF_BANK_GET: 251, //银行提取
+    SUB_GF_BANK_PRESENT: 252, //赠送金币
+    SUB_GF_BANK_MODIFY_PASS: 253, //修改密码
+    SUB_GF_BANK_QUERY: 254, //查询金币
+    SUB_GF_BANK_PRESENT_QUREY: 255, //查询用户
+    SUB_GF_BANK_CLOSE: 256, //退出
+    SUB_GF_TRAN_RECORD: 257, //转帐记录
+    SUB_GF_USER_INFO_QUREY: 258, //查询用户
+    SUB_GF_USER_RECHARGE: 259, //用户充值
+
+    SUB_GF_FLOWER_ATTRIBUTE: 530, //鲜花属性
+    SUB_GF_FLOWER: 531, //鲜花消息
+    SUB_GF_EXCHANGE_CHARM: 532, //兑换魅力
+
+    SUB_GF_PROPERTY: 510, //道具消息
+    SUB_GF_PROPERTY_RESULT: 511, //道具结果
+    SUB_GF_RESIDUAL_PROPERTY: 512, //剩余道具
+    SUB_GF_PROP_ATTRIBUTE: 513, //道具属性
+    SUB_GF_PROP_BUGLE: 514, //喇叭道具
+    SUB_GF_QUERY_USER_INFO: 515, //鲜花消息
+    SUB_GF_SEND_HONG_BAO: 516, //发红包
+    SUB_GF_QIANG_HONG_BAO: 517, //发红包
+
+    //消息类型
+    SMT_INFO: 0x0001, //信息消息
+    SMT_EJECT: 0x0002, //弹出消息
+    SMT_GLOBAL: 0x0004, //全局消息
+    SMT_CLOSE_GAME: 0x1000, //关闭游戏
+
+    //发送场所
+    LOCATION_GAME_ROOM: 1, //游戏房间
+    LOCATION_PLAZA_ROOM: 2 };
 module.exports = GlobalDef;
 
 cc._RFpop();
@@ -1846,12 +3022,46 @@ function buildRequestParam(params) {
     paramString = paramString + "sign=" + getsign(paramString);
     return paramString;
 }
+
+function ipToNumber(ip) {
+    var num = 0;
+    if (ip == "") {
+        return num;
+    }
+    var aNum = ip.split(".");
+    if (aNum.length != 4) {
+        return num;
+    }
+    num += parseInt(aNum[0]) << 24;
+    num += parseInt(aNum[1]) << 16;
+    num += parseInt(aNum[2]) << 8;
+    num += parseInt(aNum[3]) << 0;
+    num = num >>> 0; //这个很关键，不然可能会出现负数的情况
+    return num;
+}
+
+function numberToIp(number) {
+    var ip = "";
+    if (number <= 0) {
+        return ip;
+    }
+    var ip3 = number << 0 >>> 24;
+    var ip2 = number << 8 >>> 24;
+    var ip1 = number << 16 >>> 24;
+    var ip0 = number << 24 >>> 24;
+
+    ip += ip0 + "." + ip1 + "." + ip2 + "." + ip3;
+
+    return ip;
+}
 module.exports = {
     ActionShowTanChuang: ActionShowTanChuang,
     showToast: showToast,
     showAlert: showAlert,
     showPopWaiting: showPopWaiting,
-    buildRequestParam: buildRequestParam
+    buildRequestParam: buildRequestParam,
+    ipToNumber: ipToNumber,
+    numberToIp: numberToIp
 };
 
 cc._RFpop();
@@ -2129,6 +3339,7 @@ cc.Class({
             GlobalUserData.onLoadData(pData);
             var bRememberPwd = cc.sys.localStorage.getItem("bRememberPwd");
             if (GlobalUserData.isGuest !== true) {
+                GlobalUserData.szPassWord = cc.md5Encode(this._szPassword);
                 if (bRememberPwd == 'true') {
                     cc.sys.localStorage.setItem('account', this._szAccount);
                     cc.sys.localStorage.setItem('password', this._szPassword);
@@ -2846,7 +4057,8 @@ cc.Class({
             return;
         }
         if (GlobalUserData.llGameScore >= this._roomInfo.lLimitScore) {
-            GlobalFun.showAlert(cc.director.getScene(), "进入房间");
+            // GlobalFun.showAlert(cc.director.getScene(),"进入房间");
+            cc.director.emit("onLogonRoom", { roomInfo: this._roomInfo });
         } else {
             GlobalFun.showToast(cc.director.getScene(), "进入房间需要" + this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!");
         }
@@ -2921,6 +4133,14 @@ cc.Class({
     onLoad: function onLoad() {
         // GlobalUserData.init();
         console.log("Plaza onLoad");
+        var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
+        if (GameFrameNode) {
+            console.log("[PlazaView][onLoad] 获取GameFrame 所在节点 并设置为常驻节点");
+            cc.game.addPersistRootNode(GameFrameNode);
+            this._gameFrame = GameFrameNode.getComponent("GameFrame");
+        }
+
+        // this._gameFrame = this.getScene().getChildByName("GameFrame").getComponent("GameFrame");
         this.refreshUI();
     },
     refreshUI: function refreshUI() {
@@ -3002,13 +4222,19 @@ cc.Class({
         cc.director.on('onChangeUserFaceSuccess', this.onChangeUserFaceSuccess, this);
         cc.director.on('onChangeNameSuccess', this.onChangeUserFaceSuccess, this);
         cc.director.on('onBankSuccess', this.onBankSuccess, this);
+        cc.director.on('onLogonRoom', this.onLogonRoom, this);
         console.log("[PlazaView][onEnable]");
     },
     onDisable: function onDisable() {
         cc.director.off('onChangeUserFaceSuccess', this.onChangeUserFaceSuccess, this);
         cc.director.off('onChangeNameSuccess', this.onChangeUserFaceSuccess, this);
         cc.director.off('onBankSuccess', this.onBankSuccess, this);
+        cc.director.off('onLogonRoom', this.onLogonRoom, this);
         console.log("[PlazaView][onDisable]");
+    },
+    onLogonRoom: function onLogonRoom(params) {
+        console.log("[PlazaView][onLogonRoom]");
+        this._gameFrame.onLogonRoom(params.detail.roomInfo);
     },
     onChangeUserFaceSuccess: function onChangeUserFaceSuccess() {
         // var faceID = GlobalUserData.wFaceID;
@@ -3331,6 +4557,11 @@ cc.Class({
         console.log("[SettingView][onClickCloseButton] destroy");
     },
     onClickSwitchAccount: function onClickSwitchAccount() {
+        var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
+        if (GameFrameNode) {
+            console.log("[SettingView][onClickSwitchAccount] 获取GameFrame 所在节点 并取消为常驻节点");
+            cc.game.removePersistRootNode(GameFrameNode);
+        }
         cc.director.loadScene("LoginScene");
         cc.sys.garbageCollect();
     }
@@ -4105,4 +5336,4 @@ cc.Class({
 });
 
 cc._RFpop();
-},{}]},{},["GameServerItem","GlobalDef","GlobalUserData","HelloWorld","MD5","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","PlazaRoomItem","SettingView","ShopItem","ShopView","UserFaceItem","UserFaceView","UserProfileView"]);
+},{}]},{},["GameServerItem","GameUserItem","GlobalDef","GlobalUserData","HelloWorld","MD5","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","GameFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","PlazaRoomItem","SettingView","ShopItem","ShopView","UserFaceItem","UserFaceView","UserProfileView"]);
