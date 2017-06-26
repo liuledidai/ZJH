@@ -182,4 +182,21 @@ zjh_cmd.SUB_C_LAST_ADD = 8;                                   //孤注一掷
 
 //////////////////////////////////////////////////////////////////////////
 
+//****************定时器标识******************--
+//开始定时器
+zjh_cmd.IDI_START_GAME   			= 200
+// 加注定时器
+zjh_cmd.IDI_USER_ADD_SCORE			= 201
+// 选比牌用户定时器
+zjh_cmd.IDI_USER_COMPARE_CARD		= 202
+// 过滤定时器
+zjh_cmd.IDI_DISABLE					= 203
+// *****************时间标识*****************--
+// 开始定时器
+zjh_cmd.TIME_START_GAME				= 20
+// 加注定时器
+zjh_cmd.TIME_USER_ADD_SCORE			= 25
+// 比牌定时器
+zjh_cmd.TIME_USER_COMPARE_CARD		= 25
+
 module.exports = zjh_cmd;

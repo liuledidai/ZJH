@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../Classes/CCmd_Data.cpp"
-            timestampString = "519271390.982016"
+            timestampString = "519875745.059182"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "371"
-            endingLineNumber = "371"
+            startingLineNumber = "378"
+            endingLineNumber = "378"
             landmarkName = "CCmd_Data::readstring(WORD dataLen,bool bIgnoreAlign)"
             landmarkType = "7">
          </BreakpointContent>

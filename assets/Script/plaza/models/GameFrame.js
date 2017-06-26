@@ -103,6 +103,7 @@ cc.Class({
             // console.log("logonframe login error");
         }
         else if(sub === game_cmd.SUB_GR_LOGON_FINISH){
+            cc.director.loadScene("GameScene");
             console.log("[GameFrame][OnSocketMainLogon] Logon Finish");
         }
     },
@@ -182,9 +183,45 @@ cc.Class({
         switch(sub){
             case game_cmd.SUB_GR_TABLE_INFO:
                 console.log("SUB_GR_TABLE_INFO");
+                //桌子状态数组
+                // struct CMD_GR_TableInfo
+                // {
+                //     WORD							wTableCount;						//桌子数目
+                //     tagTableStatus					TableStatus[512];					//状态数组
+                    //桌子状态结构
+                        // struct tagTableStatus
+                        // {
+                        //     BYTE							bPlayStatus;						//游戏状态
+                        //     BYTE							bTableLock;							//锁定状态
+                        // };
+                // };
+                var wTableCount = pData.readword();
+                for (var index = 0; index < wTableCount; index++) {
+                    this._tableStatus[index] = {};
+                    this._tableStatus[index].bPlayStatus = pData.readbyte();
+                    this._tableStatus[index].bTableLock = pData.readbyte();
+                }
                 break;
             case game_cmd.SUB_GR_TABLE_STATUS:
                 console.log("SUB_GR_TABLE_STATUS");
+                //桌子状态信息
+                // struct CMD_GR_TableStatus
+                // {
+                //     BYTE							bTableLock;							//锁定状态
+                //     BYTE							bPlayStatus;						//游戏状态
+                //     WORD							wTableID;							//桌子号码
+                // };
+                var tableStatus = {};
+                tableStatus.bTableLock = pData.readbyte();
+                tableStatus.bPlayStatus = pData.readbyte();
+                tableStatus.wTableID = pData.readword();
+
+                this._tableStatus[tableStatus.wTableID].bPlayStatus = tableStatus.bPlayStatus;
+                this._tableStatus[tableStatus.wTableID].bTableLock = tableStatus.bTableLock;
+
+                cc.director.emit("upDataTableStatus",{
+                    wTableID:tableStatus.wTableID,
+                });
                 break;
             default:
                 break;
@@ -464,22 +501,24 @@ cc.Class({
 
         //自己信息
         var myUserItem = this.getMeUserItem();
-        if (userScore.dwUserID == myUserItem.dwUserID) {
+        var userItem = this.searchUserByUserID(userScore.dwUserID);
+        // if (userScore.dwUserID == myUserItem.dwUserID) {
+        if (!userItem) {
             console.log("[GameFrame][OnSocketSubScore] 更新 " + JSON.stringify(userScore));
-            myUserItem.lScore = userScore.UserScore.lScore;
-            myUserItem.lGameGold = userScore.UserScore.lGameGold;
-            myUserItem.lWinCount = userScore.UserScore.lWinCount;
-            myUserItem.lLostCount = userScore.UserScore.lLostCount;
-            myUserItem.lDrawCount = userScore.UserScore.lDrawCount;
-            myUserItem.lFleeCount = userScore.UserScore.lFleeCount;
-            myUserItem.lExperience = userScore.UserScore.lExperience;
-            myUserItem.lLoveliness = userScore.lLoveliness;
+            userItem.lScore = userScore.UserScore.lScore;
+            userItem.lGameGold = userScore.UserScore.lGameGold;
+            userItem.lWinCount = userScore.UserScore.lWinCount;
+            userItem.lLostCount = userScore.UserScore.lLostCount;
+            userItem.lDrawCount = userScore.UserScore.lDrawCount;
+            userItem.lFleeCount = userScore.UserScore.lFleeCount;
+            userItem.lExperience = userScore.UserScore.lExperience;
+            userItem.lLoveliness = userScore.lLoveliness;
         }
         //通知更新界面
-        if(myUserItem.wTableID !== GlobalDef.INVALID_TABLE)
+        if(this._wTableID !== GlobalDef.INVALID_TABLE)
         {
             cc.director.emit("onEventUserScore",{
-                userScore:userScore,
+                userItem:userItem,
             });
         }
     },
@@ -563,15 +602,20 @@ cc.Class({
         // };
         var sitData = CCmd_Data.create();
         sitData.setcmdinfo(game_cmd.MDM_GR_USER,game_cmd.SUB_GR_USER_SIT_REQ);
+        var cbPassLen = 0;
         if (szPassWord) {
-            sitData.pushbyte(szPassWord.length);
+            cbPassLen = szPassWord.length;
         }
-        else {
-            sitData.pushbyte(0);
-        }
+
+        sitData.pushbyte(cbPassLen);
         sitData.pushword(wChairID);
         sitData.pushword(wTableID);
         sitData.pushstring(szPassWord,GlobalDef.PASS_LEN);
+        console.log("size1 = " + sitData.getDataSize());
+        var sendSize = sitData.getDataSize() - GlobalDef.PASS_LEN + cbPassLen;
+        console.log("size2 = " + sendSize);
+        sitData.setDataSize(sendSize);
+
 
         this.sendSocketData(sitData);
     },
@@ -608,6 +652,7 @@ cc.Class({
             this._tableUserList[id][idex] = undefined;
         }
     },
+    //获取桌子用户
     getTableUserItem: function (tableid,chairid) {
         var id = tableid;
         var idex = chairid;
@@ -615,6 +660,34 @@ cc.Class({
             return this._tableUserList[id][idex];
         }
     },
+    getTableInfo: function (index) {
+        if (index > 0) {
+            return this._tableStatus[index];
+        }
+    },
+    getChairCount: function () {
+        return this._wChairCount;  
+    },
+    getTableCount: function () {
+        return this._wTableCount;  
+    },
+    //获取桌子ID
+    getTableID: function () {
+        this._wTableID;
+    },
+    //获取椅子ID
+    getChairID: function () {
+        this._wChairID;  
+    },
+    //获取游戏状态
+    getGameStatus: function () {
+        return this._cbGameStatus;  
+    },
+    //设置游戏状态
+    setGameStatus: function (cbGameStatus) {
+        this._cbGameStatus = cbGameStatus;
+    },
+    //获取自己游戏信息
     getMeUserItem: function () {
         return this._userList[GlobalUserData.dwUserID];
     },

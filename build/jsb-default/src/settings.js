@@ -14,9 +14,30 @@ _CCSettings = {
                 "resources/json/shoppage.json",
                 "cc.RawAsset"
             ],
+            "0798dc6b-d968-478a-b764-63f8ea25d133": [
+                "resources/font/winerFnt.png",
+                "cc.Texture2D"
+            ],
+            "089305cb-7499-4a9a-859d-8765a5645d35": [
+                "resources/font/turnFnt.fnt",
+                "cc.BitmapFont"
+            ],
+            "0c631fc7-723a-4095-92ca-f088e4537835": [
+                "resources/font/winerFnt.fnt",
+                "cc.BitmapFont"
+            ],
             "0f76d766-6448-455c-9eac-d3fa737535aa": [
                 "resources/json/CenterSevice.json",
                 "cc.RawAsset"
+            ],
+            "1052bebd-3a95-41ca-8f77-196cb62dd96e": [
+                "resources/font/brokeFnt.png",
+                "cc.Texture2D"
+            ],
+            "1244237e-018a-4f4d-9dd9-2bfa3b8b694a": [
+                "resources/font/loserFnt",
+                "cc.SpriteFrame",
+                1
             ],
             "12bf6970-1054-4c31-b659-a40ba667895d": [
                 "Texture/userface.png",
@@ -42,6 +63,10 @@ _CCSettings = {
                 "resources/json/CenterAddress.json",
                 "cc.RawAsset"
             ],
+            "3728c012-311a-4dff-903a-2e44120b5c0e": [
+                "resources/font/turnFnt.png",
+                "cc.Texture2D"
+            ],
             "41b3abc2-d5fc-47c5-92db-39838587f70b": [
                 "resources/json/nickename.txt",
                 "cc.RawAsset"
@@ -50,9 +75,25 @@ _CCSettings = {
                 "Texture/mainscene.png",
                 "cc.Texture2D"
             ],
+            "4cae5767-1551-477a-bcfc-280ac765a83a": [
+                "resources/font/addscoreFnt.png",
+                "cc.Texture2D"
+            ],
+            "59919dcc-6a2c-4fc9-8955-1a879ca9ff94": [
+                "resources/font/loserFnt.png",
+                "cc.Texture2D"
+            ],
+            "63a8f24b-04a1-4276-ba1b-fa7999179d62": [
+                "Texture/gamescene_back.jpg",
+                "cc.Texture2D"
+            ],
             "653c3ded-4373-40bc-955d-f0d8bf56ce16": [
                 "resources/prefab/AlertView.prefab",
                 "cc.Prefab"
+            ],
+            "6a7e7762-e697-42c0-bc50-a610d4dddd7f": [
+                "Texture/game_toast_back.png",
+                "cc.Texture2D"
             ],
             "6aa0aa6a-ebee-4155-a088-a687a6aadec4": [
                 "Texture/HelloWorld.png",
@@ -62,6 +103,11 @@ _CCSettings = {
                 "Texture/common.png",
                 "cc.Texture2D"
             ],
+            "6f6c9ee2-4bd1-4e80-8dd6-5542338bb7a7": [
+                "resources/font/brokeFnt",
+                "cc.SpriteFrame",
+                1
+            ],
             "72a963a1-2510-4332-bb19-fa68c07a4292": [
                 "Texture/shop.png",
                 "cc.Texture2D"
@@ -69,6 +115,10 @@ _CCSettings = {
             "72fa31ed-1cf7-4b3b-9f33-e47d464a1344": [
                 "resources/prefab/ChoosePayTypeView.prefab",
                 "cc.Prefab"
+            ],
+            "7bba99da-aaa2-4aac-92c7-939f6645c1a1": [
+                "resources/font/brokeFnt.fnt",
+                "cc.BitmapFont"
             ],
             "829fc42d-2231-497c-a9e8-88526abaa940": [
                 "Texture/gameplaza_back.jpg",
@@ -94,6 +144,11 @@ _CCSettings = {
                 "resources/prefab/ShopItem.prefab",
                 "cc.Prefab"
             ],
+            "96dacee9-6595-4509-9326-7c9a31ed5535": [
+                "resources/font/addscoreFnt",
+                "cc.SpriteFrame",
+                1
+            ],
             "99f9272e-b3b2-4b94-9ea6-471dd35125ac": [
                 "resources/prefab/RegisterView.prefab",
                 "cc.Prefab"
@@ -101,6 +156,10 @@ _CCSettings = {
             "9d4e617c-8711-4e3a-b42f-2598226404c1": [
                 "resources/prefab/ShopView.prefab",
                 "cc.Prefab"
+            ],
+            "a22f6e1b-9086-475f-b210-cca5ae6dbfdd": [
+                "resources/font/addscoreFnt.fnt",
+                "cc.BitmapFont"
             ],
             "a8027877-d8d6-4645-97a0-52d4a0123dba": [
                 "Texture/singleColor.png",
@@ -114,13 +173,32 @@ _CCSettings = {
                 "Texture/loginScene.png",
                 "cc.Texture2D"
             ],
+            "b7a53fa2-5885-4056-83e0-4a40667f9f46": [
+                "resources/font/winerFnt",
+                "cc.SpriteFrame",
+                1
+            ],
             "be3157b7-62ac-47b3-bf39-ca6093fd4baf": [
                 "resources/prefab/PlazaRoomItem.prefab",
                 "cc.Prefab"
             ],
+            "beef351a-ec62-45df-9129-d90d9c85eb3b": [
+                "resources/font/tableScoreFnt.png",
+                "cc.Texture2D"
+            ],
+            "c10ee826-b5f3-4283-919d-fce7aca530a6": [
+                "resources/font/turnFnt",
+                "cc.SpriteFrame",
+                1
+            ],
             "cbbd3a58-ebd6-4986-8eb5-dbfb2b8024ef": [
                 "resources/prefab/PopWaitingView.prefab",
                 "cc.Prefab"
+            ],
+            "d03e2e35-4c7b-4972-a571-f3bb34485fab": [
+                "resources/font/tableScoreFnt",
+                "cc.SpriteFrame",
+                1
             ],
             "d10c227f-d57f-4ea0-9d6c-6f8c7a212a4b": [
                 "resources/prefab/UserProfileView.prefab",
@@ -130,9 +208,21 @@ _CCSettings = {
                 "resources/json/DatabaseRes.json",
                 "cc.RawAsset"
             ],
+            "db41b3c5-4f24-4890-abdb-2d06df710e1f": [
+                "resources/font/loserFnt.fnt",
+                "cc.BitmapFont"
+            ],
             "ddcfea09-e09d-41a2-8cf5-fbd68e22ae98": [
                 "resources/prefab/LogonView.prefab",
                 "cc.Prefab"
+            ],
+            "e1503218-e207-4235-9d09-79e41f23a842": [
+                "resources/font/tableScoreFnt.fnt",
+                "cc.BitmapFont"
+            ],
+            "ee2dc409-b9d1-4473-9edb-ee8facdb060b": [
+                "Texture/gameScene.png",
+                "cc.Texture2D"
             ],
             "ef6c8276-e168-4fa7-b0b8-e46a5134756c": [
                 "resources/prefab/UserFaceView.prefab",
@@ -155,10 +245,6 @@ _CCSettings = {
             "d6d3ca85-4681-47c1-b5dd-d036a9d39ea2": [
                 "image/default_scrollbar_vertical.png",
                 "cc.Texture2D"
-            ],
-            "d81ec8ad-247c-4e62-aa3c-d35c4193c7af": [
-                "image/default_panel.png",
-                "cc.Texture2D"
             ]
         }
     },
@@ -169,6 +255,10 @@ _CCSettings = {
             "uuid": "864ce8da-f2cc-4eb8-8ff2-3ad25832cb79"
         },
         {
+            "url": "db://assets/Scene/helloworld.fire",
+            "uuid": "2d2f792f-a40c-49bb-a189-ed176a246e49"
+        },
+        {
             "url": "db://assets/Scene/LoginScene.fire",
             "uuid": "879f8d20-2e00-44e9-aa77-32e9bbb7c44a"
         },
@@ -177,8 +267,8 @@ _CCSettings = {
             "uuid": "bf473ed6-0f50-4be6-a875-cdb9b99eda74"
         },
         {
-            "url": "db://assets/Scene/helloworld.fire",
-            "uuid": "2d2f792f-a40c-49bb-a189-ed176a246e49"
+            "url": "db://assets/Scene/GameScene.fire",
+            "uuid": "9f8a184b-216a-421f-8c08-06d16c206fc8"
         }
     ],
     "orientation": "",

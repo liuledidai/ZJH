@@ -117,12 +117,32 @@ readdword : function (
 },
 
 /**
+ * @method readword
+ * @return {unsigned short}
+ */
+readword : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method setcmdinfo
  * @param {unsigned short} arg0
  * @param {unsigned short} arg1
  */
 setcmdinfo : function (
 short, 
+short 
+)
+{
+},
+
+/**
+ * @method setDataSize
+ * @param {unsigned short} arg0
+ */
+setDataSize : function (
 short 
 )
 {
@@ -241,10 +261,10 @@ getDataBuffer : function (
 },
 
 /**
- * @method readword
+ * @method getsub
  * @return {unsigned short}
  */
-readword : function (
+getsub : function (
 )
 {
     return 0;
@@ -289,13 +309,15 @@ float
 },
 
 /**
- * @method getsub
- * @return {unsigned short}
+ * @method pushdata
+ * @param {void} arg0
+ * @param {unsigned short} arg1
  */
-getsub : function (
+pushdata : function (
+void, 
+short 
 )
 {
-    return 0;
 },
 
 /**

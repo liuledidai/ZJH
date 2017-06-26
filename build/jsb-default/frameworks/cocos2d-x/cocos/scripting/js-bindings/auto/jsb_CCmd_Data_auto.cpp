@@ -286,6 +286,35 @@ bool js_CCmd_Data_CCmd_Data_readdword(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_readdword : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
+bool js_CCmd_Data_CCmd_Data_readword(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readword : Invalid Native Object");
+    if (argc == 0) {
+        unsigned short ret = cobj->readword();
+        JS::RootedValue jsret(cx);
+        jsret = ushort_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+    if (argc == 1) {
+        bool arg0;
+        arg0 = JS::ToBoolean(args.get(0));
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readword : Error processing arguments");
+        unsigned short ret = cobj->readword(arg0);
+        JS::RootedValue jsret(cx);
+        jsret = ushort_to_jsval(cx, ret);
+        args.rval().set(jsret);
+        return true;
+    }
+
+    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_readword : wrong number of arguments: %d, was expecting %d", argc, 0);
+    return false;
+}
 bool js_CCmd_Data_CCmd_Data_setcmdinfo(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
@@ -306,6 +335,26 @@ bool js_CCmd_Data_CCmd_Data_setcmdinfo(JSContext *cx, uint32_t argc, jsval *vp)
     }
 
     JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_setcmdinfo : wrong number of arguments: %d, was expecting %d", argc, 2);
+    return false;
+}
+bool js_CCmd_Data_CCmd_Data_setDataSize(JSContext *cx, uint32_t argc, jsval *vp)
+{
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    js_proxy_t *proxy = jsb_get_js_proxy(obj);
+    CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_setDataSize : Invalid Native Object");
+    if (argc == 1) {
+        unsigned short arg0 = 0;
+        ok &= jsval_to_ushort(cx, args.get(0), &arg0);
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_setDataSize : Error processing arguments");
+        cobj->setDataSize(arg0);
+        args.rval().setUndefined();
+        return true;
+    }
+
+    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_setDataSize : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
 bool js_CCmd_Data_CCmd_Data_pushdword(JSContext *cx, uint32_t argc, jsval *vp)
@@ -565,33 +614,22 @@ bool js_CCmd_Data_CCmd_Data_getDataBuffer(JSContext *cx, uint32_t argc, jsval *v
     JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_getDataBuffer : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
-bool js_CCmd_Data_CCmd_Data_readword(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCmd_Data_CCmd_Data_getsub(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
-    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_readword : Invalid Native Object");
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_getsub : Invalid Native Object");
     if (argc == 0) {
-        unsigned short ret = cobj->readword();
-        JS::RootedValue jsret(cx);
-        jsret = ushort_to_jsval(cx, ret);
-        args.rval().set(jsret);
-        return true;
-    }
-    if (argc == 1) {
-        bool arg0;
-        arg0 = JS::ToBoolean(args.get(0));
-        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_readword : Error processing arguments");
-        unsigned short ret = cobj->readword(arg0);
+        unsigned short ret = cobj->getsub();
         JS::RootedValue jsret(cx);
         jsret = ushort_to_jsval(cx, ret);
         args.rval().set(jsret);
         return true;
     }
 
-    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_readword : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_getsub : wrong number of arguments: %d, was expecting %d", argc, 0);
     return false;
 }
 bool js_CCmd_Data_CCmd_Data_cleanData(JSContext *cx, uint32_t argc, jsval *vp)
@@ -679,22 +717,27 @@ bool js_CCmd_Data_CCmd_Data_pushfloat(JSContext *cx, uint32_t argc, jsval *vp)
     JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_pushfloat : wrong number of arguments: %d, was expecting %d", argc, 1);
     return false;
 }
-bool js_CCmd_Data_CCmd_Data_getsub(JSContext *cx, uint32_t argc, jsval *vp)
+bool js_CCmd_Data_CCmd_Data_pushdata(JSContext *cx, uint32_t argc, jsval *vp)
 {
     JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    bool ok = true;
     JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
     js_proxy_t *proxy = jsb_get_js_proxy(obj);
     CCmd_Data* cobj = (CCmd_Data *)(proxy ? proxy->ptr : NULL);
-    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_getsub : Invalid Native Object");
-    if (argc == 0) {
-        unsigned short ret = cobj->getsub();
-        JS::RootedValue jsret(cx);
-        jsret = ushort_to_jsval(cx, ret);
-        args.rval().set(jsret);
+    JSB_PRECONDITION2( cobj, cx, false, "js_CCmd_Data_CCmd_Data_pushdata : Invalid Native Object");
+    if (argc == 2) {
+        void* arg0 = nullptr;
+        unsigned short arg1 = 0;
+        #pragma warning NO CONVERSION TO NATIVE FOR void*
+		ok = false;
+        ok &= jsval_to_ushort(cx, args.get(1), &arg1);
+        JSB_PRECONDITION2(ok, cx, false, "js_CCmd_Data_CCmd_Data_pushdata : Error processing arguments");
+        cobj->pushdata(arg0, arg1);
+        args.rval().setUndefined();
         return true;
     }
 
-    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_getsub : wrong number of arguments: %d, was expecting %d", argc, 0);
+    JS_ReportError(cx, "js_CCmd_Data_CCmd_Data_pushdata : wrong number of arguments: %d, was expecting %d", argc, 2);
     return false;
 }
 bool js_CCmd_Data_CCmd_Data_create(JSContext *cx, uint32_t argc, jsval *vp)
@@ -785,7 +828,9 @@ void js_register_CCmd_Data_CCmd_Data(JSContext *cx, JS::HandleObject global) {
         JS_FN("getReadOffset", js_CCmd_Data_CCmd_Data_getReadOffset, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushpacket", js_CCmd_Data_CCmd_Data_pushpacket, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("readdword", js_CCmd_Data_CCmd_Data_readdword, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("readword", js_CCmd_Data_CCmd_Data_readword, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("setcmdinfo", js_CCmd_Data_CCmd_Data_setcmdinfo, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("setDataSize", js_CCmd_Data_CCmd_Data_setDataSize, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushdword", js_CCmd_Data_CCmd_Data_pushdword, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushint64", js_CCmd_Data_CCmd_Data_pushint64, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("readstring", js_CCmd_Data_CCmd_Data_readstring, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
@@ -797,12 +842,12 @@ void js_register_CCmd_Data_CCmd_Data(JSContext *cx, JS::HandleObject global) {
         JS_FN("pushint", js_CCmd_Data_CCmd_Data_pushint, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getDataSize", js_CCmd_Data_CCmd_Data_getDataSize, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("getDataBuffer", js_CCmd_Data_CCmd_Data_getDataBuffer, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("readword", js_CCmd_Data_CCmd_Data_readword, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("getsub", js_CCmd_Data_CCmd_Data_getsub, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("cleanData", js_CCmd_Data_CCmd_Data_cleanData, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushword", js_CCmd_Data_CCmd_Data_pushword, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("readbyte", js_CCmd_Data_CCmd_Data_readbyte, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FN("pushfloat", js_CCmd_Data_CCmd_Data_pushfloat, 1, JSPROP_PERMANENT | JSPROP_ENUMERATE),
-        JS_FN("getsub", js_CCmd_Data_CCmd_Data_getsub, 0, JSPROP_PERMANENT | JSPROP_ENUMERATE),
+        JS_FN("pushdata", js_CCmd_Data_CCmd_Data_pushdata, 2, JSPROP_PERMANENT | JSPROP_ENUMERATE),
         JS_FS_END
     };
 

@@ -2,8 +2,9 @@ var GlobalDef = {
     MAX_CHAIR: 100,								//◊Ó¥Û“Œ◊”
     MAX_CHAIR_NORMAL: 8,								//◊Ó¥Û»À ˝
 
-    INVALID_TABLE: -1,						//Œﬁ–ß◊¿◊”∫≈
-    INVALID_CHAIR: -1,						//Œﬁ–ß“Œ◊”∫≈
+    INVALID_TABLE: 0xFFFF,						//Œﬁ–ß◊¿◊”∫≈
+    INVALID_CHAIR: 0xFFFF,						//Œﬁ–ß“Œ◊”∫≈
+    INVALID_ITEM: 0xFFFF,
 
     HMATCH_PORT_MIN: 10000,							//–° ±»¸◊Ó–°∂Àø⁄∫≈
     HMATCH_PORT_MAX: 20000,							//–° ±»¸◊Ó¥Û∂Àø⁄∫≈

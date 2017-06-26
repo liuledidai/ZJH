@@ -38,6 +38,13 @@ void CCmd_Data::setmaxsize(WORD data)
 {
     maxsize = data;
 }
+
+
+void CCmd_Data::setDataSize(WORD data)
+{
+    length = data;
+}
+
 WORD CCmd_Data::getDataSize()
 {
     return length;

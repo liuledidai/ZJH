@@ -20,6 +20,7 @@ public:
     static CCmd_Data* create();
     void cleanData();
     void setmaxsize(WORD data);
+    void setDataSize(WORD data);
     WORD getDataSize();
     WORD getReadOffset();
     void* getDataBuffer();

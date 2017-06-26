@@ -1743,6 +1743,7 @@ cc.Class({
             this.onCloseSocket();
             // console.log("logonframe login error");
         } else if (sub === game_cmd.SUB_GR_LOGON_FINISH) {
+            cc.director.loadScene("GameScene");
             console.log("[GameFrame][OnSocketMainLogon] Logon Finish");
         }
     },
@@ -1809,9 +1810,45 @@ cc.Class({
         switch (sub) {
             case game_cmd.SUB_GR_TABLE_INFO:
                 console.log("SUB_GR_TABLE_INFO");
+                //桌子状态数组
+                // struct CMD_GR_TableInfo
+                // {
+                //     WORD							wTableCount;						//桌子数目
+                //     tagTableStatus					TableStatus[512];					//状态数组
+                //桌子状态结构
+                // struct tagTableStatus
+                // {
+                //     BYTE							bPlayStatus;						//游戏状态
+                //     BYTE							bTableLock;							//锁定状态
+                // };
+                // };
+                var wTableCount = pData.readword();
+                for (var index = 0; index < wTableCount; index++) {
+                    this._tableStatus[index] = {};
+                    this._tableStatus[index].bPlayStatus = pData.readbyte();
+                    this._tableStatus[index].bTableLock = pData.readbyte();
+                }
                 break;
             case game_cmd.SUB_GR_TABLE_STATUS:
                 console.log("SUB_GR_TABLE_STATUS");
+                //桌子状态信息
+                // struct CMD_GR_TableStatus
+                // {
+                //     BYTE							bTableLock;							//锁定状态
+                //     BYTE							bPlayStatus;						//游戏状态
+                //     WORD							wTableID;							//桌子号码
+                // };
+                var tableStatus = {};
+                tableStatus.bTableLock = pData.readbyte();
+                tableStatus.bPlayStatus = pData.readbyte();
+                tableStatus.wTableID = pData.readword();
+
+                this._tableStatus[tableStatus.wTableID].bPlayStatus = tableStatus.bPlayStatus;
+                this._tableStatus[tableStatus.wTableID].bTableLock = tableStatus.bTableLock;
+
+                cc.director.emit("upDataTableStatus", {
+                    wTableID: tableStatus.wTableID
+                });
                 break;
             default:
                 break;
@@ -2086,21 +2123,23 @@ cc.Class({
 
         //自己信息
         var myUserItem = this.getMeUserItem();
-        if (userScore.dwUserID == myUserItem.dwUserID) {
+        var userItem = this.searchUserByUserID(userScore.dwUserID);
+        // if (userScore.dwUserID == myUserItem.dwUserID) {
+        if (!userItem) {
             console.log("[GameFrame][OnSocketSubScore] 更新 " + JSON.stringify(userScore));
-            myUserItem.lScore = userScore.UserScore.lScore;
-            myUserItem.lGameGold = userScore.UserScore.lGameGold;
-            myUserItem.lWinCount = userScore.UserScore.lWinCount;
-            myUserItem.lLostCount = userScore.UserScore.lLostCount;
-            myUserItem.lDrawCount = userScore.UserScore.lDrawCount;
-            myUserItem.lFleeCount = userScore.UserScore.lFleeCount;
-            myUserItem.lExperience = userScore.UserScore.lExperience;
-            myUserItem.lLoveliness = userScore.lLoveliness;
+            userItem.lScore = userScore.UserScore.lScore;
+            userItem.lGameGold = userScore.UserScore.lGameGold;
+            userItem.lWinCount = userScore.UserScore.lWinCount;
+            userItem.lLostCount = userScore.UserScore.lLostCount;
+            userItem.lDrawCount = userScore.UserScore.lDrawCount;
+            userItem.lFleeCount = userScore.UserScore.lFleeCount;
+            userItem.lExperience = userScore.UserScore.lExperience;
+            userItem.lLoveliness = userScore.lLoveliness;
         }
         //通知更新界面
-        if (myUserItem.wTableID !== GlobalDef.INVALID_TABLE) {
+        if (this._wTableID !== GlobalDef.INVALID_TABLE) {
             cc.director.emit("onEventUserScore", {
-                userScore: userScore
+                userItem: userItem
             });
         }
     },
@@ -2183,14 +2222,19 @@ cc.Class({
         // };
         var sitData = CCmd_Data.create();
         sitData.setcmdinfo(game_cmd.MDM_GR_USER, game_cmd.SUB_GR_USER_SIT_REQ);
+        var cbPassLen = 0;
         if (szPassWord) {
-            sitData.pushbyte(szPassWord.length);
-        } else {
-            sitData.pushbyte(0);
+            cbPassLen = szPassWord.length;
         }
+
+        sitData.pushbyte(cbPassLen);
         sitData.pushword(wChairID);
         sitData.pushword(wTableID);
         sitData.pushstring(szPassWord, GlobalDef.PASS_LEN);
+        console.log("size1 = " + sitData.getDataSize());
+        var sendSize = sitData.getDataSize() - GlobalDef.PASS_LEN + cbPassLen;
+        console.log("size2 = " + sendSize);
+        sitData.setDataSize(sendSize);
 
         this.sendSocketData(sitData);
     },
@@ -2226,6 +2270,7 @@ cc.Class({
             this._tableUserList[id][idex] = undefined;
         }
     },
+    //获取桌子用户
     getTableUserItem: function getTableUserItem(tableid, chairid) {
         var id = tableid;
         var idex = chairid;
@@ -2233,6 +2278,34 @@ cc.Class({
             return this._tableUserList[id][idex];
         }
     },
+    getTableInfo: function getTableInfo(index) {
+        if (index > 0) {
+            return this._tableStatus[index];
+        }
+    },
+    getChairCount: function getChairCount() {
+        return this._wChairCount;
+    },
+    getTableCount: function getTableCount() {
+        return this._wTableCount;
+    },
+    //获取桌子ID
+    getTableID: function getTableID() {
+        this._wTableID;
+    },
+    //获取椅子ID
+    getChairID: function getChairID() {
+        this._wChairID;
+    },
+    //获取游戏状态
+    getGameStatus: function getGameStatus() {
+        return this._cbGameStatus;
+    },
+    //设置游戏状态
+    setGameStatus: function setGameStatus(cbGameStatus) {
+        this._cbGameStatus = cbGameStatus;
+    },
+    //获取自己游戏信息
     getMeUserItem: function getMeUserItem() {
         return this._userList[GlobalUserData.dwUserID];
     },
@@ -2245,7 +2318,415 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"BaseFrame":"BaseFrame","CMD_Game":"CMD_Game","CMD_Plaza":"CMD_Plaza","CMD_ZaJinHua":"CMD_ZaJinHua","GameServerItem":"GameServerItem","GameUserItem":"GameUserItem","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MD5":"MD5"}],"GameServerItem":[function(require,module,exports){
+},{"BaseFrame":"BaseFrame","CMD_Game":"CMD_Game","CMD_Plaza":"CMD_Plaza","CMD_ZaJinHua":"CMD_ZaJinHua","GameServerItem":"GameServerItem","GameUserItem":"GameUserItem","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MD5":"MD5"}],"GameModel":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '7cbc6uBjwNDxLohz5dvmQIV', 'GameModel');
+// Script/gameModel/GameModel.js
+
+"use strict";
+
+var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
+var GlobalDef = require("GlobalDef");
+
+var GameModel = cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {
+        console.log("[GameModel][onLoad]");
+        var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
+        if (GameFrameNode) {
+            this._gameFrame = GameFrameNode.getComponent("GameFrame");
+        }
+        this.onInitGameEngine();
+        this.m_bOnGame = false;
+        this.m_cbGameStatus = -1;
+    },
+    onEnable: function onEnable(params) {
+        console.log("[GameModel][onEnable]");
+        cc.director.on("onEventGameMessage", this.onEventGameMessage, this);
+        cc.director.on("onEventGameScene", this.onEventGameScene, this);
+        cc.director.on("onEventUserEnter", this.onEventUserEnter, this);
+        cc.director.on("onEventUserStatus", this.onEventUserStatus, this);
+        cc.director.on("onEventUserScore", this.onEventUserScore, this);
+    },
+    onDisable: function onDisable(params) {
+        console.log("[GameModel][onDisable]");
+        cc.director.off("onEventGameMessage", this.onEventGameMessage, this);
+        cc.director.off("onEventGameScene", this.onEventGameScene, this);
+        cc.director.off("onEventUserEnter", this.onEventUserEnter, this);
+        cc.director.off("onEventUserStatus", this.onEventUserStatus, this);
+        cc.director.off("onEventUserScore", this.onEventUserScore, this);
+    },
+    //初始化游戏数据
+    onInitGameEngine: function onInitGameEngine() {
+        this._ClockFun = undefined;
+        this._ClockID = GlobalDef.INVALID_ITEM;
+        this._ClockTime = 0;
+        this._ClockChair = GlobalDef.INVALID_CHAIR;
+        this._ClockViewChair = GlobalDef.INVALID_CHAIR;
+    },
+    //重置框架
+    onResetGameEngine: function onResetGameEngine() {
+        this.killGameClock();
+        this.m_bOnGame = false;
+    },
+    //退出询问
+    onQueryExitGame: function onQueryExitGame() {
+        this.onExitTable();
+    },
+    standUpAndQuit: function standUpAndQuit() {},
+    //退出桌子
+    onExitTable: function onExitTable() {
+        this.killGameClock();
+
+        var myItem = this.getMeUserItem();
+        if (myItem && myItem.cbUserStatus > GlobalDef.US_FREE) {
+            this._gameFrame.sendStandupPacket();
+            return;
+        }
+    },
+    onExitRoom: function onExitRoom() {
+        this._gameFrame.onCloseSocket();
+        this.killGameClock();
+    },
+    onKeyBack: function onKeyBack() {
+        this.onQueryExitGame();
+    },
+    //获取自己椅子
+    getMeChairID: function getMeChairID() {
+        return this._gameFrame.getChairID();
+    },
+    //获取自己桌子
+    getMeTableID: function getMeTableID() {
+        return this._gameFrame.getTableID();
+    },
+    getMeUserItem: function getMeUserItem() {
+        return this._gameFrame.getMeUserItem();
+    },
+    // 椅子号转视图位置,注意椅子号从0~nChairCount-1,返回的视图位置从1~nChairCount
+    switchViewChairID: function switchViewChairID(chair) {
+        var viewID = GlobalDef.INVALID_CHAIR;
+        var nChairCount = this._gameFrame.getChairCount();
+        var nChairID = this.getMeChairID();
+        if (chair !== GlobalDef.INVALID_CHAIR && chair < nChairCount) {
+            viewID = (chair + Math.floor(nChairCount * 3 / 2) - nChairID) % nChairCount + 1;
+        }
+        return viewID;
+    },
+    //是否合法视图ID
+    isValidViewID: function isValidViewID(viewID) {
+        var nChairCount = this._gameFrame.getChairCount();
+        return viewID > 0 && viewID <= nChairCount;
+    },
+    //设置计时器
+    setGameClock: function setGameClock(chair, id, time) {
+        if (!this._ClockFun) {
+            var self = this;
+            this._ClockFun = cc.director.getScheduler().schedule(this.onClockUpdata, this, 1, false);
+        }
+        this._ClockChair = chair;
+        this._ClockID = id;
+        this._ClockTime = time;
+        this._ClockViewChair = this.switchViewChairID(chair);
+        this.onUpdataClockView();
+    },
+    //关闭计时器
+    killGameClock: function killGameClock(notView) {
+        this._ClockID = GlobalDef.INVALID_ITEM;
+        this._ClockTime = 0;
+        this._ClockChair = GlobalDef.INVALID_CHAIR;
+        this._ClockViewChair = GlobalDef.INVALID_CHAIR;
+        if (this._ClockFun) {
+            cc.director.getScheduler().unschedule(this.onClockUpdata, this);
+            this._ClockFun = undefined;
+        }
+        if (!notView) {
+            this.onUpdataClockView();
+        }
+    },
+    getClockViewID: function getClockViewID() {
+        return this._ClockViewChair;
+    },
+    //计时器更新
+    onClockUpdata: function onClockUpdata() {
+        if (this._ClockID !== GlobalDef.INVALID_ITEM) {
+            this._ClockTime = this._ClockTime - 1;
+            var ret = this.onEventGameClockInfo(this._ClockChair, this._ClockTime, this._ClockID);
+            if (ret === true || this._ClockTime < 1) {
+                this.killGameClock();
+            }
+        }
+        this.onUpdataClockView();
+    },
+    //更新计时器显示
+    onUpdataClockView: function onUpdataClockView() {
+        // onUpdataClockView
+    },
+    //用户状态 
+    onEventUserStatus: function onEventUserStatus(params) {
+        // params = {userItem:,newStatus,oldStatus,}
+        var userItem = params.userItem;
+        var newStatus = params.newStatus;
+        var oldStatus = params.oldStatus;
+        var myTable = this.getMeTableID();
+        var myChair = this.getMeChairID();
+
+        if (!myTable || myTable === GlobalDef.INVALID_TABLE) {
+            return;
+        }
+        //旧的清除
+        if (oldStatus.wTableID === myTable) {
+            var viewID = this.switchViewChairID(oldStatus.wChairID);
+            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+                // onUpdateUser
+            }
+        }
+        //更新新状态
+        if (newStatus.wTableID === myTable) {
+            var viewID = this.switchViewChairID(newStatus.wChairID);
+            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+                // onUpdateUser
+            }
+        }
+    },
+    //用户积分
+    onEventUserScore: function onEventUserScore(params) {
+        // params = {userScore,}
+        var userItem = params.userItem;
+        var myTable = this.getMeTableID();
+        if (!myTable || myTable === GlobalDef.INVALID_TABLE) {
+            return;
+        }
+        if (myTable === userItem.wTableID) {
+            var viewID = this.switchViewChairID(userItem.wChairID);
+            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+                // onUpdateUser
+            }
+        }
+    },
+    //用户进入
+    onEventUserEnter: function onEventUserEnter(params) {
+        // params = {wTableID,wChairID,userItem,}
+        var wTableID = params.wTableID;
+        var wChairID = params.wChairID;
+        var userItem = params.userItem;
+
+        var myTable = this.getMeTableID();
+        if (!myTable || myTable === GlobalDef.INVALID_TABLE) {
+            return;
+        }
+        if (myTable === wTableID) {
+            var viewID = this.switchViewChairID(wChairID);
+            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+                // onUpdateUser
+            }
+        }
+    },
+    //发送准备
+    sendUserReady: function sendUserReady() {
+        this._gameFrame.sendUserReady();
+    },
+    //发送数据
+    sendData: function sendData(sub, dataBuf) {
+        if (this._gameFrame) {
+            dataBuf.setcmdinfo(GlobalDef.MDM_GF_GAME, sub);
+            this._gameFrame.sendSocketData(dataBuf);
+        }
+    },
+
+    //场景消息
+    onEventGameScene: function onEventGameScene(params) {},
+    //游戏消息
+    onEventGameMessage: function onEventGameMessage(params) {},
+    //计时器响应
+    onEventGameClockInfo: function onEventGameClockInfo(chair, time, clockID) {}
+});
+module.exports = GameModel;
+
+cc._RFpop();
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GameScene":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '6ad91+qsMxCQ6GFQhDN2oXK', 'GameScene');
+// Script/game/GameScene.js
+
+"use strict";
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
+var GlobalDef = require("GlobalDef");
+var zjh_cmd = require("CMD_ZaJinHua");
+var GameModel = require("GameModel");
+cc.Class(_defineProperty({
+    extends: GameModel,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        // m_Button_menuOpen: cc.Toggle,
+        m_Panel_menu: cc.Node
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {
+        // var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
+        // if (GameFrameNode){
+        //     this._gameFrame = GameFrameNode.getComponent("GameFrame");
+        // }
+        this._super();
+    },
+    onEnable: function onEnable(params) {
+        // cc.director.on("onEventGameMessage",this.onEventGameMessage,this);
+        this._super();
+    },
+    onDisable: function onDisable(params) {
+        // cc.director.off("onEventGameMessage",this.onEventGameMessage,this);
+        this._super();
+    },
+    onEventGameMessage: function onEventGameMessage(params) {
+        var sub = params.detail.sub;
+        var pData = params.detail.pData;
+        console.log("[GameScene][onEventGameMessage] pData len = " + pData.getDataSize());
+        if (!this._eventGameMessageCallback) {
+            var _eventGameMessageCall;
+
+            this._eventGameMessageCallback = (_eventGameMessageCall = {}, _defineProperty(_eventGameMessageCall, zjh_cmd.SUB_S_GAME_START, this.onSubGameStart), _defineProperty(_eventGameMessageCall, zjh_cmd.SUB_S_ADD_SCORE, this.onSubAddScore), _defineProperty(_eventGameMessageCall, zjh_cmd.SUB_S_LOOK_CARD, this.onSubLookCard), _defineProperty(_eventGameMessageCall, zjh_cmd.SUB_S_COMPARE_CARD, this.onSubCompareCard), _defineProperty(_eventGameMessageCall, zjh_cmd.SUB_S_OPEN_CARD, this.onSubOpenCard), _defineProperty(_eventGameMessageCall, zjh_cmd.SUB_S_GIVE_UP, this.onSubGiveUp), _defineProperty(_eventGameMessageCall, zjh_cmd.SUB_S_PLAYER_EXIT, this.onSubPlayerExit), _defineProperty(_eventGameMessageCall, zjh_cmd.SUB_S_GAME_END, this.onSubGameEnd), _defineProperty(_eventGameMessageCall, zjh_cmd.SUB_S_WAIT_COMPARE, function (sub, pData) {
+                //等待比牌
+                console.log("[GameScene][onEventGameMessage] SUB_S_WAIT_COMPARE");
+            }), _defineProperty(_eventGameMessageCall, zjh_cmd.SUB_S_LAST_ADD, this.onSubLastAdd), _eventGameMessageCall);
+        }
+        if (this._eventGameMessageCallback && this._eventGameMessageCallback[sub]) {
+            var fun = this._eventGameMessageCallback[sub];
+            fun.call(this, sub, pData);
+        } else {
+            console.log("[GameScene][onEventGameMessage] sub = " + sub + " not find");
+        }
+    },
+    onSubGameStart: function onSubGameStart(sub, pData) {
+        console.log("[GameScene][onSubGameStart]");
+        //游戏开始
+        // struct CMD_S_GameStart
+        // {
+        //     //下注信息
+        //     LONG								lMaxScore;							//最大下注
+        //     LONG								lCellScore;							//单元下注
+        //     LONG								lCurrentTimes;						//当前倍数
+        //     LONG								lUserMaxScore;						//分数上限
+
+        //     //用户信息
+        //     WORD								wBankerUser;						//庄家用户
+        //     WORD				 				wCurrentUser;						//当前玩家
+        //     BYTE								cbPlayStatus[GAME_PLAYER];			//游戏状态
+        // };
+        var gameStart = {};
+        gameStart.lMaxScore = pData.readint();
+        gameStart.lCellScore = pData.readint();
+        gameStart.lCurrentTimes = pData.readint();
+        gameStart.lUserMaxScore = pData.readint();
+        gameStart.wBankerUser = pData.readword();
+        gameStart.wCurrentUser = pData.readword();
+        gameStart.cbPlayStatus = [];
+        for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
+            var status = pData.readbyte();
+            gameStart.cbPlayStatus.push(status);
+        }
+
+        this.m_lMaxScore = gameStart.lMaxScore;
+        this.m_lCellScore = gameStart.lCellScore;
+        this.m_lUserMaxScore = gameStart.lUserMaxScore;
+        this.m_wCurrentUser = gameStart.m_wCurrentUser;
+        this.m_wBankerUser = gameStart.m_wBankerUser;
+        this.m_isFirstAdd = true;
+        this.m_lCurrentTurn = 0;
+        this.m_lCurrentTimes = 1;
+        this.m_llAllTableScore = 0;
+        this.m_isFllowAlway = false;
+        this.m_bLastAddOver = false;
+        //显示庄家
+        //显示底分
+        //显示下注状态
+    },
+    onSubAddScore: function onSubAddScore(sub, pData) {
+        console.log("[GameScene][onSubAddScore]");
+    },
+    onSubLookCard: function onSubLookCard(sub, pData) {
+        console.log("[GameScene][onSubLookCard]");
+    },
+    onSubCompareCard: function onSubCompareCard(sub, pData) {
+        console.log("[GameScene][onSubCompareCard]");
+    },
+    onSubOpenCard: function onSubOpenCard(sub, pData) {
+        console.log("[GameScene][onSubOpenCard]");
+    },
+    onSubGiveUp: function onSubGiveUp(sub, pData) {
+        console.log("[GameScene][onSubGiveUp]");
+    },
+    onSubPlayerExit: function onSubPlayerExit(sub, pData) {
+        console.log("[GameScene][onSubPlayerExit]");
+    },
+    onSubGameEnd: function onSubGameEnd(sub, pData) {
+        console.log("[GameScene][onSubGameEnd]");
+    },
+    onSubLastAdd: function onSubLastAdd(sub, pData) {
+        console.log("[GameScene][onSubLastAdd]");
+    },
+    onClickMenuOpen: function onClickMenuOpen(toggle) {
+        this.m_Panel_menu.active = toggle.isChecked;
+    },
+    onClickChangeTable: function onClickChangeTable(params) {
+        this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR);
+    },
+    onClickQuit: function onClickQuit(params) {
+        this._gameFrame.sendStandupPacket();
+        cc.director.loadScene("PlazaScene");
+    },
+    // sendData : function (sub, dataBuf) {
+    //     if (this._gameFrame) {
+    //         dataBuf.setcmdinfo(GlobalDef.MDM_GF_GAME, sub);
+    //         this._gameFrame.sendSocketData(dataBuf);
+    //     }
+    // },
+    //加注
+    onSendAddScore: function onSendAddScore(lCurrentScore) {
+        //用户加注
+        // struct CMD_C_AddScore
+        // {
+        //     LONG								lScore;								//加注数目
+        //     WORD								wState;								//当前状态
+        // };
+        var dataBuf = CCmd_Data.create();
+        dataBuf.pushint(lCurrentScore);
+        dataBuf.pushword(0);
+        this.sendData(zjh_cmd.SUB_C_ADD_SCORE, dataBuf);
+    }
+}, "onSubCompareCard", function onSubCompareCard(params) {}));
+
+cc._RFpop();
+},{"CMD_ZaJinHua":"CMD_ZaJinHua","GameModel":"GameModel","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GameServerItem":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'c2e88fJn+RCy7BT7oSlWT7S', 'GameServerItem');
 // Script/GameServerItem.js
@@ -2574,8 +3055,9 @@ var GlobalDef = {
     MAX_CHAIR: 100, //◊Ó¥Û“Œ◊”
     MAX_CHAIR_NORMAL: 8, //◊Ó¥Û»À ˝
 
-    INVALID_TABLE: -1, //Œﬁ–ß◊¿◊”∫≈
-    INVALID_CHAIR: -1, //Œﬁ–ß“Œ◊”∫≈
+    INVALID_TABLE: 0xFFFF, //Œﬁ–ß◊¿◊”∫≈
+    INVALID_CHAIR: 0xFFFF, //Œﬁ–ß“Œ◊”∫≈
+    INVALID_ITEM: 0xFFFF,
 
     HMATCH_PORT_MIN: 10000, //–° ±»¸◊Ó–°∂Àø⁄∫≈
     HMATCH_PORT_MAX: 20000, //–° ±»¸◊Ó¥Û∂Àø⁄∫≈
@@ -5163,4 +5645,4 @@ cc.Class({
 });
 
 cc._RFpop();
-},{}]},{},["GameServerItem","GameUserItem","GlobalDef","GlobalUserData","HelloWorld","MD5","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","GameFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","PlazaRoomItem","SettingView","ShopItem","ShopView","UserFaceItem","UserFaceView","UserProfileView"]);
+},{}]},{},["GameServerItem","GameUserItem","GlobalDef","GlobalUserData","HelloWorld","MD5","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","GameScene","GameModel","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","GameFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","PlazaRoomItem","SettingView","ShopItem","ShopView","UserFaceItem","UserFaceView","UserProfileView"]);
