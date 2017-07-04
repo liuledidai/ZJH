@@ -112,10 +112,10 @@ cc.Class({
                 //     TCHAR								szServerName[SERVER_LEN];			//房间名称
                 // };
                 pGameServer.onInit(pData);
-                for (var prop in pGameServer) {
-                    if (typeof(pGameServer[prop]) == "function") continue;
-                    console.log('pGameServer.' + prop, '=', pGameServer[prop]);
-                }
+                // for (var prop in pGameServer) {
+                //     if (typeof(pGameServer[prop]) == "function") continue;
+                //     console.log('pGameServer.' + prop, '=', pGameServer[prop]);
+                // }
                 GlobalUserData.roomList.push(pGameServer);
                 // console.log(pGameServer);
                 break;

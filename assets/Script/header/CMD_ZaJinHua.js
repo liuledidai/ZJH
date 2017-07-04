@@ -158,6 +158,8 @@ zjh_cmd.SUB_S_LAST_ADD = 110;                                 //孤注一掷
 //////////////////////////////////////////////////////////////////////////
 
 //客户端命令结构
+zjh_cmd.MY_VIEWID = 2;//3;
+
 zjh_cmd.SUB_C_ADD_SCORE = 1;                                   //用户加注
 zjh_cmd.SUB_C_GIVE_UP = 2;                                   //放弃消息
 zjh_cmd.SUB_C_COMPARE_CARD = 3;                                   //比牌消息
@@ -193,10 +195,10 @@ zjh_cmd.IDI_USER_COMPARE_CARD		= 202
 zjh_cmd.IDI_DISABLE					= 203
 // *****************时间标识*****************--
 // 开始定时器
-zjh_cmd.TIME_START_GAME				= 20
+zjh_cmd.TIME_START_GAME				= 10
 // 加注定时器
-zjh_cmd.TIME_USER_ADD_SCORE			= 25
+zjh_cmd.TIME_USER_ADD_SCORE			= 10
 // 比牌定时器
-zjh_cmd.TIME_USER_COMPARE_CARD		= 25
+zjh_cmd.TIME_USER_COMPARE_CARD		= 10
 
 module.exports = zjh_cmd;

@@ -86,7 +86,7 @@ cc.Class({
     },
     refreshRoomList: function () {
         var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
-        console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList));
+        console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList, null, ' '));
         var roomListPanel = this.node.getChildByName("m_Panel_center");
         roomListPanel.removeAllChildren();
         for (var index = 0; index < 3; index++) {

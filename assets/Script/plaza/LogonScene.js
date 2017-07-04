@@ -87,10 +87,11 @@ cc.Class({
         params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
         params["channelid"] = GlobalDef.CHANNELID_center;
         if(cc.sys.os == cc.sys.OS_IOS){
-             params["os"] = "2";
+            params["os"] = "2";
         }
         else {
-             params["os"] = "1";
+            // todo
+            params["os"] = "2";//"1";
         }
         var paramString = GlobalFun.buildRequestParam(params);
         // "datetamp=1497411512&faceId=2&userid=27142649&sign=909c47b530c68c8e97ebe407c212c7de"

@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "19676CDCE7BB06069AA77AC1531D31D7BAF6D68E",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+    "19676CDCE7BB06069AA77AC1531D31D7BAF6D68E" : {
+
+    }
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "19676CDCE7BB06069AA77AC1531D31D7BAF6D68E" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "A6FE2363-ED43-4585-B574-C389E95F66A2",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "19676CDCE7BB06069AA77AC1531D31D7BAF6D68E" : "ZJH\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "ZJHGAME",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "build\/jsb-default\/frameworks\/runtime-src\/proj.ios_mac\/ZJHGAME.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "svn:\/\/192.168.83.88",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Subversion",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "19676CDCE7BB06069AA77AC1531D31D7BAF6D68E"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/liuledidai\/ZJH.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "19676CDCE7BB06069AA77AC1531D31D7BAF6D68E"
+    }
+  ]
+}

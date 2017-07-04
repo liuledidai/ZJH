@@ -36,6 +36,8 @@ var GameModel = cc.Class({
         cc.director.on("onEventUserEnter",this.onEventUserEnter,this);
         cc.director.on("onEventUserStatus",this.onEventUserStatus,this);
         cc.director.on("onEventUserScore",this.onEventUserScore,this);
+        cc.director.on("onExitRoom",this.onExitRoom,this);
+        cc.director.on("onExitTable",this.onExitTable,this);
     },
     onDisable: function (params) {
         console.log("[GameModel][onDisable]");
@@ -44,11 +46,12 @@ var GameModel = cc.Class({
         cc.director.off("onEventUserEnter",this.onEventUserEnter,this);
         cc.director.off("onEventUserStatus",this.onEventUserStatus,this);
         cc.director.off("onEventUserScore",this.onEventUserScore,this);
+        cc.director.off("onExitRoom",this.onExitRoom,this);
+        cc.director.off("onExitTable",this.onExitTable,this);
     },
     //初始化游戏数据
     onInitGameEngine: function () {
         console.log("[GameModel][onInitGameEngine]");
-        this._ClockFun = undefined;
         this._ClockID = GlobalDef.INVALID_ITEM;
         this._ClockTime = 0;
         this._ClockChair = GlobalDef.INVALID_CHAIR;
@@ -56,6 +59,7 @@ var GameModel = cc.Class({
     },
     //重置框架
     onResetGameEngine: function () {
+        console.log("[GameModel][onResetGameEngine]");
         this.killGameClock();
         this.m_bOnGame = false;
     },
@@ -68,6 +72,7 @@ var GameModel = cc.Class({
     },
     //退出桌子
     onExitTable: function () {
+        console.log("[GameModel][onExitTable]");
         this.killGameClock();
 
         var myItem = this.getMeUserItem();
@@ -100,8 +105,9 @@ var GameModel = cc.Class({
         var nChairCount = this._gameFrame.getChairCount();  
         var nChairID = this.getMeChairID();
         if (chair !== GlobalDef.INVALID_CHAIR && chair < nChairCount) {
-            viewID = ((chair + Math.floor(nChairCount * 3/2) - nChairID)%(nChairCount)) + 1;
+            viewID = ((chair + Math.floor(nChairCount * 3/2) - nChairID)%(nChairCount)) ;//+ 1;
         }
+        console.log("[GameModel][switchViewChairID] + [nChairCount,nChairID,chair,viewID] = "+ [nChairCount,nChairID,chair,viewID]);
         return viewID;
     },
     //是否合法视图ID
@@ -111,28 +117,28 @@ var GameModel = cc.Class({
     },
     //设置计时器
     setGameClock: function (chair, id, time) {
-        if (!this._ClockFun) {
-            var self = this;
-            this._ClockFun = cc.director.getScheduler().schedule(this.onClockUpdata, this, 1, false);
+        if (!cc.director.getScheduler().isScheduled(this.onClockUpdata,this)) {
+            cc.director.getScheduler().schedule(this.onClockUpdata, this, 1, cc.macro.REPEAT_FOREVER, 0, false);
         }  
         this._ClockChair = chair;
         this._ClockID = id;
         this._ClockTime = time;
         this._ClockViewChair = this.switchViewChairID(chair);
-        this.onUpdataClockView();
+        this.onUpdateClockView();
     },
     //关闭计时器
     killGameClock: function (notView) {
+        console.log("[GameModel][killGameClock]");
         this._ClockID = GlobalDef.INVALID_ITEM;
         this._ClockTime = 0;
         this._ClockChair = GlobalDef.INVALID_CHAIR;
         this._ClockViewChair = GlobalDef.INVALID_CHAIR;
-        if (this._ClockFun) {
+        if (cc.director.getScheduler().isScheduled(this.onClockUpdata,this)) {
+            console.log("[GameModel][killGameClock] unschedule this.onClockUpdata");
             cc.director.getScheduler().unschedule(this.onClockUpdata, this);
-            this._ClockFun = undefined;
         }  
         if (! notView) {
-            this.onUpdataClockView();
+            this.onUpdateClockView();
         }
     },
     getClockViewID: function () {
@@ -140,76 +146,99 @@ var GameModel = cc.Class({
     },
     //计时器更新
     onClockUpdata: function () {
+        console.log("[GameModel][onClockUpdata] chair = " + this._ClockChair + " time = " + this._ClockTime + " id = " + this._ClockID);
         if (this._ClockID !== GlobalDef.INVALID_ITEM) {
             this._ClockTime = this._ClockTime - 1;
             var ret = this.onEventGameClockInfo(this._ClockChair, this._ClockTime, this._ClockID);
             if (ret === true || this._ClockTime < 1) {
+                console.log("[GameModel][onClockUpdata] [ret,clocktime] = " + [ret,this._ClockTime]);
                 this.killGameClock();
             }
         }  
-        this.onUpdataClockView();
+        this.onUpdateClockView();
     },
     //更新计时器显示
-    onUpdataClockView: function () {
-        // onUpdataClockView
+    onUpdateClockView: function () {
+        // onUpdateClockView
+        console.log("[GameModel][onUpdateClockView] clockTime = " + this._ClockTime + " viewChair = " + this._ClockViewChair);
     },
     //用户状态 
     onEventUserStatus: function (params) {
         // params = {userItem:,newStatus,oldStatus,}
-        var userItem = params.userItem;
-        var newStatus = params.newStatus;
-        var oldStatus = params.oldStatus;
+        console.log("[GameModel][onEventUserStatus]");
+        var userItem = params.detail.userItem;
+        var newStatus = params.detail.newStatus;
+        var oldStatus = params.detail.oldStatus;
         var myTable = this.getMeTableID();
         var myChair = this.getMeChairID();
 
-        if (!myTable || myTable === GlobalDef.INVALID_TABLE) {
+        if (myTable === undefined || myTable === GlobalDef.INVALID_TABLE) {
             return;
         }
+        console.log("[GameModel][onEventUserStatus] myTable = " + myTable + " old = " + JSON.stringify(oldStatus, null, ' ') + " new = " + JSON.stringify(newStatus, null, ' '));
         //旧的清除
         if (oldStatus.wTableID === myTable) {
             var viewID = this.switchViewChairID(oldStatus.wChairID);
-            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+            if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
+                console.log("[GameModel][onEventUserStatus] 旧的清除");
                 // onUpdateUser
+                if (this._gameView && this._gameView.onUpdateUser)
+                {
+                    this._gameView.onUpdateUser(viewID, undefined);
+                }
             }
         }
         //更新新状态
         if (newStatus.wTableID === myTable) {
             var viewID = this.switchViewChairID(newStatus.wChairID);
-            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+            if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
                 // onUpdateUser
+                console.log("[GameModel][onEventUserStatus] 更新新状态");
+                if (this._gameView && this._gameView.onUpdateUser)
+                {
+                    this._gameView.onUpdateUser(viewID, userItem);
+                }
             }
         }
     },
     //用户积分
     onEventUserScore: function (params) {
         // params = {userScore,}
-        var userItem = params.userItem;
+        var userItem = params.detail.userItem;
         var myTable = this.getMeTableID();
-        if (!myTable || myTable === GlobalDef.INVALID_TABLE) {
+        if (myTable === undefined || myTable === GlobalDef.INVALID_TABLE) {
             return;
         }
         if (myTable === userItem.wTableID) {
             var viewID = this.switchViewChairID(userItem.wChairID);
-            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+            if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
                 // onUpdateUser
+                if (this._gameView && this._gameView.onUpdateUser)
+                {
+                    this._gameView.onUpdateUser(viewID, userItem);
+                }
             }
         }
     },
     //用户进入
     onEventUserEnter: function (params) {
         // params = {wTableID,wChairID,userItem,}
-        var wTableID = params.wTableID;
-        var wChairID = params.wChairID;
-        var userItem = params.userItem;
+        var wTableID = params.detail.wTableID;
+        var wChairID = params.detail.wChairID;
+        var userItem = params.detail.userItem;
 
         var myTable = this.getMeTableID();
-        if (!myTable || myTable === GlobalDef.INVALID_TABLE) {
+        if (myTable === undefined || myTable === GlobalDef.INVALID_TABLE) {
             return;
         }
         if (myTable === wTableID) {
             var viewID = this.switchViewChairID(wChairID);
-            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+            if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
                 // onUpdateUser
+                if (this._gameView && this._gameView.onUpdateUser)
+                {
+                    this._gameView.onUpdateUser(viewID, userItem);
+                }
             }
         }
     },

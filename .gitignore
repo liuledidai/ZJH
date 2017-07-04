@@ -8,6 +8,9 @@ temp/
 #local/
 #build/
 *.pyc
+.svn/
+#build/jsb-default/frameworks/cocos2d-x/cocos/editor-support/
+build/jsb-default/frameworks/cocos2d-x/cocos/editor-support/spine/
 
 #/////////////////////////////////////////////////////////////////////////////
 # Logs and databases

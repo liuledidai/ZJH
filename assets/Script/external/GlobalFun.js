@@ -76,7 +76,7 @@ function buildRequestParam(params) {
     var nowTime = Math.floor(Date.now()/1000);
     params["datetamp"] = nowTime;
     var sort_params = Object.keys(params).sort()
-    console.log("[GlobalFun][buildRequestParam] " + JSON.stringify(params));
+    console.log("[GlobalFun][buildRequestParam] " + JSON.stringify(params,null,' '));
     var paramString = "";
     for (var ki in sort_params) {
         var key = sort_params[ki];
@@ -120,6 +120,11 @@ function numberToIp(number) {
     
     return ip;   
 }
+//数字填充前缀0
+function PrefixInteger(num, length) {
+    return (Array(length).join('0') + num).slice(-length);
+}
+
 module.exports = {
     ActionShowTanChuang: ActionShowTanChuang,
     showToast: showToast,
@@ -128,4 +133,5 @@ module.exports = {
     buildRequestParam: buildRequestParam,
     ipToNumber:ipToNumber,
     numberToIp:numberToIp,
+    PrefixInteger:PrefixInteger,
 };

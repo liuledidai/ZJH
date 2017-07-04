@@ -40,6 +40,9 @@ cc.Class({
             return;
         }
         console.log("[GameFrame][onLogonRoom] 登录房间: " + GlobalFun.numberToIp(this._roomInfo.dwServerAddr) + "# " + this._roomInfo.wServerPort);
+        if (this._socket) {
+            this.onCloseSocket();
+        }
         if(this.onCreateSocket(GlobalFun.numberToIp(this._roomInfo.dwServerAddr),this._roomInfo.wServerPort) === false) {
             console.log("[GameFrame][onLogonRoom][onCreateSocket] fail");
             return false;
@@ -100,11 +103,30 @@ cc.Class({
             logonError.szErrorDescribe = pData.readstring(128);
             console.log("[GameFrame][OnSocketMainLogon] errorCode = " + logonError.lErrorCode + " des = " + logonError.szErrorDescribe);
             this.onCloseSocket();
+            GlobalFun.showToast(cc.director.getScene(),logonError.szErrorDescribe);
             // console.log("logonframe login error");
         }
         else if(sub === game_cmd.SUB_GR_LOGON_FINISH){
             cc.director.loadScene("GameScene");
+            this.onSocketLogonFinish();
             console.log("[GameFrame][OnSocketMainLogon] Logon Finish");
+        }
+    },
+    //登录完成
+    onSocketLogonFinish: function () {
+        console.log("[GameFrame][onSocketLogonFinish]");
+        var myUserItem = this.getMeUserItem();
+        if (!myUserItem) {
+            console.log("[GameFrame][onSocketLogonFinish] 获取自己的信息失败");
+            return;
+        }
+        if (this._wTableID !== GlobalDef.INVALID_TABLE) {
+            cc.director.emit("onEnterTable");
+            this.sendGameOption();
+        }
+        else {
+            cc.director.emit("onEnterRoom");
+            this.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR);
         }
     },
     OnSocketMainUser: function(sub,pData) {
@@ -219,7 +241,7 @@ cc.Class({
                 this._tableStatus[tableStatus.wTableID].bPlayStatus = tableStatus.bPlayStatus;
                 this._tableStatus[tableStatus.wTableID].bTableLock = tableStatus.bTableLock;
 
-                cc.director.emit("upDataTableStatus",{
+                cc.director.emit("upDateTableStatus",{
                     wTableID:tableStatus.wTableID,
                 });
                 break;
@@ -333,7 +355,7 @@ cc.Class({
         console.log("[GameFrame][OnSocketSubUserCome] pData len = " + pData.getDataSize());
         var userItem = new GameUserItem();
         userItem.initDataByUserInfoHead(pData);
-        console.log("[GameFrame][OnSocketSubUserCome] " + JSON.stringify(userItem));
+        console.log("[GameFrame][OnSocketSubUserCome] " + JSON.stringify(userItem, null, ' '));
         var item = this._userList[userItem.dwUserID];
         // if (item) {
             this._userList[userItem.dwUserID] = userItem;
@@ -345,12 +367,15 @@ cc.Class({
         }
         if (userItem.wTableID !== GlobalDef.INVALID_TABLE && userItem.wChairID !== GlobalDef.INVALID_CHAIR)
         {
-            this.onUpDataTableUser(userItem.wTableID,userItem.wChairID,userItem);
+            this.onUpDateTableUser(userItem.wTableID,userItem.wChairID,userItem);
             cc.director.emit("onEventUserEnter",{
                 wTableID:userItem.wTableID,
                 wChairID:userItem.wChairID,
                 userItem:userItem,
             });
+        }
+        if (userItem.dwUserID === GlobalUserData.dwUserID){
+            this.onSocketLogonFinish();
         }
     },
     OnSocketSubStatus: function (sub,pData) {
@@ -369,6 +394,7 @@ cc.Class({
         userStatus.cbUserStatus = pData.readbyte();
         userStatus.wChairID = pData.readword();
 
+        console.log("[GameFrame][OnSocketSubStatus] newStatus = " + JSON.stringify(userStatus, null, ' '));
         var userItem = this.searchUserByUserID(userStatus.dwUserID);
         var myUserItem = this.getMeUserItem();
         if (!myUserItem) {
@@ -395,12 +421,12 @@ cc.Class({
         if(oldStatus.wTableID !== GlobalDef.INVALID_TABLE) {
             //新旧桌子不同 新旧椅子不同
             if (oldStatus.wTableID !== userStatus.wTableID || oldStatus.wChairID !== userStatus.wChairID) {
-                this.onUpDataTableUser(oldStatus.wTableID, oldStatus.wChairID, undefined);
+                this.onUpDateTableUser(oldStatus.wTableID, oldStatus.wChairID, undefined);
             }
         }
         //新桌子记录
         if (userStatus.wTableID !== GlobalDef.INVALID_TABLE) {
-            this.onUpDataTableUser(userStatus.wTableID, userStatus.wChairID, userItem);
+            this.onUpDateTableUser(userStatus.wTableID, userStatus.wChairID, userItem);
         }
 
         //自己状态
@@ -422,6 +448,7 @@ cc.Class({
             else if (userStatus.cbUserStatus > GlobalDef.US_FREE && oldStatus.cbUserStatus < GlobalDef.US_SIT) {
                 console.log("[GameFrame][OnSocketSubStatus] 自己坐下");
                 cc.director.emit("onEnterTable");
+                this.sendGameOption();
                 cc.director.emit("onEventUserStatus",{
                     userItem:userItem,
                     newStatus:userStatus,
@@ -432,6 +459,7 @@ cc.Class({
             else if (userStatus.wTableID !== GlobalDef.INVALID_TABLE) {
                 console.log("[GameFrame][OnSocketSubStatus] 换位");
                 cc.director.emit("onEnterTable");
+                this.sendGameOption();
                 cc.director.emit("onEventUserStatus",{
                     userItem:userItem,
                     newStatus:userStatus,
@@ -439,7 +467,7 @@ cc.Class({
                 });
             }
             else {
-                console.log("[GameFrame][OnSocketSubStatus] 自己新状态 " + JSON.stringify(userStatus));
+                console.log("[GameFrame][OnSocketSubStatus] 自己新状态 " + JSON.stringify(userStatus, null, ' '));
                 cc.director.emit("onEventUserStatus",{
                     userItem:userItem,
                     newStatus:userStatus,
@@ -504,7 +532,7 @@ cc.Class({
         var userItem = this.searchUserByUserID(userScore.dwUserID);
         // if (userScore.dwUserID == myUserItem.dwUserID) {
         if (!userItem) {
-            console.log("[GameFrame][OnSocketSubScore] 更新 " + JSON.stringify(userScore));
+            console.log("[GameFrame][OnSocketSubScore] 更新 " + JSON.stringify(userScore, null, ' '));
             userItem.lScore = userScore.UserScore.lScore;
             userItem.lGameGold = userScore.UserScore.lGameGold;
             userItem.lWinCount = userScore.UserScore.lWinCount;
@@ -639,7 +667,19 @@ cc.Class({
 
         this.sendSocketData(data);
     },
-    onUpDataTableUser: function (tableid,chairid,useritem) {
+    //发送游戏信息
+    sendGameOption: function () {
+        //版本信息
+        // struct CMD_GF_Info
+        // {
+        //     BYTE								bAllowLookon;					//旁观标志
+        // };
+        var data = CCmd_Data.create();
+        data.setcmdinfo(GlobalDef.MDM_GF_FRAME, GlobalDef.SUB_GF_INFO);
+        data.pushbyte(0);
+        this.sendSocketData(data);
+    },
+    onUpDateTableUser: function (tableid,chairid,useritem) {
         var id = tableid;
         var idex = chairid;
         if (!this._tableUserList[id]) {
@@ -673,11 +713,11 @@ cc.Class({
     },
     //获取桌子ID
     getTableID: function () {
-        this._wTableID;
+        return this._wTableID;
     },
     //获取椅子ID
     getChairID: function () {
-        this._wChairID;  
+        return this._wChairID;  
     },
     //获取游戏状态
     getGameStatus: function () {

@@ -31,7 +31,7 @@ cc.Class({
             this.m_Label_productPrice.string = this._params["pay_amt"] + "元";
             this.m_Label_payPrice.string = this._params["pay_amt"] + "元";
         }
-        console.log("[ChoosePayTypeView][init] " + JSON.stringify(this._params));
+        console.log("[ChoosePayTypeView][init] " + JSON.stringify(this._params, null, ' '));
     },
     onEnable: function() {
         // cc.director.on('onChangeUserFace',this.onChangeUserFace,this);

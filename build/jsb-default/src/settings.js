@@ -67,9 +67,25 @@ _CCSettings = {
                 "resources/font/turnFnt.png",
                 "cc.Texture2D"
             ],
+            "39f9c1c0-0bd6-4eb4-92fe-920f962b9232": [
+                "resources/prefab/cardNode.prefab",
+                "cc.Prefab"
+            ],
+            "3c605b3d-423b-4edc-883e-7426da2d9d14": [
+                "resources/prefab/UserInfaceItem.prefab",
+                "cc.Prefab"
+            ],
+            "414d1dd4-5eca-4487-b088-4b8ea65da9fd": [
+                "resources/font/lunshu_0.png",
+                "cc.Texture2D"
+            ],
             "41b3abc2-d5fc-47c5-92db-39838587f70b": [
                 "resources/json/nickename.txt",
                 "cc.RawAsset"
+            ],
+            "46199fde-219f-42aa-8e4b-fab5ca72bc25": [
+                "resources/font/clockFnt.fnt",
+                "cc.BitmapFont"
             ],
             "4c5512a8-080e-471d-ac9e-8aab06f68494": [
                 "Texture/mainscene.png",
@@ -82,6 +98,11 @@ _CCSettings = {
             "59919dcc-6a2c-4fc9-8955-1a879ca9ff94": [
                 "resources/font/loserFnt.png",
                 "cc.Texture2D"
+            ],
+            "5a58b55f-cbbe-4028-a8ca-39e2019ebd0e": [
+                "resources/font/addscore",
+                "cc.SpriteFrame",
+                1
             ],
             "63a8f24b-04a1-4276-ba1b-fa7999179d62": [
                 "Texture/gamescene_back.jpg",
@@ -120,9 +141,17 @@ _CCSettings = {
                 "resources/font/brokeFnt.fnt",
                 "cc.BitmapFont"
             ],
+            "82116e7f-3691-46df-a6b1-324fee04d9cc": [
+                "Texture/card.png",
+                "cc.Texture2D"
+            ],
             "829fc42d-2231-497c-a9e8-88526abaa940": [
                 "Texture/gameplaza_back.jpg",
                 "cc.Texture2D"
+            ],
+            "860c9242-3664-4c01-8af3-f2c6a16c8103": [
+                "resources/font/arial.ttf",
+                "cc.TTFFont"
             ],
             "86779867-02c7-423d-bcc6-6d67862e8d13": [
                 "Texture/plazaScene.png",
@@ -152,6 +181,10 @@ _CCSettings = {
             "99f9272e-b3b2-4b94-9ea6-471dd35125ac": [
                 "resources/prefab/RegisterView.prefab",
                 "cc.Prefab"
+            ],
+            "9a1752a2-79ee-44e0-b601-2269766c6dc0": [
+                "resources/font/Marker Felt.ttf",
+                "cc.TTFFont"
             ],
             "9d4e617c-8711-4e3a-b42f-2598226404c1": [
                 "resources/prefab/ShopView.prefab",
@@ -191,6 +224,10 @@ _CCSettings = {
                 "cc.SpriteFrame",
                 1
             ],
+            "ca4e730a-02a8-480f-ba53-7ce89eb68d0e": [
+                "resources/font/addscore.png",
+                "cc.Texture2D"
+            ],
             "cbbd3a58-ebd6-4986-8eb5-dbfb2b8024ef": [
                 "resources/prefab/PopWaitingView.prefab",
                 "cc.Prefab"
@@ -220,6 +257,14 @@ _CCSettings = {
                 "resources/font/tableScoreFnt.fnt",
                 "cc.BitmapFont"
             ],
+            "e5707b4d-aa3d-4659-94aa-f36549b3a391": [
+                "Texture/people.png",
+                "cc.Texture2D"
+            ],
+            "eb854178-eead-4502-b66c-9917643c642c": [
+                "resources/font/clockFnt.png",
+                "cc.Texture2D"
+            ],
             "ee2dc409-b9d1-4473-9edb-ee8facdb060b": [
                 "Texture/gameScene.png",
                 "cc.Texture2D"
@@ -227,6 +272,16 @@ _CCSettings = {
             "ef6c8276-e168-4fa7-b0b8-e46a5134756c": [
                 "resources/prefab/UserFaceView.prefab",
                 "cc.Prefab"
+            ],
+            "f4326154-3fc3-442c-8ef9-ae74d2f3d751": [
+                "resources/font/lunshu_0",
+                "cc.SpriteFrame",
+                1
+            ],
+            "fa000bc6-4f0c-4dc3-82dd-f7adfda306c5": [
+                "resources/font/clockFnt",
+                "cc.SpriteFrame",
+                1
             ]
         },
         "internal": {

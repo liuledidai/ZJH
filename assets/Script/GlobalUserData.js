@@ -39,7 +39,7 @@ var GlobalUserData = {
         cc.loader.loadRes("json/shoppage", function (err, content) {
             console.log(content);
             GlobalUserData.shopData = content;
-            console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.shopData));
+            // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.shopData, null, ' '));
         });
         this.roomList = [];
     },
@@ -79,10 +79,10 @@ var GlobalUserData = {
         this.szAccounts = pData.readstring(32);
         this.szNickName = pData.readstring(32);
         // console.log(this);
-        for (var prop in this) {
-            if (typeof(this[prop]) == "function") continue;
-            console.log('this.' + prop, '=', this[prop]);
-        }
+        // for (var prop in this) {
+        //     if (typeof(this[prop]) == "function") continue;
+        //     console.log('this.' + prop, '=', this[prop]);
+        // }
     },
     getRoomByGame: function (wKindID) {
         var roomList = [];

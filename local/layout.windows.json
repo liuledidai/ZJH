@@ -5,10 +5,10 @@
       "main": true,
       "url": "app://editor/index.html",
       "windowType": "dockable",
-      "x": -1920,
-      "y": 23,
+      "x": -1600,
+      "y": 90,
       "width": 1920,
-      "height": 997,
+      "height": 1057,
       "layout": {
         "children": [
           {
@@ -18,7 +18,7 @@
                 "children": [
                   "hierarchy"
                 ],
-                "height": 459,
+                "height": 459.34375,
                 "type": "panel",
                 "width": 311
               },
@@ -27,7 +27,7 @@
                 "children": [
                   "assets"
                 ],
-                "height": 504,
+                "height": 503.65625,
                 "type": "panel",
                 "width": 311
               }
@@ -45,7 +45,7 @@
                     "children": [
                       "scene"
                     ],
-                    "height": 504,
+                    "height": 503.65625,
                     "type": "panel",
                     "width": 834
                   },
@@ -54,12 +54,12 @@
                     "children": [
                       "node-library"
                     ],
-                    "height": 504,
+                    "height": 503.65625,
                     "type": "panel",
                     "width": 305
                   }
                 ],
-                "height": 504,
+                "height": 503.65625,
                 "type": "dock-h",
                 "width": 1142
               },
@@ -69,7 +69,7 @@
                   "console",
                   "timeline"
                 ],
-                "height": 459,
+                "height": 459.34375,
                 "type": "panel",
                 "width": 1142
               }
@@ -98,19 +98,6 @@
         "scene",
         "node-library",
         "timeline"
-      ]
-    },
-    "window-1498197857689": {
-      "main": false,
-      "url": "packages://code-editor/panel/index.html",
-      "windowType": "simple",
-      "x": -1103,
-      "y": 73,
-      "width": 1040,
-      "height": 985,
-      "layout": null,
-      "panels": [
-        "code-editor"
       ]
     },
     "worker": {}
