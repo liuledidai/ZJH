@@ -49,7 +49,10 @@ LOCAL_SRC_FILES := ../auto/jsb_cocos2dx_extension_auto.cpp \
                    ../manual/spine/jsb_cocos2dx_spine_manual.cpp \
                    ../manual/dragonbones/jsb_cocos2dx_dragonbones_manual.cpp \
                    ../manual/ui/jsb_cocos2dx_ui_manual.cpp \
-                   ../manual/platform/android/CCJavascriptJavaBridge.cpp
+                   ../manual/platform/android/CCJavascriptJavaBridge.cpp \
+                   ../auto/jsb_jsbTest_auto.cpp \
+                   ../auto/jsb_ClientSocket_auto.cpp \
+                   ../auto/jsb_CCmd_Data_auto.cpp
 
 LOCAL_CFLAGS := -DCOCOS2D_JAVASCRIPT
 
@@ -69,7 +72,8 @@ LOCAL_C_INCLUDES := $(LOCAL_PATH)/../manual \
                     $(LOCAL_PATH)/../../../editor-support/spine \
                     $(LOCAL_PATH)/../../../editor-support/cocosbuilder \
                     $(LOCAL_PATH)/../../../editor-support/cocostudio \
-                    $(LOCAL_PATH)/../../../editor-support/creator
+                    $(LOCAL_PATH)/../../../editor-support/creator \
+                    $(LOCAL_PATH)/../../../../../runtime-src/Classes \
 
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../manual \

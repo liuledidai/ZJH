@@ -443,6 +443,7 @@ cc.Class({
             else if (userStatus.cbUserStatus === GlobalDef.US_FREE && oldStatus.cbUserStatus > GlobalDef.US_FREE) {
                 console.log("[GameFrame][OnSocketSubStatus] 自己起立");
                 cc.director.emit("onExitTable");
+                this.onResetGameEngine();
             }
             //坐下
             else if (userStatus.cbUserStatus > GlobalDef.US_FREE && oldStatus.cbUserStatus < GlobalDef.US_SIT) {
@@ -736,6 +737,9 @@ cc.Class({
     },
     onRemoveUser: function (dwUserID) {
         this._userList[dwUserID] = undefined;
+    },
+    onResetGameEngine: function () {
+        
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

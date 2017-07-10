@@ -25,7 +25,7 @@ cc.Class({
         this.m_Label_alert.string = message;
         this.node.opacity = 0;
         this.node.runAction(cc.sequence(cc.fadeIn(0.5),cc.delayTime(1.0),cc.fadeOut(0.5),cc.removeSelf()));
-        console.log("[AlertView][onDestroy] message = " + message);
+        console.log("[AlertView][init] message = " + message);
     },
     onDestroy: function () {
         cc.sys.garbageCollect();

@@ -184,13 +184,27 @@ storage/local-storage/LocalStorage-android.cpp \
 ../external/sources/poly2tri/sweep/cdt.cc \
 ../external/sources/poly2tri/sweep/sweep_context.cc \
 ../external/sources/poly2tri/sweep/sweep.cc \
-../external/sources/clipper/clipper.cpp
+../external/sources/clipper/clipper.cpp \
+../../runtime-src/Classes/CCmd_Data.cpp \
+../../runtime-src/Classes/ClientSocket.cpp \
+../../runtime-src/Classes/jsbTest.cpp \
+../../runtime-src/Classes/Game/NetWork/CTCPSocket.cpp \
+../../runtime-src/Classes/Game/NetWork/BSDSocket.cpp \
+../../runtime-src/Classes/Game/NetWork/tools.cpp \
+../../runtime-src/Classes/Game/NetWork/CMD5.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/platform \
                     $(LOCAL_PATH)/editor-support \
                     $(LOCAL_PATH)/../external/android/$(TARGET_ARCH_ABI)/include \
-                    $(LOCAL_PATH)/../external/sources
+                    $(LOCAL_PATH)/../external/sources \
+                    $(LOCAL_PATH)/../../runtime-src/Classes \
+                    $(LOCAL_PATH)/../../runtime-src/Classes/Game \
+                    $(LOCAL_PATH)/../../runtime-src/Classes/Game/Common \
+                    $(LOCAL_PATH)/../../runtime-src/Classes/Game/NetWork \
+                    $(LOCAL_PATH)/../libiconv \
+                    $(LOCAL_PATH)/../libiconv/include \
+                    $(LOCAL_PATH)/.. 
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/.. \
@@ -213,6 +227,7 @@ LOCAL_STATIC_LIBRARIES += cocos_zlib_static
 
 LOCAL_WHOLE_STATIC_LIBRARIES := cocos2dxandroid_static
 LOCAL_WHOLE_STATIC_LIBRARIES += cpufeatures
+LOCAL_WHOLE_STATIC_LIBRARIES += libiconv_static
 
 # define the macro to compile through support/zip_support/ioapi.c
 LOCAL_CFLAGS := -DUSE_FILE32API -fexceptions
@@ -258,3 +273,4 @@ $(call import-module,network)
 $(call import-module,ui)
 $(call import-module,extensions)
 $(call import-module,android/cpufeatures)
+$(call import-module,libiconv)

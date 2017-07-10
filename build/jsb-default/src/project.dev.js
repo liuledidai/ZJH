@@ -32,7 +32,7 @@ cc.Class({
         this.m_Label_alert.string = message;
         this.node.opacity = 0;
         this.node.runAction(cc.sequence(cc.fadeIn(0.5), cc.delayTime(1.0), cc.fadeOut(0.5), cc.removeSelf()));
-        console.log("[AlertView][onDestroy] message = " + message);
+        console.log("[AlertView][init] message = " + message);
     },
     onDestroy: function onDestroy() {
         cc.sys.garbageCollect();
@@ -2779,14 +2779,14 @@ var GameModel = cc.Class({
         var myTable = this.getMeTableID();
         var myChair = this.getMeChairID();
 
-        if (!myTable || myTable === GlobalDef.INVALID_TABLE) {
+        if (myTable === undefined || myTable === GlobalDef.INVALID_TABLE) {
             return;
         }
         console.log("[GameModel][onEventUserStatus] myTable = " + myTable + " old = " + JSON.stringify(oldStatus, null, ' ') + " new = " + JSON.stringify(newStatus, null, ' '));
         //旧的清除
         if (oldStatus.wTableID === myTable) {
             var viewID = this.switchViewChairID(oldStatus.wChairID);
-            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+            if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
                 console.log("[GameModel][onEventUserStatus] 旧的清除");
                 // onUpdateUser
                 if (this._gameView && this._gameView.onUpdateUser) {
@@ -2797,7 +2797,7 @@ var GameModel = cc.Class({
         //更新新状态
         if (newStatus.wTableID === myTable) {
             var viewID = this.switchViewChairID(newStatus.wChairID);
-            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+            if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
                 // onUpdateUser
                 console.log("[GameModel][onEventUserStatus] 更新新状态");
                 if (this._gameView && this._gameView.onUpdateUser) {
@@ -2811,12 +2811,12 @@ var GameModel = cc.Class({
         // params = {userScore,}
         var userItem = params.detail.userItem;
         var myTable = this.getMeTableID();
-        if (!myTable || myTable === GlobalDef.INVALID_TABLE) {
+        if (myTable === undefined || myTable === GlobalDef.INVALID_TABLE) {
             return;
         }
         if (myTable === userItem.wTableID) {
             var viewID = this.switchViewChairID(userItem.wChairID);
-            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+            if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
                 // onUpdateUser
                 if (this._gameView && this._gameView.onUpdateUser) {
                     this._gameView.onUpdateUser(viewID, userItem);
@@ -2832,12 +2832,12 @@ var GameModel = cc.Class({
         var userItem = params.detail.userItem;
 
         var myTable = this.getMeTableID();
-        if (!myTable || myTable === GlobalDef.INVALID_TABLE) {
+        if (myTable === undefined || myTable === GlobalDef.INVALID_TABLE) {
             return;
         }
         if (myTable === wTableID) {
             var viewID = this.switchViewChairID(wChairID);
-            if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+            if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
                 // onUpdateUser
                 if (this._gameView && this._gameView.onUpdateUser) {
                     this._gameView.onUpdateUser(viewID, userItem);
@@ -2967,7 +2967,7 @@ cc.Class({
     setGameClock: function setGameClock(chair, id, time) {
         this._super(chair, id, time);
         var viewID = this.getClockViewID();
-        if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+        if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
             //时间进度条
             //this.OnEventGameClockInfo(viewID, id);
         }
@@ -2975,7 +2975,7 @@ cc.Class({
     //关闭计时器
     killGameClock: function killGameClock(notView) {
         var viewID = this.getClockViewID();
-        if (viewID && viewID !== GlobalDef.INVALID_CHAIR) {
+        if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
             //时间进度条
         }
         this._super();
@@ -3050,7 +3050,7 @@ cc.Class({
                 this._gameView.setCellScore(this.m_lCellScore);
                 // showReady();显示准备按钮
                 this._gameView.m_Button_ready.node.active = this.getMeUserItem().cbUserStatus === GlobalDef.US_SIT;
-                this.setGameClock(this.getMeChairID(), zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);
+                this.setGameClock(GlobalDef.INVALID_CHAIR, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);
                 break;
             case GlobalDef.GS_PLAYING:
                 // struct CMD_S_StatusPlay
@@ -3642,11 +3642,11 @@ cc.Class({
 
         this.m_lCurrentTurn = lastAdd.lCurrentTurn;
     },
-    onClickMenuOpen: function onClickMenuOpen(toggle) {
-        this.m_Panel_menu.active = toggle.isChecked;
-        // toggle.node.setLocalZOrder(2);
-        // this.m_Panel_menu.setLocalZOrder(1);
-    },
+    // onClickMenuOpen: function (toggle) {
+    //     this.m_Panel_menu.active = toggle.isChecked;
+    //     // toggle.node.setLocalZOrder(2);
+    //     // this.m_Panel_menu.setLocalZOrder(1);
+    // },
     onClickChangeTable: function onClickChangeTable(params) {
         this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR);
     },
@@ -3705,7 +3705,7 @@ cc.Class({
     //比牌操作
     onCompareCard: function onCompareCard() {
         var myChair = this.getMeChairID();
-        if (!myChair || myChair !== this.m_wCurrentUser) {
+        if (myChair === undefined || myChair !== this.m_wCurrentUser) {
             return;
         }
 
@@ -3789,7 +3789,7 @@ cc.Class({
     onLookCard: function onLookCard() {
         var myChair = this.getMeChairID();
         console.log("[GameScene][onLookCard] type[myChair,this.m_wCurrentUser] = " + [typeof myChair === "undefined" ? "undefined" : _typeof(myChair), _typeof(this.m_wCurrentUser)]);
-        if (!myChair || myChair == GlobalDef.INVALID_CHAIR) {
+        if (myChair === undefined || myChair == GlobalDef.INVALID_CHAIR) {
             return;
         }
         if (this.m_wCurrentUser != myChair) {
@@ -3839,7 +3839,7 @@ cc.Class({
     //更新按钮控制
     updateControl: function updateControl() {
         var myChair = this.getMeChairID();
-        if (!myChair || myChair === GlobalDef.INVALID_CHAIR) {
+        if (myChair === undefined || myChair === GlobalDef.INVALID_CHAIR) {
             console.log("[GameScene][updateControl] mychair is invalid " + myChair);
             return;
         }
@@ -4213,6 +4213,7 @@ cc.Class({
         m_Label_time: cc.Label,
         cardPrefab: cc.Prefab,
         userInfacePrefab: cc.Prefab,
+        chipPrefab: cc.Prefab,
         m_Button_ready: cc.Button,
         m_Button_lookCard: cc.Button,
         m_Button_giveUp: cc.Button,
@@ -4244,7 +4245,8 @@ cc.Class({
         m_GiveUp: {
             default: [],
             type: cc.Node
-        }
+        },
+        m_Toggle_menuOpen: cc.Toggle
     },
 
     // use this for initialization
@@ -4284,6 +4286,10 @@ cc.Class({
             var node = this.m_nodeBottom[i];
             node.active = false;
         }
+        this.nodeChipPool = this.node.getChildByName("nodeChipPool");
+        this.m_Panel_areaMenu = this.node.getChildByName("m_Panel_areaMenu");
+        this.onClickMenuOpen(this.m_Toggle_menuOpen.getComponent(cc.Toggle));
+        this.m_bShowMenu = false;
     },
     onEnable: function onEnable() {},
     onResetView: function onResetView() {
@@ -4311,7 +4317,8 @@ cc.Class({
     },
 
     //更新时钟
-    onUpdataClockView: function onUpdataClockView(viewID, time) {
+    onUpdateClockView: function onUpdateClockView(viewID, time) {
+        console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
         if (time <= 0) {
             this.m_Progress_time.node.active = false;
             return;
@@ -4330,7 +4337,7 @@ cc.Class({
     //更新用户显示
     onUpdateUser: function onUpdateUser(viewID, userItem) {
 
-        if (!viewID || viewID === GlobalDef.INVALID_CHAIR) {
+        if (viewID === undefined || viewID === GlobalDef.INVALID_CHAIR) {
             console.log("[GameView][onUpdateUser] viewID is undefined or invalid");
             return;
         }
@@ -4345,7 +4352,29 @@ cc.Class({
     //牌类型介绍的弹出与弹入
     onShowIntroduce: function onShowIntroduce(bShow) {},
     //筹码移动
-    playerJetton: function playerJetton(wViewChairID, num, notani) {},
+    playerJetton: function playerJetton(wViewChairID, num, notani) {
+        if (!num || num < 1 || !this.m_lCellScore || this.m_lCellScore < 1) {
+            console.log("[GameView][playerJetton] num is invalid");
+            return;
+        }
+        var count = Math.floor(num / this.m_lCellScore);
+        if (count > 10) {
+            count = 10;
+        }
+        if (count <= 0) {
+            count = 1;
+        }
+        for (var i = 0; i < count; i++) {
+            var chip = cc.instantiate(this.chipPrefab);
+            this.nodeChipPool.addChild(chip);
+            chip.setPosition(this.ptPlayer[wViewChairID]);
+            chip.setScale(0.5);
+            var x = Math.random() * 200 - 100;
+            var y = Math.random() * 100 - 50;
+            console.log("[GameView][playerJetton] [x,y] = " + [x, y]);
+            chip.runAction(cc.moveTo(0.2, cc.p(x, y)));
+        }
+    },
     //停止比牌动画
     stopCompareCard: function stopCompareCard() {
         this.node.getChildByName("compareView").active = false;
@@ -4470,13 +4499,44 @@ cc.Class({
     //显示牌类型
     setUserCardType: function setUserCardType(viewID, cardtype) {},
     //赢得筹码
-    winTheChip: function winTheChip(wWinner) {},
+    winTheChip: function winTheChip(wWinner) {
+        var children = this.nodeChipPool.children;
+        for (var i = 0; i < children.length; i++) {
+            var element = children[i];
+            element.runAction(cc.sequence(cc.delayTime(0.1 * (children.length - i)), cc.moveTo(0.4, this.ptPlayer[wWinner]), cc.callFunc(function (node) {
+                node.destroy();
+            })));
+        }
+    },
     //清理筹码
-    cleanAllJettons: function cleanAllJettons() {},
+    cleanAllJettons: function cleanAllJettons() {
+        this.nodeChipPool.removeAllChildren();
+    },
     //取消比牌选择
     setCompareCard: function setCompareCard(bChoose, status) {
         this.bCompareChoose = bChoose;
         // todo
+    },
+    onClickMenuOpen: function onClickMenuOpen(toggle) {
+        this.showMenu(toggle.isChecked);
+    },
+    onTouch: function onTouch(params) {
+        console.log(params);
+        if (this.m_bShowMenu) {
+            this.m_Toggle_menuOpen.uncheck();
+        }
+    },
+    showMenu: function showMenu(bShow) {
+        console.log("[GameView][showMenu] bShow = " + bShow);
+        this.m_bShowMenu = bShow;
+        if (bShow) {
+            this.m_Panel_areaMenu.active = bShow;
+            this.m_Panel_areaMenu.runAction(cc.moveBy(0.2, cc.p(0, -420)));
+        } else {
+            this.m_Panel_areaMenu.runAction(cc.sequence(cc.moveBy(0.2, cc.p(0, 420)), cc.callFunc(function (node) {
+                // node.active = false;
+            })));
+        }
     },
     //按键响应
     onStartGame: function onStartGame() {

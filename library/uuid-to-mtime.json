@@ -344,11 +344,6 @@
     "meta": 1497594132000,
     "relativePath": "Script/plaza/views/plaza/UserProfileView.js"
   },
-  "18601473-c412-4828-86fd-2108e41136a8": {
-    "asset": 1497594551000,
-    "meta": 1497594559000,
-    "relativePath": "Script/external/AlertView.js"
-  },
   "7445e0b7-f935-4564-bb34-ab8cb44fe69d": {
     "asset": 1497604010000,
     "meta": 1497604010000,
@@ -395,8 +390,8 @@
     "relativePath": "resources/json/sound.json"
   },
   "7a3f4f0a-31de-4b88-852d-38e768a105e6": {
-    "asset": 1498705515000,
-    "meta": 1499075855000,
+    "asset": 1499307832000,
+    "meta": 1499395517000,
     "relativePath": "resources/prefab"
   },
   "0332dafc-0066-4ea1-a858-4779c9b3fade": {
@@ -408,11 +403,6 @@
     "asset": 1497859156000,
     "meta": 1497859156000,
     "relativePath": "resources/prefab/ChoosePayTypeView.prefab"
-  },
-  "d9f644d8-576e-4760-a2f4-eb67f83a3ce0": {
-    "asset": 1497856694000,
-    "meta": 1497857835000,
-    "relativePath": "Script/plaza/views/plaza/ShopView.js"
   },
   "be3157b7-62ac-47b3-bf39-ca6093fd4baf": {
     "asset": 1497862507000,
@@ -440,8 +430,8 @@
     "relativePath": "Script/plaza/views/plaza/SettingView.js"
   },
   "9f8a184b-216a-421f-8c08-06d16c206fc8": {
-    "asset": 1499153063000,
-    "meta": 1499153063000,
+    "asset": 1499667546000,
+    "meta": 1499667546000,
     "relativePath": "Scene/GameScene.fire"
   },
   "a50d2b17-c3cb-4aca-a256-f1bd73cf47ad": {
@@ -795,13 +785,13 @@
     "relativePath": "people.anim"
   },
   "3c605b3d-423b-4edc-883e-7426da2d9d14": {
-    "asset": 1499147997000,
-    "meta": 1499147997000,
+    "asset": 1499667546000,
+    "meta": 1499667546000,
     "relativePath": "resources/prefab/UserInfaceItem.prefab"
   },
   "39f9c1c0-0bd6-4eb4-92fe-920f962b9232": {
-    "asset": 1498705515000,
-    "meta": 1498705515000,
+    "asset": 1499655304000,
+    "meta": 1499655304000,
     "relativePath": "resources/prefab/cardNode.prefab"
   },
   "7c4c4868-f857-47e8-bd48-74007d72d871": {
@@ -829,11 +819,6 @@
     "meta": 1499047337000,
     "relativePath": "Script/PlazaView.js"
   },
-  "d5dc68d5-ef04-42b0-8872-815177316522": {
-    "asset": 1499132453000,
-    "meta": 1499132459000,
-    "relativePath": "Script/game/CardItem.js"
-  },
   "82fed42e-11d1-4bdd-8154-c28df8dc42fd": {
     "asset": 1499147753000,
     "meta": 1499147756000,
@@ -854,24 +839,44 @@
     "meta": 1499152951000,
     "relativePath": "Script/plaza/LogonScene.js"
   },
-  "0917f846-aae4-4467-902d-712f3566910b": {
-    "asset": 1499154211000,
-    "meta": 1499154222000,
-    "relativePath": "Script/plaza/models/GameFrame.js"
-  },
-  "c5fc5960-4a60-46bf-9f71-5b610ea6f0e4": {
-    "asset": 1499155994000,
-    "meta": 1499156001000,
-    "relativePath": "Script/game/GameView.js"
-  },
-  "6ad91faa-b0cc-4243-a185-4210cdda85ca": {
-    "asset": 1499156819000,
-    "meta": 1499156828000,
-    "relativePath": "Script/game/GameScene.js"
-  },
   "7cbc6b81-8f03-43c4-ba21-cf976f990215": {
     "asset": 1499156687000,
     "meta": 1499156828000,
     "relativePath": "Script/gameModel/GameModel.js"
+  },
+  "18601473-c412-4828-86fd-2108e41136a8": {
+    "asset": 1499219756000,
+    "meta": 1499220906000,
+    "relativePath": "Script/external/AlertView.js"
+  },
+  "d9f644d8-576e-4760-a2f4-eb67f83a3ce0": {
+    "asset": 1499221864000,
+    "meta": 1499222197000,
+    "relativePath": "Script/plaza/views/plaza/ShopView.js"
+  },
+  "bf29285d-474c-4ec5-ad35-a07ff5132b99": {
+    "asset": 1499307832000,
+    "meta": 1499307832000,
+    "relativePath": "resources/prefab/chipPrefab.prefab"
+  },
+  "0917f846-aae4-4467-902d-712f3566910b": {
+    "asset": 1499413730000,
+    "meta": 1499414006000,
+    "relativePath": "Script/plaza/models/GameFrame.js"
+  },
+  "d5dc68d5-ef04-42b0-8872-815177316522": {
+    "asset": 1499655380000,
+    "meta": 1499655382000,
+    "relativePath": "Script/game/CardItem.js"
+  },
+  "c5fc5960-4a60-46bf-9f71-5b610ea6f0e4": {
+    "asset": 1499667049000,
+    "meta": 1499667052000,
+    "relativePath": "Script/game/GameView.js"
+  },
+  "6ad91faa-b0cc-4243-a185-4210cdda85ca": {
+    "asset": 1499667318000,
+    "meta": 1499667325000,
+    "relativePath": "Script/game/GameScene.js"
   }
 }

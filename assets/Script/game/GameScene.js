@@ -40,6 +40,7 @@ cc.Class({
     onDisable: function (params) {
         // cc.director.off("onEventGameMessage",this.onEventGameMessage,this);
         this._super();
+        this.onExitRoom();
     },
     onInitGameEngine: function () {
         this._super();
@@ -177,7 +178,7 @@ cc.Class({
                 this._gameView.setCellScore(this.m_lCellScore);
                 // showReady();显示准备按钮
                 this._gameView.m_Button_ready.node.active = (this.getMeUserItem().cbUserStatus === GlobalDef.US_SIT);
-                this.setGameClock(this.getMeChairID(), zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME)
+                this.setGameClock(GlobalDef.INVALID_CHAIR, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME)
                 break;
             case GlobalDef.GS_PLAYING:
                 // struct CMD_S_StatusPlay
@@ -488,6 +489,7 @@ cc.Class({
             this._gameView.setCellTurn(this.m_lCellScore, this.m_lCurrentTurn, this.m_lMaxTurnCount);
             this.updateControl();
         }
+        this.m_isFirstAdd = false;
         //设置计时器
         if (addScore.wCompareState === 0) {
             this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
@@ -746,9 +748,14 @@ cc.Class({
         if (endShow) {
             // ...
         }
-        this._gameView.m_Button_ready.node.active = true;
-        this.setGameClock(this.getMeChairID(), zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);
-        this.m_cbPlayStatus = [0,0,0,0,0];
+        var self = this;
+        this.node.runAction(cc.sequence(cc.delayTime(3.0),cc.callFunc(function () {
+            self.onResetGameEngine();
+            self._gameView.m_Button_ready.node.active = true;
+            self.setGameClock(GlobalDef.INVALID_CHAIR, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);
+            self.m_cbPlayStatus = [0,0,0,0,0];
+        })))
+        
 
     },
     onSubWaitCompare: function (sub, pData) {
@@ -793,11 +800,11 @@ cc.Class({
         this.m_lCurrentTurn = lastAdd.lCurrentTurn;
 
     },
-    onClickMenuOpen: function (toggle) {
-        this.m_Panel_menu.active = toggle.isChecked;
-        // toggle.node.setLocalZOrder(2);
-        // this.m_Panel_menu.setLocalZOrder(1);
-    },
+    // onClickMenuOpen: function (toggle) {
+    //     this.m_Panel_menu.active = toggle.isChecked;
+    //     // toggle.node.setLocalZOrder(2);
+    //     // this.m_Panel_menu.setLocalZOrder(1);
+    // },
     onClickChangeTable: function (params) {
         this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE,GlobalDef.INVALID_CHAIR)
     },
@@ -975,8 +982,9 @@ cc.Class({
         //....
 
         //下注金额
+        var array = [this.m_lCurrentTimes,3,6,10];
         var scoreIndex = (!index && 0 || index);
-        var addScore = this.m_lCellScore * this.m_lCurrentTimes + this.m_lCellScore * scoreIndex;
+        var addScore = this.m_lCellScore * (array[scoreIndex] || this.m_lCurrentTimes);
 
         //看牌加倍
         if (this.m_bLookCard[myChair] === true) {
@@ -1012,6 +1020,44 @@ cc.Class({
             this._gameView.m_Button_lookCard.interactable = false;
         }
         this._gameView.m_Button_giveUp.interactable = true;
+
+        //跟注按钮
+        var maxAddScore = this.m_lUserMaxScore - this.m_lTableScore[myChair];
+        //是否第一次下注
+        var children = this._gameView.m_nodeBottom[1].children;
+        var textLabel = children[0].children[0].getComponent(cc.Label);
+        if (this.m_isFirstAdd) {
+            textLabel.string = "下注";
+        }
+        else {
+            textLabel.string = "跟注";
+        }
+        //更新比牌按钮分数
+        var compareScore = this.m_lCellScore * this.m_lCurrentTimes * (this.m_bLookCard[myChair] && 4 || 2);
+        var bLastAdd = false;
+        if (maxAddScore <= compareScore) {
+            bLastAdd = true;
+        }
+        children[4].getComponent(cc.Button).active = bLastAdd;
+
+        var bCompare = (this.m_lCurrentTurn >= 1) && (!bLastAdd);
+        this._gameView.m_Button_compareCard.interactable = bCompare;
+        var compareLabel = this._gameView.m_Button_compareCard.node.children[0].getComponent(cc.Label);        
+        compareLabel.node.active = bCompare;
+        compareLabel.string = compareScore;
+
+        var array = [this.m_lCurrentTimes,3,6,10];
+        for (var i = 0; i < array.length; i++) {
+            var element = array[i];
+            var bHide = !bLastAdd && ( i === 0 || element > this.m_lCurrentTimes);
+            var lScore = element * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
+            var scoreLabel = children[i].children[1].getComponent(cc.Label);
+            scoreLabel.string = lScore;
+            children[i].getComponent(cc.Button).interactable = bHide;
+            if (maxAddScore < lScore) {
+                children[i].getComponent(cc.Button).interactable = false;
+            }
+        }
     },
     // //用户比牌
     // onSubCompareCard: function (params) {

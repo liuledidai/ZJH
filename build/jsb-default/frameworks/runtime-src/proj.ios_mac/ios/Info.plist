@@ -59,7 +59,7 @@
       </dict>
     </dict>
     <key>CFBundleIdentifier</key>
-    <string>org.cocos2d.helloworld</string>
+    <string>org.jjh.zjh</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>

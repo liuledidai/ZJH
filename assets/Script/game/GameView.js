@@ -27,9 +27,11 @@ cc.Class({
         m_Label_time: cc.Label,
         cardPrefab: cc.Prefab,
         userInfacePrefab: cc.Prefab,
+        chipPrefab: cc.Prefab,
         m_Button_ready: cc.Button,
         m_Button_lookCard: cc.Button,
         m_Button_giveUp: cc.Button,
+        m_Button_compareCard: cc.Button,
         m_Node_player: {
             default:[],
             type: cc.Node,
@@ -50,6 +52,10 @@ cc.Class({
             default: [],
             type: cc.Vec2,
         },
+        ptCard: {
+            default: [],
+            type: cc.Vec2,
+        },
         m_Image_banker: cc.Node,
         m_LookCard: {
             default:[],
@@ -59,6 +65,7 @@ cc.Class({
             default:[],
             type:cc.Node,
         },
+        m_Toggle_menuOpen: cc.Toggle,
     },
 
     // use this for initialization
@@ -88,6 +95,8 @@ cc.Class({
                 var cardNode = cc.instantiate(this.cardPrefab);
                 this.m_userCard[index].card[j] = cardNode;
                 cardPanel.addChild(cardNode);
+                cardNode.setPosition(this.ptCard[index].x + ((index & 1) && 35 || 70) * j,this.ptCard[index].y);
+                cardNode.setScale(0.7);
                 var cardItem = cardNode.getComponent("CardItem");
                 cardItem.showCardBack();
                 cardNode.active = false;
@@ -98,6 +107,10 @@ cc.Class({
             var node = this.m_nodeBottom[i];
             node.active = false;
         }
+        this.nodeChipPool = this.node.getChildByName("nodeChipPool");
+        this.m_Panel_areaMenu = this.node.getChildByName("m_Panel_areaMenu");
+        this.onClickMenuOpen(this.m_Toggle_menuOpen.getComponent(cc.Toggle));
+        this.m_bShowMenu = false;
     },
     onEnable: function () {
         
@@ -169,7 +182,27 @@ cc.Class({
     },
     //筹码移动
     playerJetton: function (wViewChairID, num, notani) {
-        
+        if (!num || num < 1 || !this.m_lCellScore || this.m_lCellScore < 1) {
+            console.log("[GameView][playerJetton] num is invalid");
+            return;
+        }
+        var count = Math.floor(num/this.m_lCellScore);
+        if (count > 10) {
+            count = 10;
+        }
+        if (count <= 0) {
+            count = 1;
+        }
+        for (var i = 0; i < count; i++) {
+            var chip = cc.instantiate(this.chipPrefab);
+            this.nodeChipPool.addChild(chip);
+            chip.setPosition(this.ptPlayer[wViewChairID]);
+            chip.setScale(0.5);
+            var x = Math.random() * 200 - 100;
+            var y = Math.random() * 100 - 50;
+            console.log("[GameView][playerJetton] [x,y] = " + [x,y]);
+            chip.runAction(cc.moveTo(0.2, cc.p(x,y)));
+        }
     },
     //停止比牌动画
     stopCompareCard: function () {
@@ -189,7 +222,7 @@ cc.Class({
 
         }
         else{
-
+            
         }
     },
     setCellTurn: function (cellScore, turnCount, maxTurn) {
@@ -208,7 +241,7 @@ cc.Class({
     },
     //庄家显示
     setBanker: function (viewID) {
-        if (!viewID || viewID === GlobalDef.INVALID_CHAIR) {
+        if (viewID === undefined || viewID === GlobalDef.INVALID_CHAIR) {
             //todo
             this.m_Image_banker.active = false;
             return;
@@ -218,7 +251,7 @@ cc.Class({
     },
     //下注总额
     setAllTableScore: function (score) {
-        if (!score || score === 0) {
+        if (score === undefined || score === 0) {
             this.m_Label_allScore.node.active = false;
         }
         else {
@@ -228,7 +261,7 @@ cc.Class({
     },
     //玩家下注
     setUserTableScore: function (viewID, score) {
-        if (!score || score === 0) {
+        if (score === undefined || score === 0) {
             // if (viewID !== )
         }
         else
@@ -239,21 +272,27 @@ cc.Class({
     //发牌
     sendCard: function (viewID, index, fDelay) {
         console.log("[viewID,index,fDelay] = " + [viewID,index,fDelay]);
-        if (!viewID || viewID === GlobalDef.INVALID_CHAIR) {
+        if (viewID === undefined || viewID === GlobalDef.INVALID_CHAIR) {
             return;
         }  
+        var self = this;
         var fInterval = 0.1;
         var nodeCard = this.m_userCard[viewID];
         var spriteCard = nodeCard.card[index];
         var cardItem = spriteCard.getComponent("CardItem");
         spriteCard.active = true;
-        spriteCard.setScale(1.0);
+        spriteCard.opacity = 0;
+        spriteCard.stopAllActions();
+        spriteCard.setScale(0.7);
+        spriteCard.setPosition(0,0);
         cardItem.showCardBack();
         spriteCard.runAction(
             cc.sequence(
                 cc.delayTime(fDelay),
+                // cc.fadeIn(0),
                 cc.spawn(
-                    cc.scaleTo(0.25,1.0),
+                    cc.fadeIn(0.1),
+                    cc.moveTo(0.2,self.ptCard[viewID].x + ((viewID & 1) && 35 || 70) * index, self.ptCard[viewID].y),
                 )
             )
         )
@@ -292,7 +331,7 @@ cc.Class({
     //显示牌值
     setUserCard: function (viewID, cardData) {
         console.log("[GameView][setUserCard][viewID,cardData] = " + [viewID,cardData]);
-        if (!viewID || viewID === GlobalDef.INVALID_CHAIR) {
+        if (viewID === undefined || viewID === GlobalDef.INVALID_CHAIR) {
             return;
         }
         if (cardData) {
@@ -306,7 +345,12 @@ cc.Class({
                 else
                 {
                     cardItem.setCardData(cardData[i]);
-                    cardItem.showCard();
+                    cardItem.setTurnTime(0.5);
+                    cardItem.setTurnCallback(function (params) {
+                        console.log("[GameView][setUserCard][setTurnCallback]");
+                    });
+                    cardItem.turnCard();
+                    // cardItem.showCard();
                 }
             }
         }
@@ -322,21 +366,75 @@ cc.Class({
     },
     //赢得筹码
     winTheChip: function (wWinner) {
-        
+        var children = this.nodeChipPool.children;
+        for (var i = 0; i < children.length; i++) {
+            var element = children[i];
+            element.runAction(cc.sequence(
+                cc.delayTime(0.1*(children.length - i)),
+                cc.moveTo(0.4,this.ptPlayer[wWinner]),
+                cc.callFunc(function (node) {
+                    node.destroy();
+                })
+                )
+            )
+        }
     },
     //清理筹码
     cleanAllJettons: function () {
-        
+        this.nodeChipPool.removeAllChildren();
     },
     //取消比牌选择
     setCompareCard: function (bChoose, status) {
         this.bCompareChoose = bChoose;
         // todo
     },
+    onClickMenuOpen: function (toggle) {
+        this.showMenu(toggle.isChecked);
+    },
+    onTouch: function (params) {
+        console.log(params);
+        if (this.m_bShowMenu) {
+            this.m_Toggle_menuOpen.uncheck();
+        }
+    },
+    showMenu: function (bShow) {
+        console.log("[GameView][showMenu] bShow = " + bShow);
+        this.m_bShowMenu = bShow;
+        if (bShow) {
+            this.m_Panel_areaMenu.active = bShow;
+            this.m_Panel_areaMenu.runAction(cc.moveBy(0.2,cc.p(0,-420)));
+        }
+        else{
+            this.m_Panel_areaMenu.runAction(cc.sequence(
+                cc.moveBy(0.2,cc.p(0,420)),
+                cc.callFunc(function (node) {
+                    // node.active = false;
+                })));
+        }
+    },
     //按键响应
     onStartGame: function () {
         this._scene.onStartGame(true);
         // this.m_Button_ready.node.active = false;
+        // var delayCount = 1;
+        // for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
+        //     for (var j = 0; j < zjh_cmd.GAME_PLAYER; j++) {
+        //         // console.log("[GameScene][onSubGameStart] [this.m_wBankerUser,j,zjh_cmd.GAME_PLAYER] = " + [this.m_wBankerUser,j,zjh_cmd.GAME_PLAYER]);
+        //         var chair = j;
+        //         console.log("[GameScene][onSubGameStart] chair = " + chair);
+        //         // if (this.m_cbPlayStatus[chair] === 1) {
+        //             this.sendCard(chair, i, delayCount * 0.1);
+        //             delayCount += 1;
+        //         // }
+        //     }
+            
+        // }
+        // this._bBack = !this._bBack;
+        // for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+        //     var cardData = [2,3,4];
+        //     this.setUserCard(i,this._bBack && cardData || []);
+            
+        // }
     },
     onGiveUp: function () {
         this._scene.onGiveUp();  

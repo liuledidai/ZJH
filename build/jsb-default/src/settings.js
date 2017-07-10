@@ -219,6 +219,10 @@ _CCSettings = {
                 "resources/font/tableScoreFnt.png",
                 "cc.Texture2D"
             ],
+            "bf29285d-474c-4ec5-ad35-a07ff5132b99": [
+                "resources/prefab/chipPrefab.prefab",
+                "cc.Prefab"
+            ],
             "c10ee826-b5f3-4283-919d-fce7aca530a6": [
                 "resources/font/turnFnt",
                 "cc.SpriteFrame",
