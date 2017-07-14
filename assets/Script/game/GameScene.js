@@ -157,6 +157,7 @@ cc.Class({
         var cbGameStatus = params.detail.cbGameStatus;
         var pData = params.detail.pData;
         //初始化已有玩家
+        this.onResetGameEngine();
         for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
             var userItem = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), index);
             if (userItem) {
@@ -749,7 +750,7 @@ cc.Class({
             // ...
         }
         var self = this;
-        this.node.runAction(cc.sequence(cc.delayTime(3.0),cc.callFunc(function () {
+        this.node.runAction(cc.sequence(cc.delayTime(5.0),cc.callFunc(function () {
             self.onResetGameEngine();
             self._gameView.m_Button_ready.node.active = true;
             self.setGameClock(GlobalDef.INVALID_CHAIR, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);

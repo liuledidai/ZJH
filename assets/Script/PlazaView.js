@@ -32,6 +32,10 @@ cc.Class({
             default: null,
             type: cc.Prefab,
         },
+        roomItemList: {
+            default: null,
+            type: cc.ScrollView,
+        },
         plazaRoomItem: {
             default: null,
             type: cc.Prefab,
@@ -44,6 +48,7 @@ cc.Class({
             default: null,
             type: cc.Label,
         },
+        m_Label_ID:cc.Label,
         m_Label_userGold: {
             default: null,
             type: cc.Label,
@@ -76,6 +81,7 @@ cc.Class({
         }
         this.m_Label_userGold.string = GlobalUserData.llGameScore;
         this.m_Label_name.string = GlobalUserData.szNickName;
+        this.m_Label_ID.string = "ID" + GlobalUserData.dwUserID;
         var faceID = GlobalUserData.wFaceID;
         if (faceID <= 0 || faceID > 8) {
             faceID = 1;
@@ -87,9 +93,9 @@ cc.Class({
     refreshRoomList: function () {
         var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
         console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList, null, ' '));
-        var roomListPanel = this.node.getChildByName("m_Panel_center");
+        var roomListPanel = this.roomItemList.content;
         roomListPanel.removeAllChildren();
-        for (var index = 0; index < 3; index++) {
+        for (var index = 0; index < 4; index++) {
             var item = cc.instantiate(this.plazaRoomItem);
             item.getComponent("PlazaRoomItem").init({index:index+1,roomInfo:roomList[index]});
             roomListPanel.addChild(item);

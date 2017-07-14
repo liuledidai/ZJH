@@ -3,6 +3,7 @@ var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
 var GameModel = require("GameModel");
+var GameLogic = require("GameLogic");
 cc.Class({
     extends: cc.Component,
 
@@ -335,8 +336,9 @@ cc.Class({
             return;
         }
         if (cardData) {
+            cardData = GameLogic.sortCard(cardData);
             for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
-                var cardNode = this.m_userCard[viewID].card[i];
+                var cardNode = this.m_userCard[viewID].card[zjh_cmd.MAX_COUNT - i - 1];
                 var cardItem = cardNode.getComponent("CardItem");
                 cardNode.active = true;
                 if (!cardData[i] || cardData[i] === 0 || cardData[i] === 0xff) {
@@ -356,7 +358,10 @@ cc.Class({
         }
         else {
             for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
-                this.m_userCard[viewID].card[i].active = false;
+                var cardNode = this.m_userCard[viewID].card[i];
+                cardNode.skewX = 0;
+                cardNode.skewY = 0;
+                cardNode.active = false;
             }
         }
     },

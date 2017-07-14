@@ -31,8 +31,8 @@ cc.Class({
         this._index = params.index;
         // var roomInfo = params.roomInfo;
         this._roomInfo = params.roomInfo;
-        this.m_Image_back.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_back_" + (this._index));
-        this.m_Image_col.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_col_" + (this._index));
+        // this.m_Image_back.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_back_" + (this._index));
+        this.m_Image_col.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_back_" + (this._index));
         this.m_Image_title.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_down_" + (this._index));
         if (this._roomInfo && this._roomInfo.lLimitScore) {
             this.m_Label_scoreLimit.string = this._roomInfo.lLimitScore;

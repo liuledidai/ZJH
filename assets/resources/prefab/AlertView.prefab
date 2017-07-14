@@ -29,8 +29,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1136,
-      "height": 640
+      "width": 1920,
+      "height": 1080
     },
     "_children": [
       {
@@ -43,8 +43,8 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": 568,
-      "y": 320
+      "x": 960,
+      "y": 540
     },
     "_skewX": 0,
     "_skewY": 0,
@@ -96,8 +96,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 68.72,
-      "height": 38
+      "width": 98.08,
+      "height": 50
     },
     "_children": [
       {
@@ -157,8 +157,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 58.72,
-      "height": 28
+      "width": 88.08,
+      "height": 40
     },
     "_children": [],
     "_rotationX": 0,
@@ -197,9 +197,9 @@
     },
     "_enabled": true,
     "_useOriginalSize": false,
-    "_actualFontSize": 24,
-    "_fontSize": 24,
-    "_lineHeight": 28,
+    "_actualFontSize": 36,
+    "_fontSize": 36,
+    "_lineHeight": 40,
     "_enableWrapText": true,
     "_N$file": null,
     "_isSystemFontUsed": true,
@@ -256,8 +256,8 @@
     "_enabled": true,
     "_layoutSize": {
       "__type__": "cc.Size",
-      "width": 68.72,
-      "height": 38
+      "width": 98.08,
+      "height": 50
     },
     "_resize": 1,
     "_N$layoutType": 0,
@@ -322,8 +322,8 @@
     "_enabled": true,
     "_layoutSize": {
       "__type__": "cc.Size",
-      "width": 1136,
-      "height": 640
+      "width": 1920,
+      "height": 1080
     },
     "_resize": 0,
     "_N$layoutType": 0,

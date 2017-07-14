@@ -16,18 +16,8 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        m_Button_changeName: {
-            default: null,
-            type: cc.Button,
-        },
-        m_Button_editName: {
-            default: null,
-            type: cc.Button,
-        },
-        m_Editbox_userName: {
-            default: null,
-            type: cc.EditBox,
-        },
+        m_Button_changepwd:cc.Button,
+        m_Button_binding:cc.Button,
         m_Label_userName: {
             default: null,
             type: cc.Label,
@@ -82,7 +72,6 @@ cc.Class({
 
     // use this for initialization
     onLoad: function () {
-        this.m_Button_editName.node.active = false;
         this.refreshUI();
     },
     refreshUI: function () {
@@ -90,11 +79,18 @@ cc.Class({
         var llGameScore = GlobalUserData.llGameScore;
         var dwUserID = GlobalUserData.dwUserID;
         var cbGender = GlobalUserData.cbGender || 1;
-        this.m_Button_editName.node.active = true;
-        this.m_Button_changeName.node.active = false;
+        var isGuest = GlobalUserData.isGuest;
         this.m_Label_userGold.string = llGameScore;
-        this.m_Label_userID.string = "ID:" + dwUserID;
+        this.m_Label_userID.string = dwUserID;
         this.m_Label_userName.string = szNickName;
+        if (isGuest) {
+            this.m_Button_binding.node.active = true;
+            this.m_Button_changepwd.node.active = false;
+        }
+        else {
+            this.m_Button_binding.node.active = false;
+            this.m_Button_changepwd.node.active = true;
+        }
         if( this._faceID !== undefined) {
             this.onChangeUserFace();
             cbGender = Math.floor((this._faceID - 1)/4) + 1;
@@ -164,23 +160,10 @@ cc.Class({
         console.log("[UserProfileView][onClickCloseButton] destroy");
     },
     onClickEditName: function (params) {
-        this.m_Button_editName.node.active = false;
-        this.m_Button_changeName.node.active = true;
         this.m_Label_userName.node.active = false;
-        this.m_Editbox_userName.node.active = true;
-        this.m_Editbox_userName.setFocus(true);
-        // this.m_Button_editName.node.emit(cc.EditBox.editing-did-began);
     },
     onClickChangeName: function (params) {
-        this.m_Button_editName.node.active = true;
-        this.m_Button_changeName.node.active = false;
         this.m_Label_userName.node.active = true;
-        this.m_Editbox_userName.node.active = false;
-        var szNewNickName = this.m_Editbox_userName.string;
-        this.m_Editbox_userName.string = "";
-        if (szNewNickName.length <= 0 || szNewNickName == GlobalUserData.szNickName){
-            return;
-        }
         var url = GlobalDef.httpUserCenter;
         url += "/HZMobile/UpdateNickName.ashx";
         var params = {};
@@ -225,8 +208,11 @@ cc.Class({
         })
     },
     onClickChangePassword: function (params) {
-         this.m_Panel_userInfo.active = false;
-         this.m_Panel_userChange.active = true;
+        this.m_Panel_userInfo.active = false;
+        this.m_Panel_userChange.active = true;
+        GlobalFun.ActionShowTanChuang(this.m_Panel_userChange,function () {
+            console.log("[PlazaView][onClickChangePassword]ActionShowTanChuang callback");
+        })
     },
     onClickConfirmButton: function () {
         var szPassword = this.m_Editbox_originPassword.string;
@@ -275,8 +261,11 @@ cc.Class({
                     self.m_Editbox_confirmPassword.string = "";
                     self.m_Editbox_newPassword.string = "";
                     self.m_Editbox_originPassword.string = "";
-                    this.m_Panel_userInfo.active = true;
-                    this.m_Panel_userChange.active = false;
+                    self.m_Panel_userInfo.active = true;
+                    self.m_Panel_userChange.active = false;
+                    GlobalFun.ActionShowTanChuang(self.m_Panel_userInfo,function () {
+                        console.log("[PlazaView][onClickConfirmButton]ActionShowTanChuang callback");
+                    })
                     cc.director.emit("onChangePasswordSuccess");
                 }
                 if(value.msg !== undefined) {

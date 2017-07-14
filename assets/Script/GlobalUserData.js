@@ -42,6 +42,40 @@ var GlobalUserData = {
             // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.shopData, null, ' '));
         });
         this.roomList = [];
+        var music_setting =  JSON.parse(cc.sys.localStorage.getItem('music_setting') || "{}");
+        var effect_setting =  JSON.parse(cc.sys.localStorage.getItem('effect_setting') || "{}");
+        this.bMusicAble = music_setting.musicable === undefined || music_setting.musicable;
+        this.nMusic = (music_setting.musicvalue === undefined && 1.0) || music_setting.musicvalue;
+        this.bEffectAble = effect_setting.effectable === undefined || effect_setting.effectable;
+        this.nEffect = (effect_setting.effectvalue === undefined && 1.0) || effect_setting.effectvalue;
+    },
+    setMusicAble: function (able) {
+        this.bMusicAble = able;
+        if (able) {
+            this.nMusic = 1.0;
+        }
+        else {
+            this.nMusic = 0;
+        }
+        var music_setting = {
+            musicable:able,
+            musicvalue:this.nMusic,
+        }
+        cc.sys.localStorage.setItem("music_setting",JSON.stringify(music_setting));
+    },
+    setEffectAble: function (able) {
+        this.bEffectAble = able;
+        if (able) {
+            this.nEffect = 1.0;
+        }
+        else {
+            this.nEffect = 0;
+        }
+        var effect_setting = {
+            effectable:able,
+            effectvalue:this.nEffect,
+        }
+        cc.sys.localStorage.setItem("effect_setting",JSON.stringify(effect_setting));
     },
     onLoadData: function(pData){
         // struct CMD_GP_LogonSuccessMobile

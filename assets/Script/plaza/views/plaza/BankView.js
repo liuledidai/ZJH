@@ -77,7 +77,7 @@ cc.Class({
     radioButtonClicked: function(toggle) {
         var index = this.radioButton.indexOf(toggle);
         this._selectIndex = index;
-        toggle.node.setLocalZOrder(1);
+        // toggle.node.setLocalZOrder(1);
         var title = "RadioButton";
         switch(index) {
           case 0:
@@ -97,11 +97,11 @@ cc.Class({
             var panel = this.panelGroup[i];
             if(cc.isValid(element) && cc.isValid(panel)) {
                 if (i == index) {
-                    element.node.setLocalZOrder(1);
+                    // element.node.setLocalZOrder(1);
                     panel.active = true;
                 }
                 else{
-                    element.node.setLocalZOrder(0);
+                    // element.node.setLocalZOrder(0);
                     panel.active = false;
                 }
             }

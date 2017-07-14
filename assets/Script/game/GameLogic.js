@@ -39,21 +39,27 @@ GameLogic.sortCard = function (cardData) {
         cardDataTmp[index] = cardData[index];
     }
     //先排颜色
-    for (var i = 0; i < cardDataTmp.length; i++) {
-        for (var j = 0; j < cardDataTmp.length - i; j++) {
-            if (cardDataTmp[j] < cardDataTmp[j + 1]) {
-                [cardDataTmp[j], cardDataTmp[j + 1]] = [cardDataTmp[j + 1], cardDataTmp[j]];
-            }
-        } 
-    }
+    // for (var i = 0; i < cardDataTmp.length; i++) {
+    //     for (var j = 0; j < cardDataTmp.length - i; j++) {
+    //         if (cardDataTmp[j] < cardDataTmp[j + 1]) {
+    //             [cardDataTmp[j], cardDataTmp[j + 1]] = [cardDataTmp[j + 1], cardDataTmp[j]];
+    //         }
+    //     } 
+    // }
+    cardDataTmp.sort(function (a, b) {
+        return a < b;
+    })
     //再排大小
-    for (var i = 0; i < cardDataTmp.length; i++) {
-        for (var j = 0; j < cardDataTmp.length - i; j++) {
-            if (GameLogic.getCardLogicValue(cardDataTmp[j]) < GameLogic.getCardLogicValue(cardDataTmp[j + 1]) ) {
-                [cardDataTmp[j], cardDataTmp[j + 1]] = [cardDataTmp[j + 1], cardDataTmp[j]];
-            }
-        }
-    }
+    // for (var i = 0; i < cardDataTmp.length; i++) {
+    //     for (var j = 0; j < cardDataTmp.length - i; j++) {
+    //         if (GameLogic.getCardLogicValue(cardDataTmp[j]) < GameLogic.getCardLogicValue(cardDataTmp[j + 1]) ) {
+    //             [cardDataTmp[j], cardDataTmp[j + 1]] = [cardDataTmp[j + 1], cardDataTmp[j]];
+    //         }
+    //     }
+    // }
+    cardDataTmp.sort(function (a, b) {
+        return GameLogic.getCardLogicValue(a) < GameLogic.getCardLogicValue(b);
+    })
     return cardDataTmp;
 };
 //获得牌型
