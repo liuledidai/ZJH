@@ -202,7 +202,19 @@ cc.Class({
     },
     onClickClient: function (params) {
         console.log("[PlazaView][onClickClient]");
-        GlobalFun.showToast(cc.director.getScene(),"客服功能暂未开放,敬请期待!");
+        // GlobalFun.showToast(cc.director.getScene(),"客服功能暂未开放,敬请期待!");
+        var self = this;
+        if( cc.isValid(self._serviceView) === false ){
+            cc.loader.loadRes("prefab/ServiceView", function (err, ServicePrefab) {
+                if (cc.isValid(self.node)) {
+                    self._serviceView = cc.instantiate(ServicePrefab);
+                    self.node.addChild(self._serviceView);
+                    GlobalFun.ActionShowTanChuang(self._serviceView,function () {
+                        console.log("[PlazaView][onClickClient]ActionShowTanChuang callback");
+                    });
+                }
+            });
+        }
     },
     onClickActivity: function (params) {
         console.log("[PlazaView][conClickActivity]");
