@@ -1,0 +1,63 @@
+{
+  "__type__": "cc.AnimationClip",
+  "_name": "plaza_btn_shop",
+  "_objFlags": 0,
+  "_rawFiles": null,
+  "_duration": 0.65,
+  "sample": 60,
+  "speed": 1,
+  "wrapMode": 1,
+  "curveData": {
+    "comps": {
+      "cc.Widget": {
+        "enabled": [
+          {
+            "frame": 0,
+            "value": true
+          },
+          {
+            "frame": 0.25,
+            "value": true
+          },
+          {
+            "frame": 0.5,
+            "value": true
+          },
+          {
+            "frame": 0.65,
+            "value": true
+          }
+        ],
+        "right": [
+          {
+            "frame": 0,
+            "value": 50
+          },
+          {
+            "frame": 0.25,
+            "value": 50
+          },
+          {
+            "frame": 0.5,
+            "value": 50
+          }
+        ],
+        "bottom": [
+          {
+            "frame": 0,
+            "value": 5
+          },
+          {
+            "frame": 0.25,
+            "value": -220
+          },
+          {
+            "frame": 0.5,
+            "value": 5
+          }
+        ]
+      }
+    }
+  },
+  "events": []
+}

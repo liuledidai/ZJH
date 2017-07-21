@@ -27,6 +27,7 @@ cc.Class({
         this._cbGameStatus 	= 0;
         this._cbAllowLookon = 0;
         this._cbHideUserInfo = false;
+        this.bChangeDesk = false;
         this._userList = {};  
         this._tableUserList = {};
         this._tableStatus = {};
@@ -442,12 +443,18 @@ cc.Class({
             //起立
             else if (userStatus.cbUserStatus === GlobalDef.US_FREE && oldStatus.cbUserStatus > GlobalDef.US_FREE) {
                 console.log("[GameFrame][OnSocketSubStatus] 自己起立");
-                cc.director.emit("onExitTable");
-                this.onResetGameEngine();
+                if (!this.bChangeDesk) {
+                    cc.director.emit("onExitTable");
+                }
+                else {
+                    this.bChangeDesk = false;
+                    this.onResetGameEngine();
+                }     
             }
             //坐下
             else if (userStatus.cbUserStatus > GlobalDef.US_FREE && oldStatus.cbUserStatus < GlobalDef.US_SIT) {
                 console.log("[GameFrame][OnSocketSubStatus] 自己坐下");
+                this.bChangeDesk = false;
                 cc.director.emit("onEnterTable");
                 this.sendGameOption();
                 cc.director.emit("onEventUserStatus",{
@@ -457,7 +464,7 @@ cc.Class({
                 });
             }
             //换位
-            else if (userStatus.wTableID !== GlobalDef.INVALID_TABLE) {
+            else if (userStatus.wTableID !== GlobalDef.INVALID_TABLE && this.bChangeDesk) {
                 console.log("[GameFrame][OnSocketSubStatus] 换位");
                 cc.director.emit("onEnterTable");
                 this.sendGameOption();
@@ -531,8 +538,11 @@ cc.Class({
         //自己信息
         var myUserItem = this.getMeUserItem();
         var userItem = this.searchUserByUserID(userScore.dwUserID);
-        // if (userScore.dwUserID == myUserItem.dwUserID) {
-        if (!userItem) {
+        if (userScore.dwUserID == myUserItem.dwUserID) {
+            //更新自己全局分数
+            GlobalUserData.llGameScore = userScore.UserScore.lGameGold;
+        }
+        if (userItem) {
             console.log("[GameFrame][OnSocketSubScore] 更新 " + JSON.stringify(userScore, null, ' '));
             userItem.lScore = userScore.UserScore.lScore;
             userItem.lGameGold = userScore.UserScore.lGameGold;
@@ -629,6 +639,7 @@ cc.Class({
         //     WORD							wTableID;							//桌子位置
         //     TCHAR							szTablePass[PASS_LEN];				//桌子密码
         // };
+        this.bChangeDesk = true;
         var sitData = CCmd_Data.create();
         sitData.setcmdinfo(game_cmd.MDM_GR_USER,game_cmd.SUB_GR_USER_SIT_REQ);
         var cbPassLen = 0;

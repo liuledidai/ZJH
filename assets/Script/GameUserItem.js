@@ -112,9 +112,10 @@ var GameUserItem = cc.Class({
             // #define DTP_USER_GROUP_NAME			301								//社团名字
 
             // pData.setmaxsize(1);
+            console.log("[GameUserItem][initDataByUserInfoHead] [offset,datasize] = " + [pData.getReadOffset(),pData.getDataSize()]);
             var dataSize = pData.readword(true);
             var dataDescribe = pData.readword(true);
-            console.log("size = "+dataSize+" describe = "+dataDescribe);
+            console.log("[GameUserItem][initDataByUserInfoHead]size = "+dataSize+" describe = "+dataDescribe);
             if (dataDescribe === 0) {
                 break;
             }
@@ -123,17 +124,17 @@ var GameUserItem = cc.Class({
                 case 3:
                     this.szName = "游戏用户";
                     if (userInfoHead.dwUserID === GlobalUserData.dwUserID || true) {
-                        this.szName = pData.readstring(dataSize);
+                        this.szName = pData.readstring(dataSize,true);
                     }
                     break;
                 case 9:
                     if (userInfoHead.dwUserID === GlobalUserData.dwUserID || true) {
-                        this.szUnderWrite = pData.readstring(dataSize);
+                        this.szUnderWrite = pData.readstring(dataSize,true);
                     }
                     break;
                 case 301:
                     if (userInfoHead.dwUserID === GlobalUserData.dwUserID || true) {
-                        this.szGroupName = pData.readstring(dataSize);
+                        this.szGroupName = pData.readstring(dataSize,true);
                     }
                     break;
                 default:
@@ -217,10 +218,11 @@ var GameUserItem = cc.Class({
 
         userInfoHead.dwCustomFaceVer = pData.readdword();                    //上传头像
         userInfoHead.dwPropResidualTime = [];//道具时间
-        for (var index = 0; index < 15; index++) {
+        for (var index = 0; index < 16; index++) {
             var val = pData.readdword();
             userInfoHead.dwPropResidualTime.push(val);
         }
+        console.log("[GameUserItem][userInfoHead] = " + JSON.stringify(userInfoHead,null,' '));
         return userInfoHead;
     }
 });

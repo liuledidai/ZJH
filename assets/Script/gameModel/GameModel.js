@@ -99,7 +99,7 @@ var GameModel = cc.Class({
     getMeUserItem: function () {
         return this._gameFrame.getMeUserItem();
     },
-    // 椅子号转视图位置,注意椅子号从0~nChairCount-1,返回的视图位置从1~nChairCount
+    // 椅子号转视图位置,注意椅子号从0~nChairCount-1,返回的视图位置从0~nChairCount-1
     switchViewChairID: function (chair) {
         var viewID = GlobalDef.INVALID_CHAIR;
         var nChairCount = this._gameFrame.getChairCount();  
@@ -113,7 +113,7 @@ var GameModel = cc.Class({
     //是否合法视图ID
     isValidViewID: function (viewID) {
         var nChairCount = this._gameFrame.getChairCount();
-        return (viewID > 0) && (viewID <= nChairCount);  
+        return (viewID >= 0) && (viewID < nChairCount);  
     },
     //设置计时器
     setGameClock: function (chair, id, time) {
@@ -160,7 +160,7 @@ var GameModel = cc.Class({
     //更新计时器显示
     onUpdateClockView: function () {
         // onUpdateClockView
-        console.log("[GameModel][onUpdateClockView] clockTime = " + this._ClockTime + " viewChair = " + this._ClockViewChair);
+        // console.log("[GameModel][onUpdateClockView] clockTime = " + this._ClockTime + " viewChair = " + this._ClockViewChair);
     },
     //用户状态 
     onEventUserStatus: function (params) {
@@ -206,6 +206,7 @@ var GameModel = cc.Class({
         // params = {userScore,}
         var userItem = params.detail.userItem;
         var myTable = this.getMeTableID();
+        console.log("[GameModel][onEventUserScore] myTable = " + myTable + " useritem = " + JSON.stringify(userItem, null, ' '));        
         if (myTable === undefined || myTable === GlobalDef.INVALID_TABLE) {
             return;
         }

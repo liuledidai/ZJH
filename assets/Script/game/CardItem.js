@@ -51,11 +51,11 @@ cc.Class({
     turnCard: function () {
         var self = this;
         this.node.runAction(cc.sequence(
-            cc.spawn(cc.scaleTo(this.m_turnTime/2, 0, 0.7),cc.skewTo(this.m_turnTime/2, 0, -this._skewDegree)),
+            cc.spawn(cc.scaleTo(this.m_turnTime/2, 0, self.node.scaleY),cc.skewTo(this.m_turnTime/2, 0, -this._skewDegree)),
             cc.callFunc(function () {
                 self.showCard();
             }),
-            cc.spawn(cc.scaleTo(this.m_turnTime/2, 0.7, 0.7),cc.skewTo(this.m_turnTime/2, 0, 0)),
+            cc.spawn(cc.scaleTo(this.m_turnTime/2, self.node.scaleY, self.node.scaleY),cc.skewTo(this.m_turnTime/2, 0, 0)),
             cc.callFunc(function () {
                 if (self._callBack && typeof(self._callBack) === "function") {
                     self._callBack();

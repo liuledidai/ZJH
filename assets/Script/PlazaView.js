@@ -2,6 +2,7 @@ var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
+var AudioMng = require("AudioMng");
 cc.Class({
     extends: cc.Component,
 
@@ -69,7 +70,7 @@ cc.Class({
             cc.game.addPersistRootNode(GameFrameNode);
             this._gameFrame = GameFrameNode.getComponent("GameFrame");
         }
-        
+        AudioMng.playMusic();
         // this._gameFrame = this.getScene().getChildByName("GameFrame").getComponent("GameFrame");
         this.refreshUI();
     },
