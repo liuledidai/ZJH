@@ -48,6 +48,32 @@ cc.Class({
 });
 
 cc._RFpop();
+},{}],"AudioMng":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '40facvaPhFNy6Mw7j/9j4sO', 'AudioMng');
+// Script/AudioMng.js
+
+"use strict";
+
+var AudioMng = {
+    playMusic: function playMusic() {
+        cc.audioEngine.playMusic(cc.url.raw("resources/sounds/bgm//bgm_plaza.mp3"), true);
+    },
+    pauseMusic: function pauseMusic() {
+        cc.audioEngine.pauseMusic();
+    },
+    resumeMusic: function resumeMusic() {
+        cc.audioEngine.resumeMusic();
+    },
+    _playSFX: function _playSFX(clip) {
+        cc.audioEngine.playEffect(clip, false);
+    }
+
+};
+
+module.exports = AudioMng;
+
+cc._RFpop();
 },{}],"BankView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '410a7nO15hDoIjILc0HWRRU', 'BankView');
@@ -133,7 +159,7 @@ cc.Class({
     radioButtonClicked: function radioButtonClicked(toggle) {
         var index = this.radioButton.indexOf(toggle);
         this._selectIndex = index;
-        toggle.node.setLocalZOrder(1);
+        // toggle.node.setLocalZOrder(1);
         var title = "RadioButton";
         switch (index) {
             case 0:
@@ -153,10 +179,10 @@ cc.Class({
             var panel = this.panelGroup[i];
             if (cc.isValid(element) && cc.isValid(panel)) {
                 if (i == index) {
-                    element.node.setLocalZOrder(1);
+                    // element.node.setLocalZOrder(1);
                     panel.active = true;
                 } else {
-                    element.node.setLocalZOrder(0);
+                    // element.node.setLocalZOrder(0);
                     panel.active = false;
                 }
             }
@@ -424,6 +450,69 @@ var BaseFrame = cc.Class({
 });
 
 module.exports = BaseFrame;
+
+cc._RFpop();
+},{}],"Bridge_android":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '0226bpzjnlCBoxeOTFg0Oh3', 'Bridge_android');
+// Script/Bridge_android.js
+
+"use strict";
+
+var Bridge_android = {};
+var BRIDGE_CLASS = "org/cocos2dx/javascript/AppActivity";
+var DEVICE_MODULE = "org/cocos2dx/javascript/DeviceModule";
+//获取设备id
+Bridge_android.getMachineID = function () {
+    var sigs = "()Ljava/lang/String;";
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getMachineID", sigs);
+    return ret;
+};
+
+//获取设备ip
+Bridge_android.getIpAddress = function () {
+    var sigs = "()Ljava/lang/String;";
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getUserIP", sigs);
+    return ret;
+};
+
+Bridge_android.showAlert = function (title, message) {
+    var sigs = "(Ljava/lang/String;Ljava/lang/String;)V";
+    var ret = jsb.reflection.callStaticMethod(BRIDGE_CLASS, "showAlert", sigs, title, message);
+    return ret;
+};
+module.exports = Bridge_android;
+
+cc._RFpop();
+},{}],"Bridge_ios":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '1aa3e2KSxtNpahV6QgpbFnF', 'Bridge_ios');
+// Script/Bridge_ios.js
+
+"use strict";
+
+var Bridge_ios = {};
+var BRIDGE_CLASS = "AppController";
+var DEVICE_MODULE = "DeviceModule";
+
+//获取设备id
+Bridge_ios.getMachineID = function () {
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getUserToken");
+    return ret;
+};
+
+//获取设备ip
+Bridge_ios.getIpAddress = function () {
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getUserIP");
+    return ret;
+};
+
+Bridge_ios.showAlert = function (title, message) {
+    var ret = jsb.reflection.callStaticMethod(BRIDGE_CLASS, "showAlert:andContent:", title, message);
+    return ret;
+};
+
+module.exports = Bridge_ios;
 
 cc._RFpop();
 },{}],"CMD_Game":[function(require,module,exports){
@@ -1612,11 +1701,14 @@ cc.Class({
         // ...
         cardSprite: cc.Sprite,
         m_cbCardData: 0,
-        cardAtlas: cc.SpriteAtlas
+        cardAtlas: cc.SpriteAtlas,
+        m_turnTime: 0
     },
 
     // use this for initialization
-    onLoad: function onLoad() {},
+    onLoad: function onLoad() {
+        this._skewDegree = 10;
+    },
     init: function init(cbCardData) {
         this.m_cbCardData = cbCardData;
     },
@@ -1624,19 +1716,86 @@ cc.Class({
         console.log("[CardItem][setCardData] cbCardData = " + cbCardData);
         this.m_cbCardData = cbCardData;
     },
-    showCardBack: function showCardBack() {
+    getCardData: function getCardData() {
+        return this.m_cbCardData;
+    },
+    showCardBack: function showCardBack(bAnim) {
         console.log("[CardItem][showCardBack]");
         this.cardSprite.spriteFrame = this.cardAtlas.getSpriteFrame("card_back");
     },
     showCard: function showCard() {
+        // this.m_turnTime = 0.5;
         console.log("[CardItem][showCard] cardData = " + this.m_cbCardData);
         this.cardSprite.spriteFrame = this.cardAtlas.getSpriteFrame("big_card_" + GlobalFun.PrefixInteger(this.m_cbCardData, 2));
+    },
+    setTurnCallback: function setTurnCallback(callBack) {
+        this._callBack = callBack;
+    },
+    setTurnTime: function setTurnTime(t) {
+        this.m_turnTime = t;
+    },
+    turnCard: function turnCard() {
+        var self = this;
+        this.node.runAction(cc.sequence(cc.spawn(cc.scaleTo(this.m_turnTime / 2, 0, self.node.scaleY), cc.skewTo(this.m_turnTime / 2, 0, -this._skewDegree)), cc.callFunc(function () {
+            self.showCard();
+        }), cc.spawn(cc.scaleTo(this.m_turnTime / 2, self.node.scaleY, self.node.scaleY), cc.skewTo(this.m_turnTime / 2, 0, 0)), cc.callFunc(function () {
+            if (self._callBack && typeof self._callBack === "function") {
+                self._callBack();
+            }
+        })));
     }
-
 });
 
 cc._RFpop();
-},{"GlobalFun":"GlobalFun"}],"ChoosePayTypeView":[function(require,module,exports){
+},{"GlobalFun":"GlobalFun"}],"ChipItem":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, 'd5ddb7Xc5tP1pbH8DdcZqv3', 'ChipItem');
+// Script/game/ChipItem.js
+
+"use strict";
+
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        chipSprite: cc.Sprite,
+        chipLabel: cc.Label,
+        chipnum: 0,
+        chipAtlas: cc.SpriteAtlas
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    init: function init(chipnum) {
+        var chipColorLevel = [1, 1000, 10000, 100000, 1000000];
+        this.chipnum = chipnum;
+        this.chipLabel.string = chipnum;
+        for (var i = chipColorLevel.length - 1; i >= 0; i--) {
+            var chipLevel = chipColorLevel[i];
+            if (this.chipnum >= chipLevel) {
+                this.chipSprite.spriteFrame = this.chipAtlas.getSpriteFrame("bigchip_" + (i + 1));
+                break;
+            }
+        }
+    }
+    // called every frame, uncomment this function to activate update callback
+    // update: function (dt) {
+
+    // },
+});
+
+cc._RFpop();
+},{}],"ChoosePayTypeView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '272a7LNBahFsobsZA3ESISQ', 'ChoosePayTypeView');
 // Script/plaza/views/plaza/ChoosePayTypeView.js
@@ -1747,6 +1906,7 @@ cc.Class({
         this._cbGameStatus = 0;
         this._cbAllowLookon = 0;
         this._cbHideUserInfo = false;
+        this.bChangeDesk = false;
         this._userList = {};
         this._tableUserList = {};
         this._tableStatus = {};
@@ -2131,11 +2291,17 @@ cc.Class({
             //起立
             else if (userStatus.cbUserStatus === GlobalDef.US_FREE && oldStatus.cbUserStatus > GlobalDef.US_FREE) {
                     console.log("[GameFrame][OnSocketSubStatus] 自己起立");
-                    cc.director.emit("onExitTable");
+                    if (!this.bChangeDesk) {
+                        cc.director.emit("onExitTable");
+                    } else {
+                        this.bChangeDesk = false;
+                        this.onResetGameEngine();
+                    }
                 }
                 //坐下
                 else if (userStatus.cbUserStatus > GlobalDef.US_FREE && oldStatus.cbUserStatus < GlobalDef.US_SIT) {
                         console.log("[GameFrame][OnSocketSubStatus] 自己坐下");
+                        this.bChangeDesk = false;
                         cc.director.emit("onEnterTable");
                         this.sendGameOption();
                         cc.director.emit("onEventUserStatus", {
@@ -2145,7 +2311,7 @@ cc.Class({
                         });
                     }
                     //换位
-                    else if (userStatus.wTableID !== GlobalDef.INVALID_TABLE) {
+                    else if (userStatus.wTableID !== GlobalDef.INVALID_TABLE && this.bChangeDesk) {
                             console.log("[GameFrame][OnSocketSubStatus] 换位");
                             cc.director.emit("onEnterTable");
                             this.sendGameOption();
@@ -2218,8 +2384,11 @@ cc.Class({
         //自己信息
         var myUserItem = this.getMeUserItem();
         var userItem = this.searchUserByUserID(userScore.dwUserID);
-        // if (userScore.dwUserID == myUserItem.dwUserID) {
-        if (!userItem) {
+        if (userScore.dwUserID == myUserItem.dwUserID) {
+            //更新自己全局分数
+            GlobalUserData.llGameScore = userScore.UserScore.lGameGold;
+        }
+        if (userItem) {
             console.log("[GameFrame][OnSocketSubScore] 更新 " + JSON.stringify(userScore, null, ' '));
             userItem.lScore = userScore.UserScore.lScore;
             userItem.lGameGold = userScore.UserScore.lGameGold;
@@ -2314,6 +2483,7 @@ cc.Class({
         //     WORD							wTableID;							//桌子位置
         //     TCHAR							szTablePass[PASS_LEN];				//桌子密码
         // };
+        this.bChangeDesk = true;
         var sitData = CCmd_Data.create();
         sitData.setcmdinfo(game_cmd.MDM_GR_USER, game_cmd.SUB_GR_USER_SIT_REQ);
         var cbPassLen = 0;
@@ -2420,7 +2590,8 @@ cc.Class({
     },
     onRemoveUser: function onRemoveUser(dwUserID) {
         this._userList[dwUserID] = undefined;
-    }
+    },
+    onResetGameEngine: function onResetGameEngine() {}
 });
 
 cc._RFpop();
@@ -2472,25 +2643,27 @@ GameLogic.sortCard = function (cardData) {
         cardDataTmp[index] = cardData[index];
     }
     //先排颜色
-    for (var i = 0; i < cardDataTmp.length; i++) {
-        for (var j = 0; j < cardDataTmp.length - i; j++) {
-            if (cardDataTmp[j] < cardDataTmp[j + 1]) {
-                var _ref = [cardDataTmp[j + 1], cardDataTmp[j]];
-                cardDataTmp[j] = _ref[0];
-                cardDataTmp[j + 1] = _ref[1];
-            }
-        }
-    }
+    // for (var i = 0; i < cardDataTmp.length; i++) {
+    //     for (var j = 0; j < cardDataTmp.length - i; j++) {
+    //         if (cardDataTmp[j] < cardDataTmp[j + 1]) {
+    //             [cardDataTmp[j], cardDataTmp[j + 1]] = [cardDataTmp[j + 1], cardDataTmp[j]];
+    //         }
+    //     } 
+    // }
+    cardDataTmp.sort(function (a, b) {
+        return a < b;
+    });
     //再排大小
-    for (var i = 0; i < cardDataTmp.length; i++) {
-        for (var j = 0; j < cardDataTmp.length - i; j++) {
-            if (GameLogic.getCardLogicValue(cardDataTmp[j]) < GameLogic.getCardLogicValue(cardDataTmp[j + 1])) {
-                var _ref2 = [cardDataTmp[j + 1], cardDataTmp[j]];
-                cardDataTmp[j] = _ref2[0];
-                cardDataTmp[j + 1] = _ref2[1];
-            }
-        }
-    }
+    // for (var i = 0; i < cardDataTmp.length; i++) {
+    //     for (var j = 0; j < cardDataTmp.length - i; j++) {
+    //         if (GameLogic.getCardLogicValue(cardDataTmp[j]) < GameLogic.getCardLogicValue(cardDataTmp[j + 1]) ) {
+    //             [cardDataTmp[j], cardDataTmp[j + 1]] = [cardDataTmp[j + 1], cardDataTmp[j]];
+    //         }
+    //     }
+    // }
+    cardDataTmp.sort(function (a, b) {
+        return GameLogic.getCardLogicValue(a) < GameLogic.getCardLogicValue(b);
+    });
     return cardDataTmp;
 };
 //获得牌型
@@ -2706,7 +2879,7 @@ var GameModel = cc.Class({
     getMeUserItem: function getMeUserItem() {
         return this._gameFrame.getMeUserItem();
     },
-    // 椅子号转视图位置,注意椅子号从0~nChairCount-1,返回的视图位置从1~nChairCount
+    // 椅子号转视图位置,注意椅子号从0~nChairCount-1,返回的视图位置从0~nChairCount-1
     switchViewChairID: function switchViewChairID(chair) {
         var viewID = GlobalDef.INVALID_CHAIR;
         var nChairCount = this._gameFrame.getChairCount();
@@ -2720,7 +2893,7 @@ var GameModel = cc.Class({
     //是否合法视图ID
     isValidViewID: function isValidViewID(viewID) {
         var nChairCount = this._gameFrame.getChairCount();
-        return viewID > 0 && viewID <= nChairCount;
+        return viewID >= 0 && viewID < nChairCount;
     },
     //设置计时器
     setGameClock: function setGameClock(chair, id, time) {
@@ -2767,7 +2940,7 @@ var GameModel = cc.Class({
     //更新计时器显示
     onUpdateClockView: function onUpdateClockView() {
         // onUpdateClockView
-        console.log("[GameModel][onUpdateClockView] clockTime = " + this._ClockTime + " viewChair = " + this._ClockViewChair);
+        // console.log("[GameModel][onUpdateClockView] clockTime = " + this._ClockTime + " viewChair = " + this._ClockViewChair);
     },
     //用户状态 
     onEventUserStatus: function onEventUserStatus(params) {
@@ -2811,6 +2984,7 @@ var GameModel = cc.Class({
         // params = {userScore,}
         var userItem = params.detail.userItem;
         var myTable = this.getMeTableID();
+        console.log("[GameModel][onEventUserScore] myTable = " + myTable + " useritem = " + JSON.stringify(userItem, null, ' '));
         if (myTable === undefined || myTable === GlobalDef.INVALID_TABLE) {
             return;
         }
@@ -2898,8 +3072,6 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        // m_Button_menuOpen: cc.Toggle,
-        m_Panel_menu: cc.Node
     },
 
     // use this for initialization
@@ -2919,6 +3091,7 @@ cc.Class({
     onDisable: function onDisable(params) {
         // cc.director.off("onEventGameMessage",this.onEventGameMessage,this);
         this._super();
+        // this.onExitRoom();
     },
     onInitGameEngine: function onInitGameEngine() {
         this._super();
@@ -2969,21 +3142,23 @@ cc.Class({
         var viewID = this.getClockViewID();
         if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
             //时间进度条
-            //this.OnEventGameClockInfo(viewID, id);
+            //this.onEventGameClockInfo(viewID, id);
         }
     },
     //关闭计时器
     killGameClock: function killGameClock(notView) {
         var viewID = this.getClockViewID();
         if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
-            //时间进度条
+            if (this._gameView.m_timeProgress[viewID]) {
+                this._gameView.m_timeProgress[viewID].progress = 0;
+            }
         }
-        this._super();
+        this._super(notView);
     },
     //获得当前正在玩的玩家数量
     getPlayingNum: function getPlayingNum() {
         var num = 0;
-        for (var index = 1; index <= zjh_cmd.GAME_PLAYER; index++) {
+        for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
             if (this.m_cbPlayStatus[index] === 1) {
                 num++;
             }
@@ -2991,11 +3166,15 @@ cc.Class({
         return num;
     },
     //时钟处理
-    OnEventGameClockInfo: function OnEventGameClockInfo(chair, time, clockID) {
+    onEventGameClockInfo: function onEventGameClockInfo(chair, time, clockID) {
         console.log("[GameScene][onEventGameClockInfo] chair = " + chair + " time = " + time + " clockID = " + clockID);
+        if (chair !== GlobalDef.INVALID_CHAIR && chair !== this.getMeChairID()) {
+            return;
+        }
         if (clockID === zjh_cmd.IDI_START_GAME) {
             if (time == 0) {
-                this.onExitTable();
+                // this.onExitTable();
+                this.onStartGame(true);
                 return true;
             }
         } else if (clockID === zjh_cmd.IDI_DISABLE) {
@@ -3029,13 +3208,14 @@ cc.Class({
         var cbGameStatus = params.detail.cbGameStatus;
         var pData = params.detail.pData;
         //初始化已有玩家
+        // this.onResetGameEngine();
         for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
             var userItem = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), index);
-            if (userItem) {
-                var wViewChairID = this.switchViewChairID(index);
-                this._gameView.onUpdateUser(wViewChairID, userItem);
-                console.log("[GameScene][onEventGameScene] wViewChairID = " + wViewChairID + " userItem = " + JSON.stringify(userItem, null, ' '));
-            }
+            // if (userItem) {
+            var wViewChairID = this.switchViewChairID(index);
+            this._gameView.onUpdateUser(wViewChairID, userItem);
+            console.log("[GameScene][onEventGameScene] wViewChairID = " + wViewChairID + " userItem = " + JSON.stringify(userItem, null, ' '));
+            // }
         }
         switch (cbGameStatus) {
             case GlobalDef.GS_FREE:
@@ -3168,6 +3348,8 @@ cc.Class({
                 //总下注
                 this._gameView.setAllTableScore(this.m_llAllTableScore);
                 //todo
+                //控件信息
+                this._gameView.m_nodeBottom.active = false;
                 if (!playStatus.bCompareState) {
                     if (this.getMeChairID() === this.m_wCurrentUser) {
                         this.updateControl();
@@ -3344,6 +3526,7 @@ cc.Class({
             this._gameView.setCellTurn(this.m_lCellScore, this.m_lCurrentTurn, this.m_lMaxTurnCount);
             this.updateControl();
         }
+        this.m_isFirstAdd = false;
         //设置计时器
         if (addScore.wCompareState === 0) {
             this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
@@ -3368,6 +3551,9 @@ cc.Class({
         console.log("[GameScene][onSubLookCard] lookCard = " + JSON.stringify(lookCard, null, ' '));
         var viewID = this.switchViewChairID(lookCard.wLookCardUser);
         this._gameView.setLookCard(viewID, true);
+        if (this.getMeChairID() === this.m_wCurrentUser) {
+            this.updateControl();
+        }
         console.log("[GameScene][onSubLookCard] [lookCard.wLookCardUser,this.getMeChairID()] = " + [lookCard.wLookCardUser, this.getMeChairID()]);
         if (lookCard.wLookCardUser == this.getMeChairID()) {
             var cardIndex = [];
@@ -3375,6 +3561,7 @@ cc.Class({
                 cardIndex[i] = lookCard.cbCardData[i]; //GameLogic.getCardColor(lookCard.cbCardData[i]) * 13 + GameLogic.getCardValue(lookCard.cbCardData[i]);
             }
             this._gameView.setUserCard(viewID, cardIndex);
+            this._gameView.setUserCardType(viewID, GameLogic.getCardType(cardIndex));
         }
     },
     onSubCompareCard: function onSubCompareCard(sub, pData) {
@@ -3465,7 +3652,8 @@ cc.Class({
             this.killGameClock();
             this._gameView.stopCompareCard();
             this._gameView.setCompareCard(false, undefined);
-            // this._gameView
+            this._gameView.m_chipBG.active = false;
+            this._gameView.m_nodeBottom.active = false;
         }
     },
     onSubPlayerExit: function onSubPlayerExit(sub, pData) {
@@ -3523,10 +3711,8 @@ cc.Class({
         //清理界面
         this._gameView.stopCompareCard();
         this._gameView.setCompareCard(false);
-        for (var i = 0; i < this._gameView.m_nodeBottom.length; i++) {
-            var node = this._gameView.m_nodeBottom[i];
-            node.active = false;
-        }
+        this._gameView.m_chipBG.active = false;
+        this._gameView.m_nodeBottom.active = false;
         // ......
 
         var endShow;
@@ -3547,7 +3733,7 @@ cc.Class({
                 //.....
                 saveType[i] = GameLogic.getCardType(gameEnd.cbCardData[i]);
             } else {
-                saveType[i] = 0;
+                saveType[i] = 1;
                 this._gameView.setUserTableScore(viewID);
             }
         }
@@ -3597,9 +3783,14 @@ cc.Class({
         if (endShow) {
             // ...
         }
-        this._gameView.m_Button_ready.node.active = true;
-        this.setGameClock(this.getMeChairID(), zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);
-        this.m_cbPlayStatus = [0, 0, 0, 0, 0];
+        var self = this;
+        // this.node.runAction(cc.sequence(cc.delayTime(5.0),cc.callFunc(function () {
+        // self.onResetGameEngine();
+        self._gameView.m_Button_ready.node.active = true;
+        self.setGameClock(GlobalDef.INVALID_CHAIR, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);
+        self.m_cbPlayStatus = [0, 0, 0, 0, 0];
+        // })))
+
     },
     onSubWaitCompare: function onSubWaitCompare(sub, pData) {
         console.log("[GameScene][onSubWaitCompare]");
@@ -3642,11 +3833,6 @@ cc.Class({
 
         this.m_lCurrentTurn = lastAdd.lCurrentTurn;
     },
-    // onClickMenuOpen: function (toggle) {
-    //     this.m_Panel_menu.active = toggle.isChecked;
-    //     // toggle.node.setLocalZOrder(2);
-    //     // this.m_Panel_menu.setLocalZOrder(1);
-    // },
     onClickChangeTable: function onClickChangeTable(params) {
         this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR);
     },
@@ -3683,11 +3869,12 @@ cc.Class({
     //自动比牌
     onAutoCompareCard: function onAutoCompareCard() {
         var myChair = this.getMeChairID();
-        for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+        for (var i = 1; i < zjh_cmd.GAME_PLAYER; i++) {
             var chair = myChair - i;
             if (chair < 0) {
                 chair += zjh_cmd.GAME_PLAYER;
             }
+            console.log("[GameScene][onAutoCompareCard] [myChair,chair] = " + [myChair, chair]);
             if (this.m_cbPlayStatus[chair] == 1) {
                 //发送比牌消息
                 //比牌数据包
@@ -3708,7 +3895,7 @@ cc.Class({
         if (myChair === undefined || myChair !== this.m_wCurrentUser) {
             return;
         }
-
+        this._gameView.m_nodeBottom.active = false;
         var playerCount = this.getPlayingNum();
 
         if (playerCount < 2) {
@@ -3774,7 +3961,7 @@ cc.Class({
         //删除计时器
         this.killGameClock();
         //隐藏操作按钮
-        //this._gameView ....
+        this._gameView.m_nodeBottom.active = false;
         //发送数据
         var dataBuf = CCmd_Data.create();
         this.sendData(zjh_cmd.SUB_C_GIVE_UP, dataBuf);
@@ -3811,16 +3998,15 @@ cc.Class({
         }
         this.killGameClock();
         //清理界面
+        this._gameView.m_chipBG.active = false;
         //底部按钮
-        for (var i = 0; i < this._gameView.m_nodeBottom.length; i++) {
-            var node = this._gameView.m_nodeBottom[i];
-            node.active = false;
-        }
+        this._gameView.m_nodeBottom.active = false;
         //....
 
         //下注金额
+        var array = [this.m_lCurrentTimes, 3, 6, 10];
         var scoreIndex = !index && 0 || index;
-        var addScore = this.m_lCellScore * this.m_lCurrentTimes + this.m_lCellScore * scoreIndex;
+        var addScore = this.m_lCellScore * (array[scoreIndex] || this.m_lCurrentTimes);
 
         //看牌加倍
         if (this.m_bLookCard[myChair] === true) {
@@ -3843,18 +4029,65 @@ cc.Class({
             console.log("[GameScene][updateControl] mychair is invalid " + myChair);
             return;
         }
-        for (var i = 0; i < this._gameView.m_nodeBottom.length; i++) {
-            var node = this._gameView.m_nodeBottom[i];
-            node.active = true;
-        }
+        this._gameView.m_nodeBottom.active = true;
+        this._gameView.m_chipBG.active = false;
 
         //看牌按钮
         if (!this.m_bLookCard[myChair]) {
-            this._gameView.m_Button_lookCard.interactable = true;
+            this._gameView.m_Button_lookCard.node.active = true;
         } else {
-            this._gameView.m_Button_lookCard.interactable = false;
+            this._gameView.m_Button_lookCard.node.active = false;
         }
         this._gameView.m_Button_giveUp.interactable = true;
+
+        //跟注按钮
+        var maxAddScore = this.m_lUserMaxScore - this.m_lTableScore[myChair];
+        var followScore = this.m_lCurrentTimes * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
+        var followLabel = this._gameView.m_Button_follow.node.children[0].getComponent(cc.Label);
+        followLabel.string = followScore;
+        if (maxAddScore < followScore) {
+            this._gameView.m_Button_follow.interactable = false;
+        }
+        // //是否第一次下注
+
+        // var textLabel = children[0].children[0].getComponent(cc.Label);
+        // if (this.m_isFirstAdd) {
+        //     textLabel.string = "下注";
+        // }
+        // else {
+        //     textLabel.string = "跟注";
+        // }
+        // 更新比牌按钮分数
+        var compareScore = this.m_lCellScore * this.m_lCurrentTimes * (this.m_bLookCard[myChair] && 4 || 2);
+        var bLastAdd = false;
+        if (maxAddScore <= compareScore) {
+            bLastAdd = true;
+        }
+        //孤注一掷
+        this._gameView.m_Button_lastadd.interactable = bLastAdd;
+
+        var bCompare = this.m_lCurrentTurn >= 1 && !bLastAdd;
+        this._gameView.m_Button_compareCard.interactable = bCompare;
+        var compareLabel = this._gameView.m_Button_compareCard.node.children[0].getComponent(cc.Label);
+        // compareLabel.node.active = bCompare;
+        compareLabel.string = compareScore;
+        //加注按钮
+        var bCanAdd = false;
+        var children = this._gameView.m_chipBG.children;
+        var array = [3, 6, 10];
+        for (var i = 0; i < array.length; i++) {
+            var element = array[i];
+            var bHide = !bLastAdd && element > this.m_lCurrentTimes;
+            var lScore = element * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
+            var scoreLabel = children[i].children[0].getComponent(cc.Label);
+            scoreLabel.string = lScore;
+            children[i].getComponent(cc.Button).interactable = bHide;
+            bCanAdd = bCanAdd || bHide && maxAddScore >= lScore;
+            if (maxAddScore < lScore) {
+                children[i].getComponent(cc.Button).interactable = false;
+            }
+        }
+        this._gameView.m_Button_addscore.interactable = bCanAdd;
     }
 });
 
@@ -4061,9 +4294,10 @@ var GameUserItem = cc.Class({
             // #define DTP_USER_GROUP_NAME			301								//社团名字
 
             // pData.setmaxsize(1);
+            console.log("[GameUserItem][initDataByUserInfoHead] [offset,datasize] = " + [pData.getReadOffset(), pData.getDataSize()]);
             var dataSize = pData.readword(true);
             var dataDescribe = pData.readword(true);
-            console.log("size = " + dataSize + " describe = " + dataDescribe);
+            console.log("[GameUserItem][initDataByUserInfoHead]size = " + dataSize + " describe = " + dataDescribe);
             if (dataDescribe === 0) {
                 break;
             }
@@ -4072,17 +4306,17 @@ var GameUserItem = cc.Class({
                 case 3:
                     this.szName = "游戏用户";
                     if (userInfoHead.dwUserID === GlobalUserData.dwUserID || true) {
-                        this.szName = pData.readstring(dataSize);
+                        this.szName = pData.readstring(dataSize, true);
                     }
                     break;
                 case 9:
                     if (userInfoHead.dwUserID === GlobalUserData.dwUserID || true) {
-                        this.szUnderWrite = pData.readstring(dataSize);
+                        this.szUnderWrite = pData.readstring(dataSize, true);
                     }
                     break;
                 case 301:
                     if (userInfoHead.dwUserID === GlobalUserData.dwUserID || true) {
-                        this.szGroupName = pData.readstring(dataSize);
+                        this.szGroupName = pData.readstring(dataSize, true);
                     }
                     break;
                 default:
@@ -4166,10 +4400,11 @@ var GameUserItem = cc.Class({
 
         userInfoHead.dwCustomFaceVer = pData.readdword(); //上传头像
         userInfoHead.dwPropResidualTime = []; //道具时间
-        for (var index = 0; index < 15; index++) {
+        for (var index = 0; index < 16; index++) {
             var val = pData.readdword();
             userInfoHead.dwPropResidualTime.push(val);
         }
+        console.log("[GameUserItem][userInfoHead] = " + JSON.stringify(userInfoHead, null, ' '));
         return userInfoHead;
     }
 });
@@ -4189,6 +4424,7 @@ var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
 var GameModel = require("GameModel");
+var GameLogic = require("GameLogic");
 cc.Class({
     extends: cc.Component,
 
@@ -4203,20 +4439,33 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
+        //label
         m_Label_cellTurn: cc.Label,
         m_Label_allScore: cc.Label,
-        m_nodeBottom: {
-            default: [],
-            type: cc.Node
-        },
-        m_Progress_time: cc.ProgressBar,
         m_Label_time: cc.Label,
+        //prefab
         cardPrefab: cc.Prefab,
         userInfacePrefab: cc.Prefab,
         chipPrefab: cc.Prefab,
+        cardTypePrefab: cc.Prefab,
+        //button
         m_Button_ready: cc.Button,
         m_Button_lookCard: cc.Button,
         m_Button_giveUp: cc.Button,
+        m_Button_compareCard: cc.Button,
+        m_Button_follow: cc.Button,
+        m_Button_lastadd: cc.Button,
+        m_Button_addscore: cc.Button,
+        m_Button_autofollow: cc.Button,
+        m_Button_cancelfollow: cc.Button,
+        //other
+        m_nodeBottom: cc.Node,
+        m_chipBG: cc.Node,
+        m_Image_banker: cc.Node,
+        m_Progress_time: cc.ProgressBar,
+        //atlas
+        gameAtlas: cc.SpriteAtlas,
+        //array
         m_Node_player: {
             default: [],
             type: cc.Node
@@ -4237,7 +4486,10 @@ cc.Class({
             default: [],
             type: cc.Vec2
         },
-        m_Image_banker: cc.Node,
+        ptCard: {
+            default: [],
+            type: cc.Vec2
+        },
         m_LookCard: {
             default: [],
             type: cc.Node
@@ -4245,8 +4497,7 @@ cc.Class({
         m_GiveUp: {
             default: [],
             type: cc.Node
-        },
-        m_Toggle_menuOpen: cc.Toggle
+        }
     },
 
     // use this for initialization
@@ -4256,6 +4507,10 @@ cc.Class({
         this._ping = true;
         this._speed = 0.1;
         //用户头像
+        this.m_userHead = [];
+        //计时器
+        this.m_timeProgress = [];
+        var userHeadList = this.node.getChildByName("m_Panel_center").getChildByName("m_userhead").children;
         for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
             var userNode = cc.instantiate(this.userInfacePrefab);
             this.node.getChildByName("nodePlayer").addChild(userNode);
@@ -4263,6 +4518,16 @@ cc.Class({
             userNode.setPosition(this.ptPlayer[index]);
             userNode.rotation = index * -90 + 180;
             userNode.active = false;
+
+            this.m_userHead[index] = {};
+            this.m_userHead[index].name = userHeadList[index].getChildByName("m_Label_username").getComponent(cc.Label);
+            this.m_userHead[index].score = userHeadList[index].getChildByName("game_gold_back").children[0].getComponent(cc.Label);
+            this.m_userHead[index].bg = userHeadList[index];
+            this.m_userHead[index].bg.active = false;
+
+            //计时器
+            this.m_timeProgress[index] = userHeadList[index].getComponent(cc.ProgressBar);
+            this.m_timeProgress[index].progress = 0;
         }
         this.m_userCard = [];
         //用户手牌
@@ -4276,29 +4541,29 @@ cc.Class({
                 var cardNode = cc.instantiate(this.cardPrefab);
                 this.m_userCard[index].card[j] = cardNode;
                 cardPanel.addChild(cardNode);
+                cardNode.setPosition(this.ptCard[index].x + (index === zjh_cmd.MY_VIEWID && 80 || 35) * j, this.ptCard[index].y);
+                cardNode.setScale(index === zjh_cmd.MY_VIEWID && 1.0 || 0.7);
                 var cardItem = cardNode.getComponent("CardItem");
                 cardItem.showCardBack();
                 cardNode.active = false;
             }
+            var cardType = cc.instantiate(this.cardTypePrefab);
+            cardPanel.addChild(cardType);
+            this.m_userCard[index].cardType = cardType;
+            cardType.setPosition(this.ptCard[index].x + (index === zjh_cmd.MY_VIEWID && 80 || 35), this.ptCard[index].y - (index === zjh_cmd.MY_VIEWID && 50 || 60));
+            cardType.active = false;
         }
+
         //底部按钮
-        for (var i = 0; i < this.m_nodeBottom.length; i++) {
-            var node = this.m_nodeBottom[i];
-            node.active = false;
-        }
+        this.m_nodeBottom.active = false;
         this.nodeChipPool = this.node.getChildByName("nodeChipPool");
-        this.m_Panel_areaMenu = this.node.getChildByName("m_Panel_areaMenu");
-        this.onClickMenuOpen(this.m_Toggle_menuOpen.getComponent(cc.Toggle));
-        this.m_bShowMenu = false;
+        this.bAutoFollow = false;
     },
     onEnable: function onEnable() {},
     onResetView: function onResetView() {
         this.m_Button_ready.node.active = false;
-
-        for (var i = 0; i < this.m_nodeBottom.length; i++) {
-            var node = this.m_nodeBottom[i];
-            node.active = false;
-        }
+        this.m_nodeBottom.active = false;
+        this.m_chipBG.active = false;
         this.setBanker(GlobalDef.INVALID_CHAIR);
         this.setAllTableScore(0);
         this.setCompareCard(false);
@@ -4318,21 +4583,25 @@ cc.Class({
 
     //更新时钟
     onUpdateClockView: function onUpdateClockView(viewID, time) {
-        console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
+        // console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
         if (time <= 0) {
             this.m_Progress_time.node.active = false;
+            if (this.m_timeProgress[viewID]) {
+                this.m_timeProgress[viewID].progress = 0;
+            }
             return;
         } else {
-            this.m_Progress_time.node.active = true;
-            if (this.ptPlayer[viewID]) {
-                this.m_Progress_time.node.setPosition(this.ptPlayer[viewID]);
+            var progress = 1.0 * time / zjh_cmd.TIME_START_GAME;
+            // this.m_Progress_time.node.active = true;
+            if (this.m_timeProgress[viewID]) {
+                this.m_timeProgress[viewID].progress = progress;
             } else {
+                this.m_Progress_time.node.active = true;
                 this.m_Progress_time.node.setPosition(0, 60);
+                // this.m_Progress_time.progress = progress;
+                this.m_Label_time.string = time.toString();
             }
         }
-        var progress = 1.0 * time / zjh_cmd.TIME_START_GAME;
-        this.m_Progress_time.progress = progress;
-        this.m_Label_time.string = time.toString();
     },
     //更新用户显示
     onUpdateUser: function onUpdateUser(viewID, userItem) {
@@ -4345,35 +4614,43 @@ cc.Class({
         this.m_Node_player[viewID].active = userItem !== undefined;
         if (userItem) {
             this.m_flagReady[viewID].active = GlobalDef.US_READY === userItem.cbUserStatus;
+            this.m_userHead[viewID].bg.active = true;
+            this.m_userHead[viewID].name.string = userItem.szName;
+            this.m_userHead[viewID].score.string = userItem.lScore;
         } else {
             this.m_flagReady[viewID].active = false;
+            this.m_userHead[viewID].name.string = "";
+            this.m_userHead[viewID].score.string = "";
+            this.m_userHead[viewID].bg.active = false;
         }
     },
     //牌类型介绍的弹出与弹入
     onShowIntroduce: function onShowIntroduce(bShow) {},
     //筹码移动
     playerJetton: function playerJetton(wViewChairID, num, notani) {
-        if (!num || num < 1 || !this.m_lCellScore || this.m_lCellScore < 1) {
-            console.log("[GameView][playerJetton] num is invalid");
-            return;
-        }
-        var count = Math.floor(num / this.m_lCellScore);
-        if (count > 10) {
-            count = 10;
-        }
-        if (count <= 0) {
-            count = 1;
-        }
-        for (var i = 0; i < count; i++) {
-            var chip = cc.instantiate(this.chipPrefab);
-            this.nodeChipPool.addChild(chip);
-            chip.setPosition(this.ptPlayer[wViewChairID]);
-            chip.setScale(0.5);
-            var x = Math.random() * 200 - 100;
-            var y = Math.random() * 100 - 50;
-            console.log("[GameView][playerJetton] [x,y] = " + [x, y]);
-            chip.runAction(cc.moveTo(0.2, cc.p(x, y)));
-        }
+        if (!num || num < 1 /*|| !this.m_lCellScore || this.m_lCellScore < 1*/) {
+                console.log("[GameView][playerJetton] num is invalid");
+                return;
+            }
+        // var count = Math.floor(num/this.m_lCellScore);
+        // if (count > 10) {
+        //     count = 10;
+        // }
+        // if (count <= 0) {
+        //     count = 1;
+        // }
+        // for (var i = 0; i < count; i++) {
+        var chip = cc.instantiate(this.chipPrefab);
+        this.nodeChipPool.addChild(chip);
+        var chipItem = chip.getComponent("ChipItem");
+        chipItem.init(num);
+        chip.setPosition(this.ptPlayer[wViewChairID]);
+        // chip.setScale(0.5);
+        var x = Math.random() * 200 - 100;
+        var y = Math.random() * 100 - 50;
+        console.log("[GameView][playerJetton] [x,y] = " + [x, y]);
+        chip.runAction(cc.moveTo(0.2, cc.p(x, y)));
+        // }
     },
     //停止比牌动画
     stopCompareCard: function stopCompareCard() {
@@ -4381,8 +4658,9 @@ cc.Class({
     },
     //比牌
     compareCard: function compareCard(firstuser, seconduser, firstcard, secondcard, bfirstwin, callback) {
-        this.node.getChildByName("compareView").active = true;
-        this.node.runAction(cc.sequence(cc.delayTime(1.0), cc.callFunc(function () {
+        var compareView = this.node.getChildByName("compareView");
+        compareView.active = true;
+        compareView.runAction(cc.sequence(cc.delayTime(3.0), cc.callFunc(function () {
             callback();
         })));
     },
@@ -4404,7 +4682,7 @@ cc.Class({
     },
     //庄家显示
     setBanker: function setBanker(viewID) {
-        if (!viewID || viewID === GlobalDef.INVALID_CHAIR) {
+        if (viewID === undefined || viewID === GlobalDef.INVALID_CHAIR) {
             //todo
             this.m_Image_banker.active = false;
             return;
@@ -4414,33 +4692,41 @@ cc.Class({
     },
     //下注总额
     setAllTableScore: function setAllTableScore(score) {
-        if (!score || score === 0) {
+        if (score === undefined || score === 0) {
             this.m_Label_allScore.node.active = false;
+            this.m_Label_allScore.node.parent.active = false;
         } else {
             this.m_Label_allScore.node.active = true;
+            this.m_Label_allScore.node.parent.active = true;
             this.m_Label_allScore.string = score;
         }
     },
     //玩家下注
     setUserTableScore: function setUserTableScore(viewID, score) {
-        if (!score || score === 0) {
+        if (score === undefined || score === 0) {
             // if (viewID !== )
         } else {}
     },
     //发牌
     sendCard: function sendCard(viewID, index, fDelay) {
         console.log("[viewID,index,fDelay] = " + [viewID, index, fDelay]);
-        if (!viewID || viewID === GlobalDef.INVALID_CHAIR) {
+        if (viewID === undefined || viewID === GlobalDef.INVALID_CHAIR) {
             return;
         }
+        var self = this;
         var fInterval = 0.1;
         var nodeCard = this.m_userCard[viewID];
         var spriteCard = nodeCard.card[index];
         var cardItem = spriteCard.getComponent("CardItem");
         spriteCard.active = true;
-        spriteCard.setScale(1.0);
+        spriteCard.opacity = 0;
+        spriteCard.stopAllActions();
+        spriteCard.setScale(viewID === zjh_cmd.MY_VIEWID && 1.0 || 0.7);
+        spriteCard.setPosition(0, 0);
         cardItem.showCardBack();
-        spriteCard.runAction(cc.sequence(cc.delayTime(fDelay), cc.spawn(cc.scaleTo(0.25, 1.0))));
+        spriteCard.runAction(cc.sequence(cc.delayTime(fDelay),
+        // cc.fadeIn(0),
+        cc.spawn(cc.fadeIn(0.1), cc.moveTo(0.2, self.ptCard[viewID].x + (viewID === zjh_cmd.MY_VIEWID && 80 || 35) * index, self.ptCard[viewID].y))));
     },
     //看牌状态
     setLookCard: function setLookCard(viewID, bLook) {
@@ -4475,29 +4761,48 @@ cc.Class({
     //显示牌值
     setUserCard: function setUserCard(viewID, cardData) {
         console.log("[GameView][setUserCard][viewID,cardData] = " + [viewID, cardData]);
-        if (!viewID || viewID === GlobalDef.INVALID_CHAIR) {
+        if (viewID === undefined || viewID === GlobalDef.INVALID_CHAIR) {
             return;
         }
         if (cardData) {
+            cardData = GameLogic.sortCard(cardData);
             for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
-                var cardNode = this.m_userCard[viewID].card[i];
+                var cardNode = this.m_userCard[viewID].card[zjh_cmd.MAX_COUNT - i - 1];
                 var cardItem = cardNode.getComponent("CardItem");
                 cardNode.active = true;
                 if (!cardData[i] || cardData[i] === 0 || cardData[i] === 0xff) {
                     cardItem.showCardBack();
                 } else {
                     cardItem.setCardData(cardData[i]);
-                    cardItem.showCard();
+                    cardItem.setTurnTime(0.5);
+                    cardItem.setTurnCallback(function (params) {
+                        console.log("[GameView][setUserCard][setTurnCallback]");
+                    });
+                    cardItem.turnCard();
+                    // cardItem.showCard();
                 }
             }
         } else {
             for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
-                this.m_userCard[viewID].card[i].active = false;
+                var cardNode = this.m_userCard[viewID].card[i];
+                cardNode.skewX = 0;
+                cardNode.skewY = 0;
+                cardNode.active = false;
             }
         }
     },
     //显示牌类型
-    setUserCardType: function setUserCardType(viewID, cardtype) {},
+    setUserCardType: function setUserCardType(viewID, cardtype) {
+        var nodeCardType = this.m_userCard[viewID].cardType;
+        console.log("[GameView][setUserCardType] [viewID,cardtype] = " + [viewID, cardtype]);
+        if (cardtype && cardtype >= 1 && cardtype <= 6) {
+            var spCardType = nodeCardType.getComponent(cc.Sprite);
+            nodeCardType.active = true;
+            spCardType.spriteFrame = this.gameAtlas.getSpriteFrame("card_type_" + cardtype);
+        } else {
+            nodeCardType.active = false;
+        }
+    },
     //赢得筹码
     winTheChip: function winTheChip(wWinner) {
         var children = this.nodeChipPool.children;
@@ -4517,31 +4822,44 @@ cc.Class({
         this.bCompareChoose = bChoose;
         // todo
     },
-    onClickMenuOpen: function onClickMenuOpen(toggle) {
-        this.showMenu(toggle.isChecked);
-    },
     onTouch: function onTouch(params) {
-        console.log(params);
-        if (this.m_bShowMenu) {
-            this.m_Toggle_menuOpen.uncheck();
-        }
+        // console.log(params);
+        // if (this.m_bShowMenu) {
+        //     this.m_Toggle_menuOpen.uncheck();
+        // }
     },
-    showMenu: function showMenu(bShow) {
-        console.log("[GameView][showMenu] bShow = " + bShow);
-        this.m_bShowMenu = bShow;
-        if (bShow) {
-            this.m_Panel_areaMenu.active = bShow;
-            this.m_Panel_areaMenu.runAction(cc.moveBy(0.2, cc.p(0, -420)));
-        } else {
-            this.m_Panel_areaMenu.runAction(cc.sequence(cc.moveBy(0.2, cc.p(0, 420)), cc.callFunc(function (node) {
-                // node.active = false;
-            })));
-        }
+    onClickAddScoreButton: function onClickAddScoreButton() {
+        // this.m_nodeBottom.active = false;
+        this.m_chipBG.active = !this.m_chipBG.active;
+    },
+    onClickAutoFollowButton: function onClickAutoFollowButton() {
+        this.bAutoFollow = !this.bAutoFollow;
+        this.m_Button_autofollow.node.active = !this.bAutoFollow;
+        this.m_Button_cancelfollow.node.active = this.bAutoFollow;
     },
     //按键响应
     onStartGame: function onStartGame() {
         this._scene.onStartGame(true);
         // this.m_Button_ready.node.active = false;
+        // var delayCount = 1;
+        // for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
+        //     for (var j = 0; j < zjh_cmd.GAME_PLAYER; j++) {
+        //         // console.log("[GameScene][onSubGameStart] [this.m_wBankerUser,j,zjh_cmd.GAME_PLAYER] = " + [this.m_wBankerUser,j,zjh_cmd.GAME_PLAYER]);
+        //         var chair = j;
+        //         console.log("[GameScene][onSubGameStart] chair = " + chair);
+        //         // if (this.m_cbPlayStatus[chair] === 1) {
+        //             this.sendCard(chair, i, delayCount * 0.1);
+        //             delayCount += 1;
+        //         // }
+        //     }
+
+        // }
+        // this._bBack = !this._bBack;
+        // for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+        //     var cardData = [2,3,4];
+        //     this.setUserCard(i,this._bBack && cardData || []);
+
+        // }
     },
     onGiveUp: function onGiveUp() {
         this._scene.onGiveUp();
@@ -4555,11 +4873,13 @@ cc.Class({
     onAddScore: function onAddScore(event, params) {
         console.log(params);
         this._scene.addScore(params);
+        // var arr = [0,1000,10000,100000];
+        // this.playerJetton(zjh_cmd.MY_VIEWID,arr[params]);
     }
 });
 
 cc._RFpop();
-},{"CMD_ZaJinHua":"CMD_ZaJinHua","GameModel":"GameModel","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GlobalDef":[function(require,module,exports){
+},{"CMD_ZaJinHua":"CMD_ZaJinHua","GameLogic":"GameLogic","GameModel":"GameModel","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GlobalDef":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'd85baIYnERFsIqEdSH5SyZY', 'GlobalDef');
 // Script/GlobalDef.js
@@ -4945,6 +5265,38 @@ var GlobalUserData = {
             // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.shopData, null, ' '));
         });
         this.roomList = [];
+        var music_setting = JSON.parse(cc.sys.localStorage.getItem('music_setting') || "{}");
+        var effect_setting = JSON.parse(cc.sys.localStorage.getItem('effect_setting') || "{}");
+        this.bMusicAble = music_setting.musicable === undefined || music_setting.musicable;
+        this.nMusic = music_setting.musicvalue === undefined && 1.0 || music_setting.musicvalue;
+        this.bEffectAble = effect_setting.effectable === undefined || effect_setting.effectable;
+        this.nEffect = effect_setting.effectvalue === undefined && 1.0 || effect_setting.effectvalue;
+    },
+    setMusicAble: function setMusicAble(able) {
+        this.bMusicAble = able;
+        if (able) {
+            this.nMusic = 1.0;
+        } else {
+            this.nMusic = 0;
+        }
+        var music_setting = {
+            musicable: able,
+            musicvalue: this.nMusic
+        };
+        cc.sys.localStorage.setItem("music_setting", JSON.stringify(music_setting));
+    },
+    setEffectAble: function setEffectAble(able) {
+        this.bEffectAble = able;
+        if (able) {
+            this.nEffect = 1.0;
+        } else {
+            this.nEffect = 0;
+        }
+        var effect_setting = {
+            effectable: able,
+            effectvalue: this.nEffect
+        };
+        cc.sys.localStorage.setItem("effect_setting", JSON.stringify(effect_setting));
     },
     onLoadData: function onLoadData(pData) {
         // struct CMD_GP_LogonSuccessMobile
@@ -5338,6 +5690,7 @@ var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var GlobalUserData = require("GlobalUserData");
 var zjh_cmd = require("CMD_ZaJinHua");
+var MultiPlatform = require("MultiPlatform");
 cc.Class({
     extends: cc.Component,
 
@@ -5473,11 +5826,15 @@ cc.Class({
         GlobalFun.ActionShowTanChuang(this._registerView, function () {
             console.log("[LogonScene][onShowRegister]ActionShowTanChuang callback");
         });
+    },
+
+    onShowWxLogon: function onShowWxLogon() {
+        MultiPlatform.showAlert(MultiPlatform.getMachineID(), MultiPlatform.getIpAddress());
     }
 });
 
 cc._RFpop();
-},{"CMD_ZaJinHua":"CMD_ZaJinHua","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"LogonView":[function(require,module,exports){
+},{"CMD_ZaJinHua":"CMD_ZaJinHua","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MultiPlatform":"MultiPlatform"}],"LogonView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '6408fGx9nxB45qz0RIhtVt6', 'LogonView');
 // Script/plaza/views/logon/LogonView.js
@@ -5836,7 +6193,51 @@ cc.md5Encode = function (data) {
 };
 
 cc._RFpop();
-},{}],"PlazaRoomItem":[function(require,module,exports){
+},{}],"MultiPlatform":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '6a461J76ytMnK+gY7JQD8Yq', 'MultiPlatform');
+// Script/MultiPlatform.js
+
+"use strict";
+
+var MultiPlatform = {};
+var PLATFORM = {};
+PLATFORM[cc.sys.OS_IOS] = require("Bridge_ios");
+PLATFORM[cc.sys.OS_ANDROID] = require("Bridge_android");
+
+MultiPlatform.getMachineID = function () {
+    if (PLATFORM[cc.sys.os] && PLATFORM[cc.sys.os].getMachineID) {
+        return PLATFORM[cc.sys.os].getMachineID();
+    } else {
+        console.log("[MultiPlatform][getMachineID] unsupport platform -> " + cc.sys.os);
+        return "";
+    }
+};
+
+MultiPlatform.getIpAddress = function () {
+    if (PLATFORM[cc.sys.os] && PLATFORM[cc.sys.os].getIpAddress) {
+        return PLATFORM[cc.sys.os].getIpAddress();
+    } else {
+        console.log("[MultiPlatform][getIpAddress] unsupport platform -> " + cc.sys.os);
+        return "";
+    }
+};
+
+MultiPlatform.showAlert = function (title, message) {
+    title = title || cc.sys.os;
+    message = message || cc.sys.os;
+    if (PLATFORM[cc.sys.os] && PLATFORM[cc.sys.os].showAlert) {
+        return PLATFORM[cc.sys.os].showAlert(title, message);
+    } else {
+        console.log("[MultiPlatform][showAlert] unsupport platform -> " + cc.sys.os);
+        return "";
+    }
+};
+
+module.exports = MultiPlatform;
+
+cc._RFpop();
+},{"Bridge_android":"Bridge_android","Bridge_ios":"Bridge_ios"}],"PlazaRoomItem":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '621c5iAlGtM0puy21Gwuy3w', 'PlazaRoomItem');
 // Script/plaza/views/plaza/PlazaRoomItem.js
@@ -5874,8 +6275,8 @@ cc.Class({
         this._index = params.index;
         // var roomInfo = params.roomInfo;
         this._roomInfo = params.roomInfo;
-        this.m_Image_back.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_back_" + this._index);
-        this.m_Image_col.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_col_" + this._index);
+        // this.m_Image_back.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_back_" + (this._index));
+        this.m_Image_col.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_back_" + this._index);
         this.m_Image_title.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_down_" + this._index);
         if (this._roomInfo && this._roomInfo.lLimitScore) {
             this.m_Label_scoreLimit.string = this._roomInfo.lLimitScore;
@@ -5908,6 +6309,7 @@ var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
+var AudioMng = require("AudioMng");
 cc.Class({
     extends: cc.Component,
 
@@ -5938,6 +6340,10 @@ cc.Class({
             default: null,
             type: cc.Prefab
         },
+        roomItemList: {
+            default: null,
+            type: cc.ScrollView
+        },
         plazaRoomItem: {
             default: null,
             type: cc.Prefab
@@ -5950,6 +6356,7 @@ cc.Class({
             default: null,
             type: cc.Label
         },
+        m_Label_ID: cc.Label,
         m_Label_userGold: {
             default: null,
             type: cc.Label
@@ -5970,7 +6377,7 @@ cc.Class({
             cc.game.addPersistRootNode(GameFrameNode);
             this._gameFrame = GameFrameNode.getComponent("GameFrame");
         }
-
+        AudioMng.playMusic();
         // this._gameFrame = this.getScene().getChildByName("GameFrame").getComponent("GameFrame");
         this.refreshUI();
     },
@@ -5982,6 +6389,7 @@ cc.Class({
         }
         this.m_Label_userGold.string = GlobalUserData.llGameScore;
         this.m_Label_name.string = GlobalUserData.szNickName;
+        this.m_Label_ID.string = "ID" + GlobalUserData.dwUserID;
         var faceID = GlobalUserData.wFaceID;
         if (faceID <= 0 || faceID > 8) {
             faceID = 1;
@@ -5993,9 +6401,9 @@ cc.Class({
     refreshRoomList: function refreshRoomList() {
         var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
         console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList, null, ' '));
-        var roomListPanel = this.node.getChildByName("m_Panel_center");
+        var roomListPanel = this.roomItemList.content;
         roomListPanel.removeAllChildren();
-        for (var index = 0; index < 3; index++) {
+        for (var index = 0; index < 4; index++) {
             var item = cc.instantiate(this.plazaRoomItem);
             item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
             roomListPanel.addChild(item);
@@ -6101,7 +6509,19 @@ cc.Class({
     },
     onClickClient: function onClickClient(params) {
         console.log("[PlazaView][onClickClient]");
-        GlobalFun.showToast(cc.director.getScene(), "客服功能暂未开放,敬请期待!");
+        // GlobalFun.showToast(cc.director.getScene(),"客服功能暂未开放,敬请期待!");
+        var self = this;
+        if (cc.isValid(self._serviceView) === false) {
+            cc.loader.loadRes("prefab/ServiceView", function (err, ServicePrefab) {
+                if (cc.isValid(self.node)) {
+                    self._serviceView = cc.instantiate(ServicePrefab);
+                    self.node.addChild(self._serviceView);
+                    GlobalFun.ActionShowTanChuang(self._serviceView, function () {
+                        console.log("[PlazaView][onClickClient]ActionShowTanChuang callback");
+                    });
+                }
+            });
+        }
     },
     onClickActivity: function onClickActivity(params) {
         console.log("[PlazaView][conClickActivity]");
@@ -6130,7 +6550,7 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"CMD_ZaJinHua":"CMD_ZaJinHua","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"PopWaitView":[function(require,module,exports){
+},{"AudioMng":"AudioMng","CMD_ZaJinHua":"CMD_ZaJinHua","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"PopWaitView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'b62aboUA7hHj6uWOgxgWCqy', 'PopWaitView');
 // Script/external/PopWaitView.js
@@ -6346,7 +6766,41 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","MD5":"MD5"}],"SettingView":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","MD5":"MD5"}],"ServiceView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, 'a775eLbcw9NwqbV0pFztLLF', 'ServiceView');
+// Script/plaza/views/plaza/ServiceView.js
+
+"use strict";
+
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+
+    onClickCloseButton: function onClickCloseButton() {
+        // this.node.active = false;  
+        this.node.destroy();
+        console.log("[ServiceView][onClickCloseButton] destroy");
+    }
+});
+
+cc._RFpop();
+},{}],"SettingView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '57ed4FNWZNA8on9xWn39UIJ', 'SettingView');
 // Script/plaza/views/plaza/SettingView.js
@@ -6371,12 +6825,40 @@ cc.Class({
         m_Label_account: {
             default: null,
             type: cc.Label
-        }
+        },
+        m_Image_userFace: {
+            default: null,
+            type: cc.Sprite
+        },
+        userFaceAtals: {
+            default: null,
+            type: cc.SpriteAtlas
+        },
+        m_Button_music_switch_off: cc.Button,
+        m_Button_music_switch_on: cc.Button,
+        m_Button_effect_switch_off: cc.Button,
+        m_Button_effect_switch_on: cc.Button
+
     },
 
     // use this for initialization
     onLoad: function onLoad() {
         this.m_Label_account.string = GlobalUserData.szAccounts;
+        var faceID = this._faceID || GlobalUserData.wFaceID;
+        if (faceID <= 0 || faceID > 8) {
+            faceID = 1;
+        }
+        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+        this.onRefreshEffect();
+        this.onRefreshMusic();
+    },
+    onRefreshMusic: function onRefreshMusic() {
+        this.m_Button_music_switch_off.node.active = !GlobalUserData.bMusicAble;
+        this.m_Button_music_switch_on.node.active = GlobalUserData.bMusicAble;
+    },
+    onRefreshEffect: function onRefreshEffect() {
+        this.m_Button_effect_switch_off.node.active = !GlobalUserData.bEffectAble;
+        this.m_Button_effect_switch_on.node.active = GlobalUserData.bEffectAble;
     },
     onDestroy: function onDestroy() {
         cc.sys.garbageCollect();
@@ -6386,6 +6868,14 @@ cc.Class({
         // this.node.active = false;  
         this.node.destroy();
         console.log("[SettingView][onClickCloseButton] destroy");
+    },
+    onClickMusicSwitch: function onClickMusicSwitch() {
+        GlobalUserData.setMusicAble(!GlobalUserData.bMusicAble);
+        this.onRefreshMusic();
+    },
+    onClickEffectSwitch: function onClickEffectSwitch() {
+        GlobalUserData.setEffectAble(!GlobalUserData.bEffectAble);
+        this.onRefreshEffect();
     },
     onClickSwitchAccount: function onClickSwitchAccount() {
         var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
@@ -6406,6 +6896,7 @@ cc._RFpush(module, '0332dr8AGZOoahYR3nJs/re', 'ShopItem');
 
 "use strict";
 
+var GlobalUserData = require("GlobalUserData");
 cc.Class({
     extends: cc.Component,
 
@@ -6428,6 +6919,8 @@ cc.Class({
             default: null,
             type: cc.SpriteAtlas
         },
+        m_Label_des: cc.Label,
+        m_Label_price: cc.Label,
         _shopID: 0,
         _goodsID: 0
     },
@@ -6438,6 +6931,21 @@ cc.Class({
         var shopID = params.shopID;
         this._shopID = shopID;
         this._goodsID = shopID % 6;
+        var shopDataArray = GlobalUserData.shopData.shop.base;
+        if (this._goodsID < 0 || this._goodsID >= shopDataArray.length) {
+            console.log("[ShopItem][init] shopDataArray length = " + shopDataArray.length);
+            return;
+        }
+        var itemVal = shopDataArray[this._goodsID];
+        var des = itemVal.name || "";
+        var price = 0;
+        if (GlobalUserData.isOpenIAP) {
+            price = itemVal.iosprice;
+        } else {
+            price = itemVal.price;
+        }
+        this.m_Label_des.string = des;
+        this.m_Label_price.string = price;
         this.m_Image_shopItem.spriteFrame = this.shopItemAtals.getSpriteFrame("shop_icon_" + shopID);
     },
     onClick: function onClick(params) {
@@ -6451,7 +6959,7 @@ cc.Class({
 });
 
 cc._RFpop();
-},{}],"ShopView":[function(require,module,exports){
+},{"GlobalUserData":"GlobalUserData"}],"ShopView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'd9f64TYV25HYKL062f4Ojzg', 'ShopView');
 // Script/plaza/views/plaza/ShopView.js
@@ -6934,18 +7442,8 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        m_Button_changeName: {
-            default: null,
-            type: cc.Button
-        },
-        m_Button_editName: {
-            default: null,
-            type: cc.Button
-        },
-        m_Editbox_userName: {
-            default: null,
-            type: cc.EditBox
-        },
+        m_Button_changepwd: cc.Button,
+        m_Button_binding: cc.Button,
         m_Label_userName: {
             default: null,
             type: cc.Label
@@ -7000,7 +7498,6 @@ cc.Class({
 
     // use this for initialization
     onLoad: function onLoad() {
-        this.m_Button_editName.node.active = false;
         this.refreshUI();
     },
     refreshUI: function refreshUI() {
@@ -7008,11 +7505,17 @@ cc.Class({
         var llGameScore = GlobalUserData.llGameScore;
         var dwUserID = GlobalUserData.dwUserID;
         var cbGender = GlobalUserData.cbGender || 1;
-        this.m_Button_editName.node.active = true;
-        this.m_Button_changeName.node.active = false;
+        var isGuest = GlobalUserData.isGuest;
         this.m_Label_userGold.string = llGameScore;
-        this.m_Label_userID.string = "ID:" + dwUserID;
+        this.m_Label_userID.string = dwUserID;
         this.m_Label_userName.string = szNickName;
+        if (isGuest) {
+            this.m_Button_binding.node.active = true;
+            this.m_Button_changepwd.node.active = false;
+        } else {
+            this.m_Button_binding.node.active = false;
+            this.m_Button_changepwd.node.active = true;
+        }
         if (this._faceID !== undefined) {
             this.onChangeUserFace();
             cbGender = Math.floor((this._faceID - 1) / 4) + 1;
@@ -7079,23 +7582,10 @@ cc.Class({
         console.log("[UserProfileView][onClickCloseButton] destroy");
     },
     onClickEditName: function onClickEditName(params) {
-        this.m_Button_editName.node.active = false;
-        this.m_Button_changeName.node.active = true;
         this.m_Label_userName.node.active = false;
-        this.m_Editbox_userName.node.active = true;
-        this.m_Editbox_userName.setFocus(true);
-        // this.m_Button_editName.node.emit(cc.EditBox.editing-did-began);
     },
     onClickChangeName: function onClickChangeName(params) {
-        this.m_Button_editName.node.active = true;
-        this.m_Button_changeName.node.active = false;
         this.m_Label_userName.node.active = true;
-        this.m_Editbox_userName.node.active = false;
-        var szNewNickName = this.m_Editbox_userName.string;
-        this.m_Editbox_userName.string = "";
-        if (szNewNickName.length <= 0 || szNewNickName == GlobalUserData.szNickName) {
-            return;
-        }
         var url = GlobalDef.httpUserCenter;
         url += "/HZMobile/UpdateNickName.ashx";
         var params = {};
@@ -7142,6 +7632,9 @@ cc.Class({
     onClickChangePassword: function onClickChangePassword(params) {
         this.m_Panel_userInfo.active = false;
         this.m_Panel_userChange.active = true;
+        GlobalFun.ActionShowTanChuang(this.m_Panel_userChange, function () {
+            console.log("[PlazaView][onClickChangePassword]ActionShowTanChuang callback");
+        });
     },
     onClickConfirmButton: function onClickConfirmButton() {
         var szPassword = this.m_Editbox_originPassword.string;
@@ -7190,8 +7683,11 @@ cc.Class({
                     self.m_Editbox_confirmPassword.string = "";
                     self.m_Editbox_newPassword.string = "";
                     self.m_Editbox_originPassword.string = "";
-                    this.m_Panel_userInfo.active = true;
-                    this.m_Panel_userChange.active = false;
+                    self.m_Panel_userInfo.active = true;
+                    self.m_Panel_userChange.active = false;
+                    GlobalFun.ActionShowTanChuang(self.m_Panel_userInfo, function () {
+                        console.log("[PlazaView][onClickConfirmButton]ActionShowTanChuang callback");
+                    });
                     cc.director.emit("onChangePasswordSuccess");
                 }
                 if (value.msg !== undefined) {
@@ -7277,4 +7773,4 @@ cc.Class({
 });
 
 cc._RFpop();
-},{}]},{},["GameServerItem","GameUserItem","GlobalDef","GlobalUserData","HelloWorld","MD5","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CardItem","GameLogic","GameScene","GameView","UserInfaceItem","GameModel","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","GameFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","PlazaRoomItem","SettingView","ShopItem","ShopView","UserFaceItem","UserFaceView","UserProfileView"]);
+},{}]},{},["AudioMng","Bridge_android","Bridge_ios","GameServerItem","GameUserItem","GlobalDef","GlobalUserData","HelloWorld","MD5","MultiPlatform","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CardItem","ChipItem","GameLogic","GameScene","GameView","UserInfaceItem","GameModel","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","GameFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","PlazaRoomItem","ServiceView","SettingView","ShopItem","ShopView","UserFaceItem","UserFaceView","UserProfileView"]);

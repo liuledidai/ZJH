@@ -31,6 +31,8 @@
 #import "RootViewController.h"
 #import "platform/ios/CCEAGLView-ios.h"
 
+#import <Foundation/Foundation.h>
+
 @implementation AppController
 
 #pragma mark -
@@ -139,6 +141,11 @@ static AppDelegate s_sharedApplication;
     [super dealloc];
 }
 
++(BOOL)showAlert:(NSString *)title andContent:(NSString *)content{
+    UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:content delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
+    [alertView show];
+    return true;
+}
 
 @end
 

@@ -80,6 +80,8 @@
 		B61048001ED41BB400E646DC /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61047F51ED41BB400E646DC /* tools.cpp */; };
 		B61048AA1ED56D3700E646DC /* ClientSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61048A81ED56D3700E646DC /* ClientSocket.cpp */; };
 		B61048AB1ED56D3700E646DC /* ClientSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61048A81ED56D3700E646DC /* ClientSocket.cpp */; };
+		B62C4CAC1F2201C600B24B0D /* CHKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = B62C4CA91F2201C600B24B0D /* CHKeychain.m */; };
+		B62C4CAD1F2201C600B24B0D /* DeviceModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = B62C4CAB1F2201C600B24B0D /* DeviceModule.mm */; };
 		B6F9331B1ED6A71700B3DEDB /* CCmd_Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F933191ED6A71700B3DEDB /* CCmd_Data.cpp */; };
 		B6F9331C1ED6A71700B3DEDB /* CCmd_Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F933191ED6A71700B3DEDB /* CCmd_Data.cpp */; };
 		BA3A85EC1A724AE900924D24 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA3A85EB1A724AE900924D24 /* Security.framework */; };
@@ -249,6 +251,10 @@
 		B61048A11ED41DB200E646DC /* typedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = typedef.h; sourceTree = "<group>"; };
 		B61048A81ED56D3700E646DC /* ClientSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientSocket.cpp; sourceTree = "<group>"; };
 		B61048A91ED56D3700E646DC /* ClientSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientSocket.h; sourceTree = "<group>"; };
+		B62C4CA81F2201C600B24B0D /* CHKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CHKeychain.h; path = ios/CHKeychain.h; sourceTree = "<group>"; };
+		B62C4CA91F2201C600B24B0D /* CHKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CHKeychain.m; path = ios/CHKeychain.m; sourceTree = "<group>"; };
+		B62C4CAA1F2201C600B24B0D /* DeviceModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeviceModule.h; path = ios/DeviceModule.h; sourceTree = "<group>"; };
+		B62C4CAB1F2201C600B24B0D /* DeviceModule.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DeviceModule.mm; path = ios/DeviceModule.mm; sourceTree = "<group>"; };
 		B6F933191ED6A71700B3DEDB /* CCmd_Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCmd_Data.cpp; sourceTree = "<group>"; };
 		B6F9331A1ED6A71700B3DEDB /* CCmd_Data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCmd_Data.h; sourceTree = "<group>"; };
 		BA3A85EB1A724AE900924D24 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
@@ -501,6 +507,10 @@
 				509D4AAC17EBB2AB00697056 /* AppController.mm */,
 				509D4AAD17EBB2AB00697056 /* Default-568h@2x.png */,
 				509D4AAE17EBB2AB00697056 /* Default.png */,
+				B62C4CA81F2201C600B24B0D /* CHKeychain.h */,
+				B62C4CA91F2201C600B24B0D /* CHKeychain.m */,
+				B62C4CAA1F2201C600B24B0D /* DeviceModule.h */,
+				B62C4CAB1F2201C600B24B0D /* DeviceModule.mm */,
 				509D4AAF17EBB2AB00697056 /* Default@2x.png */,
 				5091732E17ECDF8A00D62437 /* Icons */,
 				509D4AB717EBB2AB00697056 /* Info.plist */,
@@ -719,11 +729,13 @@
 				B61048AA1ED56D3700E646DC /* ClientSocket.cpp in Sources */,
 				AB2EB9E41D34F56100695C92 /* jsb_anysdk_protocols_auto.cpp in Sources */,
 				B61047FD1ED41BB400E646DC /* CTCPSocket.cpp in Sources */,
+				B62C4CAD1F2201C600B24B0D /* DeviceModule.mm in Sources */,
 				B61047FB1ED41BB400E646DC /* CMD5.cpp in Sources */,
 				AB2EB9E61D34F56100695C92 /* SDKManager.cpp in Sources */,
 				AB2EB9E31D34F56100695C92 /* jsb_anysdk_basic_conversions.cpp in Sources */,
 				509D4AC817EBB2AB00697056 /* main.m in Sources */,
 				509D4ABC17EBB2AB00697056 /* AppController.mm in Sources */,
+				B62C4CAC1F2201C600B24B0D /* CHKeychain.m in Sources */,
 				B61047E01ED4130B00E646DC /* jsbTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

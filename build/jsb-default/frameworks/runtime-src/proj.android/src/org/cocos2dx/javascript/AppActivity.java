@@ -35,13 +35,19 @@ import org.cocos2dx.javascript.SDKWrapper;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.app.AlertDialog;
+
+import org.cocos2dx.javascript.DeviceModule;
 
 public class AppActivity extends Cocos2dxActivity {
 
+    private static AppActivity app = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        app = this;
         SDKWrapper.getInstance().init(this);
+        DeviceModule.setContext(this);
     }
 	
     @Override
@@ -125,5 +131,18 @@ public class AppActivity extends Cocos2dxActivity {
     protected void onStart() {
         SDKWrapper.getInstance().onStart();
         super.onStart();
+    }
+
+    public static void showAlert(final String title, final String message) {
+        app.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog alertDialog = new AlertDialog.Builder(app).create();
+                alertDialog.setTitle(title);
+                alertDialog.setMessage(message);
+                // alertDialog.setIcon(R.drawable.icon);
+                alertDialog.show();
+            }
+        }); 
     }
 }

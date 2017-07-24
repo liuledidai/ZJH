@@ -2,6 +2,7 @@ var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var GlobalUserData = require("GlobalUserData");
 var zjh_cmd = require("CMD_ZaJinHua");
+var MultiPlatform = require("MultiPlatform");
 cc.Class({
     extends: cc.Component,
 
@@ -140,6 +141,10 @@ cc.Class({
         GlobalFun.ActionShowTanChuang(this._registerView,function () {
             console.log("[LogonScene][onShowRegister]ActionShowTanChuang callback");
         })
+    },
+
+    onShowWxLogon: function () {
+        MultiPlatform.showAlert(MultiPlatform.getMachineID(),MultiPlatform.getIpAddress());
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

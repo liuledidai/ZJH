@@ -31,5 +31,7 @@
     RootViewController    *viewController;
 }
 
++(BOOL)showAlert:(NSString *) title andContent:(NSString *)content;
+
 @end
 
