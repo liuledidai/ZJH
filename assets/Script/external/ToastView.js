@@ -27,11 +27,15 @@ cc.Class({
         console.log("[ToastView][onDestroy]");
     },
     onClickConfirmButton: function () {
+        if (typeof(this._confirmfunc) === "function") {
+            this._confirmfunc();
+        }
         this.node.destroy();
         console.log("[ToastView][onClickConfirmButton] destroy");
     },
     onInit: function (params) {
         var szText = params.message;
+        this._confirmfunc = params.confirmfunc;
         this.m_Label_content.string = szText;
     }
 

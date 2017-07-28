@@ -52,6 +52,7 @@ cc.Class({
         return true;
     },
     onConnectCompeleted: function() {
+        cc.director.emit("LoadingViewOnConnect",{message:"正在连接游戏房间..."});
         this.sendLogonPacket();
     },
     onSocketEvent: function(main,sub,pData) {
@@ -104,11 +105,15 @@ cc.Class({
             logonError.szErrorDescribe = pData.readstring(128);
             console.log("[GameFrame][OnSocketMainLogon] errorCode = " + logonError.lErrorCode + " des = " + logonError.szErrorDescribe);
             this.onCloseSocket();
-            GlobalFun.showToast(cc.director.getScene(),logonError.szErrorDescribe);
+            // GlobalFun.showToast({message:logonError.szErrorDescribe});
+            if (logonError.szErrorDescribe) {
+                cc.director.emit("LoadingViewError",{msg:logonError.szErrorDescribe,type:GlobalDef.SMT_CLOSE_GAME});
+            }
             // console.log("logonframe login error");
         }
         else if(sub === game_cmd.SUB_GR_LOGON_FINISH){
-            cc.director.loadScene("GameScene");
+            // cc.director.loadScene("GameScene");
+            cc.director.emit("LoadingViewOnLogonFinish",{message:"正在进入游戏..."});
             this.onSocketLogonFinish();
             console.log("[GameFrame][OnSocketMainLogon] Logon Finish");
         }
@@ -276,7 +281,12 @@ cc.Class({
                 else if (message.wMessageType & game_cmd.SMT_CLOSE_ROOM) {
                     bIntermet = true;
                 }
+
+                console.log("[GameFrame][OnSocketMainSystem] " + message.szContent);
                 if (bIntermet) {
+                    if (message.szContent) {
+                        cc.director.emit("LoadingViewError",{msg:message.szContent,type:GlobalDef.SMT_CLOSE_GAME});
+                    }
                     console.log("[GameFrame][OnSocketMainSystem] " + message.szContent);
                     this.onCloseSocket();
                 }
@@ -689,6 +699,37 @@ cc.Class({
         var data = CCmd_Data.create();
         data.setcmdinfo(GlobalDef.MDM_GF_FRAME, GlobalDef.SUB_GF_INFO);
         data.pushbyte(0);
+        this.sendSocketData(data);
+    },
+    sendTextChat: function(msg, tagetUser, color) {
+        //聊天结构
+        // struct CMD_GR_UserChat
+        // {
+        //     WORD							wChatLength;						//信息长度
+        //     COLORREF	dword					crFontColor;						//信息颜色
+        //     DWORD							dwSendUserID;						//发送用户
+        //     DWORD							dwTargetUserID;						//目标用户
+        //     TCHAR							szChatMessage[128];		//聊天信息
+        // };
+        var msgLen = msg.length;
+        tagetUser = tagetUser || 0;
+        color = color || 16777215;//RGB(255,255,255)
+        var data = CCmd_Data.create();
+        data.setcmdinfo(game_cmd.MDM_GR_USER, game_cmd.SUB_GR_USER_CHAT);
+        data.pushword(msgLen);
+        data.pushdword(color);
+        data.pushdword(GlobalUserData.dwUserID);
+        data.pushdword(tagetUser);
+        data.pushstring(msg,GlobalDef.MAX_CHAT_LEN);
+
+        console.log("size1 = " + data.getDataSize());
+        var sendSize = data.getDataSize() - GlobalDef.MAX_CHAT_LEN + msgLen;
+        console.log("size2 = " + sendSize);
+        data.setDataSize(sendSize);
+
+
+        // this.sendSocketData(sitData);
+
         this.sendSocketData(data);
     },
     onUpDateTableUser: function (tableid,chairid,useritem) {

@@ -43,17 +43,34 @@ cc.Class({
         cc.director.off('onShowRegister',this.onShowRegister,this);
         cc.director.off('onRegister',this.onRegister,this);
     },
+    onDestroy: function () {
+        cc.sys.garbageCollect();
+    },
     onLogon: function(event) {
         console.log("[LogonScene][onLogon]");
         var szAccount = event.detail.szAccount;
         var szPassword = event.detail.szPassword;
-        this._logonFrame.onLogonByAccount(szAccount,szPassword);
-        GlobalFun.showPopWaiting(cc.director.getScene(),{
-            closeEvent: "LogonSuccess",
-            callBackFunc: function () {
-                console.log("[LogonScene][onLogon] callbackfunc");
+        // this._logonFrame.onLogonByAccount(szAccount,szPassword);
+        // GlobalFun.showPopWaiting(cc.director.getScene(),{
+        //     closeEvent: "LogonSuccess",
+        //     callBackFunc: function () {
+        //         console.log("[LogonScene][onLogon] callbackfunc");
+        //     },
+        // });
+        var self = this;
+        GlobalFun.showLoadingView({
+            closeEvent: "LogonFinish",
+            loadfunc: function () {
+                cc.director.preloadScene("PlazaScene", function () {
+                    cc.log("PlazaScene scene preloaded");
+                    self._logonFrame.onLogonByAccount(szAccount,szPassword);
+                });
             },
-        });
+            closefunc: function () {
+                cc.director.loadScene("PlazaScene");
+                // cc.sys.garbageCollect();
+            },
+        })
     },
     onRegister: function(event) {
       console.log("[LogonScene][onRegister]");
@@ -109,11 +126,24 @@ cc.Class({
                     GlobalUserData.szPassWord = value.pwd;
                     GlobalUserData.isGuest = true;
                     // cc.director.loadScene("PlazaScene");
-                    self._logonFrame.onLogonByVisitor(GlobalUserData.szAccounts,GlobalUserData.szPassWord);
+                    // self._logonFrame.onLogonByVisitor(GlobalUserData.szAccounts,GlobalUserData.szPassWord);
+                    GlobalFun.showLoadingView({
+                        closeEvent: "LogonFinish",
+                        loadfunc: function () {
+                            cc.director.preloadScene("PlazaScene", function () {
+                                cc.log("PlazaScene scene preloaded");
+                                self._logonFrame.onLogonByVisitor(GlobalUserData.szAccounts,GlobalUserData.szPassWord);
+                            });
+                        },
+                        closefunc: function () {
+                            cc.director.loadScene("PlazaScene");
+                            // cc.sys.garbageCollect();
+                        },
+                    })
                 }
                 else {
                     if(value.msg !== undefined) {
-                        GlobalFun.showToast(cc.director.getScene(),value.msg);
+                        GlobalFun.showToast({message:value.msg});
                     }
                 }
                 cc.director.emit("GuestLoginCompleted");

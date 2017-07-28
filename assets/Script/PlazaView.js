@@ -94,12 +94,57 @@ cc.Class({
     refreshRoomList: function () {
         var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
         console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList, null, ' '));
-        var roomListPanel = this.roomItemList.content;
-        roomListPanel.removeAllChildren();
+        // var roomListPanel = this.roomItemList.content;
+        // roomListPanel.removeAllChildren();
+        // for (var index = 0; index < 4; index++) {
+        //     var item = cc.instantiate(this.plazaRoomItem);
+        //     item.getComponent("PlazaRoomItem").init({index:index+1,roomInfo:roomList[index]});
+        //     roomListPanel.addChild(item);
+        // }
+        var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
+        roomPageView.removeAllPages();
         for (var index = 0; index < 4; index++) {
             var item = cc.instantiate(this.plazaRoomItem);
-            item.getComponent("PlazaRoomItem").init({index:index+1,roomInfo:roomList[index]});
-            roomListPanel.addChild(item);
+            var PlazaRoomItem = item.getComponent("PlazaRoomItem");
+            PlazaRoomItem.init({index:index+1,roomInfo:roomList[index]});
+            // if (index === 0) {
+            //     PlazaRoomItem.select();
+            // }
+            // else {
+            //     PlazaRoomItem.unselect();
+            // }
+            roomPageView.addPage(item);
+        }
+        roomPageView.scrollToPage(1,0.5);
+    },
+    onPageViewEvent: function (event) {
+        var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
+        var curIndex = roomPageView.getCurrentPageIndex();
+        var allPages = roomPageView.getPages();
+        console.log("[PlazaView][onPageViewEvent] curIndex = " + curIndex);
+        for (var index = 0; index < allPages.length; index++) {
+            var element = allPages[index];
+            var PlazaRoomItem = element.getComponent("PlazaRoomItem");
+            if (curIndex === index) {
+                PlazaRoomItem.select();
+            }
+            else {
+                // element.color = new cc.Color(170,170,170);
+                PlazaRoomItem.unselect()
+            }
+        }
+        if (curIndex === allPages.length - 1) {
+            var firstPage = cc.instantiate(allPages[0]);
+            roomPageView.removePageAtIndex(0);            
+            roomPageView.insertPage(firstPage,allPages.length);            
+            // roomPageView.setCurrentPageIndex(allPages.length - 2);
+            
+        }
+        else if (curIndex === 0) {
+            var lastPage = cc.instantiate(allPages[allPages.length - 1]);
+            roomPageView.removePageAtIndex(allPages.length -1);
+            roomPageView.insertPage(lastPage,0);
+            // roomPageView.setCurrentPageIndex(1);
         }
     },
     refreshData: function () {
@@ -167,7 +212,22 @@ cc.Class({
     },
     onLogonRoom: function (params) {
         console.log("[PlazaView][onLogonRoom]");
-        this._gameFrame.onLogonRoom(params.detail.roomInfo);
+        var self = this;
+        // this._gameFrame.onLogonRoom(params.detail.roomInfo);
+        var roomInfo = params.detail.roomInfo;
+        GlobalFun.showLoadingView({
+            closeEvent: "LogonRoomFinish",
+            loadfunc: function () {
+                cc.director.preloadScene("GameScene", function () {
+                    cc.log("GameScene scene preloaded");
+                    self._gameFrame.onLogonRoom(roomInfo);
+                });
+            },
+            closefunc: function () {
+                cc.director.loadScene("GameScene");
+                // cc.sys.garbageCollect();
+            },
+        })
     },
     onChangeUserFaceSuccess: function () {
         // var faceID = GlobalUserData.wFaceID;
@@ -203,7 +263,6 @@ cc.Class({
     },
     onClickClient: function (params) {
         console.log("[PlazaView][onClickClient]");
-        // GlobalFun.showToast(cc.director.getScene(),"客服功能暂未开放,敬请期待!");
         var self = this;
         if( cc.isValid(self._serviceView) === false ){
             cc.loader.loadRes("prefab/ServiceView", function (err, ServicePrefab) {
@@ -219,7 +278,7 @@ cc.Class({
     },
     onClickActivity: function (params) {
         console.log("[PlazaView][conClickActivity]");
-        GlobalFun.showToast(cc.director.getScene(),"暂未开放,敬请期待!");
+        GlobalFun.showToast({message:"暂未开放,敬请期待!"});
     },
     onClickBank: function (params) {
         console.log("[PlazaView][conClickBank]");

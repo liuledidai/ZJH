@@ -158,7 +158,7 @@ zjh_cmd.SUB_S_LAST_ADD = 110;                                 //孤注一掷
 //////////////////////////////////////////////////////////////////////////
 
 //客户端命令结构
-zjh_cmd.MY_VIEWID = 2;//3;
+zjh_cmd.MY_VIEWID = 0;//3;
 
 zjh_cmd.SUB_C_ADD_SCORE = 1;                                   //用户加注
 zjh_cmd.SUB_C_GIVE_UP = 2;                                   //放弃消息

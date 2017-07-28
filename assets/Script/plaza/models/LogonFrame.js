@@ -30,19 +30,20 @@ cc.Class({
         // }
     },
     onConnectCompeleted: function() {
-      if(this._logonMode === 0) {
-          this.sendLogon();
-      }
-      else if(this._logonMode === 1){
-          this.sendRegister();
-      }
-      else if(this._logonMode === 2){
-          this.sendVisitor();
-      }
-      else{
-          this.onCloseSocket();
-          console.log("未知登录模式");
-      }
+        cc.director.emit("LoadingViewOnConnect",{message:"正在登录游戏服务器..."});
+        if(this._logonMode === 0) {
+            this.sendLogon();
+        }
+        else if(this._logonMode === 1){
+            this.sendRegister();
+        }
+        else if(this._logonMode === 2){
+            this.sendVisitor();
+        }
+        else{
+            this.onCloseSocket();
+            console.log("未知登录模式");
+        }
     },
     onSocketEvent: function(main,sub,pData) {
         if(main === plaza_cmd.MDM_GP_LOGON_MOBILE){
@@ -77,12 +78,25 @@ cc.Class({
         else if (sub === plaza_cmd.SUB_GP_LOGON_ERROR_MOBILE) {
             this.onCloseSocket();
             console.log("logonframe login error");
+            //登陆失败
+            // struct CMD_GP_LogonError
+            // {
+            //     LONG								lErrorCode;						//错误代码
+            //     char								szErrorDescribe[128];			//错误消息
+            // };
+            var logonError = {};
+            logonError.lErrorCode = pData.readint();
+            logonError.szErrorDescribe = pData.readstring();
+            if (logonError.szErrorDescribe) {
+                cc.director.emit("LoadingViewError",{msg:logonError.szErrorDescribe,type:GlobalDef.SMT_CLOSE_GAME});
+            }
         }
         else if(sub === plaza_cmd.SUB_GP_LOGON_FINISH_MOBILE){
             console.log("logonframe login finish");
             this.onCloseSocket();
-            cc.director.loadScene("PlazaScene");
-            cc.sys.garbageCollect();
+            cc.director.emit("LoadingViewOnLogonFinish",{message:"正在进入游戏大厅..."});
+            // cc.director.loadScene("PlazaScene");
+            // cc.sys.garbageCollect();
         }
     },
     onRoomListEvent: function(sub,pData) {

@@ -37,6 +37,13 @@ cc.Class({
         if (this._roomInfo && this._roomInfo.lLimitScore) {
             this.m_Label_scoreLimit.string = this._roomInfo.lLimitScore;
         }
+        var actionNode = this.node.getChildByName("m_Node_back");
+        actionNode.setPosition(1000,0);
+        actionNode.runAction(cc.sequence(
+            cc.delayTime(this._index * 0.1),
+            cc.moveTo(0.25,-80,0),
+            cc.moveTo(0.25,0,0)
+        ))
     },
     onClick: function (params) {
         console.log("[PlazaRoomItem][onClick]");  
@@ -49,8 +56,20 @@ cc.Class({
             cc.director.emit("onLogonRoom",{roomInfo:this._roomInfo});
         }
         else {
-            GlobalFun.showToast(cc.director.getScene(),"进入房间需要"+ this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!");
+            GlobalFun.showToast({message:"进入房间需要"+ this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!"});
         }
+    },
+    select: function () {
+        var nodeBack = this.node.getChildByName("m_Node_back");
+        nodeBack.setScale(1.2,1.2);
+        this.m_Image_col.node.runAction(cc.tintTo(0.5,255,255,255));
+        this.m_Image_title.node.runAction(cc.tintTo(0.5,255,255,255));
+    },
+    unselect: function () {
+        var nodeBack = this.node.getChildByName("m_Node_back");
+        nodeBack.setScale(1.0,1.0);
+        this.m_Image_col.node.runAction(cc.tintTo(0.5,170,170,170));
+        this.m_Image_title.node.runAction(cc.tintTo(0.5,170,170,170));
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

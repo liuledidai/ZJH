@@ -1,3 +1,4 @@
+var GlobalDef = require("GlobalDef");
 var BaseFrame = cc.Class({
     extends: cc.Component,
 
@@ -63,6 +64,7 @@ var BaseFrame = cc.Class({
       }
       
       this.onCloseSocket();
+      cc.director.emit("LoadingViewError",{msg:"服务器连接异常，请稍后重试",type:GlobalDef.SMT_CLOSE_GAME});
       //todo...
     },
     onCreateSocket: function(szUrl,nPort){

@@ -89,13 +89,14 @@ cc.Class({
         this.m_userHead = [];
         //计时器
         this.m_timeProgress = [];
+        this.m_rcCompare = [];
         var userHeadList = this.node.getChildByName("m_Panel_center").getChildByName("m_userhead").children;
         for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
             var userNode = cc.instantiate(this.userInfacePrefab);
             this.node.getChildByName("nodePlayer").addChild(userNode);
             this.m_Node_player[index] = userNode;
             userNode.setPosition(this.ptPlayer[index]);
-            userNode.rotation = index * (-90) + 180;
+            userNode.rotation = index * (-90);
             userNode.active = false;
 
             this.m_userHead[index] = {};
@@ -107,6 +108,8 @@ cc.Class({
             //计时器
             this.m_timeProgress[index] = userHeadList[index].getComponent(cc.ProgressBar);
             this.m_timeProgress[index].progress = 0;
+            this.m_rcCompare[index] = this.node.getChildByName("flagCompare").children[index];
+            this.m_rcCompare[index].active = false;
         }
         this.m_userCard = [];
         //用户手牌
@@ -143,6 +146,9 @@ cc.Class({
         
     },
     onResetView: function () {
+        this.bAutoFollow = false;
+        this.m_Button_autofollow.node.active = !this.bAutoFollow;
+        this.m_Button_cancelfollow.node.active = this.bAutoFollow;
         this.m_Button_ready.node.active = false;
         this.m_nodeBottom.active = false;
         this.m_chipBG.active = false;
@@ -166,7 +172,7 @@ cc.Class({
 
     //更新时钟
     onUpdateClockView: function (viewID, time) {
-        // console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
+        console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
         if (time <= 0) {
             this.m_Progress_time.node.active = false;
             if (this.m_timeProgress[viewID]) {
@@ -178,7 +184,7 @@ cc.Class({
             var progress = (1.0*time/zjh_cmd.TIME_START_GAME);
             // this.m_Progress_time.node.active = true;
             if (this.m_timeProgress[viewID]) {
-                this.m_timeProgress[viewID].progress = progress;
+                // this.m_timeProgress[viewID].progress = progress;
             }
             else {
                 this.m_Progress_time.node.active = true;
@@ -404,13 +410,15 @@ cc.Class({
         }
     },
     //显示牌类型
-    setUserCardType: function (viewID, cardtype) {
+    setUserCardType: function (viewID, cardtype,state) {
         var nodeCardType = this.m_userCard[viewID].cardType;
+        var cardTypeState = "card_type_" + (state || "");
         console.log("[GameView][setUserCardType] [viewID,cardtype] = " + [viewID,cardtype]);
         if (cardtype && cardtype >= 1 && cardtype <= 6) {
             var spCardType = nodeCardType.getComponent(cc.Sprite);
             nodeCardType.active = true;
-            spCardType.spriteFrame = this.gameAtlas.getSpriteFrame("card_type_" + cardtype);
+            console.log("[GameView][setUserCardType] cardTypeState = " + cardTypeState);
+            spCardType.spriteFrame = this.gameAtlas.getSpriteFrame(cardTypeState + cardtype);
         }
         else {
             nodeCardType.active = false;
@@ -439,6 +447,14 @@ cc.Class({
     setCompareCard: function (bChoose, status) {
         this.bCompareChoose = bChoose;
         // todo
+        for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+            if (bChoose && status && status[i]) {
+                this.m_rcCompare[i].active = true;
+            }
+            else {
+                this.m_rcCompare[i].active = false;
+            }
+        }
     },
     onTouch: function (params) {
         // console.log(params);
@@ -454,6 +470,10 @@ cc.Class({
         this.bAutoFollow = !this.bAutoFollow;
         this.m_Button_autofollow.node.active = !this.bAutoFollow;
         this.m_Button_cancelfollow.node.active = this.bAutoFollow;
+        this._scene.onAutoFollow();
+    },
+    onClickChat: function() {
+        this._scene.sendTextChat('hello world');
     },
     //按键响应
     onStartGame: function () {
@@ -487,6 +507,9 @@ cc.Class({
     },
     onCompareCard: function () {
         this._scene.onCompareCard();  
+    },
+    onCompareChoose: function (event,index) {
+        this._scene.onCompareChoose(index);
     },
     onAddScore: function (event,params) {
         console.log(params);

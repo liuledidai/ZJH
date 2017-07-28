@@ -15,14 +15,15 @@ function ActionShowTanChuang(widget, cb){
             })
     ));
 }
-function showToast(context,message) {
+function showToast(params,context) {
+    context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         return;
     }
     cc.loader.loadRes("prefab/ToastView", function (err, ToastPrefab) {
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(ToastPrefab);
-            newNode.getComponent("ToastView").onInit({message:message});
+            newNode.getComponent("ToastView").onInit(params);
             context.addChild(newNode);
             ActionShowTanChuang(newNode.children[0]);
             console.log("showToast");
@@ -65,6 +66,21 @@ function showPopWaiting(context,params) {
             console.log("showPopWaiting");
         }
     });
+}
+
+function showLoadingView(params,context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        console.log("[GlobalFun][showLoadingView] context is invalid");
+        return;
+    }
+    cc.loader.loadRes("prefab/LoadingView", function (err, res) {
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(res);
+            newNode.getComponent("LoadingView").init(params);
+            context.addChild(newNode);
+        }
+    })
 }
 
 function getsign(params) {
@@ -134,4 +150,5 @@ module.exports = {
     ipToNumber:ipToNumber,
     numberToIp:numberToIp,
     PrefixInteger:PrefixInteger,
+    showLoadingView:showLoadingView,
 };

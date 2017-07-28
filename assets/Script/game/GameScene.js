@@ -90,7 +90,19 @@ cc.Class({
         if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR)
         {
             //时间进度条
-            //this.onEventGameClockInfo(viewID, id);
+            // this.onEventGameClockInfo(viewID, id);
+            var progressTime = time;
+            var self = this;
+            var progressBar = this._gameView.m_timeProgress[viewID];
+            progressBar.node.runAction(cc.repeatForever(cc.sequence(
+                cc.delayTime(0.05),
+                cc.callFunc(function () {
+                    progressTime -= 0.05;
+                    var progress = 1.0*progressTime/zjh_cmd.TIME_START_GAME;
+                    // console.log("[setGameClock][scheduleUpdate] ->" + [progressTime]);
+                    progressBar.progress = progress;
+                })
+            )))
         }
     },
     //关闭计时器
@@ -100,7 +112,9 @@ cc.Class({
         {
             if (this._gameView.m_timeProgress[viewID]) {
                 this._gameView.m_timeProgress[viewID].progress = 0;
+                this._gameView.m_timeProgress[viewID].node.stopAllActions();
             }
+
         }
         this._super(notView);
     },
@@ -306,10 +320,11 @@ cc.Class({
                 //控件信息
                 this._gameView.m_nodeBottom.active = false;
                 if ( !playStatus.bCompareState) {
+                    this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
+                    
                     if (this.getMeChairID() === this.m_wCurrentUser) {
                         this.updateControl();
                     }
-                    this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
                 }
                 else {
                     if (this.getMeChairID() === this.m_wCurrentUser) {
@@ -490,6 +505,10 @@ cc.Class({
             this._gameView.setUserTableScore(viewID, this.m_lTableScore[addScore.wAddScoreUser]);
             this._gameView.setAllTableScore(this.m_llAllTableScore); 
         }
+        //设置计时器
+        if (addScore.wCompareState === 0 && this.m_wCurrentUser !== GlobalDef.INVALID_CHAIR) {
+            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
+        }
 
         if (addScore.wCompareState === 0 && this.m_wCurrentUser === myChair) {
             this.m_lCurrentTurn = addScore.lCurrentTurn;
@@ -497,10 +516,7 @@ cc.Class({
             this.updateControl();
         }
         this.m_isFirstAdd = false;
-        //设置计时器
-        if (addScore.wCompareState === 0) {
-            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
-        }
+
 
     },
     onSubLookCard: function (sub, pData) {
@@ -581,10 +597,10 @@ cc.Class({
         this._gameView.stopCompareCard();
         var count = this.getPlayingNum();
         if (count > 1) {
+            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);            
             if (this.m_wCurrentUser === this.getMeChairID()) {
                 this.updateControl()
             }
-            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
         }
         else {
             var myChair = this.getMeChairID();
@@ -687,24 +703,31 @@ cc.Class({
         this._gameView.m_nodeBottom.active = false;
         // ......
         
-        var endShow;
+        // var endShow;
         var saveType = [];
         //移动筹码
         for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
             var viewID = this.switchViewChairID(i);
             if (gameEnd.lGameScore[i] !== 0) {
+                var viewID = this.switchViewChairID(i);
+                saveType[i] = GameLogic.getCardType(gameEnd.cbCardData[i]);
+                if( !(i === myChair && this.m_bLookCard[i]) ) {
+                    this._gameView.setUserCard(viewID, gameEnd.cbCardData[i]);     
+                }
                 if (gameEnd.lGameScore[i] > 0) {
                     this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i]);
                     this._gameView.winTheChip(viewID);
+                    this._gameView.setUserCardType(viewID, saveType[i],"win_");
                 }
                 else {
                     this._gameView.setUserTableScore(viewID,gameEnd.lGameScore[i])
+                    this._gameView.setUserCardType(viewID, saveType[i],"lose_");
                 }
-                endShow = true;
+                // endShow = true;
                 // this._gameView.
                 //....
                 //.....
-                saveType[i] = GameLogic.getCardType(gameEnd.cbCardData[i]);
+
             }
             else {
                 saveType[i] = 1;
@@ -712,59 +735,59 @@ cc.Class({
             }
         }
 
-        for (var i = 0; i < 4; i++) {
-            var wUserID = gameEnd.wCompareUser[myChair][i];
-            if (wUserID && wUserID !== GlobalDef.INVALID_CHAIR) {
-                var viewID = this.switchViewChairID(wUserID);
-                var cardIndex = [];
-                for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
-                    cardIndex[k] = gameEnd.cbCardData[wUserID][k];//GameLogic.getCardColor(gameEnd.cbCardData[wUserID][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[wUserID][k]);
-                }
-                this._gameView.setUserCard(viewID, cardIndex);
-                this._gameView.setUserCardType(viewID, saveType[wUserID]);
-                // this._gameView  ....
-            }
-        }
+        // for (var i = 0; i < 4; i++) {
+        //     var wUserID = gameEnd.wCompareUser[myChair][i];
+        //     if (wUserID && wUserID !== GlobalDef.INVALID_CHAIR) {
+        //         var viewID = this.switchViewChairID(wUserID);
+        //         var cardIndex = [];
+        //         for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
+        //             cardIndex[k] = gameEnd.cbCardData[wUserID][k];//GameLogic.getCardColor(gameEnd.cbCardData[wUserID][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[wUserID][k]);
+        //         }
+        //         this._gameView.setUserCard(viewID, cardIndex);
+        //         this._gameView.setUserCardType(viewID, saveType[wUserID]);
+        //         // this._gameView  ....
+        //     }
+        // }
 
-        if (gameEnd.wCompareUser[myChair][0] !== GlobalDef.INVALID_CHAIR || this.m_bLookCard[myChair] === true) {
-            var cardIndex = [];
-            for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
-                cardIndex[k] = gameEnd.cbCardData[myChair][k];//GameLogic.getCardColor(gameEnd.cbCardData[myChair][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[myChair][k]);
-            }
-            // var myViewID 
-            this._gameView.setUserCard(zjh_cmd.MY_VIEWID, cardIndex);
-            this._gameView.setUserCardType(zjh_cmd.MY_VIEWID, saveType[myChair]);
-            // this._gameView  ....
-        }
+        // if (gameEnd.wCompareUser[myChair][0] !== GlobalDef.INVALID_CHAIR || this.m_bLookCard[myChair] === true) {
+        //     var cardIndex = [];
+        //     for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
+        //         cardIndex[k] = gameEnd.cbCardData[myChair][k];//GameLogic.getCardColor(gameEnd.cbCardData[myChair][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[myChair][k]);
+        //     }
+        //     // var myViewID 
+        //     this._gameView.setUserCard(zjh_cmd.MY_VIEWID, cardIndex);
+        //     this._gameView.setUserCardType(zjh_cmd.MY_VIEWID, saveType[myChair]);
+        //     // this._gameView  ....
+        // }
 
-        if (gameEnd.wEndState == 1) {
-            if (this.m_cbPlayStatus[myChair] === 1) {
-                for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
-                    if (this.m_cbPlayStatus[i] === 1) {
-                        var cardIndex = [];
-                        for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
-                            cardIndex[k] = gameEnd.cbCardData[i][k];//GameLogic.getCardColor(gameEnd.cbCardData[i][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[i][k]);
-                        }
-                        var viewID = this.switchViewChairID(i);
-                        this._gameView.setUserCard(viewID, cardIndex);
-                        this._gameView.setUserCardType(viewID, saveType[i]);
-                        // this._gameView  ....
-                    }
+        // if (gameEnd.wEndState == 1) {
+        //     if (this.m_cbPlayStatus[myChair] === 1) {
+        //         for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+        //             if (this.m_cbPlayStatus[i] === 1) {
+        //                 var cardIndex = [];
+        //                 for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
+        //                     cardIndex[k] = gameEnd.cbCardData[i][k];//GameLogic.getCardColor(gameEnd.cbCardData[i][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[i][k]);
+        //                 }
+        //                 var viewID = this.switchViewChairID(i);
+        //                 this._gameView.setUserCard(viewID, cardIndex);
+        //                 this._gameView.setUserCardType(viewID, saveType[i]);
+        //                 // this._gameView  ....
+        //             }
                     
-                }
-            }
-        }
+        //         }
+        //     }
+        // }
 
-        if (endShow) {
-            // ...
-        }
+        // if (endShow) {
+        //     // ...
+        // }
         var self = this;
-        // this.node.runAction(cc.sequence(cc.delayTime(5.0),cc.callFunc(function () {
-            // self.onResetGameEngine();
+        this.node.runAction(cc.sequence(cc.delayTime(5.0),cc.callFunc(function () {
+            self.onResetGameEngine();
             self._gameView.m_Button_ready.node.active = true;
             self.setGameClock(GlobalDef.INVALID_CHAIR, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);
             self.m_cbPlayStatus = [0,0,0,0,0];
-        // })))
+        })))
         
 
     },
@@ -843,6 +866,27 @@ cc.Class({
             this.sendUserReady();
         }  
     },
+    onAutoFollow: function () {
+        if (this.getMeChairID() !== this.m_wCurrentUser) {
+            return false;
+        }
+        if (!(this._gameView && this._gameView.bAutoFollow))
+        {
+            return false;
+        }
+        var myChair = this.getMeChairID();
+        var maxAddScore = this.m_lUserMaxScore - this.m_lTableScore[myChair];
+        var followScore = this.m_lCurrentTimes * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
+        if (maxAddScore < followScore) {
+            this._gameView.onClickAutoFollowButton();
+            return false;
+        }
+        else {
+            //跟注
+            this.addScore(0);
+            return true;
+        }
+    },
     //自动比牌
     onAutoCompareCard: function () {
         var myChair = this.getMeChairID();
@@ -906,14 +950,14 @@ cc.Class({
                 }
             }
             this._gameView.setCompareCard(true,compareStatus);
-            // //发送等待比牌消息
-            // var dataBuf = CCmd_Data.create();
-            // this.sendData(zjh_cmd.SUB_C_WAIT_COMPARE,dataBuf);
-            // this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_COMPARE_CARD, zjh_cmd.TIME_USER_COMPARE_CARD);
+            //发送等待比牌消息
+            var dataBuf = CCmd_Data.create();
+            this.sendData(zjh_cmd.SUB_C_WAIT_COMPARE,dataBuf);
+            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_COMPARE_CARD, zjh_cmd.TIME_USER_COMPARE_CARD);
         }
     },
     onCompareChoose: function (index) {
-        if (!index || index === GlobalDef.INVALID_CHAIR) {
+        if (index === undefined || index === GlobalDef.INVALID_CHAIR) {
             console.log("[GameScene][onCompareChoose] index error");
             return;
         }
@@ -922,8 +966,9 @@ cc.Class({
             console.log("[GameScene][onCompareChoose] not m_wCurrentUser (m_wCurrentUser = " + this.m_wCurrentUser + " mychair = " + myChair);
             return;
         }
+        console.log("[GameScene][onCompareChoose] index = " + index);
         for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
-            if (i !== myChair && this.m_cbPlayStatus[i] === 1 && index === this.switchViewChairID(i)) {
+            if (i !== myChair && this.m_cbPlayStatus[i] === 1 && index == this.switchViewChairID(i)) {
                 this._gameView.setCompareCard(false);
                 this.killGameClock();
                 //发送比牌消息
@@ -1006,10 +1051,15 @@ cc.Class({
     },
     //更新按钮控制
     updateControl: function () {
+        
         var myChair = this.getMeChairID();
         if (myChair === undefined || myChair === GlobalDef.INVALID_CHAIR) {
             console.log("[GameScene][updateControl] mychair is invalid " + myChair);
             return;
+        }
+        //自动跟注
+        if ( this.onAutoFollow() ) {
+            return ;
         }
         this._gameView.m_nodeBottom.active = true;
         this._gameView.m_chipBG.active = false;
@@ -1064,10 +1114,17 @@ cc.Class({
             var lScore = element * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
             var scoreLabel = children[i].children[0].getComponent(cc.Label);
             scoreLabel.string = lScore;
+            children[i].getComponent(cc.Button).enableAutoGrayEffect = true;
             children[i].getComponent(cc.Button).interactable = bHide;
             bCanAdd = bCanAdd || (bHide && maxAddScore >= lScore);
             if (maxAddScore < lScore) {
                 children[i].getComponent(cc.Button).interactable = false;
+            }
+            if(children[i].getComponent(cc.Button).interactable) {
+                children[i].color =  new cc.Color(255, 255, 255);
+            }
+            else {
+                children[i].color =  new cc.Color(170, 170, 170);
             }
         }
         this._gameView.m_Button_addscore.interactable = bCanAdd;

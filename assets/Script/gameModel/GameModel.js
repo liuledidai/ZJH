@@ -105,7 +105,7 @@ var GameModel = cc.Class({
         var nChairCount = this._gameFrame.getChairCount();  
         var nChairID = this.getMeChairID();
         if (chair !== GlobalDef.INVALID_CHAIR && chair < nChairCount) {
-            viewID = ((chair + Math.floor(nChairCount * 3/2) - nChairID)%(nChairCount)) ;//+ 1;
+            viewID = ((chair + nChairCount - nChairID)%(nChairCount)) ;//+ 1;
         }
         console.log("[GameModel][switchViewChairID] + [nChairCount,nChairID,chair,viewID] = "+ [nChairCount,nChairID,chair,viewID]);
         return viewID;
@@ -145,7 +145,8 @@ var GameModel = cc.Class({
         return this._ClockViewChair;
     },
     //计时器更新
-    onClockUpdata: function () {
+    onClockUpdata: function (dt) {
+        console.log("---------------------------dt = " + dt);
         console.log("[GameModel][onClockUpdata] chair = " + this._ClockChair + " time = " + this._ClockTime + " id = " + this._ClockID);
         if (this._ClockID !== GlobalDef.INVALID_ITEM) {
             this._ClockTime = this._ClockTime - 1;
@@ -246,6 +247,9 @@ var GameModel = cc.Class({
     //发送准备
     sendUserReady: function () {
         this._gameFrame.sendUserReady();
+    },
+    sendTextChat: function(msg, tagetUser, color) {
+        this._gameFrame.sendTextChat(msg, tagetUser, color);
     },
     //发送数据
     sendData : function (sub, dataBuf) {
