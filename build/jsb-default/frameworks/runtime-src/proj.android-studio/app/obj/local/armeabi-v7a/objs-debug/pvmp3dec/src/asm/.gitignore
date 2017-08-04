@@ -1,0 +1,4 @@
+/pvmp3_dct_16_gcc.o
+/pvmp3_dct_9_gcc.o
+/pvmp3_mdct_18_gcc.o
+/pvmp3_polyphase_filter_window_gcc.o

@@ -1,5 +1,5 @@
 _CCSettings = {
-    "platform": "android",
+    "platform": "ios",
     "groupList": [
         "default"
     ],
@@ -390,6 +390,10 @@ _CCSettings = {
                 "resources/sounds/sfx/female_yuyin_jiazhu_3.mp3",
                 "cc.AudioClip"
             ],
+            "a1ddeaa1-1647-4d8d-87f3-8ce55276a318": [
+                "resources/prefab/LoadingView.prefab",
+                "cc.Prefab"
+            ],
             "a22f6e1b-9086-475f-b210-cca5ae6dbfdd": [
                 "resources/font/addscoreFnt.fnt",
                 "cc.BitmapFont"
@@ -397,6 +401,10 @@ _CCSettings = {
             "a2ae25e3-d4c9-403b-9c02-3266a3761a14": [
                 "resources/sounds/sfx/female_yuyin_bipaishibai_3.mp3",
                 "cc.AudioClip"
+            ],
+            "a89398f4-1e04-44a8-be73-3e0c814af3af": [
+                "resources/prefab/GuestBindView.prefab",
+                "cc.Prefab"
             ],
             "a8e274c4-1114-4508-989f-af26ddbef887": [
                 "resources/sounds/sfx/female_yuyin_qipai_4.mp3",
@@ -567,6 +575,14 @@ _CCSettings = {
         "internal": {
             "617323dd-11f4-4dd3-8eec-0caf6b3b45b9": [
                 "image/default_scrollbar_vertical_bg.png",
+                "cc.Texture2D"
+            ],
+            "71561142-4c83-4933-afca-cb7a17f67053": [
+                "image/default_btn_disabled.png",
+                "cc.Texture2D"
+            ],
+            "b43ff3c2-02bb-4874-81f7-f2dea6970f18": [
+                "image/default_btn_pressed.png",
                 "cc.Texture2D"
             ],
             "d6d3ca85-4681-47c1-b5dd-d036a9d39ea2": [

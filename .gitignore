@@ -4,7 +4,13 @@
 
 library/
 build/jsb-default/res/import/
+build/jsb-default/publish/
+build/jsb-default/frameworks/runtime-src/proj.android/assets/
+build/jsb-default/frameworks/runtime-src/proj.android-studio/app/assets/
+build/jsb-default/simulator/
+build/jsb-default/res/
 temp/
+
 #local/
 #build/
 *.pyc

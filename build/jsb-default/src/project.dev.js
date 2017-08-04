@@ -200,13 +200,13 @@ cc.Class({
             var re = /./;
             if (szGoldCount.length <= 0 || szPassWord.length <= 0) {
                 console.log("[BankView][onClickConfirm] 金额或密码不能为空！");
-                GlobalFun.showAlert(cc.director.getScene(), "金额或密码不能为空!");
+                GlobalFun.showAlert("金额或密码不能为空!");
                 return;
             }
             if (Number(szGoldCount) <= 0 || Number(szGoldCount) > GlobalUserData.llInsureScore) {
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出银行的金额限制！");
-                GlobalFun.showAlert(cc.director.getScene(), "数值不合法或超出银行的金额限制!");
+                GlobalFun.showAlert("数值不合法或超出银行的金额限制!");
                 return;
             }
 
@@ -220,13 +220,13 @@ cc.Class({
             var szGoldCount = this.m_Editbox_save_gold.string;
             if (szGoldCount.length <= 0) {
                 console.log("[BankView][onClickConfirm] 金额不能为空！");
-                GlobalFun.showAlert(cc.director.getScene(), "金额不能为空！");
+                GlobalFun.showAlert("金额不能为空！");
                 return;
             }
             if (Number(szGoldCount) <= 0 || Number(szGoldCount) > Number(GlobalUserData.llGameScore)) {
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出身上金额！");
-                GlobalFun.showAlert(cc.director.getScene(), "数值不合法或超出身上金额！");
+                GlobalFun.showAlert("数值不合法或超出身上金额！");
                 return;
             }
             params["userid"] = GlobalUserData.dwUserID;
@@ -240,22 +240,22 @@ cc.Class({
             var szConfirmPassWord = this.m_Editbox_confirmPassword.string;
             if (szPassWord.length <= 0 || szNewPassWord.length <= 0 || szConfirmPassWord.length <= 0) {
                 console.log("[BankView][onClickConfirm] 密码不能为空！");
-                GlobalFun.showAlert(cc.director.getScene(), "密码不能为空！");
+                GlobalFun.showAlert("密码不能为空！");
                 return;
             }
             if (szPassWord == szNewPassWord) {
                 console.log("[BankView][onClickConfirm] 新旧密码不能相同!");
-                GlobalFun.showAlert(cc.director.getScene(), "新旧密码不能相同!");
+                GlobalFun.showAlert("新旧密码不能相同!");
                 return;
             }
             if (szConfirmPassWord != szNewPassWord) {
                 console.log("[BankView][onClickConfirm] 确认密码不一致!");
-                GlobalFun.showAlert(cc.director.getScene(), "确认密码不一致!");
+                GlobalFun.showAlert("确认密码不一致!");
                 return;
             }
             if (szNewPassWord.length < 6 || szNewPassWord.length > 16) {
                 console.log("[BankView][onClickConfirm] 密码长度为6-16位!");
-                GlobalFun.showAlert(cc.director.getScene(), "密码长度为6-16位!");
+                GlobalFun.showAlert("密码长度为6-16位!");
                 return;
             }
 
@@ -287,7 +287,7 @@ cc.Class({
                     cc.director.emit("onBankSuccess");
                     self.refreshUI();
                 }
-                GlobalFun.showAlert(cc.director.getScene(), value.msg);
+                GlobalFun.showAlert(value.msg);
             }
         };
         xhr.open("POST", url, true);
@@ -311,6 +311,7 @@ cc._RFpush(module, 'f9300AoJB1ASp1uITlO+9z1', 'BaseFrame');
 
 "use strict";
 
+var GlobalDef = require("GlobalDef");
 var BaseFrame = cc.Class({
     extends: cc.Component,
 
@@ -373,6 +374,7 @@ var BaseFrame = cc.Class({
         }
 
         this.onCloseSocket();
+        cc.director.emit("LoadingViewError", { msg: "服务器连接异常，请稍后重试", type: GlobalDef.SMT_CLOSE_GAME });
         //todo...
     },
     onCreateSocket: function onCreateSocket(szUrl, nPort) {
@@ -452,7 +454,7 @@ var BaseFrame = cc.Class({
 module.exports = BaseFrame;
 
 cc._RFpop();
-},{}],"Bridge_android":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef"}],"Bridge_android":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '0226bpzjnlCBoxeOTFg0Oh3', 'Bridge_android');
 // Script/Bridge_android.js
@@ -1631,7 +1633,7 @@ zjh_cmd.SUB_S_LAST_ADD = 110; //孤注一掷
 //////////////////////////////////////////////////////////////////////////
 
 //客户端命令结构
-zjh_cmd.MY_VIEWID = 2; //3;
+zjh_cmd.MY_VIEWID = 0; //3;
 
 zjh_cmd.SUB_C_ADD_SCORE = 1; //用户加注
 zjh_cmd.SUB_C_GIVE_UP = 2; //放弃消息
@@ -1869,7 +1871,239 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GameFrame":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"CoverView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, 'a5920m13KdNGL114wFtOW7i', 'CoverView');
+// Scene/CoverView.js
+
+"use strict";
+
+cc.Class({
+    extends: cc.ScrollView,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {
+        // this._scrollView = this.node.getComponent("cc.ScrollView");
+        this._sPosition = cc.Vec2.ZERO;
+        var scContentSize = this.node.getContentSize();
+        var content = this.content.getComponent(cc.Layout);
+        content.paddingLeft = scContentSize.width / 2;
+        content.paddingRight = scContentSize.width / 2;
+        var childItem = this.content.children[0];
+        // this.init({
+        //     paddingLeft:childItem.getContentSize().width/2,
+        //     paddingRight:childItem.getContentSize().width/2,
+        // })
+        this.bInit = false;
+    },
+    init: function init(params) {
+        if (this.bInit) {
+            return;
+        }
+        this.bInit = true;
+        var scContentSize = this.node.getContentSize();
+        var paddingLeft = params.paddingLeft || scContentSize.width / 2;
+        var paddingRight = params.paddingRight || scContentSize.width / 2;
+        this.content.getComponent(cc.Layout).paddingLeft = paddingLeft;
+        this.content.getComponent(cc.Layout).paddingRight = paddingRight;
+        this._endCallBack = params.endCallBack;
+        console.log("[CoverView][init] [paddingLeft,paddingRight] = " + [paddingLeft, paddingRight]);
+    },
+    onEnable: function onEnable() {
+        this.node.on(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+        this.node.on("scrolling", this.onScrolling, this.node);
+        this.node.on("bounce-left", this.onBounceLeft, this.node);
+        this.node.on("bounce-right", this.onBounceRight, this.node);
+        this.node.on("scroll-ended", this.onScrollEnded, this.node);
+    },
+    onDisable: function onDisable() {
+        this.node.off(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.node.off(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+        this.node.off(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.node.off(cc.Node.EventType.TOUCH_CANCEL, this.onTouchCancel, this);
+        this.node.off("scrolling", this.onScrolling, this.node);
+        this.node.off("bounce-left", this.onBounceLeft, this.node);
+        this.node.off("bounce-right", this.onBounceRight, this.node);
+        this.node.off("scroll-ended", this.onScrollEnded, this.node);
+    },
+    onScrolling: function onScrolling(params) {
+        console.log(params);
+    },
+    onScrollEnded: function onScrollEnded(params) {
+        // console.log(params);
+        this.getComponent("CoverView").stopAutoScroll();
+        this.getComponent("CoverView").adjustEndScrollView();
+    },
+    onBounceLeft: function onBounceLeft(params) {
+        // console.log(params);
+    },
+    onBounceRight: function onBounceRight(params) {
+        // console.log(params);
+    },
+    onTouchStart: function onTouchStart(param) {
+        // console.log(param);
+    },
+    onTouchMove: function onTouchMove(param) {
+        var prevPoint = new cc.Vec2(param.touch.getPreviousLocation());
+        var movePoint = new cc.Vec2(param.touch.getLocation());
+        var adjustPoint = movePoint.sub(prevPoint);
+        // console.log("onTouchMove = " + [prevPoint,movePoint,adjustPoint]);
+        this.getComponent("CoverView").adjustScrollView(adjustPoint);
+        this.getComponent("CoverView").adjustItemScale(adjustPoint);
+    },
+    onTouchEnd: function onTouchEnd(param) {
+        // console.log(param);
+        console.log("[CoverView][onTouchEnd]" + cc.ScrollView.EventType.BOUNCE_LEFT);
+        var touch_prevPoint = new cc.Vec2(param.touch.getPreviousLocation());
+        var touch_endPoint = new cc.Vec2(param.touch.getLocation());
+        touch_endPoint.y = 0;
+        // touch_endPoint = this.convertToWorldSpace(touch_endPoint);
+
+        // touch_endPoint = this.getComponent("CoverView").content.convertToNodeSpaceAR(touch_endPoint);
+        // var disx = touch_prevPoint.x - touch_endPoint.x;
+        this.getComponent("CoverView").adjustEndScrollView();
+        var curPos = this.getComponent("CoverView").getContentPosition();
+        var sPos = this.getComponent("CoverView")._sPosition;
+        var distance = cc.pDistance(curPos, sPos);
+        var bMove = true;
+        if (distance < 5.0) bMove = false;
+        if (!bMove) {
+            var curIndex = this.getComponent("CoverView").getCurIndex();
+            var endPoint = touch_endPoint.sub(curPos);
+            var children = this.getComponent("CoverView").content.children;
+            for (var index = 0; index < children.length; index++) {
+                var element = children[index];
+                var rect = element.getBoundingBox();
+                // console.log("[CoverView][onTouchEnd] rect " + rect + "endpoint " + endPoint);
+                if (rect.contains(endPoint)) {
+                    // console.log("[CoverView][onTouchEnd] " + endPoint);
+                    if (curIndex !== index) {
+                        this.getComponent("CoverView").scrollToIndex(index);
+                    }
+                    return;
+                }
+            }
+        }
+    },
+    onTouchCancel: function onTouchCancel(param) {
+        // console.log(param);
+    },
+    adjustScrollView: function adjustScrollView(adjustPoint) {
+        var scroll_contentPositon = this.getContentPosition();
+        var addPoint = new cc.Vec2(adjustPoint.x, 0);
+        scroll_contentPositon = scroll_contentPositon.add(addPoint);
+        this.setContentPosition(scroll_contentPositon);
+    },
+    adjustItemScale: function adjustItemScale(adjustPoint) {
+        var children = this.content.children;
+        var scContentSize = this.node.getContentSize();
+        var dist = children[1].getPosition().x - children[0].getPosition().x;
+        for (var i = 0; i < children.length; i++) {
+            var element = children[i];
+            var offset = this.getContentPosition().x;
+            var posX = element.getPositionX() + offset;
+            var disMid = Math.abs(scContentSize.width / 2 - posX);
+            var scale = 1 - disMid / dist * 0.25;
+            element.setScale(scale);
+        }
+    },
+    adjustEndScrollView: function adjustEndScrollView(params) {
+        var _this = this;
+
+        console.log("[CoverView][adjustEndScrollView]");
+        this._sPosition = this.getContentPosition();
+
+        var midX = this.node.getContentSize().width / 2;
+        var children = this.content.children;
+        var minX = midX - children[0].getPositionX() - this.getContentPosition().x; //this.node.getContentSize().width;
+        for (var i = 0; i < children.length; i++) {
+            var element = children[i];
+            var offset = this.getContentPosition().x;
+            var posX = element.getPositionX() + offset;
+            var disMid = midX - posX;
+            if (Math.abs(disMid) < Math.abs(minX)) {
+                minX = disMid;
+            }
+        }
+        var dist = children[1].getPosition().x - children[0].getPosition().x;
+        for (var i = 0; i < children.length; i++) {
+            var element = children[i];
+            var offset = this.getContentPosition().x;
+            var posX = element.getPositionX() + offset;
+            var disMid = Math.abs(midX - posX - minX);
+            var scale = 1 - disMid / dist * 0.25;
+            element.runAction(cc.scaleTo(0.2, scale));
+        }
+        this.stopAutoScroll();
+        this.content.stopAllActions();
+        this.content.runAction(cc.sequence(cc.moveBy(0.2, minX, 0), cc.callFunc(function () {
+            // console.log("[CoverView][adjustEndScrollView] curIndex = " + this.getCurIndex());
+            if (typeof _this._endCallBack === "function") {
+                _this._endCallBack();
+            }
+        })));
+    },
+    scrollToIndex: function scrollToIndex(index) {
+        var _this2 = this;
+
+        var children = this.content.children;
+        // console.log("[CoverView][scrollToIndex] " + index);
+        if (index >= children.length || index < 0) {
+            return;
+        }
+        var curIndex = this.getCurIndex();
+        var curObj = children[curIndex];
+        var scrollObj = children[index];
+        var sc_prePoint = curObj.getPosition();
+        var sc_movePoint = scrollObj.getPosition();
+        var adjustPoint = sc_prePoint.sub(sc_movePoint);
+
+        var scroll_contentPositon = this.getContentPosition();
+        var addPoint = new cc.Vec2(adjustPoint.x, 0);
+        scroll_contentPositon = scroll_contentPositon.add(addPoint);
+        this.scrollToOffset(cc.Vec2.ZERO.sub(scroll_contentPositon), 0.15);
+        // console.log("[CoverView][scrollToIndex] " + scroll_contentPositon + " offset " + this.getScrollOffset());
+        // this.adjustItemScale();
+        // this.adjustEndScrollView();
+        this.node.runAction(cc.sequence(cc.delayTime(0.2), cc.callFunc(function () {
+            _this2.adjustItemScale(adjustPoint);
+            _this2.adjustEndScrollView();
+        })));
+    },
+    getCurIndex: function getCurIndex() {
+        var children = this.content.children;
+        var dist = children[1].getPosition().x - children[0].getPosition().x;
+        var dis1 = -this.getContentPosition().x;
+        var dis2 = 0;
+        var index = Math.floor((dis1 + dis2 + 5) / dist);
+        if (index < 0) {
+            index = 0;
+        } else if (index >= children.length) {
+            index = children.length - 1;
+        }
+        // console.log("getCurIndex [dist,dis1,dis2] = " + [dist,dis1,dis2]);
+        return index;
+    }
+});
+
+cc._RFpop();
+},{}],"GameFrame":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '0917fhGquREZ5AtcS81ZpEL', 'GameFrame');
 // Script/plaza/models/GameFrame.js
@@ -1931,6 +2165,7 @@ cc.Class({
         return true;
     },
     onConnectCompeleted: function onConnectCompeleted() {
+        cc.director.emit("LoadingViewOnConnect", { message: "正在连接游戏房间..." });
         this.sendLogonPacket();
     },
     onSocketEvent: function onSocketEvent(main, sub, pData) {
@@ -1971,10 +2206,14 @@ cc.Class({
             logonError.szErrorDescribe = pData.readstring(128);
             console.log("[GameFrame][OnSocketMainLogon] errorCode = " + logonError.lErrorCode + " des = " + logonError.szErrorDescribe);
             this.onCloseSocket();
-            GlobalFun.showToast(cc.director.getScene(), logonError.szErrorDescribe);
+            // GlobalFun.showToast({message:logonError.szErrorDescribe});
+            if (logonError.szErrorDescribe) {
+                cc.director.emit("LoadingViewError", { msg: logonError.szErrorDescribe, type: GlobalDef.SMT_CLOSE_GAME });
+            }
             // console.log("logonframe login error");
         } else if (sub === game_cmd.SUB_GR_LOGON_FINISH) {
-            cc.director.loadScene("GameScene");
+            // cc.director.loadScene("GameScene");
+            cc.director.emit("LoadingViewOnLogonFinish", { message: "正在进入游戏..." });
             this.onSocketLogonFinish();
             console.log("[GameFrame][OnSocketMainLogon] Logon Finish");
         }
@@ -2127,7 +2366,12 @@ cc.Class({
                 } else if (message.wMessageType & game_cmd.SMT_CLOSE_ROOM) {
                     bIntermet = true;
                 }
+
+                console.log("[GameFrame][OnSocketMainSystem] " + message.szContent);
                 if (bIntermet) {
+                    if (message.szContent) {
+                        cc.director.emit("LoadingViewError", { msg: message.szContent, type: GlobalDef.SMT_CLOSE_GAME });
+                    }
                     console.log("[GameFrame][OnSocketMainSystem] " + message.szContent);
                     this.onCloseSocket();
                 }
@@ -2534,6 +2778,36 @@ cc.Class({
         data.pushbyte(0);
         this.sendSocketData(data);
     },
+    sendTextChat: function sendTextChat(msg, tagetUser, color) {
+        //聊天结构
+        // struct CMD_GR_UserChat
+        // {
+        //     WORD							wChatLength;						//信息长度
+        //     COLORREF	dword					crFontColor;						//信息颜色
+        //     DWORD							dwSendUserID;						//发送用户
+        //     DWORD							dwTargetUserID;						//目标用户
+        //     TCHAR							szChatMessage[128];		//聊天信息
+        // };
+        var msgLen = msg.length;
+        tagetUser = tagetUser || 0;
+        color = color || 16777215; //RGB(255,255,255)
+        var data = CCmd_Data.create();
+        data.setcmdinfo(game_cmd.MDM_GR_USER, game_cmd.SUB_GR_USER_CHAT);
+        data.pushword(msgLen);
+        data.pushdword(color);
+        data.pushdword(GlobalUserData.dwUserID);
+        data.pushdword(tagetUser);
+        data.pushstring(msg, GlobalDef.MAX_CHAT_LEN);
+
+        console.log("size1 = " + data.getDataSize());
+        var sendSize = data.getDataSize() - GlobalDef.MAX_CHAT_LEN + msgLen;
+        console.log("size2 = " + sendSize);
+        data.setDataSize(sendSize);
+
+        // this.sendSocketData(sitData);
+
+        this.sendSocketData(data);
+    },
     onUpDateTableUser: function onUpDateTableUser(tableid, chairid, useritem) {
         var id = tableid;
         var idex = chairid;
@@ -2885,7 +3159,7 @@ var GameModel = cc.Class({
         var nChairCount = this._gameFrame.getChairCount();
         var nChairID = this.getMeChairID();
         if (chair !== GlobalDef.INVALID_CHAIR && chair < nChairCount) {
-            viewID = (chair + Math.floor(nChairCount * 3 / 2) - nChairID) % nChairCount; //+ 1;
+            viewID = (chair + nChairCount - nChairID) % nChairCount; //+ 1;
         }
         console.log("[GameModel][switchViewChairID] + [nChairCount,nChairID,chair,viewID] = " + [nChairCount, nChairID, chair, viewID]);
         return viewID;
@@ -2925,7 +3199,8 @@ var GameModel = cc.Class({
         return this._ClockViewChair;
     },
     //计时器更新
-    onClockUpdata: function onClockUpdata() {
+    onClockUpdata: function onClockUpdata(dt) {
+        console.log("---------------------------dt = " + dt);
         console.log("[GameModel][onClockUpdata] chair = " + this._ClockChair + " time = " + this._ClockTime + " id = " + this._ClockID);
         if (this._ClockID !== GlobalDef.INVALID_ITEM) {
             this._ClockTime = this._ClockTime - 1;
@@ -3022,6 +3297,9 @@ var GameModel = cc.Class({
     //发送准备
     sendUserReady: function sendUserReady() {
         this._gameFrame.sendUserReady();
+    },
+    sendTextChat: function sendTextChat(msg, tagetUser, color) {
+        this._gameFrame.sendTextChat(msg, tagetUser, color);
     },
     //发送数据
     sendData: function sendData(sub, dataBuf) {
@@ -3142,7 +3420,16 @@ cc.Class({
         var viewID = this.getClockViewID();
         if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
             //时间进度条
-            //this.onEventGameClockInfo(viewID, id);
+            // this.onEventGameClockInfo(viewID, id);
+            var progressTime = time;
+            var self = this;
+            var progressBar = this._gameView.m_timeProgress[viewID];
+            progressBar.node.runAction(cc.repeatForever(cc.sequence(cc.delayTime(0.05), cc.callFunc(function () {
+                progressTime -= 0.05;
+                var progress = 1.0 * progressTime / zjh_cmd.TIME_START_GAME;
+                // console.log("[setGameClock][scheduleUpdate] ->" + [progressTime]);
+                progressBar.progress = progress;
+            }))));
         }
     },
     //关闭计时器
@@ -3151,6 +3438,7 @@ cc.Class({
         if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
             if (this._gameView.m_timeProgress[viewID]) {
                 this._gameView.m_timeProgress[viewID].progress = 0;
+                this._gameView.m_timeProgress[viewID].node.stopAllActions();
             }
         }
         this._super(notView);
@@ -3351,10 +3639,11 @@ cc.Class({
                 //控件信息
                 this._gameView.m_nodeBottom.active = false;
                 if (!playStatus.bCompareState) {
+                    this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
+
                     if (this.getMeChairID() === this.m_wCurrentUser) {
                         this.updateControl();
                     }
-                    this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
                 } else {
                     if (this.getMeChairID() === this.m_wCurrentUser) {
                         //选择玩家比牌
@@ -3520,6 +3809,10 @@ cc.Class({
             this._gameView.setUserTableScore(viewID, this.m_lTableScore[addScore.wAddScoreUser]);
             this._gameView.setAllTableScore(this.m_llAllTableScore);
         }
+        //设置计时器
+        if (addScore.wCompareState === 0 && this.m_wCurrentUser !== GlobalDef.INVALID_CHAIR) {
+            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
+        }
 
         if (addScore.wCompareState === 0 && this.m_wCurrentUser === myChair) {
             this.m_lCurrentTurn = addScore.lCurrentTurn;
@@ -3527,10 +3820,6 @@ cc.Class({
             this.updateControl();
         }
         this.m_isFirstAdd = false;
-        //设置计时器
-        if (addScore.wCompareState === 0) {
-            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
-        }
     },
     onSubLookCard: function onSubLookCard(sub, pData) {
         console.log("[GameScene][onSubLookCard]");
@@ -3610,10 +3899,10 @@ cc.Class({
         this._gameView.stopCompareCard();
         var count = this.getPlayingNum();
         if (count > 1) {
+            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
             if (this.m_wCurrentUser === this.getMeChairID()) {
                 this.updateControl();
             }
-            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
         } else {
             var myChair = this.getMeChairID();
             if (this.m_cbPlayStatus[myChair] === 1 || myChair === this.m_wLostUser) {
@@ -3715,82 +4004,88 @@ cc.Class({
         this._gameView.m_nodeBottom.active = false;
         // ......
 
-        var endShow;
+        // var endShow;
         var saveType = [];
         //移动筹码
         for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
             var viewID = this.switchViewChairID(i);
             if (gameEnd.lGameScore[i] !== 0) {
+                var viewID = this.switchViewChairID(i);
+                saveType[i] = GameLogic.getCardType(gameEnd.cbCardData[i]);
+                if (!(i === myChair && this.m_bLookCard[i])) {
+                    this._gameView.setUserCard(viewID, gameEnd.cbCardData[i]);
+                }
                 if (gameEnd.lGameScore[i] > 0) {
                     this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i]);
                     this._gameView.winTheChip(viewID);
+                    this._gameView.setUserCardType(viewID, saveType[i], "win_");
                 } else {
                     this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i]);
+                    this._gameView.setUserCardType(viewID, saveType[i], "lose_");
                 }
-                endShow = true;
+                // endShow = true;
                 // this._gameView.
                 //....
                 //.....
-                saveType[i] = GameLogic.getCardType(gameEnd.cbCardData[i]);
             } else {
                 saveType[i] = 1;
                 this._gameView.setUserTableScore(viewID);
             }
         }
 
-        for (var i = 0; i < 4; i++) {
-            var wUserID = gameEnd.wCompareUser[myChair][i];
-            if (wUserID && wUserID !== GlobalDef.INVALID_CHAIR) {
-                var viewID = this.switchViewChairID(wUserID);
-                var cardIndex = [];
-                for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
-                    cardIndex[k] = gameEnd.cbCardData[wUserID][k]; //GameLogic.getCardColor(gameEnd.cbCardData[wUserID][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[wUserID][k]);
-                }
-                this._gameView.setUserCard(viewID, cardIndex);
-                this._gameView.setUserCardType(viewID, saveType[wUserID]);
-                // this._gameView  ....
-            }
-        }
+        // for (var i = 0; i < 4; i++) {
+        //     var wUserID = gameEnd.wCompareUser[myChair][i];
+        //     if (wUserID && wUserID !== GlobalDef.INVALID_CHAIR) {
+        //         var viewID = this.switchViewChairID(wUserID);
+        //         var cardIndex = [];
+        //         for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
+        //             cardIndex[k] = gameEnd.cbCardData[wUserID][k];//GameLogic.getCardColor(gameEnd.cbCardData[wUserID][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[wUserID][k]);
+        //         }
+        //         this._gameView.setUserCard(viewID, cardIndex);
+        //         this._gameView.setUserCardType(viewID, saveType[wUserID]);
+        //         // this._gameView  ....
+        //     }
+        // }
 
-        if (gameEnd.wCompareUser[myChair][0] !== GlobalDef.INVALID_CHAIR || this.m_bLookCard[myChair] === true) {
-            var cardIndex = [];
-            for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
-                cardIndex[k] = gameEnd.cbCardData[myChair][k]; //GameLogic.getCardColor(gameEnd.cbCardData[myChair][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[myChair][k]);
-            }
-            // var myViewID 
-            this._gameView.setUserCard(zjh_cmd.MY_VIEWID, cardIndex);
-            this._gameView.setUserCardType(zjh_cmd.MY_VIEWID, saveType[myChair]);
-            // this._gameView  ....
-        }
+        // if (gameEnd.wCompareUser[myChair][0] !== GlobalDef.INVALID_CHAIR || this.m_bLookCard[myChair] === true) {
+        //     var cardIndex = [];
+        //     for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
+        //         cardIndex[k] = gameEnd.cbCardData[myChair][k];//GameLogic.getCardColor(gameEnd.cbCardData[myChair][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[myChair][k]);
+        //     }
+        //     // var myViewID 
+        //     this._gameView.setUserCard(zjh_cmd.MY_VIEWID, cardIndex);
+        //     this._gameView.setUserCardType(zjh_cmd.MY_VIEWID, saveType[myChair]);
+        //     // this._gameView  ....
+        // }
 
-        if (gameEnd.wEndState == 1) {
-            if (this.m_cbPlayStatus[myChair] === 1) {
-                for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
-                    if (this.m_cbPlayStatus[i] === 1) {
-                        var cardIndex = [];
-                        for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
-                            cardIndex[k] = gameEnd.cbCardData[i][k]; //GameLogic.getCardColor(gameEnd.cbCardData[i][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[i][k]);
-                        }
-                        var viewID = this.switchViewChairID(i);
-                        this._gameView.setUserCard(viewID, cardIndex);
-                        this._gameView.setUserCardType(viewID, saveType[i]);
-                        // this._gameView  ....
-                    }
-                }
-            }
-        }
+        // if (gameEnd.wEndState == 1) {
+        //     if (this.m_cbPlayStatus[myChair] === 1) {
+        //         for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+        //             if (this.m_cbPlayStatus[i] === 1) {
+        //                 var cardIndex = [];
+        //                 for (var k = 0; k < zjh_cmd.MAX_COUNT; k++) {
+        //                     cardIndex[k] = gameEnd.cbCardData[i][k];//GameLogic.getCardColor(gameEnd.cbCardData[i][k]) * 13 + GameLogic.getCardValue(gameEnd.cbCardData[i][k]);
+        //                 }
+        //                 var viewID = this.switchViewChairID(i);
+        //                 this._gameView.setUserCard(viewID, cardIndex);
+        //                 this._gameView.setUserCardType(viewID, saveType[i]);
+        //                 // this._gameView  ....
+        //             }
 
-        if (endShow) {
-            // ...
-        }
+        //         }
+        //     }
+        // }
+
+        // if (endShow) {
+        //     // ...
+        // }
         var self = this;
-        // this.node.runAction(cc.sequence(cc.delayTime(5.0),cc.callFunc(function () {
-        // self.onResetGameEngine();
-        self._gameView.m_Button_ready.node.active = true;
-        self.setGameClock(GlobalDef.INVALID_CHAIR, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);
-        self.m_cbPlayStatus = [0, 0, 0, 0, 0];
-        // })))
-
+        this.node.runAction(cc.sequence(cc.delayTime(5.0), cc.callFunc(function () {
+            self.onResetGameEngine();
+            self._gameView.m_Button_ready.node.active = true;
+            self.setGameClock(GlobalDef.INVALID_CHAIR, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);
+            self.m_cbPlayStatus = [0, 0, 0, 0, 0];
+        })));
     },
     onSubWaitCompare: function onSubWaitCompare(sub, pData) {
         console.log("[GameScene][onSubWaitCompare]");
@@ -3866,6 +4161,25 @@ cc.Class({
             this.sendUserReady();
         }
     },
+    onAutoFollow: function onAutoFollow() {
+        if (this.getMeChairID() !== this.m_wCurrentUser) {
+            return false;
+        }
+        if (!(this._gameView && this._gameView.bAutoFollow)) {
+            return false;
+        }
+        var myChair = this.getMeChairID();
+        var maxAddScore = this.m_lUserMaxScore - this.m_lTableScore[myChair];
+        var followScore = this.m_lCurrentTimes * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
+        if (maxAddScore < followScore) {
+            this._gameView.onClickAutoFollowButton();
+            return false;
+        } else {
+            //跟注
+            this.addScore(0);
+            return true;
+        }
+    },
     //自动比牌
     onAutoCompareCard: function onAutoCompareCard() {
         var myChair = this.getMeChairID();
@@ -3928,14 +4242,14 @@ cc.Class({
                 }
             }
             this._gameView.setCompareCard(true, compareStatus);
-            // //发送等待比牌消息
-            // var dataBuf = CCmd_Data.create();
-            // this.sendData(zjh_cmd.SUB_C_WAIT_COMPARE,dataBuf);
-            // this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_COMPARE_CARD, zjh_cmd.TIME_USER_COMPARE_CARD);
+            //发送等待比牌消息
+            var dataBuf = CCmd_Data.create();
+            this.sendData(zjh_cmd.SUB_C_WAIT_COMPARE, dataBuf);
+            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_COMPARE_CARD, zjh_cmd.TIME_USER_COMPARE_CARD);
         }
     },
     onCompareChoose: function onCompareChoose(index) {
-        if (!index || index === GlobalDef.INVALID_CHAIR) {
+        if (index === undefined || index === GlobalDef.INVALID_CHAIR) {
             console.log("[GameScene][onCompareChoose] index error");
             return;
         }
@@ -3944,8 +4258,9 @@ cc.Class({
             console.log("[GameScene][onCompareChoose] not m_wCurrentUser (m_wCurrentUser = " + this.m_wCurrentUser + " mychair = " + myChair);
             return;
         }
+        console.log("[GameScene][onCompareChoose] index = " + index);
         for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
-            if (i !== myChair && this.m_cbPlayStatus[i] === 1 && index === this.switchViewChairID(i)) {
+            if (i !== myChair && this.m_cbPlayStatus[i] === 1 && index == this.switchViewChairID(i)) {
                 this._gameView.setCompareCard(false);
                 this.killGameClock();
                 //发送比牌消息
@@ -4024,9 +4339,14 @@ cc.Class({
     },
     //更新按钮控制
     updateControl: function updateControl() {
+
         var myChair = this.getMeChairID();
         if (myChair === undefined || myChair === GlobalDef.INVALID_CHAIR) {
             console.log("[GameScene][updateControl] mychair is invalid " + myChair);
+            return;
+        }
+        //自动跟注
+        if (this.onAutoFollow()) {
             return;
         }
         this._gameView.m_nodeBottom.active = true;
@@ -4081,10 +4401,16 @@ cc.Class({
             var lScore = element * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
             var scoreLabel = children[i].children[0].getComponent(cc.Label);
             scoreLabel.string = lScore;
+            children[i].getComponent(cc.Button).enableAutoGrayEffect = true;
             children[i].getComponent(cc.Button).interactable = bHide;
             bCanAdd = bCanAdd || bHide && maxAddScore >= lScore;
             if (maxAddScore < lScore) {
                 children[i].getComponent(cc.Button).interactable = false;
+            }
+            if (children[i].getComponent(cc.Button).interactable) {
+                children[i].color = new cc.Color(255, 255, 255);
+            } else {
+                children[i].color = new cc.Color(170, 170, 170);
             }
         }
         this._gameView.m_Button_addscore.interactable = bCanAdd;
@@ -4510,13 +4836,14 @@ cc.Class({
         this.m_userHead = [];
         //计时器
         this.m_timeProgress = [];
+        this.m_rcCompare = [];
         var userHeadList = this.node.getChildByName("m_Panel_center").getChildByName("m_userhead").children;
         for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
             var userNode = cc.instantiate(this.userInfacePrefab);
             this.node.getChildByName("nodePlayer").addChild(userNode);
             this.m_Node_player[index] = userNode;
             userNode.setPosition(this.ptPlayer[index]);
-            userNode.rotation = index * -90 + 180;
+            userNode.rotation = index * -90;
             userNode.active = false;
 
             this.m_userHead[index] = {};
@@ -4528,6 +4855,8 @@ cc.Class({
             //计时器
             this.m_timeProgress[index] = userHeadList[index].getComponent(cc.ProgressBar);
             this.m_timeProgress[index].progress = 0;
+            this.m_rcCompare[index] = this.node.getChildByName("flagCompare").children[index];
+            this.m_rcCompare[index].active = false;
         }
         this.m_userCard = [];
         //用户手牌
@@ -4561,6 +4890,9 @@ cc.Class({
     },
     onEnable: function onEnable() {},
     onResetView: function onResetView() {
+        this.bAutoFollow = false;
+        this.m_Button_autofollow.node.active = !this.bAutoFollow;
+        this.m_Button_cancelfollow.node.active = this.bAutoFollow;
         this.m_Button_ready.node.active = false;
         this.m_nodeBottom.active = false;
         this.m_chipBG.active = false;
@@ -4583,7 +4915,7 @@ cc.Class({
 
     //更新时钟
     onUpdateClockView: function onUpdateClockView(viewID, time) {
-        // console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
+        console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
         if (time <= 0) {
             this.m_Progress_time.node.active = false;
             if (this.m_timeProgress[viewID]) {
@@ -4594,7 +4926,7 @@ cc.Class({
             var progress = 1.0 * time / zjh_cmd.TIME_START_GAME;
             // this.m_Progress_time.node.active = true;
             if (this.m_timeProgress[viewID]) {
-                this.m_timeProgress[viewID].progress = progress;
+                // this.m_timeProgress[viewID].progress = progress;
             } else {
                 this.m_Progress_time.node.active = true;
                 this.m_Progress_time.node.setPosition(0, 60);
@@ -4792,13 +5124,15 @@ cc.Class({
         }
     },
     //显示牌类型
-    setUserCardType: function setUserCardType(viewID, cardtype) {
+    setUserCardType: function setUserCardType(viewID, cardtype, state) {
         var nodeCardType = this.m_userCard[viewID].cardType;
+        var cardTypeState = "card_type_" + (state || "");
         console.log("[GameView][setUserCardType] [viewID,cardtype] = " + [viewID, cardtype]);
         if (cardtype && cardtype >= 1 && cardtype <= 6) {
             var spCardType = nodeCardType.getComponent(cc.Sprite);
             nodeCardType.active = true;
-            spCardType.spriteFrame = this.gameAtlas.getSpriteFrame("card_type_" + cardtype);
+            console.log("[GameView][setUserCardType] cardTypeState = " + cardTypeState);
+            spCardType.spriteFrame = this.gameAtlas.getSpriteFrame(cardTypeState + cardtype);
         } else {
             nodeCardType.active = false;
         }
@@ -4821,6 +5155,13 @@ cc.Class({
     setCompareCard: function setCompareCard(bChoose, status) {
         this.bCompareChoose = bChoose;
         // todo
+        for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+            if (bChoose && status && status[i]) {
+                this.m_rcCompare[i].active = true;
+            } else {
+                this.m_rcCompare[i].active = false;
+            }
+        }
     },
     onTouch: function onTouch(params) {
         // console.log(params);
@@ -4836,6 +5177,10 @@ cc.Class({
         this.bAutoFollow = !this.bAutoFollow;
         this.m_Button_autofollow.node.active = !this.bAutoFollow;
         this.m_Button_cancelfollow.node.active = this.bAutoFollow;
+        this._scene.onAutoFollow();
+    },
+    onClickChat: function onClickChat() {
+        this._scene.sendTextChat('hello world');
     },
     //按键响应
     onStartGame: function onStartGame() {
@@ -4869,6 +5214,9 @@ cc.Class({
     },
     onCompareCard: function onCompareCard() {
         this._scene.onCompareCard();
+    },
+    onCompareChoose: function onCompareChoose(event, index) {
+        this._scene.onCompareChoose(index);
     },
     onAddScore: function onAddScore(event, params) {
         console.log(params);
@@ -5093,14 +5441,15 @@ function ActionShowTanChuang(widget, cb) {
         }
     })));
 }
-function showToast(context, message) {
+function showToast(params, context) {
+    context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         return;
     }
     cc.loader.loadRes("prefab/ToastView", function (err, ToastPrefab) {
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(ToastPrefab);
-            newNode.getComponent("ToastView").onInit({ message: message });
+            newNode.getComponent("ToastView").onInit(params);
             context.addChild(newNode);
             ActionShowTanChuang(newNode.children[0]);
             console.log("showToast");
@@ -5108,7 +5457,8 @@ function showToast(context, message) {
     });
 }
 
-function showAlert(context, message) {
+function showAlert(message, context) {
+    context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         return;
     }
@@ -5141,6 +5491,21 @@ function showPopWaiting(context, params) {
             context.addChild(newNode);
             ActionShowTanChuang(newNode);
             console.log("showPopWaiting");
+        }
+    });
+}
+
+function showLoadingView(params, context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        console.log("[GlobalFun][showLoadingView] context is invalid");
+        return;
+    }
+    cc.loader.loadRes("prefab/LoadingView", function (err, res) {
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(res);
+            newNode.getComponent("LoadingView").init(params);
+            context.addChild(newNode);
         }
     });
 }
@@ -5211,7 +5576,8 @@ module.exports = {
     buildRequestParam: buildRequestParam,
     ipToNumber: ipToNumber,
     numberToIp: numberToIp,
-    PrefixInteger: PrefixInteger
+    PrefixInteger: PrefixInteger,
+    showLoadingView: showLoadingView
 };
 
 cc._RFpop();
@@ -5354,7 +5720,138 @@ var GlobalUserData = {
 module.exports = GlobalUserData;
 
 cc._RFpop();
-},{}],"HelloWorld":[function(require,module,exports){
+},{}],"GuestBindView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '9622c+r5ThJnYo5FBmGVn8W', 'GuestBindView');
+// Script/plaza/views/plaza/GuestBindView.js
+
+"use strict";
+
+require("MD5");
+var GlobalDef = require("GlobalDef");
+var GlobalFun = require("GlobalFun");
+var GlobalUserData = require("GlobalUserData");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_Editbox_phone: cc.EditBox,
+        m_Editbox_secret: cc.EditBox,
+        m_Editbox_verify: cc.EditBox
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    onSend: function onSend(params) {
+        var szTel = this.m_Editbox_phone.string;
+        var re = /1[3578][0-9]{9}/;
+        if (re.exec(szTel) === null) {
+            console.log("[GuestBindView][onSend] 手机号码不合法");
+            GlobalFun.showAlert("手机号码不合法");
+            return;
+        }
+
+        var url = GlobalDef.httpUserCenter;
+        url += "/hz/CaptchaMobile.ashx";
+        var params = "Mobile=" + szTel;
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
+                var response = xhr.responseText;
+                console.log(response);
+                var value = JSON.parse(response);
+                if (value.status == 1) {}
+                GlobalFun.showAlert(value.Msg);
+            }
+        };
+        xhr.open("POST", url, true);
+        xhr.send(params);
+        console.log("[GuestBindView][onSend] " + params);
+    },
+    onConfirm: function onConfirm(params) {
+        var szTel = this.m_Editbox_phone.string;
+        var szPwd = this.m_Editbox_secret.string;
+        var szVerify = this.m_Editbox_verify.string;
+        if (szTel.length <= 0 || szPwd.length <= 0 || szVerify.length <= 0) {
+            console.log("帐号密码等信息不能为空");
+            GlobalFun.showAlert("帐号密码等信息不能为空");
+            return;
+        }
+        if (szPwd.length < 6 || szPwd.length > 16) {
+            console.log("密码长度为6-16位");
+            GlobalFun.showAlert("密码长度为6-16位");
+            return;
+        }
+
+        var re = /1[3578][0-9]{9}/;
+        if (re.exec(szTel) === null) {
+            console.log("[GuestBindView][onConfirm] 手机号码不合法");
+            GlobalFun.showAlert("手机号码不合法");
+            return;
+        }
+
+        var url = GlobalDef.httpUserCenter;
+        url += "/Guest/GuestBindMobile.ashx";
+
+        var params = {};
+        params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
+        params["channelid"] = GlobalDef.CHANNELID_center;
+        params["mobile"] = szTel;
+        params["pwd"] = cc.md5Encode(szPwd);
+        params["code"] = szVerify;
+
+        var paramString = GlobalFun.buildRequestParam(params);
+
+        var xhr = new XMLHttpRequest();
+        var self = this;
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
+                var response = xhr.responseText;
+                console.log(response);
+                var value = JSON.parse(response);
+                if (value.status == 1) {
+                    if (value.userid !== undefined) {
+                        // 
+                    }
+                    if (value.score !== undefined) {
+                        GlobalUserData.llGameScore = value.score;
+                    }
+                    if (value.username !== undefined) {
+                        GlobalUserData.szAccounts = value.username;
+                    }
+                    if (value.nickname !== undefined) {
+                        GlobalUserData.szNickName = value.nickname;
+                    }
+                    GlobalUserData.szPassWord = cc.md5Encode(szPwd);
+                    GlobalUserData.isGuest = false;
+                    GlobalFun.showAlert("帐号绑定成功，您可以用正式帐号登录游戏了");
+                    cc.director.emit("onGuestBindSuccess");
+                    self.onClose();
+                }
+                GlobalFun.showAlert(value.msg);
+            }
+        };
+        xhr.open("POST", url, true);
+        xhr.send(paramString);
+        console.log("[GuestBindView][onConfirm] " + paramString);
+    },
+    onClose: function onClose(params) {
+        this.node.destroy();
+    }
+});
+
+cc._RFpop();
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MD5":"MD5"}],"HelloWorld":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '280c3rsZJJKnZ9RqbALVwtK', 'HelloWorld');
 // Script/HelloWorld.js
@@ -5374,11 +5871,23 @@ cc.Class({
             type: cc.Label
         },
         // defaults, set visually when attaching this script to the Canvas
-        text: 'Hello, World!'
+        text: 'Hello, World!',
+        tableView: cc.Node
     },
     // name: "helloFrame",
     // use this for initialization
+    _getdata: function _getdata(num) {
+        var array = [];
+        for (var i = 0; i < num; ++i) {
+            var obj = {};
+            obj.name = 'a' + i;
+            array.push(obj);
+        }
+        return array;
+    },
     onLoad: function onLoad() {
+        // console.log(navigator);
+        // console.log(navigator.connection);
         // jsbTest.testlog();
         // var self = this;
         // this.socket = ClientSocket.createSocket(function(pData){
@@ -5401,8 +5910,30 @@ cc.Class({
         // // console.log(pData.readword());
         // // console.log(pData.readdouble());
         // this.socket.ConnectSocket("122.226.186.38",9009);
-        this.onCreateSocket("122.226.186.38", 9009);
-        this.label.string = this.text;
+        // this.onCreateSocket("122.226.186.38",9009);
+        // this.label.string = this.text;
+        // var data = this._getdata(100);
+        // this.tableView.getComponent("tableview").initTableView(data.length, { array: data, target: this });
+        this.tableView.getComponent(cc.ScrollView).scrollToLeft(0.1);
+    },
+    onScrollEvent: function onScrollEvent(event) {
+        console.log(event);
+        console.log(event.scrollEvents);
+        // this.tableView.getComponent("CoverView").scrollToIndex(2);
+        var coverView = this.tableView.getComponent("CoverView");
+        // coverView.adjustEndScrollView();
+        var children = coverView.content.children;
+        var curIndex = coverView.getCurIndex();
+        // console.log("curIndex = " + curIndex);
+        for (var index = 0; index < children.length; index++) {
+            var element = children[index];
+            var PlazaRoomItem = element.getComponent("PlazaRoomItem");
+            if (index === curIndex) {
+                PlazaRoomItem.select();
+            } else {
+                PlazaRoomItem.unselect();
+            }
+        }
     },
     // called every frame
     update: function update(dt) {},
@@ -5457,7 +5988,92 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"BaseFrame":"BaseFrame","CMD_Game":"CMD_Game","CMD_Plaza":"CMD_Plaza","MD5":"MD5"}],"LogonFrame":[function(require,module,exports){
+},{"BaseFrame":"BaseFrame","CMD_Game":"CMD_Game","CMD_Plaza":"CMD_Plaza","MD5":"MD5"}],"LoadingView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '8ad8eeapDBLD7IzFVMMTYu2', 'LoadingView');
+// Script/LoadingView.js
+
+"use strict";
+
+var GlobalFun = require("GlobalFun");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_Label_des: cc.Label
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    init: function init(params) {
+        console.log("[LoadingView][init] params = " + JSON.stringify(params, null, ' '));
+        this._closeEvent = params.closeEvent;
+        this._loadfunc = params.loadfunc;
+        this._closefunc = params.closefunc;
+        this._connectDes = params.des || "正在连接游戏服务器...";
+        cc.director.on(this._closeEvent, this.close, this);
+        cc.director.on("LoadingViewError", this.showMessageBox, this);
+        cc.director.on("LoadingViewOnConnect", this.onConnected, this);
+        cc.director.on("LoadingViewOnLogonFinish", this.onLogonFinish, this);
+
+        if (typeof this._loadfunc === "function") {
+            this._loadfunc();
+        }
+    },
+    showMessageBox: function showMessageBox(params) {
+        var msg = params.detail.msg;
+        var type = params.detail.type;
+        var self = this;
+        GlobalFun.showToast({
+            message: msg,
+            confirmfunc: function confirmfunc() {
+                self.node.destroy();
+            }
+        });
+    },
+    onConnected: function onConnected(params) {
+        var msg = params.detail.message;
+        console.log("[LoadingView][onConnected] msg = " + msg);
+        this.m_Label_des.string = msg;
+    },
+    onLogonFinish: function onLogonFinish(params) {
+        var msg = params.detail.message;
+        console.log("[LoadingView][onLogonFinish] msg = " + msg);
+        this.m_Label_des.string = msg;
+        this.close();
+    },
+    close: function close() {
+        console.log("[LoadingView][close]");
+        cc.director.off(this._closeEvent, this.close, this);
+        if (typeof this._closefunc === "function") {
+            this._closefunc();
+        }
+        // this.node.destroy();
+    },
+    onEnable: function onEnable() {},
+    onDisable: function onDisable() {
+        cc.director.off("LoadingViewError", this.showMessageBox, this);
+        cc.director.off("LoadingViewOnConnect", this.onConnected, this);
+        cc.director.off("LoadingViewOnLogonFinish", this.onLogonFinish, this);
+    },
+    onDestroy: function onDestroy() {
+        console.log("[LoadingView][onDestroy]");
+        cc.sys.garbageCollect();
+    }
+});
+
+cc._RFpop();
+},{"GlobalFun":"GlobalFun"}],"LogonFrame":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'd88c4RIaBJFFL8HEyKmKgcg', 'LogonFrame');
 // Script/plaza/models/LogonFrame.js
@@ -5496,6 +6112,7 @@ cc.Class({
         // }
     },
     onConnectCompeleted: function onConnectCompeleted() {
+        cc.director.emit("LoadingViewOnConnect", { message: "正在登录游戏服务器..." });
         if (this._logonMode === 0) {
             this.sendLogon();
         } else if (this._logonMode === 1) {
@@ -5535,11 +6152,24 @@ cc.Class({
         } else if (sub === plaza_cmd.SUB_GP_LOGON_ERROR_MOBILE) {
             this.onCloseSocket();
             console.log("logonframe login error");
+            //登陆失败
+            // struct CMD_GP_LogonError
+            // {
+            //     LONG								lErrorCode;						//错误代码
+            //     char								szErrorDescribe[128];			//错误消息
+            // };
+            var logonError = {};
+            logonError.lErrorCode = pData.readint();
+            logonError.szErrorDescribe = pData.readstring();
+            if (logonError.szErrorDescribe) {
+                cc.director.emit("LoadingViewError", { msg: logonError.szErrorDescribe, type: GlobalDef.SMT_CLOSE_GAME });
+            }
         } else if (sub === plaza_cmd.SUB_GP_LOGON_FINISH_MOBILE) {
             console.log("logonframe login finish");
             this.onCloseSocket();
-            cc.director.loadScene("PlazaScene");
-            cc.sys.garbageCollect();
+            cc.director.emit("LoadingViewOnLogonFinish", { message: "正在进入游戏大厅..." });
+            // cc.director.loadScene("PlazaScene");
+            // cc.sys.garbageCollect();
         }
     },
     onRoomListEvent: function onRoomListEvent(sub, pData) {
@@ -5731,15 +6361,32 @@ cc.Class({
         cc.director.off('onShowRegister', this.onShowRegister, this);
         cc.director.off('onRegister', this.onRegister, this);
     },
+    onDestroy: function onDestroy() {
+        cc.sys.garbageCollect();
+    },
     onLogon: function onLogon(event) {
         console.log("[LogonScene][onLogon]");
         var szAccount = event.detail.szAccount;
         var szPassword = event.detail.szPassword;
-        this._logonFrame.onLogonByAccount(szAccount, szPassword);
-        GlobalFun.showPopWaiting(cc.director.getScene(), {
-            closeEvent: "LogonSuccess",
-            callBackFunc: function callBackFunc() {
-                console.log("[LogonScene][onLogon] callbackfunc");
+        // this._logonFrame.onLogonByAccount(szAccount,szPassword);
+        // GlobalFun.showPopWaiting(cc.director.getScene(),{
+        //     closeEvent: "LogonSuccess",
+        //     callBackFunc: function () {
+        //         console.log("[LogonScene][onLogon] callbackfunc");
+        //     },
+        // });
+        var self = this;
+        GlobalFun.showLoadingView({
+            closeEvent: "LogonFinish",
+            loadfunc: function loadfunc() {
+                cc.director.preloadScene("PlazaScene", function () {
+                    cc.log("PlazaScene scene preloaded");
+                    self._logonFrame.onLogonByAccount(szAccount, szPassword);
+                });
+            },
+            closefunc: function closefunc() {
+                cc.director.loadScene("PlazaScene");
+                // cc.sys.garbageCollect();
             }
         });
     },
@@ -5768,12 +6415,15 @@ cc.Class({
     onShowVistor: function onShowVistor() {
         console.log("[LogonScene][onShowVistor]");
         // GlobalFun.showToast(cc.director.getScene(),"游客登录暂未开放,敬请期待!");
+        var szMachineID = MultiPlatform.getMachineID();
+        GlobalFun.showAlert(szMachineID);
         var url = GlobalDef.httpUserCenter;
         url += "/Guest/GuestLogin.ashx";
         var params = {};
         params["kindid"] = zjh_cmd.KIND_ID;
         params["versionnum"] = "1.1";
-        params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
+        // params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
+        params["useridentity"] = szMachineID;
         params["channelid"] = GlobalDef.CHANNELID_center;
         if (cc.sys.os == cc.sys.OS_IOS) {
             params["os"] = "2";
@@ -5796,10 +6446,23 @@ cc.Class({
                     GlobalUserData.szPassWord = value.pwd;
                     GlobalUserData.isGuest = true;
                     // cc.director.loadScene("PlazaScene");
-                    self._logonFrame.onLogonByVisitor(GlobalUserData.szAccounts, GlobalUserData.szPassWord);
+                    // self._logonFrame.onLogonByVisitor(GlobalUserData.szAccounts,GlobalUserData.szPassWord);
+                    GlobalFun.showLoadingView({
+                        closeEvent: "LogonFinish",
+                        loadfunc: function loadfunc() {
+                            cc.director.preloadScene("PlazaScene", function () {
+                                cc.log("PlazaScene scene preloaded");
+                                self._logonFrame.onLogonByVisitor(GlobalUserData.szAccounts, GlobalUserData.szPassWord);
+                            });
+                        },
+                        closefunc: function closefunc() {
+                            cc.director.loadScene("PlazaScene");
+                            // cc.sys.garbageCollect();
+                        }
+                    });
                 } else {
                     if (value.msg !== undefined) {
-                        GlobalFun.showToast(cc.director.getScene(), value.msg);
+                        GlobalFun.showToast({ message: value.msg });
                     }
                 }
                 cc.director.emit("GuestLoginCompleted");
@@ -6281,19 +6944,36 @@ cc.Class({
         if (this._roomInfo && this._roomInfo.lLimitScore) {
             this.m_Label_scoreLimit.string = this._roomInfo.lLimitScore;
         }
+        var actionNode = this.node.getChildByName("m_Node_back");
+        actionNode.setPosition(1000, 0);
+        actionNode.runAction(cc.sequence(cc.delayTime(this._index * 0.1), cc.moveTo(0.25, -80, 0), cc.moveTo(0.25, 0, 0)));
     },
     onClick: function onClick(params) {
         console.log("[PlazaRoomItem][onClick]");
         if (!this._roomInfo) {
-            GlobalFun.showAlert(cc.director.getScene(), "房间暂未开放，请稍后再试");
+            GlobalFun.showAlert("房间暂未开放，请稍后再试");
             return;
         }
         if (GlobalUserData.llGameScore >= this._roomInfo.lLimitScore) {
-            // GlobalFun.showAlert(cc.director.getScene(),"进入房间");
+            // GlobalFun.showAlert("进入房间");
             cc.director.emit("onLogonRoom", { roomInfo: this._roomInfo });
         } else {
-            GlobalFun.showToast(cc.director.getScene(), "进入房间需要" + this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!");
+            GlobalFun.showToast({ message: "进入房间需要" + this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!" });
         }
+    },
+    select: function select() {
+        var nodeBack = this.node.getChildByName("m_Node_back");
+        // nodeBack.setScale(1.0,1.0);
+        this.m_Image_col.node.runAction(cc.tintTo(0.5, 255, 255, 255));
+        this.m_Image_title.node.runAction(cc.tintTo(0.5, 255, 255, 255));
+        this.node.getComponent(cc.Button).interactable = true;
+    },
+    unselect: function unselect() {
+        var nodeBack = this.node.getChildByName("m_Node_back");
+        // nodeBack.setScale(1.0,1.0);
+        this.m_Image_col.node.runAction(cc.tintTo(0.5, 170, 170, 170));
+        this.m_Image_title.node.runAction(cc.tintTo(0.5, 170, 170, 170));
+        this.node.getComponent(cc.Button).interactable = false;
     }
 });
 
@@ -6399,15 +7079,101 @@ cc.Class({
         this.refreshRoomList();
     },
     refreshRoomList: function refreshRoomList() {
+        var _this = this;
+
         var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
         console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList, null, ' '));
-        var roomListPanel = this.roomItemList.content;
+        var coverView = cc.find("Canvas/scrollview").getComponent("CoverView");
+        var roomListPanel = coverView.content;
         roomListPanel.removeAllChildren();
         for (var index = 0; index < 4; index++) {
             var item = cc.instantiate(this.plazaRoomItem);
             item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
             roomListPanel.addChild(item);
         }
+        var scContentSize = coverView.node.getContentSize();
+        var padding = roomListPanel.children[1].getPositionX() - roomListPanel.children[0].getPositionX();
+        coverView.init({
+            paddingLeft: scContentSize.width / 2 - padding / 2,
+            paddingRight: scContentSize.width / 2 - padding / 2,
+            endCallBack: function endCallBack() {
+                _this.onCoverViewEndCallBack();
+            }
+        });
+        // coverView.scrollToLeft(0.1);
+        this.node.runAction(cc.sequence(cc.delayTime(0.2), cc.callFunc(function () {
+            if (GlobalUserData.llGameScore < 10000) {
+                coverView.scrollToIndex(0);
+            } else if (GlobalUserData.llGameScore < 100000) {
+                coverView.scrollToIndex(1);
+            } else {
+                coverView.scrollToIndex(2);
+            }
+        })));
+        // this.scheduleOnce(coverView.scrollToLeft(0.1));
+        // var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
+        // roomPageView.removeAllPages();
+        // for (var index = 0; index < 4; index++) {
+        //     var item = cc.instantiate(this.plazaRoomItem);
+        //     var PlazaRoomItem = item.getComponent("PlazaRoomItem");
+        //     PlazaRoomItem.init({index:index+1,roomInfo:roomList[index]});
+        //     // if (index === 0) {
+        //     //     PlazaRoomItem.select();
+        //     // }
+        //     // else {
+        //     //     PlazaRoomItem.unselect();
+        //     // }
+        //     // roomPageView.addPage(item);
+        // }
+        // roomPageView.scrollToPage(1,0.5);
+    },
+    onCoverViewEndCallBack: function onCoverViewEndCallBack() {
+        var coverView = cc.find("Canvas/scrollview").getComponent("CoverView");
+        var children = coverView.content.children;
+        var curIndex = coverView.getCurIndex();
+        for (var index = 0; index < children.length; index++) {
+            var element = children[index];
+            var PlazaRoomItem = element.getComponent("PlazaRoomItem");
+            if (index === curIndex) {
+                PlazaRoomItem.select();
+            } else {
+                PlazaRoomItem.unselect();
+            }
+        }
+    },
+    onScrollViewEvent: function onScrollViewEvent(event) {
+        console.log(event);
+        // console.log(this.roomItemList.content);
+        console.log([this.roomItemList.getMaxScrollOffset(), this.roomItemList.getScrollOffset(), this.roomItemList.getContentPosition()]);
+    },
+    onPageViewEvent: function onPageViewEvent(event) {
+        var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
+        var curIndex = roomPageView.getCurrentPageIndex();
+        var allPages = roomPageView.getPages();
+        console.log("[PlazaView][onPageViewEvent] curIndex = " + curIndex);
+        for (var index = 0; index < allPages.length; index++) {
+            var element = allPages[index];
+            var PlazaRoomItem = element.getComponent("PlazaRoomItem");
+            if (curIndex === index) {
+                PlazaRoomItem.select();
+            } else {
+                // element.color = new cc.Color(170,170,170);
+                PlazaRoomItem.unselect();
+            }
+        }
+        // if (curIndex === allPages.length - 1) {
+        //     var firstPage = cc.instantiate(allPages[0]);
+        //     roomPageView.removePageAtIndex(0);            
+        //     roomPageView.insertPage(firstPage,allPages.length);            
+        //     // roomPageView.setCurrentPageIndex(allPages.length - 2);
+
+        // }
+        // else if (curIndex === 0) {
+        //     var lastPage = cc.instantiate(allPages[allPages.length - 1]);
+        //     roomPageView.removePageAtIndex(allPages.length -1);
+        //     roomPageView.insertPage(lastPage,0);
+        //     // roomPageView.setCurrentPageIndex(1);
+        // }
     },
     refreshData: function refreshData() {
         var url = GlobalDef.httpBaseUrl;
@@ -6461,6 +7227,7 @@ cc.Class({
         cc.director.on('onChangeUserFaceSuccess', this.onChangeUserFaceSuccess, this);
         cc.director.on('onChangeNameSuccess', this.onChangeUserFaceSuccess, this);
         cc.director.on('onBankSuccess', this.onBankSuccess, this);
+        cc.director.on('onGuestBindSuccess', this.onGuestBindSuccess, this);
         cc.director.on('onLogonRoom', this.onLogonRoom, this);
         console.log("[PlazaView][onEnable]");
     },
@@ -6468,12 +7235,29 @@ cc.Class({
         cc.director.off('onChangeUserFaceSuccess', this.onChangeUserFaceSuccess, this);
         cc.director.off('onChangeNameSuccess', this.onChangeUserFaceSuccess, this);
         cc.director.off('onBankSuccess', this.onBankSuccess, this);
+        cc.director.off('onGuestBindSuccess', this.onGuestBindSuccess, this);
         cc.director.off('onLogonRoom', this.onLogonRoom, this);
         console.log("[PlazaView][onDisable]");
     },
     onLogonRoom: function onLogonRoom(params) {
         console.log("[PlazaView][onLogonRoom]");
-        this._gameFrame.onLogonRoom(params.detail.roomInfo);
+        var self = this;
+        // this._gameFrame.onLogonRoom(params.detail.roomInfo);
+        var roomInfo = params.detail.roomInfo;
+        GlobalFun.showLoadingView({
+            closeEvent: "LogonRoomFinish",
+            loadfunc: function loadfunc() {
+                cc.director.preloadScene("GameScene", function () {
+                    cc.log("GameScene scene preloaded");
+                    self._gameFrame.onLogonRoom(roomInfo);
+                    self._gameFrame.onLogonRoom(roomInfo);
+                });
+            },
+            closefunc: function closefunc() {
+                cc.director.loadScene("GameScene");
+                // cc.sys.garbageCollect();
+            }
+        });
     },
     onChangeUserFaceSuccess: function onChangeUserFaceSuccess() {
         // var faceID = GlobalUserData.wFaceID;
@@ -6487,6 +7271,9 @@ cc.Class({
         this.refreshUI();
     },
     onBankSuccess: function onBankSuccess(params) {
+        this.refreshUI();
+    },
+    onGuestBindSuccess: function onGuestBindSuccess(params) {
         this.refreshUI();
     },
     onClickSetting: function onClickSetting() {
@@ -6509,7 +7296,6 @@ cc.Class({
     },
     onClickClient: function onClickClient(params) {
         console.log("[PlazaView][onClickClient]");
-        // GlobalFun.showToast(cc.director.getScene(),"客服功能暂未开放,敬请期待!");
         var self = this;
         if (cc.isValid(self._serviceView) === false) {
             cc.loader.loadRes("prefab/ServiceView", function (err, ServicePrefab) {
@@ -6525,7 +7311,7 @@ cc.Class({
     },
     onClickActivity: function onClickActivity(params) {
         console.log("[PlazaView][conClickActivity]");
-        GlobalFun.showToast(cc.director.getScene(), "暂未开放,敬请期待!");
+        GlobalFun.showToast({ message: "暂未开放,敬请期待!" });
     },
     onClickBank: function onClickBank(params) {
         console.log("[PlazaView][conClickBank]");
@@ -6683,12 +7469,12 @@ cc.Class({
         console.log("[RegisterView][onClickConfirmButton] " + szAccount + " # " + szPassword);
         if (szAccount.length <= 0 || szPassword.length <= 0 || szNickName.length <= 0 || szMobileAuth.length <= 0) {
             console.log("帐号密码等注册信息不能为空");
-            GlobalFun.showAlert(cc.director.getScene(), "帐号密码等注册信息不能为空");
+            GlobalFun.showAlert("帐号密码等注册信息不能为空");
             return;
         }
         if (szPassword.length < 6 || szPassword.length > 16) {
             console.log("密码长度为6-16位");
-            GlobalFun.showAlert(cc.director.getScene(), "密码长度为6-16位");
+            GlobalFun.showAlert("密码长度为6-16位");
             return;
         }
         // 通过用户中心web接口注册用户
@@ -6744,7 +7530,7 @@ cc.Class({
         var re = /1[3578][0-9]{9}/;
         if (re.exec(szAccount) === null) {
             console.log("[RegisterView][onClickSendButton] 手机号码不合法");
-            GlobalFun.showAlert(cc.director.getScene(), "手机号码不合法");
+            GlobalFun.showAlert("手机号码不合法");
             return;
         }
         var url = GlobalDef.httpUserCenter;
@@ -7084,7 +7870,7 @@ cc.Class({
                             }
                         } else {
                             if (value.msg !== undefined) {
-                                GlobalFun.showAlert(cc.director.getScene(), value.msg);
+                                GlobalFun.showAlert(value.msg);
                             }
                         }
                         cc.director.emit("ShopCompleted");
@@ -7164,11 +7950,15 @@ cc.Class({
         console.log("[ToastView][onDestroy]");
     },
     onClickConfirmButton: function onClickConfirmButton() {
+        if (typeof this._confirmfunc === "function") {
+            this._confirmfunc();
+        }
         this.node.destroy();
         console.log("[ToastView][onClickConfirmButton] destroy");
     },
     onInit: function onInit(params) {
         var szText = params.message;
+        this._confirmfunc = params.confirmfunc;
         this.m_Label_content.string = szText;
     }
 
@@ -7568,7 +8358,7 @@ cc.Class({
                 cc.director.emit("onChangeUserFaceSuccess");
                 var value = JSON.parse(response);
                 if (value.msg !== undefined) {
-                    GlobalFun.showAlert(cc.director.getScene(), value.msg);
+                    GlobalFun.showAlert(value.msg);
                 }
             }
         };
@@ -7610,7 +8400,7 @@ cc.Class({
                     }
                 }
                 if (value.msg !== undefined) {
-                    GlobalFun.showAlert(cc.director.getScene(), value.msg);
+                    GlobalFun.showAlert(value.msg);
                 }
             }
         };
@@ -7636,28 +8426,40 @@ cc.Class({
             console.log("[PlazaView][onClickChangePassword]ActionShowTanChuang callback");
         });
     },
+    onClickGuestBind: function onClickGuestBind(params) {
+        var self = this;
+        self.onClickCloseButton();
+        cc.loader.loadRes("prefab/GuestBindView", function (err, prefab) {
+            var context = cc.Canvas.instance.node;
+            if (cc.isValid(context)) {
+                var newNode = cc.instantiate(prefab);
+                context.addChild(newNode);
+                GlobalFun.ActionShowTanChuang(newNode);
+            }
+        });
+    },
     onClickConfirmButton: function onClickConfirmButton() {
         var szPassword = this.m_Editbox_originPassword.string;
         var szNewPassword = this.m_Editbox_newPassword.string;
         var szConfirmPassword = this.m_Editbox_confirmPassword.string;
         if (szPassword.length <= 0 || szNewPassword.length <= 0 || szConfirmPassword.length <= 0) {
             console.log("[PlazaView][onClickConfirmButton] 密码不能为空!");
-            GlobalFun.showAlert(cc.director.getScene(), "密码不能为空!");
+            GlobalFun.showAlert("密码不能为空!");
             return;
         }
         if (szPassword == szNewPassword) {
             console.log("[PlazaView][onClickConfirmButton] 新旧密码不能相同!");
-            GlobalFun.showAlert(cc.director.getScene(), "新旧密码不能相同!");
+            GlobalFun.showAlert("新旧密码不能相同!");
             return;
         }
         if (szConfirmPassword != szNewPassword) {
             console.log("[PlazaView][onClickConfirmButton] 确认密码不一致!");
-            GlobalFun.showAlert(cc.director.getScene(), "确认密码不一致!");
+            GlobalFun.showAlert("确认密码不一致!");
             return;
         }
         if (szNewPassword.length < 6 || szNewPassword.length > 16) {
             console.log("[PlazaView][onClickConfirmButton] 密码长度为6-16位!");
-            GlobalFun.showAlert(cc.director.getScene(), "密码长度为6-16位!");
+            GlobalFun.showAlert("密码长度为6-16位!");
             return;
         }
         var url = GlobalDef.httpBaseUrl;
@@ -7691,7 +8493,7 @@ cc.Class({
                     cc.director.emit("onChangePasswordSuccess");
                 }
                 if (value.msg !== undefined) {
-                    GlobalFun.showAlert(cc.director.getScene(), value.msg);
+                    GlobalFun.showAlert(value.msg);
                 }
             }
         };
@@ -7773,4 +8575,1143 @@ cc.Class({
 });
 
 cc._RFpop();
-},{}]},{},["AudioMng","Bridge_android","Bridge_ios","GameServerItem","GameUserItem","GlobalDef","GlobalUserData","HelloWorld","MD5","MultiPlatform","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CardItem","ChipItem","GameLogic","GameScene","GameView","UserInfaceItem","GameModel","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","GameFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","PlazaRoomItem","ServiceView","SettingView","ShopItem","ShopView","UserFaceItem","UserFaceView","UserProfileView"]);
+},{}],"labelCell":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, 'a6527xMI35HwY9ELBXxJ3eR', 'labelCell');
+// userCell/labelCell.js
+
+'use strict';
+
+cc.Class({
+    extends: require('viewCell'),
+
+    properties: {
+        index: cc.Label,
+        group: cc.Label
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    init: function init(index, data, reload, group) {
+        if (index >= data.array.length) {
+            this.index.string = '越界';
+            this.group.string = group.toString();
+            return;
+        }
+        this._target = data.target;
+        this._data = data.array[index];
+        this.index.string = index;
+        this.group.string = group.toString();
+    },
+    clicked: function clicked() {
+        this._target.show('下标:' + this.index.string + ',组:' + this.group.string);
+    }
+});
+
+cc._RFpop();
+},{"viewCell":"viewCell"}],"tableview":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, 'd7b0d7G9NFOHqFDEfigaFIC', 'tableview');
+// tableView/tableview.js
+
+"use strict";
+
+var ScrollModel = cc.Enum({ Horizontal: 0, Vertical: 1 });
+var ScrollDirection = cc.Enum({ None: 0, Up: 1, Down: 2, Left: 3, Rigth: 4 });
+var Direction = cc.Enum({ LEFT_TO_RIGHT__TOP_TO_BOTTOM: 0, TOP_TO_BOTTOM__LEFT_TO_RIGHT: 1 });
+var ViewType = cc.Enum({ Scroll: 0, Flip: 1 });
+
+var _searchMaskParent = function _searchMaskParent(node) {
+    if (cc.Mask) {
+        var index = 0;
+        var mask = null;
+        for (var curr = node; curr && curr instanceof cc.Node; curr = curr.parent, ++index) {
+            mask = curr.getComponent(cc.Mask);
+            if (mask) {
+                return {
+                    index: index,
+                    node: curr
+                };
+            }
+        }
+    }
+
+    return null;
+};
+
+//返回一个有序数组(对象,排序字段,[0-正序,1-倒序])
+var orderBy = function orderBy(o, key, desc) {
+    var a = [];
+    for (var k in o) {
+        for (var i = 0; i < a.length; i++) {
+            if (desc) {
+                if (o[k][key] > a[i][key]) {
+                    a.splice(i, 0, o[k]);
+                    break;
+                }
+            } else {
+                if (o[k][key] < a[i][key]) {
+                    a.splice(i, 0, o[k]);
+                    break;
+                }
+            }
+        }
+        if (a.length === i) {
+            a.push(o[k]);
+        }
+    }
+    return a;
+};
+
+var tableView = cc.Class({
+    extends: cc.ScrollView,
+    editor: CC_EDITOR && {
+        menu: "添加 UI 组件/tableView(自定义)",
+        help: "https://github.com/a1076559139/creator_tableView",
+        inspector: 'packages://tableView/inspector.js'
+    },
+    properties: {
+        _data: null,
+        _minCellIndex: 0, //cell的最小下标
+        _maxCellIndex: 0, //cell的最大下标
+        _paramCount: 0,
+        _count: 0, //一共有多少节点
+        _cellCount: 0, //scroll下有多少节点
+        _showCellCount: 0, //scroll一个屏幕能显示多少节点
+        //GRID模式下，对cell进行分组管理
+        _groupCellCount: null, //每组有几个节点
+
+        _scrollDirection: ScrollDirection.None,
+
+        _cellPool: null,
+        _view: null,
+
+        _page: 0, //当前处于那一页
+        _pageTotal: 0, //总共有多少页
+
+        _touchLayer: cc.Node,
+
+        _loadSuccess: false,
+        _initSuccess: false, //是否初始化成功
+        _scheduleInit: false,
+
+        cell: {
+            default: null,
+            type: cc.Prefab,
+            notify: function notify(oldValue) {}
+        },
+
+        ScrollModel: {
+            default: 0,
+            type: ScrollModel,
+            notify: function notify(oldValue) {
+                if (this.ScrollModel === ScrollModel.Horizontal) {
+                    this.horizontal = true;
+                    this.vertical = false;
+                    this.verticalScrollBar = null;
+                } else {
+                    this.vertical = true;
+                    this.horizontal = false;
+                    this.horizontalScrollBar = null;
+                }
+            },
+            tooltip: '横向纵向滑动'
+        },
+        ViewType: {
+            default: 0,
+            type: ViewType,
+            notify: function notify(oldValue) {
+                if (this.ViewType === ViewType.Flip) {
+                    this.inertia = false;
+                } else {
+                    this.inertia = true;
+                }
+            },
+            tooltip: '为Scroll时,不做解释\n为Flipw时，在Scroll的基础上增加翻页的行为'
+        },
+        isFill: {
+            default: false,
+            tooltip: '当节点不能铺满一页时，选择isFill为true会填充节点铺满整个view'
+        },
+        Direction: {
+            default: 0,
+            type: Direction,
+            tooltip: '规定cell的排列方向'
+        },
+        pageChangeEvents: {
+            default: [],
+            type: cc.Component.EventHandler,
+            tooltip: '仅当ViewType为pageView时有效，初始化或翻页时触发回调，向回调传入两个参数，参数一为当前处于哪一页，参数二为一共多少页'
+        }
+    },
+    statics: {
+        _cellPoolCache: {}
+    },
+    onLoad: function onLoad() {
+        window.s = this;
+        var self = this;
+        tableView._tableView.push(this);
+
+        //当销毁tableView的时候，回收cell
+        var destroy = this.node.destroy;
+        this.node.destroy = function () {
+            self.clear();
+            destroy.call(self.node);
+        };
+
+        var _onPreDestroy = this.node._onPreDestroy;
+        this.node._onPreDestroy = function () {
+            self.clear();
+            _onPreDestroy.call(self.node);
+        };
+    },
+    onDestroy: function onDestroy() {
+        cc.eventManager.removeListener(this._touchListener);
+        if (CC_JSB) {
+            this._touchListener.release();
+        }
+        for (var key in tableView._tableView) {
+            if (tableView._tableView[key] === this) {
+                tableView._tableView.splice(key);
+                return;
+            }
+        }
+    },
+    _addListenerToTouchLayer: function _addListenerToTouchLayer() {
+        this._touchLayer = new cc.Node();
+        var widget = this._touchLayer.addComponent(cc.Widget);
+        widget.isAlignTop = true;
+        widget.isAlignBottom = true;
+        widget.isAlignLeft = true;
+        widget.isAlignRight = true;
+        widget.top = 0;
+        widget.bottom = 0;
+        widget.left = 0;
+        widget.right = 0;
+        widget.isAlignOnce = false;
+        this._touchLayer.parent = this._view;
+
+        var self = this;
+        // 添加单点触摸事件监听器
+        this._touchListener = cc.EventListener.create({
+            event: cc.EventListener.TOUCH_ONE_BY_ONE,
+            swallowTouches: false,
+            ower: this._touchLayer,
+            mask: _searchMaskParent(this._touchLayer),
+            onTouchBegan: function onTouchBegan(touch, event) {
+                var pos = touch.getLocation();
+                var node = this.ower;
+
+                if (node._hitTest(pos, this)) {
+                    self._touchstart(touch);
+                    return true;
+                }
+                return false;
+            },
+            onTouchMoved: function onTouchMoved(touch, event) {
+                self._touchmove(touch);
+            },
+            onTouchEnded: function onTouchEnded(touch, event) {
+                self._touchend(touch);
+            }
+        });
+        if (CC_JSB) {
+            this._touchListener.retain();
+        }
+        cc.eventManager.addListener(this._touchListener, this._touchLayer);
+    },
+    _setStopPropagation: function _setStopPropagation() {
+        this.node.on('touchstart', function (event) {
+            event.stopPropagation();
+        });
+        this.node.on('touchmove', function (event) {
+            event.stopPropagation();
+        });
+        this.node.on('touchend', function (event) {
+            event.stopPropagation();
+        });
+        this.node.on('touchcancel', function (event) {
+            event.stopPropagation();
+        });
+    },
+    //初始化cell
+    _initCell: function _initCell(cell, reload) {
+        if (this.ScrollModel === ScrollModel.Horizontal && this.Direction === Direction.TOP_TO_BOTTOM__LEFT_TO_RIGHT || this.ScrollModel === ScrollModel.Vertical && this.Direction === Direction.LEFT_TO_RIGHT__TOP_TO_BOTTOM) {
+            var tag = cell.tag * cell.childrenCount;
+            for (var index = 0; index < cell.childrenCount; ++index) {
+                var node = cell.children[index];
+                var viewCell = node.getComponent('viewCell');
+                if (viewCell) {
+                    viewCell._cellInit_(this);
+                    // viewCell.init(tag + index, this._data, cell.tag);
+                    viewCell.init(tag + index, this._data, reload, [cell.tag, index]);
+                }
+            }
+        } else {
+            if (this.ViewType === ViewType.Flip) {
+                var tag = Math.floor(cell.tag / this._showCellCount);
+                var tagnum = tag * this._showCellCount * cell.childrenCount;
+                for (var index = 0; index < cell.childrenCount; ++index) {
+                    var node = cell.children[index];
+                    var viewCell = node.getComponent('viewCell');
+                    if (viewCell) {
+                        viewCell._cellInit_(this);
+                        // viewCell.init(this._showCellCount * index + cell.tag % this._showCellCount + tagnum, this._data, index + tag * cell.childrenCount);
+                        viewCell.init(this._showCellCount * index + cell.tag % this._showCellCount + tagnum, this._data, reload, [index + tag * cell.childrenCount, index]);
+                    }
+                }
+            } else {
+                for (var index = 0; index < cell.childrenCount; ++index) {
+                    var node = cell.children[index];
+                    var viewCell = node.getComponent('viewCell');
+                    if (viewCell) {
+                        viewCell._cellInit_(this);
+                        // viewCell.init(index * this._count + cell.tag, this._data, index);
+                        viewCell.init(index * this._count + cell.tag, this._data, reload, [index, index]);
+                    }
+                }
+            }
+        }
+    },
+    //设置cell的位置
+    _setCellPosition: function _setCellPosition(node, index) {
+        if (this.ScrollModel === ScrollModel.Horizontal) {
+            if (index === 0) {
+                node.x = -this.content.width * this.content.anchorX + node.width * node.anchorX;
+            } else {
+                node.x = this.content.getChildByTag(index - 1).x + node.width;
+            }
+            node.y = (node.anchorY - this.content.anchorY) * node.height;
+        } else {
+            if (index === 0) {
+                node.y = this.content.height * (1 - this.content.anchorY) - node.height * (1 - node.anchorY);
+            } else {
+                node.y = this.content.getChildByTag(index - 1).y - node.height;
+            }
+            node.x = (node.anchorX - this.content.anchorX) * node.width;
+        }
+    },
+    _addCell: function _addCell(index) {
+        var cell = this._getCell();
+        this._setCellAttr(cell, index);
+        this._setCellPosition(cell, index);
+        cell.parent = this.content;
+        this._initCell(cell);
+    },
+    _setCellAttr: function _setCellAttr(cell, index) {
+        cell.tag = index;
+        cell.zIndex = index;
+    },
+    _addCellsToView: function _addCellsToView() {
+        for (var index = 0; index <= this._maxCellIndex; ++index) {
+            this._addCell(index);
+        }
+    },
+    _getCell: function _getCell() {
+        if (this._cellPool.size() === 0) {
+            var cell = cc.instantiate(this.cell);
+
+            var node = new cc.Node();
+            node.anchorX = 0.5;
+            node.anchorY = 0.5;
+
+            var length = 0;
+            if (this.ScrollModel === ScrollModel.Horizontal) {
+                node.width = cell.width;
+                var childrenCount = Math.floor(this.content.height / cell.height);
+                node.height = this.content.height;
+
+                for (var index = 0; index < childrenCount; ++index) {
+                    if (!cell) {
+                        cell = cc.instantiate(this.cell);
+                    }
+                    cell.x = (cell.anchorX - 0.5) * cell.width;
+                    cell.y = node.height / 2 - cell.height * (1 - cell.anchorY) - length;
+                    length += cell.height;
+                    cell.parent = node;
+                    cell = null;
+                }
+            } else {
+                node.height = cell.height;
+                var childrenCount = Math.floor(this.content.width / cell.width);
+                node.width = this.content.width;
+
+                for (var index = 0; index < childrenCount; ++index) {
+                    if (!cell) {
+                        cell = cc.instantiate(this.cell);
+                    }
+                    cell.y = (cell.anchorY - 0.5) * cell.height;
+                    cell.x = -node.width / 2 + cell.width * cell.anchorX + length;
+                    length += cell.width;
+                    cell.parent = node;
+                    cell = null;
+                }
+            }
+            this._cellPool.put(node);
+        }
+        var cell = this._cellPool.get();
+        return cell;
+    },
+    _getCellSize: function _getCellSize() {
+        var cell = this._getCell();
+        var cellSize = cell.getContentSize();
+        this._cellPool.put(cell);
+        return cellSize;
+    },
+    _getGroupCellCount: function _getGroupCellCount() {
+        var cell = this._getCell();
+        var groupCellCount = cell.childrenCount;
+        this._cellPool.put(cell);
+        return groupCellCount;
+    },
+    clear: function clear() {
+        for (var index = this.content.childrenCount - 1; index >= 0; --index) {
+            this._cellPool.put(this.content.children[index]);
+        }
+        this._cellCount = 0;
+        this._showCellCount = 0;
+    },
+    reload: function reload(data) {
+        if (data !== undefined) {
+            this._data = data;
+        }
+        for (var index = this.content.childrenCount - 1; index >= 0; --index) {
+            this._initCell(this.content.children[index], true);
+        }
+    },
+    _getCellPoolCacheName: function _getCellPoolCacheName() {
+        if (this.ScrollModel === ScrollModel.Horizontal) {
+            return this.cell.name + 'h' + this.content.height;
+        } else {
+            return this.cell.name + 'w' + this.content.width;
+        }
+    },
+    _initTableView: function _initTableView() {
+        this._scheduleInit = false;
+
+        if (this._cellPool) {
+            this.clear();
+        }
+
+        var name = this._getCellPoolCacheName();
+        if (!tableView._cellPoolCache[name]) {
+            tableView._cellPoolCache[name] = new cc.NodePool('viewCell');
+        }
+        this._cellPool = tableView._cellPoolCache[name];
+
+        this._cellSize = this._getCellSize();
+        this._groupCellCount = this._getGroupCellCount();
+
+        this._count = Math.ceil(this._paramCount / this._groupCellCount);
+
+        if (this.ScrollModel === ScrollModel.Horizontal) {
+            this._view.width = this.node.width;
+            this._view.x = (this._view.anchorX - this.node.anchorX) * this._view.width;
+
+            this._cellCount = Math.ceil(this._view.width / this._cellSize.width) + 1;
+            if (this.ViewType === ViewType.Flip) {
+                if (this._cellCount > this._count) {
+                    if (this.isFill) {
+                        this._cellCount = Math.floor(this._view.width / this._cellSize.width);
+                    } else {
+                        this._cellCount = this._count;
+                    }
+                    this._showCellCount = this._cellCount;
+                    this._pageTotal = 1;
+                } else {
+                    this._pageTotal = Math.ceil(this._count / (this._cellCount - 1));
+                    this._count = this._pageTotal * (this._cellCount - 1);
+                    this._showCellCount = this._cellCount - 1;
+                }
+            } else {
+                if (this._cellCount > this._count) {
+                    if (this.isFill) {
+                        this._cellCount = Math.floor(this._view.width / this._cellSize.width);
+                    } else {
+                        this._cellCount = this._count;
+                    }
+                    this._showCellCount = this._cellCount;
+                } else {
+                    this._showCellCount = this._cellCount - 1;
+                }
+            }
+
+            this.content.width = this._count * this._cellSize.width;
+            // if (this.content.width <= this._view.width) {
+            //     this.content.width = this._view.width + 1;
+            // }
+
+            //停止_scrollView滚动
+            this.stopAutoScroll();
+            this.scrollToLeft();
+        } else {
+            this._view.height = this.node.height;
+            this._view.y = (this._view.anchorY - this.node.anchorY) * this._view.height;
+
+            this._cellCount = Math.ceil(this._view.height / this._cellSize.height) + 1;
+            if (this.ViewType === ViewType.Flip) {
+                if (this._cellCount > this._count) {
+                    if (this.isFill) {
+                        this._cellCount = Math.floor(this._view.height / this._cellSize.height);
+                    } else {
+                        this._cellCount = this._count;
+                    }
+                    this._showCellCount = this._cellCount;
+                    this._pageTotal = 1;
+                } else {
+                    this._pageTotal = Math.ceil(this._count / (this._cellCount - 1));
+                    this._count = this._pageTotal * (this._cellCount - 1);
+                    this._showCellCount = this._cellCount - 1;
+                }
+            } else {
+                if (this._cellCount > this._count) {
+                    if (this.isFill) {
+                        this._cellCount = Math.floor(this._view.height / this._cellSize.height);
+                    } else {
+                        this._cellCount = this._count;
+                    }
+                    this._showCellCount = this._cellCount;
+                } else {
+                    this._showCellCount = this._cellCount - 1;
+                }
+            }
+
+            this.content.height = this._count * this._cellSize.height;
+            // if (this.content.height <= this._view.height) {
+            //     this.content.height = this._view.height + 1;
+            // }
+
+            //停止_scrollView滚动
+            this.stopAutoScroll();
+            this.scrollToTop();
+        }
+
+        this._changePageNum(1 - this._page);
+
+        this._lastOffset = this.getScrollOffset();
+        this._minCellIndex = 0;
+        this._maxCellIndex = this._cellCount - 1;
+
+        this._addCellsToView();
+
+        this._initSuccess = true;
+    },
+    //count:cell的总个数  data:要向cell传递的数据
+    initTableView: function initTableView(paramCount, data) {
+        this._paramCount = paramCount;
+        this._data = data;
+
+        if (!this._loadSuccess) {
+            if (this.ScrollModel === ScrollModel.Horizontal) {
+                this.horizontal = true;
+                this.vertical = false;
+            } else {
+                this.vertical = true;
+                this.horizontal = false;
+            }
+            this._view = this.content.parent;
+            //为scrollBar添加size改变的监听
+            this.verticalScrollBar && this.verticalScrollBar.node.on('size-changed', function () {
+                this._updateScrollBar(this._getHowMuchOutOfBoundary());
+            }, this);
+            this.horizontalScrollBar && this.horizontalScrollBar.node.on('size-changed', function () {
+                this._updateScrollBar(this._getHowMuchOutOfBoundary());
+            }, this);
+            //给触摸层添加时间
+            this._addListenerToTouchLayer();
+            //禁止tableView点击事件向父级传递
+            this._setStopPropagation();
+            //存在Widget则在下一帧进行初始化
+            if (this.node.getComponent(cc.Widget) || this._view.getComponent(cc.Widget) || this.content.getComponent(cc.Widget)) {
+                this.scheduleOnce(this._initTableView);
+                this._scheduleInit = true;
+            } else {
+                this._initTableView();
+            }
+            this._loadSuccess = true;
+        } else {
+            if (!this._scheduleInit) {
+                this._initTableView();
+            }
+        }
+    },
+    //*************************************************重写ScrollView方法*************************************************//
+    stopAutoScroll: function stopAutoScroll() {
+        if (this._scheduleInit) {
+            this.scheduleOnce(function () {
+                this.stopAutoScroll();
+            });
+            return;
+        }
+        this._scrollDirection = ScrollDirection.None;
+        this._super();
+    },
+    scrollToBottom: function scrollToBottom(timeInSecond, attenuated) {
+        if (this._scheduleInit) {
+            this.scheduleOnce(function () {
+                this.scrollToBottom(timeInSecond, attenuated);
+            });
+            return;
+        }
+        this._scrollDirection = ScrollDirection.Up;
+        this._super(timeInSecond, attenuated);
+    },
+    scrollToTop: function scrollToTop(timeInSecond, attenuated) {
+        if (this._scheduleInit) {
+            this.scheduleOnce(function () {
+                this.scrollToTop(timeInSecond, attenuated);
+            });
+            return;
+        }
+        this._scrollDirection = ScrollDirection.Down;
+        this._super(timeInSecond, attenuated);
+    },
+    scrollToLeft: function scrollToLeft(timeInSecond, attenuated) {
+        if (this._scheduleInit) {
+            this.scheduleOnce(function () {
+                this.scrollToLeft(timeInSecond, attenuated);
+            });
+            return;
+        }
+        this._scrollDirection = ScrollDirection.Rigth;
+        this._super(timeInSecond, attenuated);
+    },
+    scrollToRight: function scrollToRight(timeInSecond, attenuated) {
+        if (this._scheduleInit) {
+            this.scheduleOnce(function () {
+                this.scrollToRight(timeInSecond, attenuated);
+            });
+            return;
+        }
+        this._scrollDirection = ScrollDirection.Left;
+        this._super(timeInSecond, attenuated);
+    },
+    scrollToOffset: function scrollToOffset(offset, timeInSecond, attenuated) {
+        if (this._scheduleInit) {
+            this.scheduleOnce(function () {
+                this.scrollToOffset(offset, timeInSecond, attenuated);
+            });
+            return;
+        }
+        var nowoffset = this.getScrollOffset();
+        var p = cc.pSub(offset, nowoffset);
+        if (this.ScrollModel === ScrollModel.Horizontal) {
+            if (p.x > 0) {
+                this._scrollDirection = ScrollDirection.Left;
+            } else if (p.x < 0) {
+                this._scrollDirection = ScrollDirection.Rigth;
+            }
+        } else {
+            if (p.y > 0) {
+                this._scrollDirection = ScrollDirection.Up;
+            } else if (p.y < 0) {
+                this._scrollDirection = ScrollDirection.Down;
+            }
+        }
+
+        this._super(offset, timeInSecond, attenuated);
+    },
+    //*******************************************************END*********************************************************//
+
+    addScrollEvent: function addScrollEvent(target, component, handler) {
+        var eventHandler = new cc.Component.EventHandler();
+        eventHandler.target = target;
+        eventHandler.component = component;
+        eventHandler.handler = handler;
+        this.scrollEvents.push(eventHandler);
+    },
+    removeScrollEvent: function removeScrollEvent(target) {
+        for (var key in this.scrollEvents) {
+            var eventHandler = this.scrollEvents[key];
+            if (eventHandler.target === target) {
+                this.scrollEvents.splice(key, 1);
+                return;
+            }
+        }
+    },
+    clearScrollEvent: function clearScrollEvent() {
+        this.scrollEvents = [];
+    },
+    addPageEvent: function addPageEvent(target, component, handler) {
+        var eventHandler = new cc.Component.EventHandler();
+        eventHandler.target = target;
+        eventHandler.component = component;
+        eventHandler.handler = handler;
+        this.pageChangeEvents.push(eventHandler);
+    },
+    removePageEvent: function removePageEvent(target) {
+        for (var key in this.pageChangeEvents) {
+            var eventHandler = this.pageChangeEvents[key];
+            if (eventHandler.target === target) {
+                this.pageChangeEvents.splice(key, 1);
+                return;
+            }
+        }
+    },
+    clearPageEvent: function clearPageEvent() {
+        this.pageChangeEvents = [];
+    },
+    scrollToNextPage: function scrollToNextPage() {
+        this.scrollToPage(this._page + 1);
+    },
+    scrollToLastPage: function scrollToLastPage() {
+        this.scrollToPage(this._page - 1);
+    },
+    scrollToPage: function scrollToPage(page) {
+        if (this.ViewType !== ViewType.Flip || page === this._page) {
+            return;
+        }
+
+        if (page < 1 || page > this._pageTotal) {
+            return;
+        }
+
+        var time = 0.3 * Math.abs(page - this._page);
+
+        this._changePageNum(page - this._page);
+
+        if (this._initSuccess) {
+            var x = this._view.width;
+            var y = this._view.height;
+            x = (this._page - 1) * x;
+            y = (this._page - 1) * y;
+            this.scrollToOffset({ x: x, y: y }, time);
+        } else {
+            this.scheduleOnce(function () {
+                var x = this._view.width;
+                var y = this._view.height;
+                x = (this._page - 1) * x;
+                y = (this._page - 1) * y;
+                this.scrollToOffset({ x: x, y: y }, time);
+            });
+        }
+    },
+    getCells: function getCells(callback) {
+        var self = this;
+        var f = function f() {
+            var cells = [];
+            var nodes = orderBy(self.content.children, 'tag');
+            for (var key in nodes) {
+                var node = nodes[key];
+                for (var k in node.children) {
+                    cells.push(node.children[k]);
+                }
+            }
+            callback(cells);
+        };
+
+        if (this._initSuccess) {
+            f();
+        } else {
+            this.scheduleOnce(f);
+        }
+    },
+    getData: function getData() {
+        return this._data;
+    },
+    getGroupsRange: function getGroupsRange(callback) {
+        var self = this;
+        var f = function f() {
+            var arr = [];
+            for (var i = self._minCellIndex; i <= self._maxCellIndex; i++) {
+                arr.push(i);
+            }
+            callback(arr);
+        };
+
+        if (this._initSuccess) {
+            f();
+        } else {
+            this.scheduleOnce(f);
+        }
+    },
+    _changePageNum: function _changePageNum(num) {
+        this._page += num;
+
+        if (this._page <= 0) {
+            this._page = 1;
+        } else if (this._page > this._pageTotal) {
+            this._page = this._pageTotal;
+        }
+
+        for (var key in this.pageChangeEvents) {
+            var event = this.pageChangeEvents[key];
+            event.emit([this._page, this._pageTotal]);
+        }
+    },
+    _touchstart: function _touchstart(event) {
+        if (this.ScrollModel === ScrollModel.Horizontal) {
+            this.horizontal = false;
+        } else {
+            this.vertical = false;
+        }
+    },
+    _touchmove: function _touchmove(event) {
+        if (this.horizontal === this.vertical) {
+            var startL = event.getStartLocation();
+            var l = event.getLocation();
+            if (this.ScrollModel === ScrollModel.Horizontal) {
+                if (Math.abs(l.x - startL.x) <= 7) {
+                    return;
+                }
+            } else {
+                if (Math.abs(l.y - startL.y) <= 7) {
+                    return;
+                }
+            }
+
+            if (this.ScrollModel === ScrollModel.Horizontal) {
+                this.horizontal = true;
+            } else {
+                this.vertical = true;
+            }
+        }
+    },
+    _touchend: function _touchend(event) {
+        if (this.ScrollModel === ScrollModel.Horizontal) {
+            this.horizontal = true;
+        } else {
+            this.vertical = true;
+        }
+
+        if (this.ViewType === ViewType.Flip && this._pageTotal > 1) {
+            this._pageMove(event);
+        }
+
+        // this._ckickCell(event);
+    },
+    _ckickCell: function _ckickCell(event) {
+        var srartp = event.getStartLocation();
+        var p = event.getLocation();
+
+        if (this.ScrollModel === ScrollModel.Horizontal) {
+            if (Math.abs(p.x - srartp.x) > 7) {
+                return;
+            }
+        } else {
+            if (Math.abs(p.y - srartp.y) > 7) {
+                return;
+            }
+        }
+
+        var convertp = this.content.convertToNodeSpaceAR(p);
+        for (var key in this.content.children) {
+            var node = this.content.children[key];
+            var nodebox = node.getBoundingBox();
+            if (nodebox.contains(convertp)) {
+                convertp = node.convertToNodeSpaceAR(p);
+                for (var k in node.children) {
+                    var cell = node.children[k];
+                    var cellbox = cell.getBoundingBox();
+                    if (cellbox.contains(convertp)) {
+                        if (cell.activeInHierarchy && cell.opacity !== 0) {
+                            cell.clicked();
+                        }
+                        return;
+                    }
+                }
+                return;
+            }
+        }
+    },
+    //移动距离小于25%则不翻页
+    _pageMove: function _pageMove(event) {
+        var x = this._view.width;
+        var y = this._view.height;
+
+        if (this.ViewType === ViewType.Flip) {
+            var offset = this.getScrollOffset();
+            var offsetMax = this.getMaxScrollOffset();
+
+            if (this.ScrollModel === ScrollModel.Horizontal) {
+                if (offset.x >= 0 || offset.x <= -offsetMax.x) {
+                    return;
+                }
+                y = 0;
+                if (Math.abs(event.getLocation().x - event.getStartLocation().x) > this._view.width / 4) {
+                    if (this._scrollDirection === ScrollDirection.Left) {
+                        if (this._page < this._pageTotal) {
+                            this._changePageNum(1);
+                        } else {
+                            return;
+                        }
+                    } else if (this._scrollDirection === ScrollDirection.Rigth) {
+                        if (this._page > 1) {
+                            this._changePageNum(-1);
+                        } else {
+                            return;
+                        }
+                    }
+                }
+            } else {
+                if (offset.y >= offsetMax.y || offset.y <= 0) {
+                    return;
+                }
+                x = 0;
+                if (Math.abs(event.getLocation().y - event.getStartLocation().y) > this._view.height / 4) {
+                    if (this._scrollDirection === ScrollDirection.Up) {
+                        if (this._page < this._pageTotal) {
+                            this._changePageNum(1);
+                        } else {
+                            return;
+                        }
+                    } else if (this._scrollDirection === ScrollDirection.Down) {
+                        if (this._page > 1) {
+                            this._changePageNum(-1);
+                        } else {
+                            return;
+                        }
+                    }
+                }
+            }
+
+            x = (this._page - 1) * x;
+            y = (this._page - 1) * y;
+
+            this.scrollToOffset({ x: x, y: y }, 0.3);
+        }
+    },
+    _getBoundingBoxToWorld: function _getBoundingBoxToWorld(node) {
+        var p = node.convertToWorldSpace(cc.p(0, 0));
+        return cc.rect(p.x, p.y, node.width, node.height);
+    },
+    _updateCells: function _updateCells() {
+        if (this.ScrollModel === ScrollModel.Horizontal) {
+            if (this._scrollDirection === ScrollDirection.Left) {
+                if (this._maxCellIndex < this._count - 1) {
+                    var viewBox = this._getBoundingBoxToWorld(this._view);
+                    do {
+                        var node = this.content.getChildByTag(this._minCellIndex);
+                        var nodeBox = this._getBoundingBoxToWorld(node);
+
+                        if (nodeBox.xMax <= viewBox.xMin) {
+                            node.x = this.content.getChildByTag(this._maxCellIndex).x + node.width;
+                            this._minCellIndex++;
+                            this._maxCellIndex++;
+                            // this._setCellAttr(node, this._maxCellIndex);
+                            // this._initCell(node);
+                            node.tag = this._maxCellIndex;
+                            if (nodeBox.xMax + (this._maxCellIndex - this._minCellIndex + 1) * node.width > viewBox.xMin) {
+                                node.zIndex = this._maxCellIndex;
+                                this._initCell(node);
+                            }
+                        } else {
+                            break;
+                        }
+                    } while (this._maxCellIndex !== this._count - 1);
+                }
+            } else if (this._scrollDirection === ScrollDirection.Rigth) {
+                if (this._minCellIndex > 0) {
+                    var viewBox = this._getBoundingBoxToWorld(this._view);
+                    do {
+                        var node = this.content.getChildByTag(this._maxCellIndex);
+                        var nodeBox = this._getBoundingBoxToWorld(node);
+
+                        if (nodeBox.xMin >= viewBox.xMax) {
+                            node.x = this.content.getChildByTag(this._minCellIndex).x - node.width;
+                            this._minCellIndex--;
+                            this._maxCellIndex--;
+                            // this._setCellAttr(node, this._minCellIndex);
+                            // this._initCell(node);
+                            node.tag = this._minCellIndex;
+                            if (nodeBox.xMin - (this._maxCellIndex - this._minCellIndex + 1) * node.width < viewBox.xMax) {
+                                node.zIndex = this._minCellIndex;
+                                this._initCell(node);
+                            }
+                        } else {
+                            break;
+                        }
+                    } while (this._minCellIndex !== 0);
+                }
+            }
+        } else {
+            if (this._scrollDirection === ScrollDirection.Up) {
+                if (this._maxCellIndex < this._count - 1) {
+                    var viewBox = this._getBoundingBoxToWorld(this._view);
+                    do {
+                        var node = this.content.getChildByTag(this._minCellIndex);
+                        var nodeBox = this._getBoundingBoxToWorld(node);
+
+                        if (nodeBox.yMin >= viewBox.yMax) {
+                            node.y = this.content.getChildByTag(this._maxCellIndex).y - node.height;
+                            this._minCellIndex++;
+                            this._maxCellIndex++;
+                            // this._setCellAttr(node, this._maxCellIndex);
+                            // this._initCell(node);
+                            node.tag = this._maxCellIndex;
+                            if (nodeBox.yMin - (this._maxCellIndex - this._minCellIndex + 1) * node.height < viewBox.yMax) {
+                                node.zIndex = this._maxCellIndex;
+                                this._initCell(node);
+                            }
+                        } else {
+                            break;
+                        }
+                    } while (this._maxCellIndex !== this._count - 1);
+                }
+            } else if (this._scrollDirection === ScrollDirection.Down) {
+                if (this._minCellIndex > 0) {
+                    var viewBox = this._getBoundingBoxToWorld(this._view);
+                    do {
+                        var node = this.content.getChildByTag(this._maxCellIndex);
+                        var nodeBox = this._getBoundingBoxToWorld(node);
+
+                        if (nodeBox.yMax <= viewBox.yMin) {
+                            node.y = this.content.getChildByTag(this._minCellIndex).y + node.height;
+                            this._minCellIndex--;
+                            this._maxCellIndex--;
+                            // this._setCellAttr(node, this._minCellIndex);
+                            // this._initCell(node);
+                            node.tag = this._minCellIndex;
+                            if (nodeBox.yMax + (this._maxCellIndex - this._minCellIndex + 1) * node.width > viewBox.yMin) {
+                                node.zIndex = this._minCellIndex;
+                                this._initCell(node);
+                            }
+                        } else {
+                            break;
+                        }
+                    } while (this._minCellIndex !== 0);
+                }
+            }
+        }
+    },
+    _getScrollDirection: function _getScrollDirection() {
+        var offset = this.getScrollOffset();
+        // var offsetMax = this.getMaxScrollOffset();
+        // if (this.ScrollModel === ScrollModel.Horizontal) {
+        //     if (offset.x >= 0 || offset.x <= -offsetMax.x) {
+        //         return;
+        //     }
+        // } else {
+        //     if (offset.y >= offsetMax.y || offset.y <= 0) {
+        //         return;
+        //     }
+        // }
+
+        var lastOffset = this._lastOffset;
+        this._lastOffset = offset;
+        offset = cc.pSub(offset, lastOffset);
+
+        if (this.ScrollModel === ScrollModel.Horizontal) {
+            if (offset.x > 0) {
+                this._scrollDirection = ScrollDirection.Rigth;
+            } else if (offset.x < 0) {
+                this._scrollDirection = ScrollDirection.Left;
+            } else {
+                this._scrollDirection = ScrollDirection.None;
+            }
+        } else {
+            if (offset.y < 0) {
+
+                this._scrollDirection = ScrollDirection.Down;
+            } else if (offset.y > 0) {
+                this._scrollDirection = ScrollDirection.Up;
+            } else {
+                this._scrollDirection = ScrollDirection.None;
+            }
+        }
+    },
+
+    // called every frame, uncomment this function to activate update callback
+    update: function update(dt) {
+        this._super(dt);
+
+        if (!this._initSuccess || this._cellCount === this._showCellCount || this._pageTotal === 1) {
+            return;
+        }
+        this._getScrollDirection();
+        this._updateCells();
+    }
+});
+tableView._tableView = [];
+tableView.reload = function () {
+    for (var key in tableView._tableView) {
+        tableView._tableView[key].reload();
+    }
+};
+tableView.clear = function () {
+    for (var key in tableView._tableView) {
+        tableView._tableView[key].clear();
+    }
+};
+
+cc.tableView = module.export = tableView;
+
+cc._RFpop();
+},{}],"viewCell":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, 'd1dfablitpJ5rXHxnkR6CpH', 'viewCell');
+// tableView/viewCell.js
+
+"use strict";
+
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        tableView: {
+            default: null,
+            visible: false
+        },
+        _isCellInit_: false,
+        _longClicked_: false
+    },
+
+    //不可以重写
+    _cellAddMethodToNode_: function _cellAddMethodToNode_() {
+        this.node.clicked = this.clicked.bind(this);
+    },
+    _cellAddTouch_: function _cellAddTouch_() {
+        this.node.on(cc.Node.EventType.TOUCH_START, function (event) {
+            if (this.node.active === true && this.node.opacity !== 0) {
+                if (!this._longClicked_) {
+                    this._longClicked_ = true;
+                    this.scheduleOnce(this._longClicked, 1.5);
+                }
+            }
+        }, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, function () {
+            if (this._longClicked_) {
+                this._longClicked_ = false;
+                this.unschedule(this._longClicked);
+            }
+        }, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, function () {
+            this.clicked();
+            if (this._longClicked_) {
+                this._longClicked_ = false;
+                this.unschedule(this._longClicked);
+            }
+        }, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, function () {
+            if (this._longClicked_) {
+                this._longClicked_ = false;
+                this.unschedule(this._longClicked);
+            }
+        }, this);
+    },
+    _cellInit_: function _cellInit_(tableView) {
+        this.tableView = tableView;
+        if (!this._isCellInit_) {
+            this._cellAddMethodToNode_();
+            this._cellAddTouch_();
+            this._isCellInit_ = true;
+        }
+    },
+    _longClicked: function _longClicked() {
+        this._longClicked_ = false;
+        this.node.emit(cc.Node.EventType.TOUCH_CANCEL);
+        this.longClicked();
+    },
+    //可以重写的方法
+
+    //需要重写的方法
+    longClicked: function longClicked() {},
+    //被点击时相应的方法
+    clicked: function clicked() {},
+
+    //加载需要初始化数据时调用
+    init: function init(index, data, reload, group) {}
+});
+
+cc._RFpop();
+},{}]},{},["CoverView","AudioMng","Bridge_android","Bridge_ios","GameServerItem","GameUserItem","GlobalDef","GlobalUserData","HelloWorld","LoadingView","MD5","MultiPlatform","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CardItem","ChipItem","GameLogic","GameScene","GameView","UserInfaceItem","GameModel","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","GameFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","GuestBindView","PlazaRoomItem","ServiceView","SettingView","ShopItem","ShopView","UserFaceItem","UserFaceView","UserProfileView","tableview","viewCell","labelCell"]);

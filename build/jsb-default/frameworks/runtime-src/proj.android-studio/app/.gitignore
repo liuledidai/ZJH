@@ -1,2 +1,7 @@
 /build
 /jniLibs
+/ZJHGAME.iml
+/build.xml
+/gradle.properties
+/local.properties
+/proguard-project.txt
