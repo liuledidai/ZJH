@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "ce9cc2f3-fe94-4017-8475-3ff16e85c829",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "plaza_btn_bank_press": {
+      "ver": "1.0.3",
+      "uuid": "4b2095bc-48e0-4907-82b7-d971c1976594",
+      "rawTextureUuid": "ce9cc2f3-fe94-4017-8475-3ff16e85c829",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 1.5,
+      "offsetY": -0.5,
+      "trimX": 3,
+      "trimY": 9,
+      "width": 133,
+      "height": 109,
+      "rawWidth": 136,
+      "rawHeight": 126,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

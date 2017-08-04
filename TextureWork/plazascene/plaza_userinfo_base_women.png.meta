@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "a35a3004-d715-45e1-8171-5f4f465ed8f8",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "plaza_userinfo_base_women": {
+      "ver": "1.0.3",
+      "uuid": "55d7af51-aa7e-4ad3-b198-c1f42450a218",
+      "rawTextureUuid": "a35a3004-d715-45e1-8171-5f4f465ed8f8",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -1,
+      "offsetY": 0,
+      "trimX": 2,
+      "trimY": 1,
+      "width": 132,
+      "height": 62,
+      "rawWidth": 138,
+      "rawHeight": 64,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}
