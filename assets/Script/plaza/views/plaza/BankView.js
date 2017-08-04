@@ -119,13 +119,13 @@ cc.Class({
             var re = /./;
             if(szGoldCount.length <= 0 || szPassWord.length <= 0){
                 console.log("[BankView][onClickConfirm] 金额或密码不能为空！");
-                GlobalFun.showAlert(cc.director.getScene(),"金额或密码不能为空!");
+                GlobalFun.showAlert("金额或密码不能为空!");
                 return;
             }
             if(Number(szGoldCount) <= 0 || Number(szGoldCount) > (GlobalUserData.llInsureScore)){
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出银行的金额限制！");
-                GlobalFun.showAlert(cc.director.getScene(),"数值不合法或超出银行的金额限制!");
+                GlobalFun.showAlert("数值不合法或超出银行的金额限制!");
                 return;
             }
 
@@ -140,13 +140,13 @@ cc.Class({
             var szGoldCount = this.m_Editbox_save_gold.string;
             if (szGoldCount.length <= 0) {
                 console.log("[BankView][onClickConfirm] 金额不能为空！");
-                GlobalFun.showAlert(cc.director.getScene(),"金额不能为空！");
+                GlobalFun.showAlert("金额不能为空！");
                 return;
             }
             if(Number(szGoldCount) <= 0 || Number(szGoldCount) > Number(GlobalUserData.llGameScore)){
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出身上金额！");
-                GlobalFun.showAlert(cc.director.getScene(),"数值不合法或超出身上金额！");
+                GlobalFun.showAlert("数值不合法或超出身上金额！");
                 return;
             }
             params["userid"] = GlobalUserData.dwUserID;
@@ -161,22 +161,22 @@ cc.Class({
             var szConfirmPassWord = this.m_Editbox_confirmPassword.string;
             if (szPassWord.length <= 0 || szNewPassWord.length <= 0 || szConfirmPassWord.length <= 0) {
                 console.log("[BankView][onClickConfirm] 密码不能为空！");
-                GlobalFun.showAlert(cc.director.getScene(),"密码不能为空！");
+                GlobalFun.showAlert("密码不能为空！");
                 return;
             }
             if(szPassWord == szNewPassWord) {
                 console.log("[BankView][onClickConfirm] 新旧密码不能相同!");
-                GlobalFun.showAlert(cc.director.getScene(),"新旧密码不能相同!");
+                GlobalFun.showAlert("新旧密码不能相同!");
                 return;
             }
             if(szConfirmPassWord != szNewPassWord) {
                 console.log("[BankView][onClickConfirm] 确认密码不一致!");
-                GlobalFun.showAlert(cc.director.getScene(),"确认密码不一致!");
+                GlobalFun.showAlert("确认密码不一致!");
                 return;
             }
             if(szNewPassWord.length < 6 || szNewPassWord.length > 16) {
                 console.log("[BankView][onClickConfirm] 密码长度为6-16位!");
-                GlobalFun.showAlert(cc.director.getScene(),"密码长度为6-16位!");
+                GlobalFun.showAlert("密码长度为6-16位!");
                 return;
             }
 
@@ -209,7 +209,7 @@ cc.Class({
                     cc.director.emit("onBankSuccess");
                     self.refreshUI();
                 }
-                GlobalFun.showAlert(cc.director.getScene(),value.msg);
+                GlobalFun.showAlert(value.msg);
             }
         };
         xhr.open("POST", url, true);

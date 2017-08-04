@@ -1,3 +1,4 @@
+var AudioMng = require("AudioMng");
 var GlobalUserData = {
     wFaceID: undefined,					//头像索引
     cbGender: undefined,						//用户性别
@@ -48,14 +49,31 @@ var GlobalUserData = {
         this.nMusic = (music_setting.musicvalue === undefined && 1.0) || music_setting.musicvalue;
         this.bEffectAble = effect_setting.effectable === undefined || effect_setting.effectable;
         this.nEffect = (effect_setting.effectvalue === undefined && 1.0) || effect_setting.effectvalue;
+
+        if (GlobalUserData.bMusicAble) {
+            AudioMng.setMusicVolume(GlobalUserData.nMusic);
+        }
+        else {
+            AudioMng.setMusicVolume(0);
+        }
+        if (GlobalUserData.bEffectAble) {
+            AudioMng.setEffectsVolume(GlobalUserData.nEffect);
+        }
+        else {
+            AudioMng.setEffectsVolume(0);
+        }
     },
     setMusicAble: function (able) {
         this.bMusicAble = able;
         if (able) {
             this.nMusic = 1.0;
+            AudioMng.setMusicVolume(GlobalUserData.nMusic);
+            AudioMng.resumeMusic();
         }
         else {
             this.nMusic = 0;
+            AudioMng.setMusicVolume(GlobalUserData.nMusic);
+            AudioMng.pauseMusic();
         }
         var music_setting = {
             musicable:able,
@@ -67,9 +85,11 @@ var GlobalUserData = {
         this.bEffectAble = able;
         if (able) {
             this.nEffect = 1.0;
+            AudioMng.setEffectsVolume(GlobalUserData.nEffect);
         }
         else {
             this.nEffect = 0;
+            AudioMng.setEffectsVolume(GlobalUserData.nEffect);
         }
         var effect_setting = {
             effectable:able,

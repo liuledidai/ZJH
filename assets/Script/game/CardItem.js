@@ -31,7 +31,7 @@ cc.Class({
         this.m_cbCardData = cbCardData;
     },
     getCardData: function () {
-        return this.m_cbCardData;  
+        return this.m_cbCardData;
     },
     showCardBack: function (bAnim) {
         console.log("[CardItem][showCardBack]");

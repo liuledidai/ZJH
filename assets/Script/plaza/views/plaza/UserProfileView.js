@@ -145,7 +145,7 @@ cc.Class({
                 cc.director.emit("onChangeUserFaceSuccess");
                 var value = JSON.parse(response);
                 if(value.msg !== undefined) {
-                    GlobalFun.showAlert(cc.director.getScene(),value.msg);
+                    GlobalFun.showAlert(value.msg);
                 }
             }
         };
@@ -188,7 +188,7 @@ cc.Class({
                     }
                 }
                 if(value.msg !== undefined) {
-                    GlobalFun.showAlert(cc.director.getScene(),value.msg);
+                    GlobalFun.showAlert(value.msg);
                 }
             }
         };
@@ -214,28 +214,40 @@ cc.Class({
             console.log("[PlazaView][onClickChangePassword]ActionShowTanChuang callback");
         })
     },
+    onClickGuestBind: function (params) {
+        var self = this;
+        self.onClickCloseButton();
+        cc.loader.loadRes("prefab/GuestBindView", function (err, prefab) {
+            var context = cc.Canvas.instance.node;
+            if (cc.isValid(context)) {
+                var newNode = cc.instantiate(prefab);
+                context.addChild(newNode);
+                GlobalFun.ActionShowTanChuang(newNode);
+            }
+        });
+    },
     onClickConfirmButton: function () {
         var szPassword = this.m_Editbox_originPassword.string;
         var szNewPassword = this.m_Editbox_newPassword.string;
         var szConfirmPassword = this.m_Editbox_confirmPassword.string;
         if(szPassword.length <= 0 || szNewPassword.length <= 0 || szConfirmPassword.length <= 0) {
             console.log("[PlazaView][onClickConfirmButton] 密码不能为空!");
-            GlobalFun.showAlert(cc.director.getScene(),"密码不能为空!");
+            GlobalFun.showAlert("密码不能为空!");
             return;
         }
         if(szPassword == szNewPassword) {
             console.log("[PlazaView][onClickConfirmButton] 新旧密码不能相同!");
-            GlobalFun.showAlert(cc.director.getScene(),"新旧密码不能相同!");
+            GlobalFun.showAlert("新旧密码不能相同!");
             return;
         }
         if(szConfirmPassword != szNewPassword) {
             console.log("[PlazaView][onClickConfirmButton] 确认密码不一致!");
-            GlobalFun.showAlert(cc.director.getScene(),"确认密码不一致!");
+            GlobalFun.showAlert("确认密码不一致!");
             return;
         }
         if(szNewPassword.length < 6 || szNewPassword.length > 16) {
             console.log("[PlazaView][onClickConfirmButton] 密码长度为6-16位!");
-            GlobalFun.showAlert(cc.director.getScene(),"密码长度为6-16位!");
+            GlobalFun.showAlert("密码长度为6-16位!");
             return;
         }
         var url = GlobalDef.httpBaseUrl;
@@ -269,7 +281,7 @@ cc.Class({
                     cc.director.emit("onChangePasswordSuccess");
                 }
                 if(value.msg !== undefined) {
-                    GlobalFun.showAlert(cc.director.getScene(),value.msg);
+                    GlobalFun.showAlert(value.msg);
                 }
             }
         };

@@ -119,7 +119,7 @@ cc.Class({
                         }
                         else {
                             if(value.msg !== undefined) {
-                                GlobalFun.showAlert(cc.director.getScene(),value.msg);
+                                GlobalFun.showAlert(value.msg);
                             }
                         }
                         cc.director.emit("ShopCompleted");

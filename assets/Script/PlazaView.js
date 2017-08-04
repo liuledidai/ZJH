@@ -70,9 +70,12 @@ cc.Class({
             cc.game.addPersistRootNode(GameFrameNode);
             this._gameFrame = GameFrameNode.getComponent("GameFrame");
         }
-        AudioMng.playMusic();
+        AudioMng.playMusic("bgm_plaza");
         // this._gameFrame = this.getScene().getChildByName("GameFrame").getComponent("GameFrame");
         this.refreshUI();
+    },
+    onDestroy: function () {
+        AudioMng.stopMusic();  
     },
     refreshUI: function () {
         console.log("[PlazaView][refreshUI]");
@@ -94,28 +97,75 @@ cc.Class({
     refreshRoomList: function () {
         var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
         console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList, null, ' '));
-        // var roomListPanel = this.roomItemList.content;
-        // roomListPanel.removeAllChildren();
-        // for (var index = 0; index < 4; index++) {
-        //     var item = cc.instantiate(this.plazaRoomItem);
-        //     item.getComponent("PlazaRoomItem").init({index:index+1,roomInfo:roomList[index]});
-        //     roomListPanel.addChild(item);
-        // }
-        var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
-        roomPageView.removeAllPages();
+        var coverView = cc.find("Canvas/scrollview").getComponent("CoverView");
+        var roomListPanel = coverView.content;
+        roomListPanel.removeAllChildren();
         for (var index = 0; index < 4; index++) {
             var item = cc.instantiate(this.plazaRoomItem);
-            var PlazaRoomItem = item.getComponent("PlazaRoomItem");
-            PlazaRoomItem.init({index:index+1,roomInfo:roomList[index]});
-            // if (index === 0) {
-            //     PlazaRoomItem.select();
-            // }
-            // else {
-            //     PlazaRoomItem.unselect();
-            // }
-            roomPageView.addPage(item);
+            item.getComponent("PlazaRoomItem").init({index:index+1,roomInfo:roomList[index]});
+            roomListPanel.addChild(item);
         }
-        roomPageView.scrollToPage(1,0.5);
+        var scContentSize = coverView.node.getContentSize();
+        var padding = roomListPanel.children[1].getPositionX() - roomListPanel.children[0].getPositionX();
+        coverView.init({
+            paddingLeft:scContentSize.width/2 - padding/2,
+            paddingRight:scContentSize.width/2 - padding/2,
+            endCallBack:()=> {
+                this.onCoverViewEndCallBack();
+            }
+        });
+        // coverView.scrollToLeft(0.1);
+        this.node.runAction(cc.sequence(
+            cc.delayTime(0.2),
+            cc.callFunc(()=> {
+                if (GlobalUserData.llGameScore < 10000) {
+                    coverView.scrollToIndex(0);
+                }
+                else if (GlobalUserData.llGameScore < 100000) {
+                    coverView.scrollToIndex(1);
+                }
+                else {
+                    coverView.scrollToIndex(2);
+                }
+                
+            })
+        ));
+        // this.scheduleOnce(coverView.scrollToLeft(0.1));
+        // var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
+        // roomPageView.removeAllPages();
+        // for (var index = 0; index < 4; index++) {
+        //     var item = cc.instantiate(this.plazaRoomItem);
+        //     var PlazaRoomItem = item.getComponent("PlazaRoomItem");
+        //     PlazaRoomItem.init({index:index+1,roomInfo:roomList[index]});
+        //     // if (index === 0) {
+        //     //     PlazaRoomItem.select();
+        //     // }
+        //     // else {
+        //     //     PlazaRoomItem.unselect();
+        //     // }
+        //     // roomPageView.addPage(item);
+        // }
+        // roomPageView.scrollToPage(1,0.5);
+    },
+    onCoverViewEndCallBack: function () {
+        var coverView = cc.find("Canvas/scrollview").getComponent("CoverView");
+        var children = coverView.content.children;
+        var curIndex = coverView.getCurIndex();
+        for (var index = 0; index < children.length; index++) {
+            var element = children[index];
+            var PlazaRoomItem = element.getComponent("PlazaRoomItem");
+            if (index === curIndex) {
+                PlazaRoomItem.select();
+            }
+            else {
+                PlazaRoomItem.unselect();
+            }
+        }
+    },
+    onScrollViewEvent: function (event) {
+        console.log(event);
+        // console.log(this.roomItemList.content);
+        console.log([this.roomItemList.getMaxScrollOffset(),this.roomItemList.getScrollOffset(),this.roomItemList.getContentPosition()]);
     },
     onPageViewEvent: function (event) {
         var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
@@ -133,19 +183,19 @@ cc.Class({
                 PlazaRoomItem.unselect()
             }
         }
-        if (curIndex === allPages.length - 1) {
-            var firstPage = cc.instantiate(allPages[0]);
-            roomPageView.removePageAtIndex(0);            
-            roomPageView.insertPage(firstPage,allPages.length);            
-            // roomPageView.setCurrentPageIndex(allPages.length - 2);
+        // if (curIndex === allPages.length - 1) {
+        //     var firstPage = cc.instantiate(allPages[0]);
+        //     roomPageView.removePageAtIndex(0);            
+        //     roomPageView.insertPage(firstPage,allPages.length);            
+        //     // roomPageView.setCurrentPageIndex(allPages.length - 2);
             
-        }
-        else if (curIndex === 0) {
-            var lastPage = cc.instantiate(allPages[allPages.length - 1]);
-            roomPageView.removePageAtIndex(allPages.length -1);
-            roomPageView.insertPage(lastPage,0);
-            // roomPageView.setCurrentPageIndex(1);
-        }
+        // }
+        // else if (curIndex === 0) {
+        //     var lastPage = cc.instantiate(allPages[allPages.length - 1]);
+        //     roomPageView.removePageAtIndex(allPages.length -1);
+        //     roomPageView.insertPage(lastPage,0);
+        //     // roomPageView.setCurrentPageIndex(1);
+        // }
     },
     refreshData: function () {
         var url = GlobalDef.httpBaseUrl;
@@ -199,6 +249,7 @@ cc.Class({
         cc.director.on('onChangeUserFaceSuccess',this.onChangeUserFaceSuccess,this);
         cc.director.on('onChangeNameSuccess',this.onChangeUserFaceSuccess,this);
         cc.director.on('onBankSuccess',this.onBankSuccess,this);
+        cc.director.on('onGuestBindSuccess',this.onGuestBindSuccess,this);
         cc.director.on('onLogonRoom',this.onLogonRoom,this);
         console.log("[PlazaView][onEnable]");
 
@@ -207,6 +258,7 @@ cc.Class({
         cc.director.off('onChangeUserFaceSuccess',this.onChangeUserFaceSuccess,this);
         cc.director.off('onChangeNameSuccess',this.onChangeUserFaceSuccess,this);
         cc.director.off('onBankSuccess',this.onBankSuccess,this);
+        cc.director.off('onGuestBindSuccess',this.onGuestBindSuccess,this);
         cc.director.off('onLogonRoom',this.onLogonRoom,this);
         console.log("[PlazaView][onDisable]");
     },
@@ -241,6 +293,9 @@ cc.Class({
         this.refreshUI();  
     },
     onBankSuccess: function (params) {
+        this.refreshUI();  
+    },
+    onGuestBindSuccess: function (params) {
         this.refreshUI();  
     },
     onClickSetting: function() {

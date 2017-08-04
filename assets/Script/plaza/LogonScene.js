@@ -3,6 +3,7 @@ var GlobalDef = require("GlobalDef");
 var GlobalUserData = require("GlobalUserData");
 var zjh_cmd = require("CMD_ZaJinHua");
 var MultiPlatform = require("MultiPlatform");
+var AudioMng = require("AudioMng");
 cc.Class({
     extends: cc.Component,
 
@@ -31,6 +32,7 @@ cc.Class({
     onLoad: function () {
         console.log("[LogonScene][onLoad]");
         GlobalUserData.init();
+        AudioMng.playMusic("bgm_plaza");
         this._logonFrame = this.node.getComponent("LogonFrame");
     },
     onEnable: function() {
@@ -85,6 +87,7 @@ cc.Class({
       this._logonFrame.onRegister(szAccount,szPassword,szNickName,szMobileAuth);
     },
     onShowLogon: function() {
+        AudioMng.playButton();
         // console.log(cc.isValid(this._logonView));
         if( cc.isValid(this._logonView) === false ){
             this._logonView = cc.instantiate(this.logonView);
@@ -95,14 +98,18 @@ cc.Class({
         })
     },
     onShowVistor: function () {
+        AudioMng.playButton();
         console.log("[LogonScene][onShowVistor]");
         // GlobalFun.showToast(cc.director.getScene(),"游客登录暂未开放,敬请期待!");
+        var szMachineID = MultiPlatform.getMachineID();
+        GlobalFun.showAlert(szMachineID);
         var url = GlobalDef.httpUserCenter;
         url += "/Guest/GuestLogin.ashx";
         var params = {};
         params["kindid"] = zjh_cmd.KIND_ID;
         params["versionnum"] = "1.1";
         params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
+        // params["useridentity"] = szMachineID;
         params["channelid"] = GlobalDef.CHANNELID_center;
         if(cc.sys.os == cc.sys.OS_IOS){
             params["os"] = "2";
@@ -161,6 +168,7 @@ cc.Class({
         
     },
     onShowRegister: function() {
+        AudioMng.playButton();
         if( cc.isValid(this._logonView) === true){
             this._logonView.destroy();
         }
@@ -174,6 +182,7 @@ cc.Class({
     },
 
     onShowWxLogon: function () {
+        AudioMng.playButton();
         MultiPlatform.showAlert(MultiPlatform.getMachineID(),MultiPlatform.getIpAddress());
     },
     // called every frame, uncomment this function to activate update callback

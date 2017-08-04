@@ -48,11 +48,11 @@ cc.Class({
     onClick: function (params) {
         console.log("[PlazaRoomItem][onClick]");  
         if(!this._roomInfo) {
-            GlobalFun.showAlert(cc.director.getScene(),"房间暂未开放，请稍后再试");
+            GlobalFun.showAlert("房间暂未开放，请稍后再试");
             return;
         }
         if(GlobalUserData.llGameScore >= this._roomInfo.lLimitScore) {
-            // GlobalFun.showAlert(cc.director.getScene(),"进入房间");
+            // GlobalFun.showAlert("进入房间");
             cc.director.emit("onLogonRoom",{roomInfo:this._roomInfo});
         }
         else {
@@ -61,15 +61,17 @@ cc.Class({
     },
     select: function () {
         var nodeBack = this.node.getChildByName("m_Node_back");
-        nodeBack.setScale(1.2,1.2);
+        // nodeBack.setScale(1.0,1.0);
         this.m_Image_col.node.runAction(cc.tintTo(0.5,255,255,255));
         this.m_Image_title.node.runAction(cc.tintTo(0.5,255,255,255));
+        this.node.getComponent(cc.Button).interactable = true;
     },
     unselect: function () {
         var nodeBack = this.node.getChildByName("m_Node_back");
-        nodeBack.setScale(1.0,1.0);
+        // nodeBack.setScale(1.0,1.0);
         this.m_Image_col.node.runAction(cc.tintTo(0.5,170,170,170));
         this.m_Image_title.node.runAction(cc.tintTo(0.5,170,170,170));
+        this.node.getComponent(cc.Button).interactable = false;
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

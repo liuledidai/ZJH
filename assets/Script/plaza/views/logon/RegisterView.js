@@ -54,12 +54,12 @@
         console.log("[RegisterView][onClickConfirmButton] "+szAccount+" # "+szPassword);
         if (szAccount.length <=0 || szPassword.length <=0 || szNickName.length <= 0 || szMobileAuth.length <= 0){
             console.log("帐号密码等注册信息不能为空");
-            GlobalFun.showAlert(cc.director.getScene(),"帐号密码等注册信息不能为空");
+            GlobalFun.showAlert("帐号密码等注册信息不能为空");
             return;
         }
         if (szPassword.length < 6 || szPassword.length > 16){
             console.log("密码长度为6-16位");
-            GlobalFun.showAlert(cc.director.getScene(),"密码长度为6-16位");
+            GlobalFun.showAlert("密码长度为6-16位");
             return;
         }
         // 通过用户中心web接口注册用户
@@ -116,7 +116,7 @@
         var re = /1[3578][0-9]{9}/;
         if (re.exec(szAccount) === null){
             console.log("[RegisterView][onClickSendButton] 手机号码不合法");
-            GlobalFun.showAlert(cc.director.getScene(),"手机号码不合法");
+            GlobalFun.showAlert("手机号码不合法");
             return;
         }
         var url = GlobalDef.httpUserCenter;

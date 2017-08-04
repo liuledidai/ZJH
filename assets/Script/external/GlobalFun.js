@@ -31,7 +31,8 @@ function showToast(params,context) {
     });
 }
 
-function showAlert(context,message) {
+function showAlert(message,context) {
+    context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         return;
     }
@@ -141,6 +142,13 @@ function PrefixInteger(num, length) {
     return (Array(length).join('0') + num).slice(-length);
 }
 
+//获得(min,max)之间的随机整数，（min<= x <= max）
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 module.exports = {
     ActionShowTanChuang: ActionShowTanChuang,
     showToast: showToast,
@@ -151,4 +159,5 @@ module.exports = {
     numberToIp:numberToIp,
     PrefixInteger:PrefixInteger,
     showLoadingView:showLoadingView,
+    getRandomInt:getRandomInt,
 };

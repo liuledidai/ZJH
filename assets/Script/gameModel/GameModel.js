@@ -2,6 +2,7 @@ var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 
+var AudioMng = require("AudioMng");
 var GameModel = cc.Class({
     extends: cc.Component,
 
@@ -28,6 +29,10 @@ var GameModel = cc.Class({
         this.onInitGameEngine();
         this.m_bOnGame = false;
         this.m_cbGameStatus = -1;
+        AudioMng.playMusic("bgm_room");
+    },
+    onDestroy: function () {
+        AudioMng.stopMusic();
     },
     onEnable: function (params) {
         console.log("[GameModel][onEnable]");

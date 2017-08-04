@@ -1,3 +1,4 @@
+var AudioMng = require("AudioMng");
 cc.Class({
     extends: cc.Component,
 
@@ -32,6 +33,7 @@ cc.Class({
         // this.scheduleOnce(function(){
         //     cc.director.loadScene("LoginScene");
         // }, 2);
+        AudioMng.loadSoundData();
     },
 
     // called every frame, uncomment this function to activate update callback

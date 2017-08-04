@@ -4,6 +4,7 @@ var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
 var GameModel = require("GameModel");
 var GameLogic = require("GameLogic");
+var AudioMng = require("AudioMng");
 cc.Class({
     extends: cc.Component,
 
@@ -252,6 +253,7 @@ cc.Class({
     },
     //比牌
     compareCard: function (firstuser,seconduser,firstcard,secondcard,bfirstwin,callback) {
+        // AudioMng.playSFX("sfx_comparecard");
         var compareView = this.node.getChildByName("compareView");
         compareView.active = true;
         compareView.runAction(cc.sequence(cc.delayTime(3.0),cc.callFunc(function () {
@@ -335,6 +337,9 @@ cc.Class({
             cc.sequence(
                 cc.delayTime(fDelay),
                 // cc.fadeIn(0),
+                cc.callFunc(function () {
+                    AudioMng.playSFX("sfx_sendcard");
+                }),
                 cc.spawn(
                     cc.fadeIn(0.1),
                     cc.moveTo(0.2,self.ptCard[viewID].x + ((viewID === zjh_cmd.MY_VIEWID) && 80 || 35) * index, self.ptCard[viewID].y),
