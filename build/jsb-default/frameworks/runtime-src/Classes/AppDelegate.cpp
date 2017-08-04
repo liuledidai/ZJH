@@ -60,7 +60,7 @@ bool AppDelegate::applicationDidFinishLaunching()
 #if(CC_TARGET_PLATFORM == CC_PLATFORM_WP8) || (CC_TARGET_PLATFORM == CC_PLATFORM_WINRT)
         glview = GLViewImpl::create("ZJHGAME");
 #else
-        glview = GLViewImpl::createWithRect("ZJHGAME", Rect(0,0,900,640));
+        glview = GLViewImpl::createWithRect("ZJHGAME", Rect(0,0,1920,1080),0.5);
 #endif
         director->setOpenGLView(glview);
     }

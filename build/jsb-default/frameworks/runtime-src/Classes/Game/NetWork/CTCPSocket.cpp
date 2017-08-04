@@ -221,6 +221,11 @@ void CTCPSocket::RecvDataUpdate(float time)
         m_NoMessageTime = 0.f;
     }
     while(vectordata.size() != 0) {
+        if (m_connecttype == unConnect ||
+            m_connecttype == Connect_Faild ||
+            m_connecttype == Connect_Kick_Out
+            ) break;
+        
         rdata = vectordata.at(0);
         if (rdata) {
             int datasize = rdata->getDatasize();
@@ -249,6 +254,7 @@ void CTCPSocket::socketClose()
         return;
     }
     m_bConnect = false;
+    m_connecttype = unConnect;
     if (m_hThread)
     {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
@@ -269,6 +275,8 @@ void CTCPSocket::socketClose()
     m_dwSendPacketCount = 0;
     m_dwRecvPacketCount = 0;
     
+    m_recvdataQueue.clear();
+    
     m_bLoop = false;
     m_wSize=0;
     Director::getInstance()->getScheduler()->unschedule(CC_SCHEDULE_SELECTOR(CTCPSocket::RecvDataUpdate), this);
@@ -280,7 +288,7 @@ void CTCPSocket::socketClose()
         CC_SAFE_DELETE(m_pSocket);
     }
     this->threadClosed();
-    m_connecttype = unConnect;
+    
 }
 
 //消息接收
