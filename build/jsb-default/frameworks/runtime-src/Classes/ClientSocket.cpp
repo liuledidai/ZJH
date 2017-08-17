@@ -17,7 +17,7 @@ ClientSocket::~ClientSocket()
 {
     if (m_Socket)
     {
-        m_Socket->socketClose();
+//        m_Socket->socketClose();
         delete m_Socket;
     }
 }
@@ -35,7 +35,10 @@ bool ClientSocket::ConnectSocket(const char* ip, WORD wPort)
 }
 void ClientSocket::releaseSocket()
 {
-    this->release();
+//    this->release();
+    if(m_Socket) {
+        m_Socket->socketClose();
+    }
 }
 ClientSocket* ClientSocket::createSocket(const std::function<void (const CCmd_Data*)> callback)
 {
@@ -43,7 +46,7 @@ ClientSocket* ClientSocket::createSocket(const std::function<void (const CCmd_Da
     pClientSocket->m_callback = callback;
     if (pClientSocket && pClientSocket->init())
     {
-        pClientSocket->autorelease();
+//        pClientSocket->autorelease();
     }
     else
     {

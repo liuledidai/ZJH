@@ -518,9 +518,12 @@ bool CTCPSocket::CrevasseBuffer(void* pData, WORD wDataSize)
     BYTE* pcbDataBuffer=(BYTE*)pData;
     
     //效验参数
-    assert(m_dwSendPacketCount>0);
-    assert(wDataSize>=sizeof(CMD_Head));
-    assert(((CMD_Head *)pcbDataBuffer)->CmdInfo.wPacketSize==wDataSize);
+    if (m_dwSendPacketCount <= 0) return false;
+    if (wDataSize < sizeof(CMD_Head)) return false;
+    if (((CMD_Head *)pcbDataBuffer)->CmdInfo.wPacketSize!=wDataSize) return false;
+//    assert(m_dwSendPacketCount>0);
+//    assert(wDataSize>=sizeof(CMD_Head));
+//    assert(((CMD_Head *)pcbDataBuffer)->CmdInfo.wPacketSize==wDataSize);
     
     //调整长度
     WORD wSnapCount=0;
