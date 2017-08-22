@@ -1,6 +1,7 @@
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
+var MultiPlatform = require("MultiPlatform");
 cc.Class({
     extends: cc.Component,
 
@@ -27,36 +28,66 @@ cc.Class({
     },
 
     // use this for initialization
-    onLoad: function () {      
+    onLoad: function () {
         this.refreshUI();
-        console.log("[ShopView][onLoad] "+JSON.stringify(GlobalUserData.shopData));
+        console.log("[ShopView][onLoad] " + JSON.stringify(GlobalUserData.shopData));
     },
     refreshUI: function (params) {
         this.shopItemList.content.removeAllChildren();
         for (var index = 0; index < this.shopItemCount; index++) {
             var item = cc.instantiate(this.shopItemPrefab);
-            var shopID;
-            if(GlobalUserData.isOpenIAP){
+            let shopID;
+            let goodsID = index;
+            if (GlobalUserData.isOpenIAP) {
                 shopID = index;
             }
-            else{
+            else {
                 shopID = index + 6;
             }
-            item.getComponent("ShopItem").init({shopID:index});
+            item.on(cc.Node.EventType.TOUCH_END, () => {
+                this.onShopItemClick(goodsID);
+            }, item);
+            item.getComponent("ShopItem").init({ shopID: goodsID });
             this.shopItemList.content.addChild(item);
         }
     },
-    onEnable: function() {
-        cc.director.on('onInCharge',this.onInCharge,this);
+    onEnable: function () {
+        // cc.director.on('onInCharge',this.onInCharge,this);
         console.log("[ShopView][onEnable]");
     },
-    onDisable: function() {
-        cc.director.off('onInCharge',this.onInCharge,this);
+    onDisable: function () {
+        // cc.director.off('onInCharge',this.onInCharge,this);
         console.log("[ShopView][onDisable]");
     },
-    onInCharge: function (params) {
+    onShopItemClick: function (goodsID) {
+        console.log("[ShopView][onShopItemClick] goodsID = ", goodsID);
+        if (GlobalUserData.isGuest) {
+            GlobalFun.showAlert({
+                message: "<color=#000000>为了您的账号安全,充值前请绑定手机号!<br/> (绑定就送<color=#FF0000>2000</c>金币,账号和手机号均限领一次)</c>",
+                btn: [
+                    {
+                        name: "去绑定",
+                        callback: () => {
+                            GlobalFun.showBindView();
+                            this.close();
+                        }
+                    },
+                    {
+                        name: "继续",
+                        callback: () => {
+                            this.onInCharge({ goodsID: goodsID })
+                        }
+                    }
+                ],
+            })
+        }
+        else {
+            this.onInCharge({ goodsID: goodsID })
+        }
+    },
+    onInCharge: function (args) {
         console.log("[ShopView][onInCharge]");
-        var goodsID = params.detail.goodsID;
+        var goodsID = args.goodsID;
         var shopDataArray = GlobalUserData.shopData.shop.base;
         if (goodsID < 0 || goodsID >= shopDataArray.length) {
             console.log("[ShopView][onInCharge] shopDataArray length = " + shopDataArray.length);
@@ -64,18 +95,18 @@ cc.Class({
         }
         var itemVal = shopDataArray[goodsID];
         var params = {};
-        
-        if(cc.sys.os == cc.sys.OS_ANDROID) {
+
+        if (cc.sys.os == cc.sys.OS_ANDROID) {
             params["userid"] = GlobalUserData.dwUserID;
             params["goods_name"] = itemVal.name;
             params["goods_num"] = "1";
             params["remark"] = "zhajinhuaGame";
             params["goods_note"] = "集结号拼三张";
-            params["user_ip"] = "127.0.0.1";//todo
-            params["user_identity"] = "usertoken";//todo
+            params["user_ip"] = MultiPlatform.getIpAddress() || "127.0.0.1";//todo
+            params["user_identity"] = MultiPlatform.getMachineID() || "usertoken";//todo
             params["productid"] = itemVal.id;
             params["os"] = "1";
-            params["versionnum"] = "1.1";
+            params["versionnum"] = MultiPlatform.getAppVersion() || "1.1";
             params["channelid"] = GlobalDef.CHANNELID_center;
             params["pay_amt"] = itemVal.price;
 
@@ -85,18 +116,18 @@ cc.Class({
 
             this.onChoosePaytype(params);
         }
-        else if(cc.sys.os == cc.sys.OS_IOS){
+        else if (cc.sys.os == cc.sys.OS_IOS) {
             params["userid"] = GlobalUserData.dwUserID;
             params["goods_name"] = itemVal.name;
             params["goods_num"] = "1";
             params["remark"] = "zhajinhuaGame";
             params["goods_note"] = "集结号拼三张";
-            params["user_ip"] = "127.0.0.1";//todo
-            params["user_identity"] = "usertoken";//todo
+            params["user_ip"] = MultiPlatform.getIpAddress() || "127.0.0.1";//todo
+            params["user_identity"] = MultiPlatform.getMachineID() || "usertoken";//todo
             params["pay_type"] = "8";
             params["productid"] = itemVal.id;
             params["os"] = "2";
-            params["versionnum"] = "1.1";
+            params["versionnum"] = MultiPlatform.getAppVersion() || "1.1";
             params["channelid"] = GlobalDef.CHANNELID_center;
 
             if (GlobalUserData.isOpenIAP) {
@@ -118,14 +149,14 @@ cc.Class({
                             }
                         }
                         else {
-                            if(value.msg !== undefined) {
-                                GlobalFun.showAlert(value.msg);
+                            if (value.msg !== undefined) {
+                                GlobalFun.showToast(value.msg);
                             }
                         }
                         cc.director.emit("ShopCompleted");
                     }
                 };
-                GlobalFun.showPopWaiting(cc.director.getScene(),{
+                GlobalFun.showPopWaiting(cc.director.getScene(), {
                     closeEvent: "ShopCompleted",
                     callBackFunc: function () {
                         console.log("[ShopView][onInCharge] callbackfunc");
@@ -150,18 +181,21 @@ cc.Class({
             var newNode = cc.instantiate(prefab);
             newNode.getComponent("ChoosePayTypeView").init(params);
             cc.director.getScene().getChildByName("Canvas").addChild(newNode);
-            GlobalFun.ActionShowTanChuang(newNode,function () {
+            GlobalFun.ActionShowTanChuang(newNode, function () {
                 console.log("[ShopView][onChoosePaytype]ActionShowTanChuang callback");
-            })            
+            })
         });
+        this.close();
+    },
+    close: function () {
         this.node.destroy();
     },
     onDestroy: function () {
         cc.sys.garbageCollect();
         console.log("[ShopView][onDestroy]");
     },
-    onClickCloseButton: function() {
-        this.node.destroy();
+    onClickCloseButton: function () {
+        this.close();
         console.log("[ShopView][onClickCloseButton] destroy");
     },
     // called every frame, uncomment this function to activate update callback

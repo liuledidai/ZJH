@@ -91,10 +91,10 @@ cc.Class({
             this.m_Button_binding.node.active = false;
             this.m_Button_changepwd.node.active = true;
         }
-        if( this._faceID !== undefined) {
-            this.onChangeUserFace();
-            cbGender = Math.floor((this._faceID - 1)/4) + 1;
-        }
+        // if( this._faceID !== undefined) {
+        //     this.onChangeUserFace();
+        //     cbGender = Math.floor((this._faceID - 1)/4) + 1;
+        // }
         var faceID = this._faceID || GlobalUserData.wFaceID;
         if (faceID <=0 || faceID > 8) {
             faceID = 1;
@@ -110,50 +110,15 @@ cc.Class({
         }
     },
     onEnable: function() {
-        // cc.director.on('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[UserProfileView][onEnable]");
 
     },
     onDisable: function() {
-        // cc.director.off('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[UserProfileView][onDisable]");
     },
     onDestroy: function () {
         cc.sys.garbageCollect();
         console.log("[UserProfileView][onDestroy]");
-    },
-    onChangeUserFace: function () {
-        var faceID = this._faceID;
-        // if (faceID <=0 || faceID > 8) {
-        //     faceID = 1;
-        // }
-        // console.log("[UserProfileView][onChangeUserFace] faceID = "+ faceID);
-        // this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
-        var url = GlobalDef.httpBaseUrl;
-        url += "/hz/hzUpdateFaceId.ashx";
-        var params = {};
-        params["userid"] = GlobalUserData.dwUserID;
-        params["faceId"] = faceID;
-        var paramString = GlobalFun.buildRequestParam(params);
-        // "datetamp=1497411512&faceId=2&userid=27142649&sign=909c47b530c68c8e97ebe407c212c7de"
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            console.log("[UserProfileView][onChangeUserFace] "+xhr.getResponseHeader("Content-Type"));
-            if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
-                var response = xhr.responseText;
-                console.log(response);
-                cc.director.emit("onChangeUserFaceSuccess");
-                var value = JSON.parse(response);
-                if(value.msg !== undefined) {
-                    GlobalFun.showAlert(value.msg);
-                }
-            }
-        };
-        xhr.open("POST", url, true);
-        // xhr.setRequestHeader("Content-Type","application/json");
-        xhr.send(paramString);
-        console.log("[UserProfileView][onChangeUserFace] " + paramString);
-
     },
     onClickCloseButton: function() {
         this.node.destroy();
@@ -188,7 +153,7 @@ cc.Class({
                     }
                 }
                 if(value.msg !== undefined) {
-                    GlobalFun.showAlert(value.msg);
+                    GlobalFun.showToast(value.msg);
                 }
             }
         };
@@ -232,22 +197,22 @@ cc.Class({
         var szConfirmPassword = this.m_Editbox_confirmPassword.string;
         if(szPassword.length <= 0 || szNewPassword.length <= 0 || szConfirmPassword.length <= 0) {
             console.log("[PlazaView][onClickConfirmButton] 密码不能为空!");
-            GlobalFun.showAlert("密码不能为空!");
+            GlobalFun.showToast("密码不能为空!");
             return;
         }
         if(szPassword == szNewPassword) {
             console.log("[PlazaView][onClickConfirmButton] 新旧密码不能相同!");
-            GlobalFun.showAlert("新旧密码不能相同!");
+            GlobalFun.showToast("新旧密码不能相同!");
             return;
         }
         if(szConfirmPassword != szNewPassword) {
             console.log("[PlazaView][onClickConfirmButton] 确认密码不一致!");
-            GlobalFun.showAlert("确认密码不一致!");
+            GlobalFun.showToast("确认密码不一致!");
             return;
         }
         if(szNewPassword.length < 6 || szNewPassword.length > 16) {
             console.log("[PlazaView][onClickConfirmButton] 密码长度为6-16位!");
-            GlobalFun.showAlert("密码长度为6-16位!");
+            GlobalFun.showToast("密码长度为6-16位!");
             return;
         }
         var url = GlobalDef.httpBaseUrl;
@@ -281,7 +246,7 @@ cc.Class({
                     cc.director.emit("onChangePasswordSuccess");
                 }
                 if(value.msg !== undefined) {
-                    GlobalFun.showAlert(value.msg);
+                    GlobalFun.showToast(value.msg);
                 }
             }
         };

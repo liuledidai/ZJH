@@ -17,6 +17,7 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
+        m_Label_bankPwd: cc.Label,
         radioButton: {
             default: [],
             type: cc.Toggle
@@ -52,18 +53,22 @@ cc.Class({
         this.refreshUI();
     },
     refreshUI: function () {
+        if (GlobalUserData.isGuest) {
+            this.m_Label_bankPwd.node.active = true;
+        }
+        else {
+            this.m_Label_bankPwd.node.active = false;
+        }
         this.m_Label_get_userGold.string = GlobalUserData.llGameScore;
         this.m_Label_save_userGold.string = GlobalUserData.llGameScore;
         this.m_Label_get_bankGold.string = GlobalUserData.llInsureScore;
         this.m_Label_save_bankGold.string = GlobalUserData.llInsureScore;
     },
     onEnable: function() {
-        // cc.director.on('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[BankView][onEnable]");
 
     },
     onDisable: function() {
-        // cc.director.off('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[BankView][onDisable]");
     },
     onDestroy: function () {
@@ -119,13 +124,13 @@ cc.Class({
             var re = /./;
             if(szGoldCount.length <= 0 || szPassWord.length <= 0){
                 console.log("[BankView][onClickConfirm] 金额或密码不能为空！");
-                GlobalFun.showAlert("金额或密码不能为空!");
+                GlobalFun.showToast("金额或密码不能为空!");
                 return;
             }
-            if(Number(szGoldCount) <= 0 || Number(szGoldCount) > (GlobalUserData.llInsureScore)){
+            if(isNaN(Number(szGoldCount)) || Number(szGoldCount) <= 0 || Number(szGoldCount) > (GlobalUserData.llInsureScore)){
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出银行的金额限制！");
-                GlobalFun.showAlert("数值不合法或超出银行的金额限制!");
+                GlobalFun.showToast("数值不合法或超出银行的金额限制!");
                 return;
             }
 
@@ -140,13 +145,13 @@ cc.Class({
             var szGoldCount = this.m_Editbox_save_gold.string;
             if (szGoldCount.length <= 0) {
                 console.log("[BankView][onClickConfirm] 金额不能为空！");
-                GlobalFun.showAlert("金额不能为空！");
+                GlobalFun.showToast("金额不能为空！");
                 return;
             }
-            if(Number(szGoldCount) <= 0 || Number(szGoldCount) > Number(GlobalUserData.llGameScore)){
+            if(isNaN(Number(szGoldCount)) || Number(szGoldCount) <= 0 || Number(szGoldCount) > Number(GlobalUserData.llGameScore)){
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出身上金额！");
-                GlobalFun.showAlert("数值不合法或超出身上金额！");
+                GlobalFun.showToast("数值不合法或超出身上金额！");
                 return;
             }
             params["userid"] = GlobalUserData.dwUserID;
@@ -161,22 +166,22 @@ cc.Class({
             var szConfirmPassWord = this.m_Editbox_confirmPassword.string;
             if (szPassWord.length <= 0 || szNewPassWord.length <= 0 || szConfirmPassWord.length <= 0) {
                 console.log("[BankView][onClickConfirm] 密码不能为空！");
-                GlobalFun.showAlert("密码不能为空！");
+                GlobalFun.showToast("密码不能为空！");
                 return;
             }
             if(szPassWord == szNewPassWord) {
                 console.log("[BankView][onClickConfirm] 新旧密码不能相同!");
-                GlobalFun.showAlert("新旧密码不能相同!");
+                GlobalFun.showToast("新旧密码不能相同!");
                 return;
             }
             if(szConfirmPassWord != szNewPassWord) {
                 console.log("[BankView][onClickConfirm] 确认密码不一致!");
-                GlobalFun.showAlert("确认密码不一致!");
+                GlobalFun.showToast("确认密码不一致!");
                 return;
             }
             if(szNewPassWord.length < 6 || szNewPassWord.length > 16) {
                 console.log("[BankView][onClickConfirm] 密码长度为6-16位!");
-                GlobalFun.showAlert("密码长度为6-16位!");
+                GlobalFun.showToast("密码长度为6-16位!");
                 return;
             }
 
@@ -209,7 +214,7 @@ cc.Class({
                     cc.director.emit("onBankSuccess");
                     self.refreshUI();
                 }
-                GlobalFun.showAlert(value.msg);
+                GlobalFun.showToast(value.msg);
             }
         };
         xhr.open("POST", url, true);

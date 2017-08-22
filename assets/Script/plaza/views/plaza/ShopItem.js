@@ -1,4 +1,5 @@
 var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
 cc.Class({
     extends: cc.Component,
 
@@ -18,7 +19,7 @@ cc.Class({
             type: cc.Sprite,
         },
         shopItemAtals: {
-            default:null,
+            default: null,
             type: cc.SpriteAtlas,
         },
         m_Label_des: cc.Label,
@@ -43,7 +44,7 @@ cc.Class({
         var itemVal = shopDataArray[this._goodsID];
         var des = itemVal.name || "";
         var price = 0;
-        if(GlobalUserData.isOpenIAP) {
+        if (GlobalUserData.isOpenIAP) {
             price = itemVal.iosprice;
         }
         else {
@@ -54,8 +55,29 @@ cc.Class({
         this.m_Image_shopItem.spriteFrame = this.shopItemAtals.getSpriteFrame("shop_icon_" + (shopID));
     },
     onClick: function (params) {
-        console.log("[ShopItem][onClick] shopID = "+this._shopID);
-        cc.director.emit('onInCharge',{goodsID:this._goodsID});
+        // console.log("[ShopItem][onClick] shopID = " + this._shopID);
+        // if (GlobalUserData.isGuest) {
+        //     GlobalFun.showAlert({
+        //         message: "<color=#000000>为了您的账号安全,充值前请绑定手机号!<br/> (绑定就送<color=#FF0000>2000</c>金币,账号和手机号均限领一次)</c>",
+        //         btn: [
+        //             {
+        //                 name: "去绑定",
+        //                 callback: function () {
+        //                     GlobalFun.showBindView();
+        //                 }
+        //             },
+        //             {
+        //                 name: "继续",
+        //                 callback: () => {
+        //                     cc.director.emit('onInCharge', { goodsID: this._goodsID });
+        //                 }
+        //             }
+        //         ],
+        //     })
+        // }
+        // else {
+        //     cc.director.emit('onInCharge', { goodsID: this._goodsID });
+        // }
     }
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

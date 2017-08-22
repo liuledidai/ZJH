@@ -12,34 +12,32 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        m_Label_content: {
-            default: null,
-            type: cc.Label,
-        },
+        m_Label_alert: cc.Label,
     },
 
     // use this for initialization
     onLoad: function () {
-
+        // this.init({message:"this is just test"});
+        console.log("[ToastView][onLoad]");
+    },
+    init: function (params) {
+        var message = params.message;
+        this.m_Label_alert.string = message;
+        this.node.opacity = 0;
+        this.node.runAction(cc.sequence(cc.fadeIn(0.5),cc.delayTime(1.0),cc.fadeOut(0.5),cc.removeSelf()));
+        console.log("[ToastView][init] message = " + message);
     },
     onDestroy: function () {
         cc.sys.garbageCollect();
         console.log("[ToastView][onDestroy]");
     },
-    onClickConfirmButton: function () {
-        if (typeof(this._confirmfunc) === "function") {
-            this._confirmfunc();
-        }
+    onDisable: function (params) {
         this.node.destroy();
-        console.log("[ToastView][onClickConfirmButton] destroy");
+        console.log("[ToastView][onDisable]");
     },
-    onInit: function (params) {
-        var szText = params.message;
-        this._confirmfunc = params.confirmfunc;
-        this.m_Label_content.string = szText;
-    }
-
-
+    onEnable: function (params) {
+        console.log("[ToastView][onEnable]");
+    },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {
 

@@ -23,6 +23,16 @@ MultiPlatform.getIpAddress = function () {
     }
 };
 
+MultiPlatform.getAppVersion = function () {
+    if (PLATFORM[cc.sys.os] && PLATFORM[cc.sys.os].getIpAddress) {
+        return PLATFORM[cc.sys.os].getAppVersion();
+    }
+    else {
+        console.log("[MultiPlatform][getAppVersion] unsupport platform -> " + cc.sys.os);
+        return "";
+    }
+}
+
 MultiPlatform.showAlert = function (title,message) {
     title = title || cc.sys.os;
     message = message || cc.sys.os;

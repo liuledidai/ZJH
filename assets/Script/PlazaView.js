@@ -3,6 +3,13 @@ var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
 var AudioMng = require("AudioMng");
+var bindText = "<size=32><color=#B35B1B>尊敬的用户，你当前为【游客模式】<br/>\
+1.绑定账号后，体验币无法转换为金币。<br/>\
+2.游客账号购买的金币，注册后等值赠送<br/>\
+3.游客账号会不定期重置，对此造成的损失，本公司概不负责。<br/>\
+为了保障你的虚拟财产安全，以及您获得更好的游戏体验，我们建议你绑定账号。<br/>\
+                                                        《集结号拼三张》团队</c></size>\
+"
 cc.Class({
     extends: cc.Component,
 
@@ -54,6 +61,7 @@ cc.Class({
             default: null,
             type: cc.Label,
         },
+        m_Label_notice: cc.RichText,
         userFaceAtals: {
             default:null,
             type: cc.SpriteAtlas,
@@ -69,13 +77,41 @@ cc.Class({
             console.log("[PlazaView][onLoad] 获取GameFrame 所在节点 并设置为常驻节点");
             cc.game.addPersistRootNode(GameFrameNode);
             this._gameFrame = GameFrameNode.getComponent("GameFrame");
+            // this._gameFrame.onCloseSocket();
         }
+        var fLabelWidth = this.m_Label_notice.node.getContentSize().width;
+        var fParenWidth = this.m_Label_notice.node.parent.getContentSize().width;
+        var runDis = (fLabelWidth + fParenWidth + 30);
+        var runTime = runDis / 80;
+        this.m_Label_notice.node.runAction(cc.repeatForever(cc.sequence(
+            cc.place((fParenWidth + 30)/2, 0),
+            cc.moveBy(runTime, -runDis, 0)
+        )))
         AudioMng.playMusic("bgm_plaza");
+        if (GlobalUserData.isGuest) {
+            GlobalFun.showAlert({
+                message: bindText,
+                textAlignment:cc.TextAlignment.LEFT,
+                btn: [
+                    {
+                        name: "继续游戏",
+                    },
+                    {
+                        name: "绑定账号",
+                        callback: () => {
+                            GlobalFun.showBindView();
+                        }
+                    }
+                ],
+            })
+        }
         // this._gameFrame = this.getScene().getChildByName("GameFrame").getComponent("GameFrame");
         this.refreshUI();
+        this.refreshRoomList();
     },
     onDestroy: function () {
         AudioMng.stopMusic();  
+        cc.sys.garbageCollect();
     },
     refreshUI: function () {
         console.log("[PlazaView][refreshUI]");
@@ -92,110 +128,26 @@ cc.Class({
         }
         this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
 
-        this.refreshRoomList();
+        // this.refreshRoomList();
     },
     refreshRoomList: function () {
         var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
         console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList, null, ' '));
-        var coverView = cc.find("Canvas/scrollview").getComponent("CoverView");
-        var roomListPanel = coverView.content;
-        roomListPanel.removeAllChildren();
-        for (var index = 0; index < 4; index++) {
-            var item = cc.instantiate(this.plazaRoomItem);
-            item.getComponent("PlazaRoomItem").init({index:index+1,roomInfo:roomList[index]});
-            roomListPanel.addChild(item);
+        var PlazaScrollRing = cc.find("Canvas/PlazaScrollRing").getComponent("PlazaScrollRing");
+        var beginx = -PlazaScrollRing.node.getContentSize().width/2;
+        var space = 600;
+        if (PlazaScrollRing) {
+            PlazaScrollRing.clearItem();
+            // PlazaScrollRing.node.getComponent(cc.Layout).enabled = true;
+            for (var index = 0; index < 4; index++) {
+                var item = cc.instantiate(this.plazaRoomItem);
+                item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
+                item.setPositionX(beginx + space*index);
+                PlazaScrollRing.addItem(item);
+            }
+             PlazaScrollRing.init();
+             PlazaScrollRing._updateToFocus("init");
         }
-        var scContentSize = coverView.node.getContentSize();
-        var padding = roomListPanel.children[1].getPositionX() - roomListPanel.children[0].getPositionX();
-        coverView.init({
-            paddingLeft:scContentSize.width/2 - padding/2,
-            paddingRight:scContentSize.width/2 - padding/2,
-            endCallBack:()=> {
-                this.onCoverViewEndCallBack();
-            }
-        });
-        // coverView.scrollToLeft(0.1);
-        this.node.runAction(cc.sequence(
-            cc.delayTime(0.2),
-            cc.callFunc(()=> {
-                if (GlobalUserData.llGameScore < 10000) {
-                    coverView.scrollToIndex(0);
-                }
-                else if (GlobalUserData.llGameScore < 100000) {
-                    coverView.scrollToIndex(1);
-                }
-                else {
-                    coverView.scrollToIndex(2);
-                }
-                
-            })
-        ));
-        // this.scheduleOnce(coverView.scrollToLeft(0.1));
-        // var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
-        // roomPageView.removeAllPages();
-        // for (var index = 0; index < 4; index++) {
-        //     var item = cc.instantiate(this.plazaRoomItem);
-        //     var PlazaRoomItem = item.getComponent("PlazaRoomItem");
-        //     PlazaRoomItem.init({index:index+1,roomInfo:roomList[index]});
-        //     // if (index === 0) {
-        //     //     PlazaRoomItem.select();
-        //     // }
-        //     // else {
-        //     //     PlazaRoomItem.unselect();
-        //     // }
-        //     // roomPageView.addPage(item);
-        // }
-        // roomPageView.scrollToPage(1,0.5);
-    },
-    onCoverViewEndCallBack: function () {
-        var coverView = cc.find("Canvas/scrollview").getComponent("CoverView");
-        var children = coverView.content.children;
-        var curIndex = coverView.getCurIndex();
-        for (var index = 0; index < children.length; index++) {
-            var element = children[index];
-            var PlazaRoomItem = element.getComponent("PlazaRoomItem");
-            if (index === curIndex) {
-                PlazaRoomItem.select();
-            }
-            else {
-                PlazaRoomItem.unselect();
-            }
-        }
-    },
-    onScrollViewEvent: function (event) {
-        console.log(event);
-        // console.log(this.roomItemList.content);
-        console.log([this.roomItemList.getMaxScrollOffset(),this.roomItemList.getScrollOffset(),this.roomItemList.getContentPosition()]);
-    },
-    onPageViewEvent: function (event) {
-        var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
-        var curIndex = roomPageView.getCurrentPageIndex();
-        var allPages = roomPageView.getPages();
-        console.log("[PlazaView][onPageViewEvent] curIndex = " + curIndex);
-        for (var index = 0; index < allPages.length; index++) {
-            var element = allPages[index];
-            var PlazaRoomItem = element.getComponent("PlazaRoomItem");
-            if (curIndex === index) {
-                PlazaRoomItem.select();
-            }
-            else {
-                // element.color = new cc.Color(170,170,170);
-                PlazaRoomItem.unselect()
-            }
-        }
-        // if (curIndex === allPages.length - 1) {
-        //     var firstPage = cc.instantiate(allPages[0]);
-        //     roomPageView.removePageAtIndex(0);            
-        //     roomPageView.insertPage(firstPage,allPages.length);            
-        //     // roomPageView.setCurrentPageIndex(allPages.length - 2);
-            
-        // }
-        // else if (curIndex === 0) {
-        //     var lastPage = cc.instantiate(allPages[allPages.length - 1]);
-        //     roomPageView.removePageAtIndex(allPages.length -1);
-        //     roomPageView.insertPage(lastPage,0);
-        //     // roomPageView.setCurrentPageIndex(1);
-        // }
     },
     refreshData: function () {
         var url = GlobalDef.httpBaseUrl;
@@ -231,7 +183,7 @@ cc.Class({
                         GlobalUserData.cbGender = value.gender;
                     }
                     if (value.isguest !== undefined) {
-                        GlobalUserData.isGuest = value.isguest;
+                        GlobalUserData.isGuest = Number(value.isguest) && true || false;
                     }
                     if (value.nickname !== undefined) {
                         GlobalUserData.szNickName = value.nickname;
@@ -333,7 +285,7 @@ cc.Class({
     },
     onClickActivity: function (params) {
         console.log("[PlazaView][conClickActivity]");
-        GlobalFun.showToast({message:"暂未开放,敬请期待!"});
+        GlobalFun.showAlert({message:"暂未开放,敬请期待!"});
     },
     onClickBank: function (params) {
         console.log("[PlazaView][conClickBank]");

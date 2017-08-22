@@ -4,6 +4,32 @@
     <dict>
         <key>frames</key>
         <dict>
+            <key>common_alert_button_ok.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{724,104},{248,100}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{248,100}}</string>
+                <key>sourceSize</key>
+                <string>{248,100}</string>
+            </dict>
+            <key>common_alert_button_ok_select.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{736,2},{248,100}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{248,100}}</string>
+                <key>sourceSize</key>
+                <string>{248,100}</string>
+            </dict>
             <key>common_btn_back_normal.png</key>
             <dict>
                 <key>frame</key>
@@ -33,7 +59,7 @@
             <key>common_btn_close_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{766,482},{94,94}}</string>
+                <string>{{862,962},{94,94}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -46,7 +72,7 @@
             <key>common_btn_close_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{766,386},{94,94}}</string>
+                <string>{{766,962},{94,94}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -59,7 +85,7 @@
             <key>common_btn_confirm_green_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{736,2},{382,138}}</string>
+                <string>{{720,206},{382,138}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -72,7 +98,7 @@
             <key>common_btn_confirm_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{876,380},{376,136}}</string>
+                <string>{{860,584},{376,136}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -85,7 +111,7 @@
             <key>common_btn_confirm_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{876,2},{376,136}}</string>
+                <string>{{860,206},{376,136}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -111,7 +137,7 @@
             <key>common_image_bg_head.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{652,386},{596,112}}</string>
+                <string>{{652,590},{596,112}}</string>
                 <key>offset</key>
                 <string>{0,1}</string>
                 <key>rotated</key>
@@ -144,7 +170,7 @@
             <key>size</key>
             <string>{1024,2048}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:853636fcbaf9c254f1cb726fbd50826c:1/1$</string>
+            <string>$TexturePacker:SmartUpdate:11a14271c4a62d098143d1528b6d55c1:1/1$</string>
             <key>textureFileName</key>
             <string>common.png</string>
         </dict>

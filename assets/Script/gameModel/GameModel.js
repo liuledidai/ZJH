@@ -33,6 +33,8 @@ var GameModel = cc.Class({
     },
     onDestroy: function () {
         AudioMng.stopMusic();
+        this._gameFrame.onCloseSocket();
+        cc.sys.garbageCollect();
     },
     onEnable: function (params) {
         console.log("[GameModel][onEnable]");
@@ -70,7 +72,26 @@ var GameModel = cc.Class({
     },
     //退出询问
     onQueryExitGame: function () {
-        this.onExitTable();
+        // this.onExitTable();
+        if (this.m_bOnGame) {
+            GlobalFun.showAlert({
+                message: "陛下，打算临战退缩吗？强退将会被笨笨的机器人托管，确定离开？",
+                btn:[
+                    {
+                        name:"取消",
+                    },
+                    {
+                        name:"确定",
+                        callback:function () {
+                            cc.director.emit("onExitRoom");
+                        }
+                    }
+                ],
+            })
+        }
+        else {
+            this.onExitRoom();
+        }
     },
     standUpAndQuit: function () {
         
@@ -87,7 +108,9 @@ var GameModel = cc.Class({
         }
     },
     onExitRoom: function () {
-        this._gameFrame.onCloseSocket();
+        this._gameFrame.sendStandupPacket();
+        this._gameFrame.sendLeftGamePacket();
+        // this._gameFrame.onCloseSocket();
         this.killGameClock();  
     },
     onKeyBack: function () {
@@ -151,8 +174,8 @@ var GameModel = cc.Class({
     },
     //计时器更新
     onClockUpdata: function (dt) {
-        console.log("---------------------------dt = " + dt);
-        console.log("[GameModel][onClockUpdata] chair = " + this._ClockChair + " time = " + this._ClockTime + " id = " + this._ClockID);
+        // console.log("---------------------------dt = " + dt);
+        // console.log("[GameModel][onClockUpdata] chair = " + this._ClockChair + " time = " + this._ClockTime + " id = " + this._ClockID);
         if (this._ClockID !== GlobalDef.INVALID_ITEM) {
             this._ClockTime = this._ClockTime - 1;
             var ret = this.onEventGameClockInfo(this._ClockChair, this._ClockTime, this._ClockID);

@@ -105,6 +105,13 @@ cc.Class({
             this.m_userHead[index].score = userHeadList[index].getChildByName("game_gold_back").children[0].getComponent(cc.Label);
             this.m_userHead[index].bg = userHeadList[index];
             this.m_userHead[index].bg.active = false;
+            let idx = index;
+            userNode.on(cc.Node.EventType.TOUCH_END,() => {
+                this.onShowUserInfo(idx);
+            },this)
+            this.m_userHead[index].bg.on(cc.Node.EventType.TOUCH_END,() => {
+                this.onShowUserInfo(idx);
+            },this)
 
             //计时器
             this.m_timeProgress[index] = userHeadList[index].getComponent(cc.ProgressBar);
@@ -173,7 +180,7 @@ cc.Class({
 
     //更新时钟
     onUpdateClockView: function (viewID, time) {
-        console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
+        // console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
         if (time <= 0) {
             this.m_Progress_time.node.active = false;
             if (this.m_timeProgress[viewID]) {
@@ -209,12 +216,14 @@ cc.Class({
             this.m_userHead[viewID].bg.active = true;
             this.m_userHead[viewID].name.string = userItem.szName;
             this.m_userHead[viewID].score.string = userItem.lScore;
+            this.m_userHead[viewID].userItem = userItem;
         }
         else{
             this.m_flagReady[viewID].active = false;
             this.m_userHead[viewID].name.string = "";
             this.m_userHead[viewID].score.string = "";
             this.m_userHead[viewID].bg.active = false;
+            this.m_userHead[viewID].userItem = undefined;
         }
     },
     //牌类型介绍的弹出与弹入
@@ -364,7 +373,21 @@ cc.Class({
             cardNode.active = true;
         }
         this.m_GiveUp[viewID].active = bGiveup;
+        this.m_GiveUp[viewID].getComponentInChildren(cc.Label).string = "弃牌";
         if (bGiveup) {
+            this.setLookCard(viewID, false);
+        }
+    },
+    //比牌输状态
+    setUserLose: function (viewID, bLose) {
+        var nodeCard = this.m_userCard[viewID];
+        for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
+            var cardNode = nodeCard.card[i];
+            cardNode.active = true;
+        }
+        this.m_GiveUp[viewID].active = bLose;
+        this.m_GiveUp[viewID].getComponentInChildren(cc.Label).string = "比牌输";
+        if (bLose) {
             this.setLookCard(viewID, false);
         }
     },
@@ -478,7 +501,37 @@ cc.Class({
         this._scene.onAutoFollow();
     },
     onClickChat: function() {
-        this._scene.sendTextChat('hello world');
+        // this._scene.sendTextChat('hello world');
+        console.log("[GameView][onClickChat]");
+        var self = this;
+        if( cc.isValid(self._chatView) === false ){
+            cc.loader.loadRes("prefab/GameChatView", function (err, chatPrefab) {
+                if (cc.isValid(self.node)) {
+                    self._chatView = cc.instantiate(chatPrefab);
+                    self.node.addChild(self._chatView);
+                    // self._chatView.getComponent("GameChatView")
+                    // GlobalFun.ActionShowTanChuang(self._serviceView,function () {
+                    //     console.log("[PlazaView][onClickClient]ActionShowTanChuang callback");
+                    // });
+                }
+            });
+        }
+    },
+    onClickSetting: function () {
+        console.log("[GameView][onClickSetting]");
+        var self = this;
+        if( cc.isValid(self._settingView) === false ){
+            cc.loader.loadRes("prefab/GameSettingView", function (err, settingPrefab) {
+                if (cc.isValid(self.node)) {
+                    self._settingView = cc.instantiate(settingPrefab);
+                    self.node.addChild(self._settingView);
+                    // self._chatView.getComponent("GameChatView")
+                    GlobalFun.ActionShowTanChuang(self._settingView,function () {
+                        console.log("[GameView][onClickSetting]ActionShowTanChuang callback");
+                    });
+                }
+            });
+        }
     },
     //按键响应
     onStartGame: function () {
@@ -516,11 +569,33 @@ cc.Class({
     onCompareChoose: function (event,index) {
         this._scene.onCompareChoose(index);
     },
+    onLastAdd: function () {
+        this._scene.onLastAdd();
+    },
     onAddScore: function (event,params) {
         console.log(params);
         this._scene.addScore(params);  
         // var arr = [0,1000,10000,100000];
         // this.playerJetton(zjh_cmd.MY_VIEWID,arr[params]);
+    },
+    onShowUserInfo: function (index) {
+        console.log("[GameView][onShowUserInfo] index = " + index);  
+        // this._scene.onShowUserInfo(index);
+        var userItem = this.m_userHead[index].userItem;
+        var self = this;
+        if( cc.isValid(self._gameUserInfoView) === false ){
+            cc.loader.loadRes("prefab/GameUserInfoView", function (err, UserInfoPrefab) {
+                if (cc.isValid(self.node)) {
+                    self._gameUserInfoView = cc.instantiate(UserInfoPrefab);
+                    self.node.addChild(self._gameUserInfoView);
+                    var gameUserInfoView = self._gameUserInfoView.getComponent("GameUserInfoView");
+                    gameUserInfoView.init(userItem);
+                    GlobalFun.ActionShowTanChuang(self._gameUserInfoView,function () {
+                        console.log("[GameView][onShowUserInfo]ActionShowTanChuang callback");
+                    });
+                }
+            });
+        }
     },
     //
     // called every frame, uncomment this function to activate update callback

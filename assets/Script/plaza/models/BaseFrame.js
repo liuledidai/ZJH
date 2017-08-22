@@ -60,9 +60,10 @@ var BaseFrame = cc.Class({
     onSocketError: function(pData){
       if(this._threadid === undefined)
       {
+          console.log("[BaseFrame][onSocketError] _threadid undefined")
           return
       }
-      
+      console.log("[BaseFrame][onSocketError] 服务器连接异常，请稍后重试");
       this.onCloseSocket();
       cc.director.emit("LoadingViewError",{msg:"服务器连接异常，请稍后重试",type:GlobalDef.SMT_CLOSE_GAME});
       //todo...

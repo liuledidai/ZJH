@@ -14,6 +14,12 @@ Bridge_ios.getIpAddress = function () {
     return ret;
 };
 
+//获取游戏version
+Bridge_ios.getAppVersion = function () {
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE,"getAppVersion");
+    return ret;
+};
+
 Bridge_ios.showAlert = function (title,message) {
     var ret = jsb.reflection.callStaticMethod(BRIDGE_CLASS,"showAlert:andContent:",title,message);
     return ret;

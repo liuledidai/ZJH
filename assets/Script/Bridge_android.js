@@ -15,6 +15,13 @@ Bridge_android.getIpAddress = function () {
     return ret;
 };
 
+//获取游戏version
+Bridge_android.getAppVersion = function () {
+    var sigs = "()Ljava/lang/String;"
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE,"getAppVersion",sigs);
+    return ret;
+};
+
 Bridge_android.showAlert = function (title,message) {
     var sigs = "(Ljava/lang/String;Ljava/lang/String;)V"
     var ret = jsb.reflection.callStaticMethod(BRIDGE_CLASS,"showAlert",sigs,title,message);

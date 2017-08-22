@@ -41,6 +41,9 @@ cc.Class({
         this._gameView = this.node.getComponent("GameView");
 
     },
+    onDestroy: function () {
+        this._super();
+    },
     onEnable: function (params) {
         // cc.director.on("onEventGameMessage",this.onEventGameMessage,this);
         this._super();
@@ -49,6 +52,10 @@ cc.Class({
         // cc.director.off("onEventGameMessage",this.onEventGameMessage,this);
         this._super();
         // this.onExitRoom();
+    },
+    onExitRoom: function () {
+        this._super();
+        cc.director.loadScene("PlazaScene");
     },
     onInitGameEngine: function () {
         this._super();
@@ -72,6 +79,7 @@ cc.Class({
         this.m_wWinnerUser = GlobalDef.INVALID_CHAIR;//胜利用户
 
         this.m_llAllTableScore = 0;
+        this.m_bLastAddOver = false; //是否孤注一掷结束
 
         // this.setGameClock(zjh_cmd.MY_VIEWID, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME)
     },
@@ -91,6 +99,7 @@ cc.Class({
         this.m_wLostUser = GlobalDef.INVALID_CHAIR;//比牌失败
         this.m_wWinnerUser = GlobalDef.INVALID_CHAIR;//胜利用户
         this.m_llAllTableScore = 0;
+        this.m_bLastAddOver = false;//是否孤注一掷结束
         // this.setGameClock(zjh_cmd.MY_VIEWID, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME)
     },
     //设置计时器
@@ -138,7 +147,7 @@ cc.Class({
     },
     //时钟处理
     onEventGameClockInfo: function (chair, time, clockID) {
-        console.log("[GameScene][onEventGameClockInfo] chair = " + chair + " time = " + time + " clockID = " + clockID);
+        // console.log("[GameScene][onEventGameClockInfo] chair = " + chair + " time = " + time + " clockID = " + clockID);
         if (chair !== GlobalDef.INVALID_CHAIR && chair !== this.getMeChairID()) {
             return;
         }
@@ -541,7 +550,7 @@ cc.Class({
 
     },
     onSubLookCard: function (sub, pData) {
-        AudioMng.playSFX("sfx_lookcard");        
+        AudioMng.playSFX("sfx_lookcard");
         console.log("[GameScene][onSubLookCard]");
         //看牌数据包
         // struct CMD_S_LookCard
@@ -614,7 +623,7 @@ cc.Class({
         var self = this;
         var firstUser = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), compareCard.wCompareUser[0]);
         var secondUser = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), compareCard.wCompareUser[1]);
-        this._gameView.compareCard(firstUser, secondUser, undefined, undefined, compareCard.wCompareUser[0] === this.m_wWinnerUser, function name(params) {
+        this._gameView.compareCard(firstUser, secondUser, undefined, undefined, compareCard.wCompareUser[0] === this.m_wWinnerUser, function (params) {
             self.onFlushCardFinish();
             self.playSound(SoundEffectType.kSoundEffectBiPaiShiBai, self.m_wLostUser);
         })
@@ -622,7 +631,10 @@ cc.Class({
         AudioMng.playSFX("sfx_comparecard");
     },
     onFlushCardFinish: function () {
+        console.log("[onFlushCardFinish]time = ", Date.now());
         //todo
+        var viewID = this.switchViewChairID(this.m_wLostUser);
+        this._gameView.setUserLose(viewID, true);
         this._gameView.stopCompareCard();
         var count = this.getPlayingNum();
         if (count > 1) {
@@ -647,9 +659,16 @@ cc.Class({
         //     WORD								wWinner;							//胜利用户
         // };
         var myChair = this.getMeChairID();
+        //8轮结束开牌发送
         if (this.m_cbPlayStatus[myChair] === 1 && !this.m_bLastAddOver) {
-            var data = CCmd_Data.create();
-            this.sendData(zjh_cmd.SUB_C_FINISH_FLASH, data);
+            this.node.runAction(cc.sequence(
+                cc.delayTime(1.0),
+                cc.callFunc(() => {
+                    var data = CCmd_Data.create();
+                    //比牌结束定时器
+                    this.sendData(zjh_cmd.SUB_C_FINISH_FLASH, data);
+                })
+            ))
         }
     },
     onSubGiveUp: function (sub, pData) {
@@ -687,6 +706,7 @@ cc.Class({
         this._gameView.m_Node_player[wViewChairID].active = false;
     },
     onSubGameEnd: function (sub, pData) {
+        console.log("[onSubGameEnd]time = ", Date.now());
         console.log("[GameScene][onSubGameEnd]");
         //游戏结束
         // struct CMD_S_GameEnd
@@ -750,9 +770,19 @@ cc.Class({
                     this._gameView.setUserCardType(viewID, saveType[i], "win_");
                     if (i === myChair) {
                         AudioMng.playSFX("sfx_gamewin");
+                        GlobalFun.playEffects(this.node, {
+                            fileName: "yx_wlg3",
+                            anim: "yx_win",
+                            loop: false,
+                        });
                     }
                     else {
                         AudioMng.playSFX("sfx_gamelose");
+                        GlobalFun.playEffects(this.node, {
+                            fileName: "yx_wlg3",
+                            anim: "yx_lose",
+                            loop: false,
+                        });
                     }
                 }
                 else {
@@ -844,6 +874,8 @@ cc.Class({
     },
     onSubLastAdd: function (sub, pData) {
         console.log("[GameScene][onSubLastAdd]");
+        console.log("[onSubLastAdd]time = ", Date.now());
+
         //孤注一掷
         // struct CMD_S_LastAdd
         // {
@@ -867,14 +899,84 @@ cc.Class({
         lastAdd.lCurrentTurn = pData.readint();
 
         this.m_lCurrentTurn = lastAdd.lCurrentTurn;
+        this.m_wCurrentUser = lastAdd.wCurrentUser;
 
+        var wStartLastAddUser = lastAdd.wStartLastAddUser;
+        
+        //播放孤注一掷动画
+        GlobalFun.playEffects(this.node, {
+            fileName: "yx_wlg3",
+            anim: "yx_gzyz",
+            loop: false,
+        });
+
+        var delayTime = 1.6;
+        //播放比牌动画
+        for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+            if (lastAdd.wCompareUser[i] !== GlobalDef.INVALID_CHAIR && lastAdd.wLostUser[i] !== GlobalDef.INVALID_CHAIR) {
+                let wCompareUser = lastAdd.wCompareUser[i];
+                let wLostUser = lastAdd.wLostUser[i];
+                var self = this;
+                let firstUser = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), wStartLastAddUser);
+                let secondUser = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), wCompareUser);
+                this.node.runAction(cc.sequence(
+                    cc.delayTime(delayTime),
+                    cc.callFunc(() => {
+                        this.playSound(SoundEffectType.kSoundEffectFaQiBiPai, wStartLastAddUser);
+                        AudioMng.playSFX("sfx_comparecard");
+                        this._gameView.compareCard(firstUser, secondUser, undefined, undefined, wStartLastAddUser !== wLostUser, function name(params) {
+                            console.log("[onSubLastAdd][onFlushCardFinish]time = ", Date.now());
+                            self.onFlushCardFinish();
+                            self.playSound(SoundEffectType.kSoundEffectBiPaiShiBai, wLostUser);
+                        })
+                    })
+                ))
+                delayTime += 1.5;
+            }
+        }
+        //找到被淘汰的玩家
+        if (this.m_wCurrentUser !== GlobalDef.INVALID_CHAIR) {
+            for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+                if (lastAdd.wCompareUser[i] !== GlobalDef.INVALID_CHAIR && lastAdd.wLostUser[i] !== GlobalDef.INVALID_CHAIR) {
+                    var wLostUser = lastAdd.wLostUser[i];
+                    this.m_cbPlayStatus[wLostUser] = 0;
+                    //如果自己被淘汰
+                    if (wLostUser === this.getMeChairID()) {
+                        this.updateControl();
+                    }
+                    // this._gameView.setUserCard()
+                }
+            }
+            this.node.runAction(cc.sequence(
+                cc.delayTime(delayTime),
+                cc.callFunc(()=>{
+                    if (this.m_wCurrentUser === this.getMeChairID()) {
+                        this.updateControl();
+                    }
+                    this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
+                })
+            ))
+        }
+        else {
+            this.m_bLastAddOver = true;
+            if (this.m_cbPlayStatus[this.getMeChairID()]) {
+                this.node.runAction(cc.sequence(
+                    cc.delayTime(delayTime),
+                    cc.callFunc(()=> {
+                        var data = CCmd_Data.create();
+                        this.sendData(zjh_cmd.SUB_C_FINISH_FLASH, data);
+                    })
+                ))
+            }
+        }
     },
-    onClickChangeTable: function (params) {
-        this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR)
-    },
+    // onClickChangeTable: function (params) {
+    //     this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR)
+    // },
     onClickQuit: function (params) {
-        this._gameFrame.sendStandupPacket();
-        cc.director.loadScene("PlazaScene");
+        // this._gameFrame.sendStandupPacket();
+        // cc.director.loadScene("PlazaScene");
+        this.onQueryExitGame();
     },
     // sendData : function (sub, dataBuf) {
     //     if (this._gameFrame) {
@@ -1028,7 +1130,14 @@ cc.Class({
 
     //换位操作
     onChangeDesk: function () {
-        this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR)
+        if (this.m_bOnGame) {
+            GlobalFun.showAlert({
+                message: "陛下，游戏中无法切换座位。",
+            })
+        }
+        else {
+            this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR)
+        }
     },
 
     //看牌操作
@@ -1082,6 +1191,16 @@ cc.Class({
         //发送数据
         this.onSendAddScore(addScore, false);
     },
+    //孤注一掷
+    onLastAdd: function () {
+        var dataBuf = CCmd_Data.create();
+        this.sendData(zjh_cmd.SUB_C_LAST_ADD, dataBuf);
+        this.killGameClock();
+        this.m_wCurrentUser = GlobalDef.INVALID_CHAIR;
+    },
+    onShowUserInfo: function (index) {
+        var userItem = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), index);
+    },
     //更新按钮控制
     updateControl: function () {
 
@@ -1111,9 +1230,10 @@ cc.Class({
         var followScore = this.m_lCurrentTimes * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
         var followLabel = this._gameView.m_Button_follow.node.children[0].getComponent(cc.Label);
         followLabel.string = followScore;
-        if (maxAddScore < followScore) {
-            this._gameView.m_Button_follow.interactable = false;
-        }
+        // if (maxAddScore < followScore) {
+        // console.log("[GameScene][updateControl] [this.m_lUserMaxScore, this.m_lTableScore[myChair], followScore]" + [this.m_lUserMaxScore, this.m_lTableScore[myChair], followScore])
+        this._gameView.m_Button_follow.interactable = !(maxAddScore < followScore);
+        // }
         // //是否第一次下注
 
         // var textLabel = children[0].children[0].getComponent(cc.Label);

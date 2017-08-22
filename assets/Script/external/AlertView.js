@@ -12,32 +12,63 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        m_Label_alert: cc.Label,
+        m_Label_content: {
+            default: null,
+            type: cc.RichText,
+        },
+        m_Layout_btnSet: cc.Node,
     },
 
     // use this for initialization
     onLoad: function () {
-        // this.init({message:"this is just test"});
-        console.log("[AlertView][onLoad]");
-    },
-    init: function (params) {
-        var message = params.message;
-        this.m_Label_alert.string = message;
-        this.node.opacity = 0;
-        this.node.runAction(cc.sequence(cc.fadeIn(0.5),cc.delayTime(1.0),cc.fadeOut(0.5),cc.removeSelf()));
-        console.log("[AlertView][init] message = " + message);
+
     },
     onDestroy: function () {
-        cc.sys.garbageCollect();
+        // cc.sys.garbageCollect();
         console.log("[AlertView][onDestroy]");
     },
-    onDisable: function (params) {
+    close: function (callback) {
+        if (typeof callback === "function") {
+            callback();
+        }
         this.node.destroy();
-        console.log("[AlertView][onDisable]");
     },
-    onEnable: function (params) {
-        console.log("[AlertView][onEnable]");
-    },
+    init: function (params) {
+        var szText = params.message || "";
+        console.log("[AlertView]",this.m_Label_content.horizontalAlign);
+        var textAlignment;
+        if (params.textAlignment !== undefined) {
+            textAlignment = params.textAlignment;
+        }
+        else {
+            textAlignment = cc.TextAlignment.CENTER;
+        }
+        this.m_Label_content.horizontalAlign = textAlignment;
+        console.log("[AlertView]",this.m_Label_content.horizontalAlign);        
+        this.m_Label_content.string = szText;
+        var btnNumber = 0;
+        if (params.btn && params.btn.length > 0) {
+            btnNumber = params.btn.length;
+        }
+        else {
+            params.btn = [{name:"确定"}];
+            btnNumber = 1;
+        }
+        for (var i = 0; i < btnNumber; i++) {
+            console.log("[AlertView] btn ",i,params.btn[i].name);
+            let btn = this.m_Layout_btnSet.children[i];
+            let btn_callback = params.btn[i].callback;
+            if (!cc.isValid(btn)) break;
+            btn.active = true;
+            btn.on(cc.Node.EventType.TOUCH_END,()=>{
+                this.close(btn_callback);
+            },this);
+            let label = btn.getComponentInChildren(cc.Label);
+            label.string = params.btn[i].name;
+        }
+    }
+
+
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {
 

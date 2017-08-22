@@ -1,0 +1,120 @@
+var GlobalUserData = require("GlobalUserData");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        scroll_offset: 0,
+        m_Label_name: cc.Label,
+        m_Label_gold: cc.Label,
+        m_Label_meili: cc.Label,
+        m_Label_renqi: cc.Label,
+        m_Label_ID: cc.Label,
+        m_scrollView: cc.ScrollView,
+        m_toggle_all: cc.Toggle,
+        m_Image_userface: cc.Sprite,
+        m_Image_gender: cc.Sprite,
+        gameUserAtlas: cc.SpriteAtlas,
+        facePrefab: cc.Prefab,
+        userFaceAtals: cc.SpriteAtlas,
+        _selectIndex: -1,
+        
+    },
+
+    // use this for initialization
+    onLoad: function () {
+
+    },
+    init: function (userItem) {
+        if (userItem === undefined) {
+            console.log("[GameUserInfoView][init] userItem is undefined");
+            return;
+        }
+        console.log("[GameUserInfoView] " + JSON.stringify(userItem,null,' '));
+        var szNickName = userItem.szName;
+        var szGold = userItem.lScore;
+        var szMeili = 0;
+        var szRenqi = 0;
+        var dwUserID = userItem.dwUserID;
+        var cbGender = userItem.cbGender;
+
+        this.m_Label_name.string = szNickName;
+        this.m_Label_gold.string = szGold;
+        this.m_Label_meili.string = szMeili;
+        this.m_Label_renqi.string = szRenqi;
+        this.m_Label_ID.string = dwUserID;
+
+        var faceID = userItem.wFaceID;
+        if (faceID <= 0 || faceID > 8) {
+            faceID = 1;
+        }
+        var szGenderImgName = "gameuser_man";
+        if (cbGender == 1) {
+            szGenderImgName = "gameuser_man";
+        }
+        else {
+            szGenderImgName = "gameuser_woman";
+        }
+        this.m_Image_gender.spriteFrame = this.gameUserAtlas.getSpriteFrame(szGenderImgName);
+        this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
+
+        this._presentData = GlobalUserData.presentData;
+        this.refreshPresentList();
+    },
+    refreshPresentList: function () {
+        var itemList = this._presentData['present']['base'];
+        var contentList = this.m_scrollView.content;
+        contentList.removeAllChildren();
+        for (var i = 0; i < itemList.length; i++) {
+            var element = itemList[i];
+            var newNode = cc.instantiate(this.facePrefab);
+            newNode.active = true;
+            contentList.addChild(newNode);
+            newNode.getComponent("PresentNode").init(element);
+            let idx = i;
+            newNode.on(cc.Node.EventType.TOUCH_END,() => {
+                this.onPresentTouch(idx);
+            },this);
+        }
+    },
+    onPresentTouch: function (idx) {
+        var children = this.m_scrollView.content.children;
+        if (this._selectIndex >= 0 && cc.isValid(children[this._selectIndex])) {
+            children[this._selectIndex].getComponent("PresentNode").setSelect(false);
+        }
+        this._selectIndex = idx;
+        if (idx >= 0 && cc.isValid(children[idx]) ) {
+            children[idx].getComponent("PresentNode").setSelect(true);
+        }
+    },
+    onArrowLeft: function (params) {
+        var offset = new cc.Vec2(this.scroll_offset,0);
+        this.scrollOffsetBy(offset);
+    },
+    onArrowRight: function (params) {
+        var offset = new cc.Vec2(-this.scroll_offset,0);
+        this.scrollOffsetBy(offset);
+    },
+    scrollOffsetBy: function (offset) {
+        var curOffset = this.m_scrollView.getScrollOffset();
+        var endOffset = curOffset.add(offset);
+        console.log("[curOffset,offset,endOffset] = " + [curOffset,offset,endOffset]);
+        this.m_scrollView.scrollToOffset(cc.pSub(cc.Vec2.ZERO,endOffset),0.2);
+    },
+    close: function () {
+        this.node.destroy();  
+    },
+    // called every frame, uncomment this function to activate update callback
+    // update: function (dt) {
+
+    // },
+});

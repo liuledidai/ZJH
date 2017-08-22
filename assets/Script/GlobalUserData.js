@@ -42,6 +42,11 @@ var GlobalUserData = {
             GlobalUserData.shopData = content;
             // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.shopData, null, ' '));
         });
+        cc.loader.loadRes("json/present", function (err, content) {
+            console.log(content);
+            GlobalUserData.presentData = content;
+            // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.presentData, null, ' '));
+        });
         this.roomList = [];
         var music_setting =  JSON.parse(cc.sys.localStorage.getItem('music_setting') || "{}");
         var effect_setting =  JSON.parse(cc.sys.localStorage.getItem('effect_setting') || "{}");

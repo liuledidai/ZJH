@@ -66,7 +66,7 @@
       }
     ],
     "_prefab": {
-      "__id__": 25
+      "__id__": 24
     },
     "groupIndex": 0
   },
@@ -740,11 +740,7 @@
     "zoomScale": 1.2,
     "pressedSprite": null,
     "hoverSprite": null,
-    "clickEvents": [
-      {
-        "__id__": 24
-      }
-    ],
+    "clickEvents": [],
     "_N$interactable": true,
     "_N$enableAutoGrayEffect": false,
     "_N$normalColor": {
@@ -766,15 +762,6 @@
     "_N$target": {
       "__id__": 1
     }
-  },
-  {
-    "__type__": "cc.ClickEvent",
-    "target": {
-      "__id__": 1
-    },
-    "component": "ShopItem",
-    "handler": "onClick",
-    "customEventData": ""
   },
   {
     "__type__": "cc.PrefabInfo",

@@ -16,6 +16,7 @@ cc.Class({
             default: null,
             type: cc.Sprite,
         },
+        m_Image_select: cc.Sprite,
         userFaceAtals: {
             default:null,
             type: cc.SpriteAtlas,
@@ -33,10 +34,9 @@ cc.Class({
         this._faceID = faceID;
         this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID));
     },
-    onClick: function (params) {
-        console.log("[UserFaceItem][onClick] faceID = "+this._faceID);
-        cc.director.emit('onChangeUserFace',{faceID:this._faceID+1});
-    }
+    setSelect: function (bSelect) {
+        this.m_Image_select.node.active = bSelect;
+    },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {
 

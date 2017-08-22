@@ -1353,7 +1353,7 @@
       "__id__": 1
     },
     "component": "UserFaceView",
-    "handler": "onClickCloseButton",
+    "handler": "onClickConfirm",
     "customEventData": ""
   },
   {
@@ -1486,7 +1486,8 @@
     "userFaceList": {
       "__id__": 12
     },
-    "userFaceCount": 8
+    "userFaceCount": 8,
+    "_selectIndex": -1
   },
   {
     "__type__": "cc.PrefabInfo",

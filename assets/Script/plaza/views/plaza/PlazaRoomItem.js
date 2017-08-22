@@ -37,26 +37,26 @@ cc.Class({
         if (this._roomInfo && this._roomInfo.lLimitScore) {
             this.m_Label_scoreLimit.string = this._roomInfo.lLimitScore;
         }
-        var actionNode = this.node.getChildByName("m_Node_back");
-        actionNode.setPosition(1000,0);
-        actionNode.runAction(cc.sequence(
-            cc.delayTime(this._index * 0.1),
-            cc.moveTo(0.25,-80,0),
-            cc.moveTo(0.25,0,0)
-        ))
+        // var actionNode = this.node.getChildByName("m_Node_back");
+        // actionNode.setPosition(1000,0);
+        // actionNode.runAction(cc.sequence(
+        //     cc.delayTime(this._index * 0.1),
+        //     cc.moveTo(0.25,-80,0),
+        //     cc.moveTo(0.25,0,0)
+        // ))
     },
     onClick: function (params) {
         console.log("[PlazaRoomItem][onClick]");  
         if(!this._roomInfo) {
-            GlobalFun.showAlert("房间暂未开放，请稍后再试");
+            GlobalFun.showToast("房间暂未开放，请稍后再试");
             return;
         }
         if(GlobalUserData.llGameScore >= this._roomInfo.lLimitScore) {
-            // GlobalFun.showAlert("进入房间");
+            // GlobalFun.showToast("进入房间");
             cc.director.emit("onLogonRoom",{roomInfo:this._roomInfo});
         }
         else {
-            GlobalFun.showToast({message:"进入房间需要"+ this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!"});
+            GlobalFun.showAlert({message:"进入房间需要"+ this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!"});
         }
     },
     select: function () {

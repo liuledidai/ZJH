@@ -30,7 +30,7 @@ cc.Class({
         var re = /1[3578][0-9]{9}/;
         if (re.exec(szTel) === null) {
             console.log("[GuestBindView][onSend] 手机号码不合法");
-            GlobalFun.showAlert("手机号码不合法");
+            GlobalFun.showToast("手机号码不合法");
             return;
         }
 
@@ -45,7 +45,7 @@ cc.Class({
                 var value = JSON.parse(response);
                 if (value.status == 1) {
                 }
-                GlobalFun.showAlert(value.Msg);
+                GlobalFun.showToast(value.Msg);
             }
         };
         xhr.open("POST", url, true);
@@ -58,19 +58,19 @@ cc.Class({
         var szVerify = this.m_Editbox_verify.string;
         if (szTel.length <=0 || szPwd.length <=0 || szVerify.length <= 0){
             console.log("帐号密码等信息不能为空");
-            GlobalFun.showAlert("帐号密码等信息不能为空");
+            GlobalFun.showToast("帐号密码等信息不能为空");
             return;
         }
         if (szPwd.length < 6 || szPwd.length > 16){
             console.log("密码长度为6-16位");
-            GlobalFun.showAlert("密码长度为6-16位");
+            GlobalFun.showToast("密码长度为6-16位");
             return;
         }
 
         var re = /1[3578][0-9]{9}/;
         if (re.exec(szTel) === null) {
             console.log("[GuestBindView][onConfirm] 手机号码不合法");
-            GlobalFun.showAlert("手机号码不合法");
+            GlobalFun.showToast("手机号码不合法");
             return;
         }
 
@@ -108,11 +108,11 @@ cc.Class({
                     }
                     GlobalUserData.szPassWord = cc.md5Encode(szPwd);
                     GlobalUserData.isGuest = false;
-                    GlobalFun.showAlert("帐号绑定成功，您可以用正式帐号登录游戏了");
+                    GlobalFun.showToast("帐号绑定成功，您可以用正式帐号登录游戏了");
                     cc.director.emit("onGuestBindSuccess");
                     self.onClose();
                 }
-                GlobalFun.showAlert(value.msg);
+                GlobalFun.showToast(value.msg);
             }
         };
         xhr.open("POST", url, true);

@@ -2,6 +2,7 @@ require("MD5");
 var game_cmd = require("CMD_Game");
 var plaza_cmd = require("CMD_Plaza");
 var BaseFrame = require("BaseFrame");
+var GlobalFun = require("GlobalFun");
 cc.Class({
     extends: BaseFrame,
 
@@ -38,12 +39,43 @@ cc.Class({
         // // console.log(pData.readword());
         // // console.log(pData.readdouble());
         // this.socket.ConnectSocket("122.226.186.38",9009);
-        this.onCreateSocket("122.226.186.38",9009);
-        this.label.string = this.text;
+        // this.onCreateSocket("122.226.186.38",9009);
+        // this.label.string = this.text;
+        console.log("[HelloWorld][onLoad]");
+    },
+    onEnable: function (params) {
+        console.log("[HelloWorld][onEnable]");
+    },
+    start: function (params) {
+        console.log("[HelloWorld][start]");
     },
     // called every frame
     update: function (dt) {
 
+    },
+    play: function (params) {
+        console.log("play");
+        // var node = new cc.Node();
+        // this.node.addChild(node,9999);
+        let bDate = Date.now();
+        GlobalFun.playEffects(this.node, {
+            fileName: "yx_wlg3",
+            anim: "yx_gzyz",
+            loop: false,
+            // x: 200,
+            // y: 200,
+            callback: ()=> {
+                let eDate = Date.now();
+                console.log("time = ",eDate-bDate);
+            }
+        });
+        // node.runAction(cc.sequence(
+        //     cc.delayTime(2),
+        //     cc.callFunc(function (node) {
+        //         node.destroy();
+        //     })
+        // )
+        // )
     },
     // onSocketCallBack: function(pData) {
     //     if(pData === undefined)

@@ -100,16 +100,16 @@ cc.Class({
     onShowVistor: function () {
         AudioMng.playButton();
         console.log("[LogonScene][onShowVistor]");
-        // GlobalFun.showToast(cc.director.getScene(),"游客登录暂未开放,敬请期待!");
+        // GlobalFun.showAlert(cc.director.getScene(),"游客登录暂未开放,敬请期待!");
         var szMachineID = MultiPlatform.getMachineID();
-        GlobalFun.showAlert(szMachineID);
+        // GlobalFun.showToast(szMachineID);
         var url = GlobalDef.httpUserCenter;
         url += "/Guest/GuestLogin.ashx";
         var params = {};
         params["kindid"] = zjh_cmd.KIND_ID;
         params["versionnum"] = "1.1";
-        params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
-        // params["useridentity"] = szMachineID;
+        // params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
+        params["useridentity"] = szMachineID || "2d4d7c95e5df0179af2466f635ca71de";
         params["channelid"] = GlobalDef.CHANNELID_center;
         if(cc.sys.os == cc.sys.OS_IOS){
             params["os"] = "2";
@@ -123,7 +123,7 @@ cc.Class({
         var xhr = new XMLHttpRequest();
         var self = this;
         xhr.onreadystatechange = function () {
-            console.log("[LogonScene][onShowVistor] "+xhr.getResponseHeader("Content-Type"));
+            console.log("[LogonScene][onShowVistor] "+xhr.readyState);
             if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
                 var response = xhr.responseText;
                 console.log(response);
@@ -150,7 +150,7 @@ cc.Class({
                 }
                 else {
                     if(value.msg !== undefined) {
-                        GlobalFun.showToast({message:value.msg});
+                        GlobalFun.showAlert({message:value.msg});
                     }
                 }
                 cc.director.emit("GuestLoginCompleted");
@@ -161,9 +161,16 @@ cc.Class({
             callBackFunc: function () {
                 console.log("[LogonScene][onShowVistor] callbackfunc");
             },
+            waitingTime:8,
         });
         xhr.open("POST", url, true);
         // xhr.setRequestHeader("Content-Type","application/json");
+        xhr.timeout = 8000;
+        xhr.ontimeout = function (e) {
+            GlobalFun.showToast("服务器连接超时，请稍候重试");
+            cc.director.emit("GuestLoginCompleted");
+            xhr.abort();
+        }
         xhr.send(paramString);
         
     },
@@ -183,7 +190,7 @@ cc.Class({
 
     onShowWxLogon: function () {
         AudioMng.playButton();
-        MultiPlatform.showAlert(MultiPlatform.getMachineID(),MultiPlatform.getIpAddress());
+        MultiPlatform.showAlert(MultiPlatform.getAppVersion(),MultiPlatform.getIpAddress());
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

@@ -3,7 +3,7 @@ var AudioMng = {
     _currentBgm: undefined,
     playMusic: function (szKey) {
         szKey = szKey || this._currentBgm;
-        if (szKey === undefined || szKey === "") {
+        if (szKey === undefined || szKey === "" || this._soundData === undefined) {
             return;
         }
         var szPath = "resources/" + this._soundData["base"]["base"]["background_music"][szKey];
@@ -25,6 +25,9 @@ var AudioMng = {
         cc.audioEngine.playEffect(clip, false);
     },
     playSFX: function (szKey) {
+        if (szKey === undefined || szKey === "" || this._soundData === undefined) {
+            return;
+        }
         var szPath = "resources/" + this._soundData["base"]["base"]["effect"][szKey];
         var clip = cc.url.raw(szPath);
         this._playSFX(clip);

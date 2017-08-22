@@ -52,6 +52,8 @@ cc.Class({
         return true;
     },
     onConnectCompeleted: function() {
+        //初始化参数
+        this.init();
         cc.director.emit("LoadingViewOnConnect",{message:"正在连接游戏房间..."});
         this.sendLogonPacket();
     },
@@ -105,7 +107,7 @@ cc.Class({
             logonError.szErrorDescribe = pData.readstring(128);
             console.log("[GameFrame][OnSocketMainLogon] errorCode = " + logonError.lErrorCode + " des = " + logonError.szErrorDescribe);
             this.onCloseSocket();
-            // GlobalFun.showToast({message:logonError.szErrorDescribe});
+            // GlobalFun.showAlert({message:logonError.szErrorDescribe});
             if (logonError.szErrorDescribe) {
                 cc.director.emit("LoadingViewError",{msg:logonError.szErrorDescribe,type:GlobalDef.SMT_CLOSE_GAME});
             }
@@ -343,6 +345,17 @@ cc.Class({
                 }
                 if (message.wMessageType & GlobalDef.SMT_EJECT) {
                     console.log("[GameFrame][OnSocketMainGameFrame] message = " + message.szContent + " type = " + message.wMessageType);
+                    GlobalFun.showAlert({
+                        message: message.szContent,
+                        btn: [
+                            {
+                                name: "确定",
+                                callback: function () {
+                                    cc.director.emit("onExitRoom")
+                                }
+                            }
+                        ],
+                    })
                 }
                 if (message.wMessageType & GlobalDef.SMT_GLOBAL){
 
@@ -386,7 +399,7 @@ cc.Class({
             });
         }
         if (userItem.dwUserID === GlobalUserData.dwUserID){
-            this.onSocketLogonFinish();
+            // this.onSocketLogonFinish();
         }
     },
     OnSocketSubStatus: function (sub,pData) {

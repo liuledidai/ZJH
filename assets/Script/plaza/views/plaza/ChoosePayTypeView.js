@@ -34,19 +34,10 @@ cc.Class({
         console.log("[ChoosePayTypeView][init] " + JSON.stringify(this._params, null, ' '));
     },
     onEnable: function() {
-        // cc.director.on('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[ChoosePayTypeView][onEnable]");
     },
     onDisable: function() {
-        // cc.director.off('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[ChoosePayTypeView][onDisable]");
-    },
-    onChangeUserFace: function (params) {
-        // GlobalUserData.wFaceID = params.detail.faceID;
-        // this._faceID = params.detail.faceID;
-        // this.onClickCloseButton();
-        // console.log("[ChoosePayTypeView][onChangeUserFace] faceID = "+ JSON.stringify(params.detail));
-        // cc.director.emit("onChangeUserFace",params.detail);
     },
     onDestroy: function () {
         cc.sys.garbageCollect();

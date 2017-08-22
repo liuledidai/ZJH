@@ -26,12 +26,12 @@ cc.Class({
         this._loadfunc = params.loadfunc;
         this._closefunc = params.closefunc;
         this._connectDes = params.des || "正在连接游戏服务器...";
-        cc.director.on(this._closeEvent,this.close,this);
-        cc.director.on("LoadingViewError",this.showMessageBox,this);
-        cc.director.on("LoadingViewOnConnect",this.onConnected,this);
-        cc.director.on("LoadingViewOnLogonFinish",this.onLogonFinish,this);
+        cc.director.on(this._closeEvent, this.close, this);
+        cc.director.on("LoadingViewError", this.showMessageBox, this);
+        cc.director.on("LoadingViewOnConnect", this.onConnected, this);
+        cc.director.on("LoadingViewOnLogonFinish", this.onLogonFinish, this);
 
-        if (typeof(this._loadfunc) === "function") {
+        if (typeof (this._loadfunc) === "function") {
             this._loadfunc();
         }
     },
@@ -39,11 +39,16 @@ cc.Class({
         var msg = params.detail.msg;
         var type = params.detail.type;
         var self = this;
-        GlobalFun.showToast({
-            message:msg,
-            confirmfunc: function () {
-                self.node.destroy();
-            }
+        GlobalFun.showAlert({
+            message: msg,
+            btn: [
+                {
+                    name: "确认",
+                    callback: () => {
+                        self.node.destroy();
+                    }
+                }
+            ]
         })
     },
     onConnected: function (params) {
@@ -59,19 +64,19 @@ cc.Class({
     },
     close: function () {
         console.log("[LoadingView][close]");
-        cc.director.off(this._closeEvent,this.close,this);
-        if (typeof(this._closefunc) === "function") {
+        cc.director.off(this._closeEvent, this.close, this);
+        if (typeof (this._closefunc) === "function") {
             this._closefunc();
         }
         // this.node.destroy();
     },
     onEnable: function () {
-        
+
     },
     onDisable: function () {
-        cc.director.off("LoadingViewError",this.showMessageBox,this);
-        cc.director.off("LoadingViewOnConnect",this.onConnected,this);
-        cc.director.off("LoadingViewOnLogonFinish",this.onLogonFinish,this);
+        cc.director.off("LoadingViewError", this.showMessageBox, this);
+        cc.director.off("LoadingViewOnConnect", this.onConnected, this);
+        cc.director.off("LoadingViewOnLogonFinish", this.onLogonFinish, this);
     },
     onDestroy: function () {
         console.log("[LoadingView][onDestroy]");
