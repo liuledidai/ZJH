@@ -35,7 +35,10 @@ cc.Class({
         // }, 2);
         AudioMng.loadSoundData();
     },
-
+    onDestroy: function (params) {
+        console.log("[WelcomeView][onDestroy]")
+        cc.sys.garbageCollect();  
+    },
     // called every frame, uncomment this function to activate update callback
     update: function (dt) {
         this._count += dt;
@@ -54,7 +57,6 @@ cc.Class({
                 this.splash.active = false;
                 this._count = 0;
                 cc.director.loadScene("LoginScene");
-                cc.sys.garbageCollect();
             }
             else
             {

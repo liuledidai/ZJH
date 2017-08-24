@@ -80,6 +80,8 @@
 		B61048001ED41BB400E646DC /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61047F51ED41BB400E646DC /* tools.cpp */; };
 		B61048AA1ED56D3700E646DC /* ClientSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61048A81ED56D3700E646DC /* ClientSocket.cpp */; };
 		B61048AB1ED56D3700E646DC /* ClientSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61048A81ED56D3700E646DC /* ClientSocket.cpp */; };
+		B624F1FF1F4D6B17002A2963 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B624F1FE1F4D6B17002A2963 /* Reachability.m */; };
+		B624F2011F4D6CA0002A2963 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B624F2001F4D6CA0002A2963 /* CoreTelephony.framework */; };
 		B62C4CAC1F2201C600B24B0D /* CHKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = B62C4CA91F2201C600B24B0D /* CHKeychain.m */; };
 		B62C4CAD1F2201C600B24B0D /* DeviceModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = B62C4CAB1F2201C600B24B0D /* DeviceModule.mm */; };
 		B6F9331B1ED6A71700B3DEDB /* CCmd_Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B6F933191ED6A71700B3DEDB /* CCmd_Data.cpp */; };
@@ -251,6 +253,9 @@
 		B61048A11ED41DB200E646DC /* typedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = typedef.h; sourceTree = "<group>"; };
 		B61048A81ED56D3700E646DC /* ClientSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientSocket.cpp; sourceTree = "<group>"; };
 		B61048A91ED56D3700E646DC /* ClientSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientSocket.h; sourceTree = "<group>"; };
+		B624F1FD1F4D6B17002A2963 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = ios/Reachability.h; sourceTree = "<group>"; };
+		B624F1FE1F4D6B17002A2963 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reachability.m; path = ios/Reachability.m; sourceTree = "<group>"; };
+		B624F2001F4D6CA0002A2963 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.2.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
 		B62C4CA81F2201C600B24B0D /* CHKeychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CHKeychain.h; path = ios/CHKeychain.h; sourceTree = "<group>"; };
 		B62C4CA91F2201C600B24B0D /* CHKeychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CHKeychain.m; path = ios/CHKeychain.m; sourceTree = "<group>"; };
 		B62C4CAA1F2201C600B24B0D /* DeviceModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DeviceModule.h; path = ios/DeviceModule.h; sourceTree = "<group>"; };
@@ -303,6 +308,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B624F2011F4D6CA0002A2963 /* CoreTelephony.framework in Frameworks */,
 				AB45A1031D34F7E100033ACB /* GameController.framework in Frameworks */,
 				AB45A1011D34F7CC00033ACB /* SystemConfiguration.framework in Frameworks */,
 				AB45A0FF1D34F7C000033ACB /* MobileCoreServices.framework in Frameworks */,
@@ -411,6 +417,7 @@
 		A92275401517C094001B78AA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B624F2001F4D6CA0002A2963 /* CoreTelephony.framework */,
 				ABE457001D35194300F1F400 /* libPluginProtocol.a */,
 				AB45A1021D34F7E100033ACB /* GameController.framework */,
 				AB45A1001D34F7CC00033ACB /* SystemConfiguration.framework */,
@@ -508,6 +515,8 @@
 				509D4AAD17EBB2AB00697056 /* Default-568h@2x.png */,
 				509D4AAE17EBB2AB00697056 /* Default.png */,
 				B62C4CA81F2201C600B24B0D /* CHKeychain.h */,
+				B624F1FD1F4D6B17002A2963 /* Reachability.h */,
+				B624F1FE1F4D6B17002A2963 /* Reachability.m */,
 				B62C4CA91F2201C600B24B0D /* CHKeychain.m */,
 				B62C4CAA1F2201C600B24B0D /* DeviceModule.h */,
 				B62C4CAB1F2201C600B24B0D /* DeviceModule.mm */,
@@ -736,6 +745,7 @@
 				509D4AC817EBB2AB00697056 /* main.m in Sources */,
 				509D4ABC17EBB2AB00697056 /* AppController.mm in Sources */,
 				B62C4CAC1F2201C600B24B0D /* CHKeychain.m in Sources */,
+				B624F1FF1F4D6B17002A2963 /* Reachability.m in Sources */,
 				B61047E01ED4130B00E646DC /* jsbTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

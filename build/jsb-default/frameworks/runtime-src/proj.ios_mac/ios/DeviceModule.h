@@ -53,5 +53,8 @@
 + (NSString *) createCFUUID;
 + (NSString *) getDeviceName;
 + (NSString *) md5;
++ (NSString *) getAppVersion;
++ (float) getBatteryLevel;
++ (NSString *)getNetconnType;
 
 @end

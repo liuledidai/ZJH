@@ -33,6 +33,26 @@ MultiPlatform.getAppVersion = function () {
     }
 }
 
+MultiPlatform.getBatteryLevel = function () {
+    if (PLATFORM[cc.sys.os] && PLATFORM[cc.sys.os].getBatteryLevel) {
+        return PLATFORM[cc.sys.os].getBatteryLevel();
+    }
+    else {
+        console.log("[MultiPlatform][getBatteryLevel] unsupport platform -> " + cc.sys.os);
+        return 0;
+    }
+}
+
+MultiPlatform.getNetconnType = function () {
+    if (PLATFORM[cc.sys.os] && PLATFORM[cc.sys.os].getNetconnType) {
+        return PLATFORM[cc.sys.os].getNetconnType();
+    }
+    else {
+        console.log("[MultiPlatform][getNetconnType] unsupport platform -> " + cc.sys.os);
+        return "";
+    }
+}
+
 MultiPlatform.showAlert = function (title,message) {
     title = title || cc.sys.os;
     message = message || cc.sys.os;

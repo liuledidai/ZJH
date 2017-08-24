@@ -3,6 +3,7 @@ var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
 var AudioMng = require("AudioMng");
+var MultiPlatform = require("MultiPlatform");
 var bindText = "<size=32><color=#B35B1B>尊敬的用户，你当前为【游客模式】<br/>\
 1.绑定账号后，体验币无法转换为金币。<br/>\
 2.游客账号购买的金币，注册后等值赠送<br/>\
@@ -108,10 +109,27 @@ cc.Class({
         // this._gameFrame = this.getScene().getChildByName("GameFrame").getComponent("GameFrame");
         this.refreshUI();
         this.refreshRoomList();
+        this.m_Label_time = cc.find("Canvas/m_Panel_top_right/plaza_state/m_Label_time");
+        this.m_Label_networkState = cc.find("Canvas/m_Panel_top_right/plaza_state/m_Label_networkState");
+        if (this.m_Label_time) {
+            console.log("[PlazaView][schedule]");
+            cc.director.getScheduler().schedule(this.refreshTimeAndNetworkInfo, this, 1, cc.macro.REPEAT_FOREVER, 0, false);
+        }
+        this.refreshTimeAndNetworkInfo();
     },
     onDestroy: function () {
+        cc.director.getScheduler().unschedule(this.refreshTimeAndNetworkInfo, this);
         AudioMng.stopMusic();  
         cc.sys.garbageCollect();
+    },
+    refreshTimeAndNetworkInfo: function () {
+        var date = new Date(Date.now());
+        var timeStr = date.toTimeString().slice(0,8);
+        var batteryLevel = MultiPlatform.getBatteryLevel();
+        var netWorkType = MultiPlatform.getNetconnType();
+        this.m_Label_time.getComponent(cc.Label).string = timeStr;
+        this.m_Label_networkState.getComponent(cc.Label).string = netWorkType;
+
     },
     refreshUI: function () {
         console.log("[PlazaView][refreshUI]");

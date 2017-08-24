@@ -9,6 +9,9 @@
 #import "DeviceModule.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "CHKeychain.h"
+#import "Reachability.h"
+#import <CoreTelephony/CTCarrier.h>
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
 
 #define kKeyChainServiceName    @"AccountKeyChainServiceName"
 #define accessGroupName         @"GZVX6L999D.JJHGameAppFamily"
@@ -77,11 +80,11 @@ NSString * const KEY_USERTOKEN = @"com.jjhgame.app.token";
     }
 }
 
-//float DeviceModule::getAppVersion()
-//{
-//    NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleVersionKey];
-//    return [version floatValue];
-//}
++(NSString *)getAppVersion
+{
+    NSString *version = [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleVersionKey];
+    return version;
+}
 
 +(NSString *)md5:(NSString *)str
 {
@@ -96,6 +99,82 @@ NSString * const KEY_USERTOKEN = @"com.jjhgame.app.token";
                         result[12], result[13], result[14], result[15]
                         ];
     return string;
+}
+
++(float)getBatteryLevel
+{
+    return [UIDevice currentDevice].batteryLevel;
+}
+
++ (NSString *)getNetconnType{
+    
+    NSString *netconnType = @"NETWORK_NONE";
+    
+    Reachability *reach = [Reachability reachabilityWithHostName:@"www.apple.com"];
+    
+    switch ([reach currentReachabilityStatus]) {
+        case NotReachable:// 没有网络
+        {
+            
+            netconnType = @"NETWORK_NONE";//@"no network";
+        }
+            break;
+            
+        case ReachableViaWiFi:// Wifi
+        {
+            netconnType = @"NETWORK_WIFI";//@"Wifi";
+        }
+            break;
+            
+        case ReachableViaWWAN:// 手机自带网络
+        {
+            // 获取手机网络类型
+            CTTelephonyNetworkInfo *info = [[CTTelephonyNetworkInfo alloc] init];
+            
+            NSString *currentStatus = info.currentRadioAccessTechnology;
+            
+            if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyGPRS"]) {
+                
+                netconnType = @"NETWORK_2G";//@"GPRS";
+            }else if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyEdge"]) {
+                
+                netconnType = @"NETWORK_2G";//@"2.75G EDGE";
+            }else if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyCDMA1x"]){
+                
+                netconnType = @"NETWORK_2G";//@"2G";
+            }else if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyWCDMA"]){
+                
+                netconnType = @"NETWORK_3G";//@"3G";
+            }else if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyHSDPA"]){
+                
+                netconnType = @"NETWORK_3G";//@"3.5G HSDPA";
+            }else if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyHSUPA"]){
+                
+                netconnType = @"NETWORK_3G";//@"3.5G HSUPA";
+            }else if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyCDMAEVDORev0"]){
+                
+                netconnType = @"NETWORK_3G";//@"3G";
+            }else if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyCDMAEVDORevA"]){
+                
+                netconnType = @"NETWORK_3G";//@"3G";
+            }else if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyCDMAEVDORevB"]){
+                
+                netconnType = @"NETWORK_3G";//@"3G";
+            }else if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyeHRPD"]){
+                
+                netconnType = @"NETWORK_3G";//@"HRPD";
+            }else if ([currentStatus isEqualToString:@"CTRadioAccessTechnologyLTE"]){
+                
+                netconnType = @"NETWORK_4G";//@"4G";
+            }
+        }
+            break;
+            
+        default:
+            break;
+    }
+    
+    return netconnType;
 }
 
 @end
