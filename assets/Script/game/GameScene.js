@@ -452,6 +452,8 @@ cc.Class({
                 this._gameView.setUserTableScore(wViewChairID, this.m_lCellScore);
                 //移动筹码
                 this._gameView.playerJetton(wViewChairID, this.m_lTableScore[i]);
+                //加注动作
+                // this._gameView.playUserAnim("chip",viewID);
             }
         }
         //总计下注
@@ -572,6 +574,9 @@ cc.Class({
 
         console.log("[GameScene][onSubLookCard] lookCard = " + JSON.stringify(lookCard, null, ' '));
         var viewID = this.switchViewChairID(lookCard.wLookCardUser);
+        //看牌动作
+        this._gameView.playUserAnim("chip",viewID);
+
         this._gameView.setLookCard(viewID, true);
         if (this.getMeChairID() === this.m_wCurrentUser) {
             this.updateControl();
@@ -684,6 +689,8 @@ cc.Class({
         this.m_cbPlayStatus[wGiveUpUser] = 0;
         //弃牌音效
         this.playSound(SoundEffectType.kSoundEffectQiPai, wGiveUpUser);
+        //弃牌动作
+        this._gameView.playUserAnim("chip",viewID);
         //超时服务器自动放弃
         if (wGiveUpUser === this.getMeChairID()) {
             this.killGameClock();

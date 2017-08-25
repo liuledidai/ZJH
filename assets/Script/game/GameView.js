@@ -47,19 +47,19 @@ cc.Class({
         gameAtlas: cc.SpriteAtlas,
         //array
         m_Node_player: {
-            default:[],
+            default: [],
             type: cc.Node,
         },
         m_flagReady: {
-            default:[],
+            default: [],
             type: cc.Node,
         },
         m_userCardPanel: {
-            default:[],
+            default: [],
             type: cc.Node,
         },
         ptPlayer: {
-            default:[],
+            default: [],
             type: cc.Vec2,
         },
         ptBanker: {
@@ -71,12 +71,12 @@ cc.Class({
             type: cc.Vec2,
         },
         m_LookCard: {
-            default:[],
-            type:cc.Node,
+            default: [],
+            type: cc.Node,
         },
         m_GiveUp: {
-            default:[],
-            type:cc.Node,
+            default: [],
+            type: cc.Node,
         },
     },
 
@@ -98,6 +98,8 @@ cc.Class({
             this.m_Node_player[index] = userNode;
             userNode.setPosition(this.ptPlayer[index]);
             userNode.rotation = index * (-90);
+            // userNode.getComponentInChildren("UserInfaceItem").playerAnimate("wait",index,{cbGender:(Math.floor(index/2) + 1)});
+            // userNode.setScale(1.5);
             userNode.active = false;
 
             this.m_userHead[index] = {};
@@ -106,12 +108,12 @@ cc.Class({
             this.m_userHead[index].bg = userHeadList[index];
             this.m_userHead[index].bg.active = false;
             let idx = index;
-            userNode.on(cc.Node.EventType.TOUCH_END,() => {
+            userNode.on(cc.Node.EventType.TOUCH_END, () => {
                 this.onShowUserInfo(idx);
-            },this)
-            this.m_userHead[index].bg.on(cc.Node.EventType.TOUCH_END,() => {
+            }, this)
+            this.m_userHead[index].bg.on(cc.Node.EventType.TOUCH_END, () => {
                 this.onShowUserInfo(idx);
-            },this)
+            }, this)
 
             //计时器
             this.m_timeProgress[index] = userHeadList[index].getComponent(cc.ProgressBar);
@@ -131,8 +133,8 @@ cc.Class({
                 var cardNode = cc.instantiate(this.cardPrefab);
                 this.m_userCard[index].card[j] = cardNode;
                 cardPanel.addChild(cardNode);
-                cardNode.setPosition(this.ptCard[index].x + ( index === zjh_cmd.MY_VIEWID && 80 || 35) * j,this.ptCard[index].y);
-                cardNode.setScale(( index === zjh_cmd.MY_VIEWID && 1.0 || 0.7));
+                cardNode.setPosition(this.ptCard[index].x + (index === zjh_cmd.MY_VIEWID && 80 || 35) * j, this.ptCard[index].y);
+                cardNode.setScale((index === zjh_cmd.MY_VIEWID && 1.0 || 0.7));
                 var cardItem = cardNode.getComponent("CardItem");
                 cardItem.showCardBack();
                 cardNode.active = false;
@@ -141,7 +143,7 @@ cc.Class({
             cardPanel.addChild(cardType);
             this.m_userCard[index].cardType = cardType;
             cardType.setPosition(this.ptCard[index].x + (index === zjh_cmd.MY_VIEWID && 80 || 35),
-                                this.ptCard[index].y - (index === zjh_cmd.MY_VIEWID && 50 || 60));
+                this.ptCard[index].y - (index === zjh_cmd.MY_VIEWID && 50 || 60));
             cardType.active = false;
         }
 
@@ -151,7 +153,7 @@ cc.Class({
         this.bAutoFollow = false;
     },
     onEnable: function () {
-        
+
     },
     onResetView: function () {
         this.bAutoFollow = false;
@@ -188,15 +190,15 @@ cc.Class({
             }
             return;
         }
-        else{
-            var progress = (1.0*time/zjh_cmd.TIME_START_GAME);
+        else {
+            var progress = (1.0 * time / zjh_cmd.TIME_START_GAME);
             // this.m_Progress_time.node.active = true;
             if (this.m_timeProgress[viewID]) {
                 // this.m_timeProgress[viewID].progress = progress;
             }
             else {
                 this.m_Progress_time.node.active = true;
-                this.m_Progress_time.node.setPosition(0,60);
+                this.m_Progress_time.node.setPosition(0, 60);
                 // this.m_Progress_time.progress = progress;
                 this.m_Label_time.string = time.toString();
             }
@@ -204,21 +206,22 @@ cc.Class({
     },
     //更新用户显示
     onUpdateUser: function (viewID, userItem) {
-        
+
         if (viewID === undefined || viewID === GlobalDef.INVALID_CHAIR) {
             console.log("[GameView][onUpdateUser] viewID is undefined or invalid");
             return;
         }
-        console.log("[GameView][onUpdateUser] viewID = " + viewID + " userItem = " + JSON.stringify(userItem,null, ' '));
+        console.log("[GameView][onUpdateUser] viewID = " + viewID + " userItem = " + JSON.stringify(userItem, null, ' '));
         this.m_Node_player[viewID].active = (userItem !== undefined);
-        if(userItem) {
+        if (userItem) {
+            this.playUserAnim("wait", viewID, userItem);
             this.m_flagReady[viewID].active = (GlobalDef.US_READY === userItem.cbUserStatus);
             this.m_userHead[viewID].bg.active = true;
             this.m_userHead[viewID].name.string = userItem.szName;
             this.m_userHead[viewID].score.string = userItem.lScore;
             this.m_userHead[viewID].userItem = userItem;
         }
-        else{
+        else {
             this.m_flagReady[viewID].active = false;
             this.m_userHead[viewID].name.string = "";
             this.m_userHead[viewID].score.string = "";
@@ -226,9 +229,12 @@ cc.Class({
             this.m_userHead[viewID].userItem = undefined;
         }
     },
+    playUserAnim: function (szAnim, viewID, userItem) {
+        this.m_Node_player[viewID].getComponentInChildren("UserInfaceItem").playerAnimate(szAnim, viewID, userItem)
+    },
     //牌类型介绍的弹出与弹入
     onShowIntroduce: function (bShow) {
-        
+
     },
     //筹码移动
     playerJetton: function (wViewChairID, num, notani) {
@@ -236,6 +242,8 @@ cc.Class({
             console.log("[GameView][playerJetton] num is invalid");
             return;
         }
+        //加注动作
+        this.playUserAnim("chip",wViewChairID);
         // var count = Math.floor(num/this.m_lCellScore);
         // if (count > 10) {
         //     count = 10;
@@ -252,8 +260,8 @@ cc.Class({
         // chip.setScale(0.5);
         var x = Math.random() * 200 - 100;
         var y = Math.random() * 100 - 50;
-        console.log("[GameView][playerJetton] [x,y] = " + [x,y]);
-        chip.runAction(cc.moveTo(0.2, cc.p(x,y)));
+        console.log("[GameView][playerJetton] [x,y] = " + [x, y]);
+        chip.runAction(cc.moveTo(0.4, cc.p(x, y)).easing(cc.easeOut(0.5)));
         // }
     },
     //停止比牌动画
@@ -261,11 +269,11 @@ cc.Class({
         this.node.getChildByName("compareView").active = false;
     },
     //比牌
-    compareCard: function (firstuser,seconduser,firstcard,secondcard,bfirstwin,callback) {
+    compareCard: function (firstuser, seconduser, firstcard, secondcard, bfirstwin, callback) {
         // AudioMng.playSFX("sfx_comparecard");
         var compareView = this.node.getChildByName("compareView");
         compareView.active = true;
-        compareView.runAction(cc.sequence(cc.delayTime(3.0),cc.callFunc(function () {
+        compareView.runAction(cc.sequence(cc.delayTime(3.0), cc.callFunc(function () {
             callback();
         })));
     },
@@ -275,8 +283,8 @@ cc.Class({
         if (!cellScore) {
 
         }
-        else{
-            
+        else {
+
         }
     },
     setCellTurn: function (cellScore, turnCount, maxTurn) {
@@ -288,7 +296,7 @@ cc.Class({
     setMaxCellScore: function (cellScore) {
         if (!cellScore) {
             //todo
-        }  
+        }
         else {
 
         }
@@ -299,7 +307,7 @@ cc.Class({
             //todo
             this.m_Image_banker.active = false;
             return;
-        }  
+        }
         this.m_Image_banker.active = true;
         this.m_Image_banker.setPosition(this.ptBanker[viewID]);
     },
@@ -320,17 +328,16 @@ cc.Class({
         if (score === undefined || score === 0) {
             // if (viewID !== )
         }
-        else
-        {
+        else {
 
         }
     },
     //发牌
     sendCard: function (viewID, index, fDelay) {
-        console.log("[viewID,index,fDelay] = " + [viewID,index,fDelay]);
+        console.log("[viewID,index,fDelay] = " + [viewID, index, fDelay]);
         if (viewID === undefined || viewID === GlobalDef.INVALID_CHAIR) {
             return;
-        }  
+        }
         var self = this;
         var fInterval = 0.1;
         var nodeCard = this.m_userCard[viewID];
@@ -340,7 +347,7 @@ cc.Class({
         spriteCard.opacity = 0;
         spriteCard.stopAllActions();
         spriteCard.setScale((viewID === zjh_cmd.MY_VIEWID) && 1.0 || 0.7);
-        spriteCard.setPosition(0,0);
+        spriteCard.setPosition(0, 0);
         cardItem.showCardBack();
         spriteCard.runAction(
             cc.sequence(
@@ -351,7 +358,7 @@ cc.Class({
                 }),
                 cc.spawn(
                     cc.fadeIn(0.1),
-                    cc.moveTo(0.2,self.ptCard[viewID].x + ((viewID === zjh_cmd.MY_VIEWID) && 80 || 35) * index, self.ptCard[viewID].y),
+                    cc.moveTo(0.2, self.ptCard[viewID].x + ((viewID === zjh_cmd.MY_VIEWID) && 80 || 35) * index, self.ptCard[viewID].y),
                 )
             )
         )
@@ -403,7 +410,7 @@ cc.Class({
     },
     //显示牌值
     setUserCard: function (viewID, cardData) {
-        console.log("[GameView][setUserCard][viewID,cardData] = " + [viewID,cardData]);
+        console.log("[GameView][setUserCard][viewID,cardData] = " + [viewID, cardData]);
         if (viewID === undefined || viewID === GlobalDef.INVALID_CHAIR) {
             return;
         }
@@ -416,8 +423,7 @@ cc.Class({
                 if (!cardData[i] || cardData[i] === 0 || cardData[i] === 0xff) {
                     cardItem.showCardBack();
                 }
-                else
-                {
+                else {
                     cardItem.setCardData(cardData[i]);
                     cardItem.setTurnTime(0.5);
                     cardItem.setTurnCallback(function (params) {
@@ -438,10 +444,10 @@ cc.Class({
         }
     },
     //显示牌类型
-    setUserCardType: function (viewID, cardtype,state) {
+    setUserCardType: function (viewID, cardtype, state) {
         var nodeCardType = this.m_userCard[viewID].cardType;
         var cardTypeState = "card_type_" + (state || "");
-        console.log("[GameView][setUserCardType] [viewID,cardtype] = " + [viewID,cardtype]);
+        console.log("[GameView][setUserCardType] [viewID,cardtype] = " + [viewID, cardtype]);
         if (cardtype && cardtype >= 1 && cardtype <= 6) {
             var spCardType = nodeCardType.getComponent(cc.Sprite);
             nodeCardType.active = true;
@@ -454,16 +460,17 @@ cc.Class({
     },
     //赢得筹码
     winTheChip: function (wWinner) {
+        this.playUserAnim("collect",wWinner);
         var children = this.nodeChipPool.children;
         for (var i = 0; i < children.length; i++) {
             var element = children[i];
             element.runAction(cc.sequence(
-                cc.delayTime(0.1*(children.length - i)),
-                cc.moveTo(0.4,this.ptPlayer[wWinner]),
+                cc.delayTime(0.1 * (children.length - i)),
+                cc.moveTo(0.4, this.ptPlayer[wWinner]).easing(cc.easeOut(0.4)),
                 cc.callFunc(function (node) {
                     node.destroy();
                 })
-                )
+            )
             )
         }
     },
@@ -500,11 +507,11 @@ cc.Class({
         this.m_Button_cancelfollow.node.active = this.bAutoFollow;
         this._scene.onAutoFollow();
     },
-    onClickChat: function() {
+    onClickChat: function () {
         // this._scene.sendTextChat('hello world');
         console.log("[GameView][onClickChat]");
         var self = this;
-        if( cc.isValid(self._chatView) === false ){
+        if (cc.isValid(self._chatView) === false) {
             cc.loader.loadRes("prefab/GameChatView", function (err, chatPrefab) {
                 if (cc.isValid(self.node)) {
                     self._chatView = cc.instantiate(chatPrefab);
@@ -520,13 +527,13 @@ cc.Class({
     onClickSetting: function () {
         console.log("[GameView][onClickSetting]");
         var self = this;
-        if( cc.isValid(self._settingView) === false ){
+        if (cc.isValid(self._settingView) === false) {
             cc.loader.loadRes("prefab/GameSettingView", function (err, settingPrefab) {
                 if (cc.isValid(self.node)) {
                     self._settingView = cc.instantiate(settingPrefab);
                     self.node.addChild(self._settingView);
                     // self._chatView.getComponent("GameChatView")
-                    GlobalFun.ActionShowTanChuang(self._settingView,function () {
+                    GlobalFun.ActionShowTanChuang(self._settingView, function () {
                         console.log("[GameView][onClickSetting]ActionShowTanChuang callback");
                     });
                 }
@@ -548,49 +555,49 @@ cc.Class({
         //             delayCount += 1;
         //         // }
         //     }
-            
+
         // }
         // this._bBack = !this._bBack;
         // for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
         //     var cardData = [2,3,4];
         //     this.setUserCard(i,this._bBack && cardData || []);
-            
+
         // }
     },
     onGiveUp: function () {
-        this._scene.onGiveUp();  
+        this._scene.onGiveUp();
     },
     onLookCard: function () {
         this._scene.onLookCard();
     },
     onCompareCard: function () {
-        this._scene.onCompareCard();  
+        this._scene.onCompareCard();
     },
-    onCompareChoose: function (event,index) {
+    onCompareChoose: function (event, index) {
         this._scene.onCompareChoose(index);
     },
     onLastAdd: function () {
         this._scene.onLastAdd();
     },
-    onAddScore: function (event,params) {
+    onAddScore: function (event, params) {
         console.log(params);
-        this._scene.addScore(params);  
+        this._scene.addScore(params);
         // var arr = [0,1000,10000,100000];
         // this.playerJetton(zjh_cmd.MY_VIEWID,arr[params]);
     },
     onShowUserInfo: function (index) {
-        console.log("[GameView][onShowUserInfo] index = " + index);  
+        console.log("[GameView][onShowUserInfo] index = " + index);
         // this._scene.onShowUserInfo(index);
         var userItem = this.m_userHead[index].userItem;
         var self = this;
-        if( cc.isValid(self._gameUserInfoView) === false ){
+        if (cc.isValid(self._gameUserInfoView) === false) {
             cc.loader.loadRes("prefab/GameUserInfoView", function (err, UserInfoPrefab) {
                 if (cc.isValid(self.node)) {
                     self._gameUserInfoView = cc.instantiate(UserInfoPrefab);
                     self.node.addChild(self._gameUserInfoView);
                     var gameUserInfoView = self._gameUserInfoView.getComponent("GameUserInfoView");
                     gameUserInfoView.init(userItem);
-                    GlobalFun.ActionShowTanChuang(self._gameUserInfoView,function () {
+                    GlobalFun.ActionShowTanChuang(self._gameUserInfoView, function () {
                         console.log("[GameView][onShowUserInfo]ActionShowTanChuang callback");
                     });
                 }

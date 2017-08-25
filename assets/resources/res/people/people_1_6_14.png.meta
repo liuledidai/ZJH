@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "064acd2d-69e5-46a9-ad8d-fa4247e97958",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "people_1_6_14": {
+      "ver": "1.0.3",
+      "uuid": "1534520e-9b84-4415-8c89-acb4062b8227",
+      "rawTextureUuid": "064acd2d-69e5-46a9-ad8d-fa4247e97958",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 25.5,
+      "offsetY": -56.5,
+      "trimX": 121,
+      "trimY": 169,
+      "width": 209,
+      "height": 175,
+      "rawWidth": 400,
+      "rawHeight": 400,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

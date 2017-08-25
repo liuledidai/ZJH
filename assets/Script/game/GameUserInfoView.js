@@ -87,6 +87,7 @@ cc.Class({
         }
     },
     onPresentTouch: function (idx) {
+        if (idx == this._selectIndex) return;
         var children = this.m_scrollView.content.children;
         if (this._selectIndex >= 0 && cc.isValid(children[this._selectIndex])) {
             children[this._selectIndex].getComponent("PresentNode").setSelect(false);
