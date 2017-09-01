@@ -33,18 +33,12 @@ cc.Class({
         m_Editbox_get_gold: cc.EditBox,
         m_Editbox_get_bankPwd: cc.EditBox,
         m_Editbox_save_gold: cc.EditBox,
-        m_Editbox_originPassword: {
-            default: null,
-            type: cc.EditBox,
-        },
-        m_Editbox_confirmPassword: {
-            default: null,
-            type: cc.EditBox,
-        },
-        m_Editbox_newPassword: {
-            default: null,
-            type: cc.EditBox,
-        },
+        m_Editbox_originPassword: cc.EditBox,
+        m_Editbox_confirmPassword: cc.EditBox,
+        m_Editbox_newPassword: cc.EditBox,
+
+        m_Editbox_charm_num: cc.EditBox,
+        m_Editbox_charm_pwd: cc.EditBox,
         _selectIndex: 0,
     },
 
@@ -55,9 +49,15 @@ cc.Class({
     refreshUI: function () {
         if (GlobalUserData.isGuest) {
             this.m_Label_bankPwd.node.active = true;
+            //游客隐藏银行密码和魅力抽奖页签
+            this.radioButton[2].node.active = false;
+            this.radioButton[3].node.active = false;
         }
         else {
             this.m_Label_bankPwd.node.active = false;
+            //游客隐藏银行密码和魅力抽奖页签
+            this.radioButton[2].node.active = true;
+            this.radioButton[3].node.active = true;
         }
         this.m_Label_get_userGold.string = GlobalUserData.llGameScore;
         this.m_Label_save_userGold.string = GlobalUserData.llGameScore;
@@ -227,7 +227,35 @@ cc.Class({
         console.log("[BankView][onClickConfirm] " + paramString);
     },
     onClickReward: function () {
-        GlobalFun.showToast("抽奖");
+        var szcharmCount = this.m_Editbox_charm_num.string;
+        var szPassWord = this.m_Editbox_charm_pwd.string;
+        if (szcharmCount.length <= 0 || szPassWord.length <= 0) {
+            GlobalFun.showToast("魅力或密码不能为空!");
+            return;
+        }
+        if (isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 /*|| Number(szcharmCount) > (GlobalUserData.llInsureScore)*/) {
+            GlobalFun.showToast("数值不合法或超出限制!");
+            return;
+        }
+        var tipText = "<color=#971a01>确定消耗" + szcharmCount + "点魅力值,进行招财进宝？</c>";
+        GlobalFun.showAlert({
+            message: tipText,
+            // textAlignment: cc.TextAlignment.LEFT,
+            btn: [
+                {
+                    name: "取消",
+                },
+                {
+                    name: "确定",
+                    callback: () => {
+                        GlobalFun.showToast("抽奖" + szcharmCount);
+                    }
+                }
+            ],
+        })
+    },
+    selectCharmNum: function(event,num) {
+        this.m_Editbox_charm_num.string = num;
     },
     onClickSaveAll: function (params) {
         this.m_Editbox_save_gold.string = GlobalUserData.llGameScore;

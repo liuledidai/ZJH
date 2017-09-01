@@ -29,6 +29,7 @@ var AudioMng = {
             return;
         }
         var szPath = "resources/" + this._soundData["base"]["base"]["effect"][szKey];
+        console.log("[AudioMng][playSFX] " + szPath);
         var clip = cc.url.raw(szPath);
         this._playSFX(clip);
     },

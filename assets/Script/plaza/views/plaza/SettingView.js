@@ -1,4 +1,5 @@
 var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
 cc.Class({
     extends: cc.Component,
 
@@ -44,11 +45,11 @@ cc.Class({
         this.onRefreshMusic();
     },
     onRefreshMusic: function () {
-        this.m_Button_music_switch_off.node.active = !GlobalUserData.bMusicAble;
+        // this.m_Button_music_switch_off.node.active = !GlobalUserData.bMusicAble;
         this.m_Button_music_switch_on.node.active = GlobalUserData.bMusicAble;
     },
     onRefreshEffect: function () {
-        this.m_Button_effect_switch_off.node.active = !GlobalUserData.bEffectAble;
+        // this.m_Button_effect_switch_off.node.active = !GlobalUserData.bEffectAble;
         this.m_Button_effect_switch_on.node.active = GlobalUserData.bEffectAble;
     },
     onDestroy: function () {
@@ -57,6 +58,7 @@ cc.Class({
     },
     onClickCloseButton: function() {
         // this.node.active = false;  
+        this.node.removeFromParent();
         this.node.destroy();
         console.log("[SettingView][onClickCloseButton] destroy");
     },
@@ -69,13 +71,27 @@ cc.Class({
         this.onRefreshEffect();
     },
     onClickSwitchAccount: function () {
-        var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
-        if (GameFrameNode){
-            console.log("[SettingView][onClickSwitchAccount] 获取GameFrame 所在节点 并取消为常驻节点");
-            cc.game.removePersistRootNode(GameFrameNode);
-        }
-        cc.director.loadScene("LoginScene");
-        cc.sys.garbageCollect();
+        GlobalFun.showAlert({
+            message: "是否退出当前账号，重新登录？",
+            // textAlignment: cc.TextAlignment.LEFT,
+            btn: [
+                {
+                    name: "取消",
+                },
+                {
+                    name: "确定",
+                    callback: () => {
+                        var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
+                        if (GameFrameNode) {
+                            console.log("[SettingView][onClickSwitchAccount] 获取GameFrame 所在节点 并取消为常驻节点");
+                            cc.game.removePersistRootNode(GameFrameNode);
+                        }
+                        cc.director.loadScene("LoginScene");
+                    }
+                }
+            ],
+        })
+
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

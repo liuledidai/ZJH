@@ -109,10 +109,10 @@ cc.Class({
             this.m_userHead[index].bg.active = false;
             let idx = index;
             userNode.on(cc.Node.EventType.TOUCH_END, () => {
-                this.onShowUserInfo(idx);
+                this.onShowUserInfo(idx,true);
             }, this)
             this.m_userHead[index].bg.on(cc.Node.EventType.TOUCH_END, () => {
-                this.onShowUserInfo(idx);
+                this.onShowUserInfo(idx,false);
             }, this)
 
             //计时器
@@ -243,7 +243,7 @@ cc.Class({
             return;
         }
         //加注动作
-        this.playUserAnim("chip",wViewChairID);
+        this.playUserAnim("chip", wViewChairID);
         // var count = Math.floor(num/this.m_lCellScore);
         // if (count > 10) {
         //     count = 10;
@@ -458,21 +458,97 @@ cc.Class({
             nodeCardType.active = false;
         }
     },
+    showCardTypeAnim: function (cardType,callback) {
+        switch (cardType) {
+            case GameLogic.CT_JIN_HUA:
+                AudioMng.playSFX("sfx_jinhua");
+                GlobalFun.playEffects(this.node, {
+                    fileName: "jinhuabaoziths",
+                    anim: "yx_tonghua",
+                    loop: false,
+                    callback:callback,
+                });
+                break;
+            case GameLogic.CT_SHUN_JIN:
+                AudioMng.playSFX("sfx_shunjin");
+                GlobalFun.playEffects(this.node, {
+                    fileName: "jinhuabaoziths",
+                    anim: "yx_tonghuashun",
+                    loop: false,
+                    callback:callback,
+                });
+                break;
+            case GameLogic.CT_BAO_ZI:
+                AudioMng.playSFX("sfx_baozi");
+                GlobalFun.playEffects(this.node, {
+                    fileName: "jinhuabaoziths",
+                    anim: "yx_baozi",
+                    loop: false,
+                    callback:callback,
+                });
+                break;
+
+            default:
+                if (typeof(callback) == "function") {
+                    callback();
+                }
+                break;
+        }
+    },
+    winScore: function name(params) {
+        for (var index = 0; index < 4; index++) {
+            this.winTheChip(index,index + 2000);
+        }
+    },
     //赢得筹码
-    winTheChip: function (wWinner) {
-        this.playUserAnim("collect",wWinner);
+    winTheChip: function (wWinner,score) {
+        this.playUserAnim("collect", wWinner);
         var children = this.nodeChipPool.children;
+        var delayTime = 0.1 * children.length + 0.4;
         for (var i = 0; i < children.length; i++) {
             var element = children[i];
             element.runAction(cc.sequence(
                 cc.delayTime(0.1 * (children.length - i)),
                 cc.moveTo(0.4, this.ptPlayer[wWinner]).easing(cc.easeOut(0.4)),
                 cc.callFunc(function (node) {
+                    AudioMng.playSFX("sfx_addscore");
                     node.destroy();
                 })
             )
             )
         }
+        //显示赢家积分
+        var self = this;
+        this.node.runAction(cc.sequence(
+            cc.delayTime(delayTime),
+            cc.callFunc(() => {
+                cc.loader.loadRes("prefab/winScoreLabel", function (err, prefab) {
+                    if (err) {
+                        console.log(err.message || err);
+                        return;
+                    }
+                    var label = cc.instantiate(prefab);
+                    label.setPosition(self.ptCard[wWinner].x + (wWinner === zjh_cmd.MY_VIEWID && 80 || 35),self.ptCard[wWinner].y);
+                    self.node.getChildByName("nodePlayer").addChild(label);
+                    label.getComponent(cc.Label).string = "+" + score;
+                    label.opacity = 0;
+                    label.runAction(cc.sequence(
+                        cc.spawn(
+                            cc.moveBy(0.4, 0, 90),
+                            cc.fadeIn(0.2),
+                        ),
+                        cc.delayTime(0.4),
+                        cc.spawn(
+                            cc.moveBy(0.2, 0, 20),
+                            cc.fadeOut(0.2),
+                        ),
+                        cc.callFunc(function (node) {
+                            node.destroy();
+                        })
+                    ))
+                })
+            })
+        ))
     },
     //清理筹码
     cleanAllJettons: function () {
@@ -585,17 +661,21 @@ cc.Class({
         // var arr = [0,1000,10000,100000];
         // this.playerJetton(zjh_cmd.MY_VIEWID,arr[params]);
     },
-    onShowUserInfo: function (index) {
+    onShowUserInfo: function (index,isSelf) {
         console.log("[GameView][onShowUserInfo] index = " + index);
         // this._scene.onShowUserInfo(index);
         var userItem = this.m_userHead[index].userItem;
         var self = this;
+        var ViewName = "GameUserInfoView";
+        if (isSelf) {
+            ViewName = "GameSelfInfoView";
+        }
         if (cc.isValid(self._gameUserInfoView) === false) {
-            cc.loader.loadRes("prefab/GameUserInfoView", function (err, UserInfoPrefab) {
+            cc.loader.loadRes("prefab/"+ViewName, function (err, UserInfoPrefab) {
                 if (cc.isValid(self.node)) {
                     self._gameUserInfoView = cc.instantiate(UserInfoPrefab);
                     self.node.addChild(self._gameUserInfoView);
-                    var gameUserInfoView = self._gameUserInfoView.getComponent("GameUserInfoView");
+                    var gameUserInfoView = self._gameUserInfoView.getComponent(ViewName);
                     gameUserInfoView.init(userItem);
                     GlobalFun.ActionShowTanChuang(self._gameUserInfoView, function () {
                         console.log("[GameView][onShowUserInfo]ActionShowTanChuang callback");

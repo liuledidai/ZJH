@@ -1,4 +1,5 @@
 var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
 cc.Class({
     extends: cc.Component,
 
@@ -17,7 +18,6 @@ cc.Class({
         m_Label_name: cc.Label,
         m_Label_gold: cc.Label,
         m_Label_meili: cc.Label,
-        m_Label_renqi: cc.Label,
         m_Label_ID: cc.Label,
         m_scrollView: cc.ScrollView,
         m_toggle_all: cc.Toggle,
@@ -26,6 +26,8 @@ cc.Class({
         gameUserAtlas: cc.SpriteAtlas,
         facePrefab: cc.Prefab,
         userFaceAtals: cc.SpriteAtlas,
+        m_Editbox_num: cc.EditBox,
+        m_Editbox_secret: cc.EditBox,
         _selectIndex: -1,
         
     },
@@ -40,6 +42,7 @@ cc.Class({
             return;
         }
         console.log("[GameUserInfoView] " + JSON.stringify(userItem,null,' '));
+        this.userItem = userItem;
         var szNickName = userItem.szName;
         var szGold = userItem.lScore;
         var szMeili = 0;
@@ -50,7 +53,7 @@ cc.Class({
         this.m_Label_name.string = szNickName;
         this.m_Label_gold.string = szGold;
         this.m_Label_meili.string = szMeili;
-        this.m_Label_renqi.string = szRenqi;
+    // this.m_Label_renqi.string = szRenqi;
         this.m_Label_ID.string = dwUserID;
 
         var faceID = userItem.wFaceID;
@@ -112,8 +115,55 @@ cc.Class({
         this.m_scrollView.scrollToOffset(cc.pSub(cc.Vec2.ZERO,endOffset),0.2);
     },
     close: function () {
+        this.node.removeFromParent();
         this.node.destroy();  
     },
+    onClickConfirm: function () {
+        if (this._selectIndex < 0) {
+            GlobalFun.showToast("请选择您要赠送的礼物");
+            return;
+        }
+        var szNum = this.m_Editbox_num.string;
+        if(isNaN(Number(szNum)) || Number(szNum) <= 0 || Number(szNum) > 100) {
+            GlobalFun.showToast("赠送的数目必须大于0且小于等于100！");
+            return;
+        }
+        var szPassword = this.m_Editbox_secret.string;
+        if (szPassword.length <= 0) {
+            GlobalFun.showToast("密码不能为空");
+            return;
+        }
+        var itemList = this._presentData['present']['base'];
+        var itemInfo = itemList[this._selectIndex];
+        if (!itemInfo) {
+            GlobalFun.showToast("礼物出差，重新选择");
+            return;
+        }
+        var goldVal = itemInfo.gold;
+        if (goldVal * szNum > GlobalUserData.llInsureScore) {
+            GlobalFun.showToast("赠送的礼物价值超过银行存款，请重新选择");
+            return;
+        }
+
+        var self = this;
+        if (cc.isValid(self._confirmView) === false) {
+            cc.loader.loadRes("prefab/GamePresentConfirmView", function (err, prefab) {
+                if (cc.isValid(self.node)) {
+                    self._confirmView = cc.instantiate(prefab);
+                    self.node.addChild(self._confirmView);
+                    self._confirmView.getComponent("GamePresentConfirmView").init({
+                        userItem: self.userItem,
+                        itemInfo: itemInfo,
+                        sendNum: szNum
+                    });
+                    GlobalFun.ActionShowTanChuang(self._confirmView, function () {
+                        console.log("[GameView][onClickSetting]ActionShowTanChuang callback");
+                    });
+                }
+            });
+        }
+    },
+
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {
 

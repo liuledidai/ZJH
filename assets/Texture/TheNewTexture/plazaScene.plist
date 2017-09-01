@@ -4,10 +4,23 @@
     <dict>
         <key>frames</key>
         <dict>
+            <key>button_grey.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{162,948},{244,96}}</string>
+                <key>offset</key>
+                <string>{1,-1}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{2,3},{244,96}}</string>
+                <key>sourceSize</key>
+                <string>{246,100}</string>
+            </dict>
             <key>plaza_btn_add_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,456},{80,82}}</string>
+                <string>{{244,1204},{80,82}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -20,7 +33,7 @@
             <key>plaza_btn_add_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,372},{80,82}}</string>
+                <string>{{162,1204},{80,82}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -33,275 +46,314 @@
             <key>plaza_btn_bank_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{604,1346},{134,110}}</string>
+                <string>{{1434,908},{176,84}}</string>
                 <key>offset</key>
-                <string>{1,0}</string>
+                <string>{1,-4}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{2,8},{134,110}}</string>
+                <string>{{6,11},{176,84}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_bank_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{515,1898},{134,110}}</string>
+                <string>{{394,1398},{160,76}}</string>
                 <key>offset</key>
-                <string>{1,0}</string>
+                <string>{1,-4}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{2,8},{134,110}}</string>
+                <string>{{14,15},{160,76}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_binding_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{374,600},{280,104}}</string>
+                <string>{{654,1292},{244,96}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{0,-1}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
-                <string>{{1,0},{280,104}}</string>
+                <string>{{1,3},{244,96}}</string>
                 <key>sourceSize</key>
-                <string>{282,104}</string>
+                <string>{246,100}</string>
             </dict>
             <key>plaza_btn_binding_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{268,600},{280,104}}</string>
+                <string>{{712,1038},{220,88}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{0,-1}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
-                <string>{{1,0},{280,104}}</string>
+                <string>{{13,7},{220,88}}</string>
                 <key>sourceSize</key>
-                <string>{282,104}</string>
+                <string>{246,100}</string>
             </dict>
             <key>plaza_btn_changeface_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{162,600},{280,104}}</string>
+                <string>{{408,1292},{244,96}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{0,-1}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
-                <string>{{1,0},{280,104}}</string>
+                <string>{{1,3},{244,96}}</string>
                 <key>sourceSize</key>
-                <string>{282,104}</string>
+                <string>{246,100}</string>
             </dict>
             <key>plaza_btn_changeface_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{162,492},{280,104}}</string>
+                <string>{{712,948},{220,88}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{0,-1}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{1,0},{280,104}}</string>
+                <string>{{13,7},{220,88}}</string>
                 <key>sourceSize</key>
-                <string>{282,104}</string>
+                <string>{246,100}</string>
             </dict>
             <key>plaza_btn_changepwd_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{388,1698},{280,104}}</string>
+                <string>{{162,1292},{244,96}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{0,-1}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
-                <string>{{1,0},{280,104}}</string>
+                <string>{{1,3},{244,96}}</string>
                 <key>sourceSize</key>
-                <string>{282,104}</string>
+                <string>{246,100}</string>
             </dict>
             <key>plaza_btn_changepwd_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{282,1698},{280,104}}</string>
+                <string>{{506,1558},{220,88}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{0,-1}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
-                <string>{{1,0},{280,104}}</string>
+                <string>{{13,7},{220,88}}</string>
                 <key>sourceSize</key>
-                <string>{282,104}</string>
+                <string>{246,100}</string>
             </dict>
             <key>plaza_btn_exchange_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{524,982},{136,116}}</string>
+                <string>{{232,1398},{172,86}}</string>
                 <key>offset</key>
-                <string>{0,-3}</string>
+                <string>{1,-4}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,8},{136,116}}</string>
+                <string>{{8,10},{172,86}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_exchange_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{869,588},{136,116}}</string>
+                <string>{{552,1398},{156,80}}</string>
                 <key>offset</key>
-                <string>{0,-3}</string>
+                <string>{1,-5}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,8},{136,116}}</string>
+                <string>{{16,14},{156,80}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
+            </dict>
+            <key>plaza_btn_getcode_normal.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{1940,1100},{244,96}}</string>
+                <key>offset</key>
+                <string>{1,-1}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{2,3},{244,96}}</string>
+                <key>sourceSize</key>
+                <string>{246,100}</string>
+            </dict>
+            <key>plaza_btn_getcode_press.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{162,1957},{220,88}}</string>
+                <key>offset</key>
+                <string>{1,-1}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{14,7},{220,88}}</string>
+                <key>sourceSize</key>
+                <string>{246,100}</string>
             </dict>
             <key>plaza_btn_ranklist_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{492,1208},{136,118}}</string>
+                <string>{{62,1398},{180,88}}</string>
                 <key>offset</key>
-                <string>{0,4}</string>
+                <string>{0,-5}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{136,118}}</string>
+                <string>{{3,10},{180,88}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_ranklist_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{480,848},{136,118}}</string>
+                <string>{{342,1564},{162,82}}</string>
                 <key>offset</key>
-                <string>{0,4}</string>
+                <string>{0,-6}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{136,118}}</string>
+                <string>{{12,14},{162,82}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_rule_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{494,1760},{136,110}}</string>
+                <string>{{1434,1362},{172,82}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{1,-5}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,8},{136,110}}</string>
+                <string>{{8,13},{172,82}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_rule_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{494,1622},{136,110}}</string>
+                <string>{{634,1398},{154,76}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{1,-6}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,8},{136,110}}</string>
+                <string>{{17,17},{154,76}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_select.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1968,492},{74,78}}</string>
+                <string>{{654,1128},{74,72}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{0,-1}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{4,1},{74,78}}</string>
+                <string>{{2,4},{74,72}}</string>
                 <key>sourceSize</key>
-                <string>{82,80}</string>
+                <string>{78,78}</string>
             </dict>
             <key>plaza_btn_service_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{728,729},{136,114}}</string>
+                <string>{{152,1398},{180,78}}</string>
                 <key>offset</key>
-                <string>{0,2}</string>
+                <string>{0,-6}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,4},{136,114}}</string>
+                <string>{{3,16},{180,78}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_service_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{618,848},{136,114}}</string>
+                <string>{{320,1398},{164,72}}</string>
                 <key>offset</key>
-                <string>{0,2}</string>
+                <string>{0,-6}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,4},{136,114}}</string>
+                <string>{{11,19},{164,72}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_setting_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{492,1484},{136,110}}</string>
+                <string>{{1434,1086},{174,84}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{1,-5}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,8},{136,110}}</string>
+                <string>{{7,12},{174,84}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_setting_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{492,1346},{136,110}}</string>
+                <string>{{472,1398},{158,78}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{1,-5}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,8},{136,110}}</string>
+                <string>{{15,15},{158,78}}</string>
                 <key>sourceSize</key>
-                <string>{136,126}</string>
+                <string>{186,98}</string>
             </dict>
             <key>plaza_btn_shop_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{270,982},{184,200}}</string>
+                <string>{{162,1649},{306,150}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{-2,-1}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{184,200}}</string>
+                <string>{{0,2},{306,150}}</string>
                 <key>sourceSize</key>
-                <string>{184,200}</string>
+                <string>{310,152}</string>
             </dict>
             <key>plaza_btn_shop_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{84,982},{184,200}}</string>
+                <string>{{314,1649},{278,138}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{-2,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{14,7},{278,138}}</string>
+                <key>sourceSize</key>
+                <string>{310,152}</string>
+            </dict>
+            <key>plaza_help_title.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{2,330},{996,218}}</string>
+                <key>offset</key>
+                <string>{-1,-1}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{184,200}}</string>
+                <string>{{0,2},{996,218}}</string>
                 <key>sourceSize</key>
-                <string>{184,200}</string>
+                <string>{998,220}</string>
             </dict>
             <key>plaza_image_down_back.png</key>
             <dict>
@@ -319,7 +371,7 @@
             <key>plaza_image_exchange.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{162,882},{98,84}}</string>
+                <string>{{1434,1262},{98,84}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -332,7 +384,7 @@
             <key>plaza_image_gold.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{248,882},{88,88}}</string>
+                <string>{{326,1192},{88,88}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -345,7 +397,7 @@
             <key>plaza_image_notice_back.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,110},{984,60}}</string>
+                <string>{{2,550},{984,60}}</string>
                 <key>offset</key>
                 <string>{-25,0}</string>
                 <key>rotated</key>
@@ -358,46 +410,46 @@
             <key>plaza_image_room_back_1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,1208},{488,488}}</string>
+                <string>{{1000,110},{518,502}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{7,-7}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{488,488}}</string>
+                <string>{{28,36},{518,502}}</string>
                 <key>sourceSize</key>
-                <string>{488,488}</string>
+                <string>{560,560}</string>
             </dict>
             <key>plaza_image_room_back_2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1478,492},{488,488}}</string>
+                <string>{{1520,510},{498,514}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{488,488}}</string>
+                <string>{{31,23},{498,514}}</string>
                 <key>sourceSize</key>
-                <string>{488,488}</string>
+                <string>{560,560}</string>
             </dict>
             <key>plaza_image_room_back_3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{988,110},{488,488}}</string>
+                <string>{{1534,2},{506,510}}</string>
                 <key>offset</key>
-                <string>{0,0}</string>
+                <string>{0,-2}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
-                <string>{{0,0},{488,488}}</string>
+                <string>{{27,27},{506,510}}</string>
                 <key>sourceSize</key>
-                <string>{488,488}</string>
+                <string>{560,560}</string>
             </dict>
             <key>plaza_image_room_back_4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1534,2},{488,488}}</string>
+                <string>{{944,908},{488,488}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -410,11 +462,11 @@
             <key>plaza_image_room_down_1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{524,428},{404,158}}</string>
+                <string>{{2,948},{404,158}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{0,0},{404,158}}</string>
                 <key>sourceSize</key>
@@ -423,7 +475,7 @@
             <key>plaza_image_room_down_2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,540},{404,158}}</string>
+                <string>{{2,1586},{404,158}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -436,7 +488,7 @@
             <key>plaza_image_room_down_3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{84,332},{404,158}}</string>
+                <string>{{1518,1426},{404,158}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -449,7 +501,7 @@
             <key>plaza_image_room_down_4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{84,172},{404,158}}</string>
+                <string>{{1520,1266},{404,158}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -459,10 +511,23 @@
                 <key>sourceSize</key>
                 <string>{404,158}</string>
             </dict>
+            <key>plaza_image_select_bg.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{654,1204},{66,66}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{66,66}}</string>
+                <key>sourceSize</key>
+                <string>{66,66}</string>
+            </dict>
             <key>plaza_image_userinfo_back.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{524,262},{418,164}}</string>
+                <string>{{1520,1100},{418,164}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -475,7 +540,7 @@
             <key>plaza_image_userinfo_head.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{728,588},{139,139}}</string>
+                <string>{{502,948},{139,139}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -488,7 +553,7 @@
             <key>plaza_pop_score_bg.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{492,172},{474,88}}</string>
+                <string>{{1520,1010},{474,88}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -498,14 +563,53 @@
                 <key>sourceSize</key>
                 <string>{474,88}</string>
             </dict>
-            <key>plaza_service_label_title.png</key>
+            <key>plaza_serricer_image_qq.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{456,982},{178,66}}</string>
+                <string>{{494,1192},{76,76}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{76,76}}</string>
+                <key>sourceSize</key>
+                <string>{76,76}</string>
+            </dict>
+            <key>plaza_serricer_image_tele.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{416,1192},{76,76}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{76,76}}</string>
+                <key>sourceSize</key>
+                <string>{76,76}</string>
+            </dict>
+            <key>plaza_serricer_title.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{2,110},{996,218}}</string>
+                <key>offset</key>
+                <string>{-1,-1}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,2},{996,218}}</string>
+                <key>sourceSize</key>
+                <string>{998,220}</string>
+            </dict>
+            <key>plaza_service_label_title.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{162,1580},{178,66}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{3,2},{178,66}}</string>
                 <key>sourceSize</key>
@@ -514,50 +618,76 @@
             <key>plaza_setting_btn_switch_account_normal.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{176,1698},{280,104}}</string>
+                <string>{{1926,1346},{301,120}}</string>
                 <key>offset</key>
-                <string>{-1,0}</string>
+                <string>{0,-1}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{2,0},{280,104}}</string>
+                <string>{{1,2},{301,120}}</string>
                 <key>sourceSize</key>
-                <string>{286,104}</string>
+                <string>{303,122}</string>
             </dict>
             <key>plaza_setting_btn_switch_account_press.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{70,1698},{280,104}}</string>
+                <string>{{384,1929},{271,108}}</string>
+                <key>offset</key>
+                <string>{-1,-1}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{15,8},{271,108}}</string>
+                <key>sourceSize</key>
+                <string>{303,122}</string>
+            </dict>
+            <key>plaza_setting_image_music.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{2,1398},{182,58}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{39,1},{182,58}}</string>
+                <key>sourceSize</key>
+                <string>{260,60}</string>
+            </dict>
+            <key>plaza_setting_image_swit.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{454,1649},{256,58}}</string>
                 <key>offset</key>
                 <string>{-1,0}</string>
                 <key>rotated</key>
                 <true/>
                 <key>sourceColorRect</key>
-                <string>{{2,0},{280,104}}</string>
+                <string>{{1,1},{256,58}}</string>
                 <key>sourceSize</key>
-                <string>{286,104}</string>
+                <string>{260,60}</string>
             </dict>
             <key>plaza_setting_label_title.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{70,1980},{177,64}}</string>
+                <string>{{2,612},{942,166}}</string>
                 <key>offset</key>
-                <string>{1,2}</string>
+                <string>{1,-7}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{4,1},{177,64}}</string>
+                <string>{{5,14},{942,166}}</string>
                 <key>sourceSize</key>
-                <string>{183,70}</string>
+                <string>{950,180}</string>
             </dict>
             <key>plaza_setting_switch_off.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,982},{204,80}}</string>
+                <string>{{728,1128},{204,80}}</string>
                 <key>offset</key>
                 <string>{-4,-1}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{0,6},{204,80}}</string>
                 <key>sourceSize</key>
@@ -566,20 +696,33 @@
             <key>plaza_setting_switch_on.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,172},{198,80}}</string>
+                <string>{{728,1210},{198,80}}</string>
                 <key>offset</key>
                 <string>{1,-1}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{8,6},{198,80}}</string>
                 <key>sourceSize</key>
                 <string>{212,90}</string>
             </dict>
+            <key>plaza_userinf_bg.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{946,612},{32,32}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{0,0},{32,32}}</string>
+                <key>sourceSize</key>
+                <string>{32,32}</string>
+            </dict>
             <key>plaza_userinfo_base_man.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{383,1980},{130,62}}</string>
+                <string>{{502,1089},{130,62}}</string>
                 <key>offset</key>
                 <string>{-3,0}</string>
                 <key>rotated</key>
@@ -592,67 +735,80 @@
             <key>plaza_userinfo_base_setting_title.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1968,886},{320,66}}</string>
+                <string>{{2,780},{940,166}}</string>
                 <key>offset</key>
-                <string>{-2,-1}</string>
+                <string>{1,-7}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
-                <string>{{3,3},{320,66}}</string>
+                <string>{{6,14},{940,166}}</string>
                 <key>sourceSize</key>
-                <string>{330,70}</string>
+                <string>{950,180}</string>
             </dict>
             <key>plaza_userinfo_base_women.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{249,1980},{132,62}}</string>
+                <string>{{643,948},{132,62}}</string>
                 <key>offset</key>
                 <string>{-1,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{2,1},{132,62}}</string>
                 <key>sourceSize</key>
                 <string>{138,64}</string>
             </dict>
-            <key>plaza_userinfo_head_select_back.png</key>
+            <key>plaza_userinfo_bind_title.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{480,600},{246,246}}</string>
+                <string>{{944,822},{544,84}}</string>
                 <key>offset</key>
-                <string>{-1,-1}</string>
+                <string>{0,-1}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{3,6},{246,246}}</string>
+                <string>{{3,4},{544,84}}</string>
                 <key>sourceSize</key>
-                <string>{254,256}</string>
+                <string>{550,90}</string>
+            </dict>
+            <key>plaza_userinfo_head_select_back.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{260,948},{240,242}}</string>
+                <key>offset</key>
+                <string>{0,0}</string>
+                <key>rotated</key>
+                <false/>
+                <key>sourceColorRect</key>
+                <string>{{5,4},{240,242}}</string>
+                <key>sourceSize</key>
+                <string>{250,250}</string>
             </dict>
             <key>plaza_userinfo_head_title.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,1698},{314,66}}</string>
+                <string>{{946,734},{544,86}}</string>
                 <key>offset</key>
-                <string>{-1,-2}</string>
+                <string>{0,-1}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
-                <string>{{7,4},{314,66}}</string>
+                <string>{{3,3},{544,86}}</string>
                 <key>sourceSize</key>
-                <string>{330,70}</string>
+                <string>{550,90}</string>
             </dict>
             <key>plaza_userinfo_pwd_title.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1968,568},{316,68}}</string>
+                <string>{{946,646},{544,86}}</string>
                 <key>offset</key>
-                <string>{-1,0}</string>
+                <string>{1,-1}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
-                <string>{{2,1},{316,68}}</string>
+                <string>{{4,3},{544,86}}</string>
                 <key>sourceSize</key>
-                <string>{322,70}</string>
+                <string>{550,90}</string>
             </dict>
         </dict>
         <key>metadata</key>
@@ -664,7 +820,7 @@
             <key>size</key>
             <string>{2048,2048}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:dc8fc50f74693ecd932662c3169dc75c:1/1$</string>
+            <string>$TexturePacker:SmartUpdate:95a98b22c42562ec46cebe0e619334f7:1/1$</string>
             <key>textureFileName</key>
             <string>plazaScene.png</string>
         </dict>

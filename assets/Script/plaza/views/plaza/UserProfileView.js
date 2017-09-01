@@ -16,8 +16,8 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        m_Button_changepwd:cc.Button,
-        m_Button_binding:cc.Button,
+        m_Button_changepwd: cc.Button,
+        m_Button_binding: cc.Button,
         m_Label_userName: {
             default: null,
             type: cc.Label,
@@ -35,7 +35,7 @@ cc.Class({
             type: cc.Sprite,
         },
         userFaceAtals: {
-            default:null,
+            default: null,
             type: cc.SpriteAtlas,
         },
         userFaceViewPrefab: {
@@ -54,20 +54,6 @@ cc.Class({
             default: null,
             type: cc.Toggle,
         },
-        m_Editbox_originPassword: {
-            default: null,
-            type: cc.EditBox,
-        },
-        m_Editbox_confirmPassword: {
-            default: null,
-            type: cc.EditBox,
-        },
-        m_Editbox_newPassword: {
-            default: null,
-            type: cc.EditBox,
-        },
-        m_Panel_userChange: cc.Node,
-        m_Panel_userInfo: cc.Node,
     },
 
     // use this for initialization
@@ -96,10 +82,10 @@ cc.Class({
         //     cbGender = Math.floor((this._faceID - 1)/4) + 1;
         // }
         var faceID = this._faceID || GlobalUserData.wFaceID;
-        if (faceID <=0 || faceID > 8) {
+        if (faceID <= 0 || faceID > 8) {
             faceID = 1;
         }
-        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
+        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
         if (cbGender == 1) {
             this.genderManButton.check();
             console.log("this.genderManButton.isCheck = " + this.genderManButton.isChecked);
@@ -109,19 +95,22 @@ cc.Class({
             console.log("this.genderWomanButton.isCheck = " + this.genderWomanButton.isChecked);
         }
     },
-    onEnable: function() {
+    onEnable: function () {
         console.log("[UserProfileView][onEnable]");
-
     },
-    onDisable: function() {
+    onDisable: function () {
         console.log("[UserProfileView][onDisable]");
     },
     onDestroy: function () {
         cc.sys.garbageCollect();
         console.log("[UserProfileView][onDestroy]");
     },
-    onClickCloseButton: function() {
+    close: function() {
+        this.node.removeFromParent();
         this.node.destroy();
+    },
+    onClickCloseButton: function () {
+        this.close();
         console.log("[UserProfileView][onClickCloseButton] destroy");
     },
     onClickEditName: function (params) {
@@ -139,7 +128,7 @@ cc.Class({
         var xhr = new XMLHttpRequest();
         var self = this;
         xhr.onreadystatechange = function () {
-            console.log("[UserProfileView][onClickChangeName] "+xhr.getResponseHeader("Content-Type"));
+            console.log("[UserProfileView][onClickChangeName] " + xhr.getResponseHeader("Content-Type"));
             if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
                 var response = xhr.responseText;
                 console.log(response);
@@ -152,7 +141,7 @@ cc.Class({
                         cc.director.emit("onChangeNameSuccess");
                     }
                 }
-                if(value.msg !== undefined) {
+                if (value.msg !== undefined) {
                     GlobalFun.showToast(value.msg);
                 }
             }
@@ -168,16 +157,21 @@ cc.Class({
         // this.onClickCloseButton();
         var self = this;
         self.onClickCloseButton();
-        GlobalFun.ActionShowTanChuang(userFaceView,function () {
+        GlobalFun.ActionShowTanChuang(userFaceView, function () {
             console.log("[PlazaView][onClickUserProfile]ActionShowTanChuang callback");
         })
     },
     onClickChangePassword: function (params) {
-        this.m_Panel_userInfo.active = false;
-        this.m_Panel_userChange.active = true;
-        GlobalFun.ActionShowTanChuang(this.m_Panel_userChange,function () {
-            console.log("[PlazaView][onClickChangePassword]ActionShowTanChuang callback");
-        })
+        var self = this;
+        self.onClickCloseButton();
+        cc.loader.loadRes("prefab/UserChangePwdView", function (err, prefab) {
+            var context = cc.Canvas.instance.node;
+            if (cc.isValid(context)) {
+                var newNode = cc.instantiate(prefab);
+                context.addChild(newNode);
+                GlobalFun.ActionShowTanChuang(newNode);
+            }
+        });
     },
     onClickGuestBind: function (params) {
         var self = this;
@@ -191,70 +185,6 @@ cc.Class({
             }
         });
     },
-    onClickConfirmButton: function () {
-        var szPassword = this.m_Editbox_originPassword.string;
-        var szNewPassword = this.m_Editbox_newPassword.string;
-        var szConfirmPassword = this.m_Editbox_confirmPassword.string;
-        if(szPassword.length <= 0 || szNewPassword.length <= 0 || szConfirmPassword.length <= 0) {
-            console.log("[PlazaView][onClickConfirmButton] 密码不能为空!");
-            GlobalFun.showToast("密码不能为空!");
-            return;
-        }
-        if(szPassword == szNewPassword) {
-            console.log("[PlazaView][onClickConfirmButton] 新旧密码不能相同!");
-            GlobalFun.showToast("新旧密码不能相同!");
-            return;
-        }
-        if(szConfirmPassword != szNewPassword) {
-            console.log("[PlazaView][onClickConfirmButton] 确认密码不一致!");
-            GlobalFun.showToast("确认密码不一致!");
-            return;
-        }
-        if(szNewPassword.length < 6 || szNewPassword.length > 16) {
-            console.log("[PlazaView][onClickConfirmButton] 密码长度为6-16位!");
-            GlobalFun.showToast("密码长度为6-16位!");
-            return;
-        }
-        var url = GlobalDef.httpBaseUrl;
-        url += "/hz/hzUpdatePassWord.ashx";
-        var params = {};
-        params["userid"] = GlobalUserData.dwUserID;
-        params["type"] = "1";
-        params["oldpass"] = cc.md5Encode(szPassword);
-        params["newpass"] = cc.md5Encode(szNewPassword);
-        var paramString = GlobalFun.buildRequestParam(params);
-        // "datetamp=1497411512&faceId=2&userid=27142649&sign=909c47b530c68c8e97ebe407c212c7de"
-        var xhr = new XMLHttpRequest();
-        var self = this;
-        xhr.onreadystatechange = function () {
-            console.log("[UserProfileView][onClickConfirmButton] "+xhr.getResponseHeader("Content-Type"));
-            if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
-                var response = xhr.responseText;
-                console.log(response);
-                var value = JSON.parse(response);
-                if (value.status == 1) {
-                    GlobalUserData.szPassWord = cc.md5Encode(szNewPassword);
-                    cc.sys.localStorage.setItem('password', szNewPassword);
-                    self.m_Editbox_confirmPassword.string = "";
-                    self.m_Editbox_newPassword.string = "";
-                    self.m_Editbox_originPassword.string = "";
-                    self.m_Panel_userInfo.active = true;
-                    self.m_Panel_userChange.active = false;
-                    GlobalFun.ActionShowTanChuang(self.m_Panel_userInfo,function () {
-                        console.log("[PlazaView][onClickConfirmButton]ActionShowTanChuang callback");
-                    })
-                    cc.director.emit("onChangePasswordSuccess");
-                }
-                if(value.msg !== undefined) {
-                    GlobalFun.showToast(value.msg);
-                }
-            }
-        };
-        xhr.open("POST", url, true);
-        // xhr.setRequestHeader("Content-Type","application/json");
-        xhr.send(paramString);
-        console.log("[UserProfileView][onClickConfirmButton] " + paramString);
-    }
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {
 

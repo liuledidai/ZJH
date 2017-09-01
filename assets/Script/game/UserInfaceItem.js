@@ -170,11 +170,6 @@ cc.Class({
         else {
             animName = "female_" + index + "_" + szAnim;
         }
-        var clips = animation.getClips();
-        for (var i = 0; i < clips.length; i++) {
-            var clip = clips[i];
-            console.log("clips ", i, clip.name);
-        }
         var pVal = people["base"][gender][index][szAnim];
         if (pVal == null) {
             console.log("people is null",gender,index,szAnim);
@@ -185,23 +180,29 @@ cc.Class({
             var str = pVal.image + "_" + GlobalFun.PrefixInteger(i + 1, 2);
             urls.push(str);
         }
-        this.loadResArray(urls, cc.SpriteFrame, function (err, assets) {
-            if (err) {
-                console.log(err.message || err);
-                return;
-            }
-            var spriteFrames = assets;
-            var clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, spriteFrames.length);
-            clip.name = animName;
-            clip.wrapMode = cc.WrapMode.Default;
-            animation.addClip(clip);
+        if (animation.getAnimationState(animName)) {
             animation.play(animName);
-            // clip.events.push({
-            //     frame: 1,               // 准确的时间，以秒为单位。这里表示将在动画播放到 1s 时触发事件
-            //     func: "playanim",     // 回调函数名称
-            //     params: ["win"]    // 回调参数
-            // });
-        })
+            console.log("anim is exist",animName);
+        }
+        else {
+            this.loadResArray(urls, cc.SpriteFrame, function (err, assets) {
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                var spriteFrames = assets;
+                var clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, spriteFrames.length);
+                clip.name = animName;
+                clip.wrapMode = cc.WrapMode.Default;
+                console.log(animation.addClip(clip));
+                animation.play(animName);
+                // clip.events.push({
+                //     frame: 1,               // 准确的时间，以秒为单位。这里表示将在动画播放到 1s 时触发事件
+                //     func: "playanim",     // 回调函数名称
+                //     params: ["win"]    // 回调参数
+                // });
+            })
+        }
         this.node.stopAllActions();
         this.node.runAction(cc.sequence(
             cc.delayTime(GlobalFun.getRandomInt(5, 10)),

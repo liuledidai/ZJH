@@ -21,7 +21,12 @@ cc.Class({
 
     // use this for initialization
     onLoad: function () {
-
+        //初始隐藏所有按钮
+        console.log("[AlertView][onLoad]")
+        var btnArray = this.m_Layout_btnSet.children;
+        for (var i = 0; i < btnArray.length; i++) {
+            btnArray[i].active = false;
+        }
     },
     onDestroy: function () {
         // cc.sys.garbageCollect();
@@ -60,11 +65,23 @@ cc.Class({
             let btn_callback = params.btn[i].callback;
             if (!cc.isValid(btn)) break;
             btn.active = true;
-            btn.on(cc.Node.EventType.TOUCH_END,()=>{
-                this.close(btn_callback);
-            },this);
+            // TOUCH_START = 0,
+			// TOUCH_MOVE = 0,
+			// TOUCH_END = 0,
+			// TOUCH_CANCEL = 0,
             let label = btn.getComponentInChildren(cc.Label);
             label.string = params.btn[i].name;
+            btn.on(cc.Node.EventType.TOUCH_START,()=>{
+                label.node.opacity = 175;
+            },this);
+            btn.on(cc.Node.EventType.TOUCH_CANCEL,()=>{
+                label.node.opacity = 255;
+            },this);
+            btn.on(cc.Node.EventType.TOUCH_END,()=>{
+                label.node.opacity = 255;
+                this.close(btn_callback);
+            },this);
+            
         }
     }
 

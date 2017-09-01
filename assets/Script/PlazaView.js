@@ -109,13 +109,13 @@ cc.Class({
         // this._gameFrame = this.getScene().getChildByName("GameFrame").getComponent("GameFrame");
         this.refreshUI();
         this.refreshRoomList();
-        this.m_Label_time = cc.find("Canvas/m_Panel_top_right/plaza_state/m_Label_time");
-        this.m_Label_networkState = cc.find("Canvas/m_Panel_top_right/plaza_state/m_Label_networkState");
-        if (this.m_Label_time) {
-            console.log("[PlazaView][schedule]");
-            cc.director.getScheduler().schedule(this.refreshTimeAndNetworkInfo, this, 1, cc.macro.REPEAT_FOREVER, 0, false);
-        }
-        this.refreshTimeAndNetworkInfo();
+        // this.m_Label_time = cc.find("Canvas/m_Panel_top_right/plaza_state/m_Label_time");
+        // this.m_Label_networkState = cc.find("Canvas/m_Panel_top_right/plaza_state/m_Label_networkState");
+        // if (this.m_Label_time) {
+        //     console.log("[PlazaView][schedule]");
+        //     cc.director.getScheduler().schedule(this.refreshTimeAndNetworkInfo, this, 1, cc.macro.REPEAT_FOREVER, 0, false);
+        // }
+        // this.refreshTimeAndNetworkInfo();
     },
     onDestroy: function () {
         cc.director.getScheduler().unschedule(this.refreshTimeAndNetworkInfo, this);
@@ -157,10 +157,16 @@ cc.Class({
         if (PlazaScrollRing) {
             PlazaScrollRing.clearItem();
             // PlazaScrollRing.node.getComponent(cc.Layout).enabled = true;
-            for (var index = 0; index < 4; index++) {
+            for (var index = 0; index < 3; index++) {
                 var item = cc.instantiate(this.plazaRoomItem);
                 item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
                 item.setPositionX(beginx + space*index);
+                PlazaScrollRing.addItem(item);
+            }
+            for (var index = 0; index < 3; index++) {
+                var item = cc.instantiate(this.plazaRoomItem);
+                item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
+                item.setPositionX(beginx + space*(index+3));
                 PlazaScrollRing.addItem(item);
             }
              PlazaScrollRing.init();
@@ -304,6 +310,25 @@ cc.Class({
     onClickActivity: function (params) {
         console.log("[PlazaView][conClickActivity]");
         GlobalFun.showAlert({message:"暂未开放,敬请期待!"});
+    },
+    onClickRankList: function name(params) {
+        console.log("[PlazaView][onClickRankList]");
+        GlobalFun.showAlert({message:"暂未开放,敬请期待!"});
+    },
+    onClickRule: function (params) {
+        console.log("[PlazaView][onClickRule]");
+        var self = this;
+        if( cc.isValid(self._ruleView) === false ){
+            cc.loader.loadRes("prefab/RuleView", function (err, Prefab) {
+                if (cc.isValid(self.node)) {
+                    self._ruleView = cc.instantiate(Prefab);
+                    self.node.addChild(self._ruleView);
+                    GlobalFun.ActionShowTanChuang(self._ruleView,function () {
+                        console.log("[PlazaView][onClickRule]ActionShowTanChuang callback");
+                    });
+                }
+            });
+        }
     },
     onClickBank: function (params) {
         console.log("[PlazaView][conClickBank]");

@@ -1,4 +1,11 @@
 require("MD5");
+
+var ZORDER = cc.Enum({
+    LoadingOrder: 1000,
+    AlertOrder: 1001,
+    ToastOrder: 1002,
+})
+
 function ActionShowTanChuang(widget, cb) {
     if (cc.isValid(widget) === false) {
         console.log("[GlobalFun][ActionShowTanChuang] widget is invalid");
@@ -42,9 +49,9 @@ function showAlert(params, context) {
         }
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(AlertPrefab);
+            context.addChild(newNode, ZORDER.AlertOrder);
             newNode.getComponent("AlertView").init(params);
-            context.addChild(newNode);
-            ActionShowTanChuang(newNode.children[0]);
+            ActionShowTanChuang(cc.find("commonBg", newNode));
             console.log("showAlert");
         }
     });
@@ -63,7 +70,7 @@ function showToast(message, context) {
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(ToastPrefab);
             newNode.getComponent("ToastView").init({ message: message });
-            context.addChild(newNode);
+            context.addChild(newNode, ZORDER.ToastOrder);
             console.log("showToast");
         }
     });
@@ -110,7 +117,7 @@ function showLoadingView(params, context) {
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(res);
             newNode.getComponent("LoadingView").init(params);
-            context.addChild(newNode);
+            context.addChild(newNode, ZORDER.LoadingOrder);
         }
     })
 }
@@ -133,6 +140,26 @@ function showBindView(context) {
         }
     });
 }
+
+function showShopView(context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        console.log("[GlobalFun][showShopView] context is invalid");
+        return;
+    }
+    cc.loader.loadRes("prefab/ShopView", function (err, prefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(prefab);
+            context.addChild(newNode);
+            ActionShowTanChuang(newNode);
+        }
+    });
+}
+
 function getsign(params) {
     params = params + "key=fgr7hk5ds35h30hnj7hwas4gfy6sj78x";//加入key
     return cc.md5Encode(params).toLowerCase();
@@ -308,4 +335,5 @@ module.exports = {
     getRandomInt: getRandomInt,
     playEffects: playEffects,
     showBindView: showBindView,
+    showShopView: showShopView,
 };

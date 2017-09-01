@@ -21,6 +21,7 @@ cc.Class({
 
     onClickCloseButton: function() {
         // this.node.active = false;  
+        this.node.removeFromParent();
         this.node.destroy();
         console.log("[ServiceView][onClickCloseButton] destroy");
     },

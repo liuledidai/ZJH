@@ -26,11 +26,11 @@ cc.Class({
         this.onRefreshMusic();
     },
     onRefreshMusic: function () {
-        this.m_Button_music_switch_off.node.active = !GlobalUserData.bMusicAble;
+        // this.m_Button_music_switch_off.node.active = !GlobalUserData.bMusicAble;
         this.m_Button_music_switch_on.node.active = GlobalUserData.bMusicAble;
     },
     onRefreshEffect: function () {
-        this.m_Button_effect_switch_off.node.active = !GlobalUserData.bEffectAble;
+        // this.m_Button_effect_switch_off.node.active = !GlobalUserData.bEffectAble;
         this.m_Button_effect_switch_on.node.active = GlobalUserData.bEffectAble;
     },
     onDestroy: function () {

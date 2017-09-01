@@ -188,6 +188,7 @@ cc.Class({
         this.close();
     },
     close: function () {
+        this.node.removeFromParent();
         this.node.destroy();
     },
     onDestroy: function () {

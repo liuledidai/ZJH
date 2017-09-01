@@ -56,7 +56,22 @@ cc.Class({
             cc.director.emit("onLogonRoom",{roomInfo:this._roomInfo});
         }
         else {
-            GlobalFun.showAlert({message:"进入房间需要"+ this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!"});
+            var tipText = "进入房间需要"+ this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!"
+            GlobalFun.showAlert({
+                message: tipText,
+                // textAlignment: cc.TextAlignment.LEFT,
+                btn: [
+                    {
+                        name: "取消",
+                    },
+                    {
+                        name: "充值",
+                        callback: () => {
+                            GlobalFun.showShopView();
+                        }
+                    }
+                ],
+            })
         }
     },
     select: function () {

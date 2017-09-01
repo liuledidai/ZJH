@@ -511,7 +511,7 @@ cc.Class({
         }
 
         //播放音效
-        if (addScore.wCompareState === 0) {
+        if (addScore.wCompareState === 0 && this.m_cbPlayStatus[addScore.wAddScoreUser]) {
             AudioMng.playSFX("sfx_addscore");
             var sfxType = SoundEffectType.kSoundEffectJiaZhu;
             if (this.m_isFirstAdd) {
@@ -762,51 +762,56 @@ cc.Class({
 
         // var endShow;
         var saveType = [];
-        //移动筹码
+        //亮牌
         for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
             var viewID = this.switchViewChairID(i);
             if (gameEnd.lGameScore[i] !== 0) {
-                var viewID = this.switchViewChairID(i);
                 saveType[i] = GameLogic.getCardType(gameEnd.cbCardData[i]);
                 if (!(i === myChair && this.m_bLookCard[i])) {
                     this._gameView.setUserCard(viewID, gameEnd.cbCardData[i]);
                 }
                 if (gameEnd.lGameScore[i] > 0) {
                     this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i]);
-                    this._gameView.winTheChip(viewID);
                     this._gameView.setUserCardType(viewID, saveType[i], "win_");
-                    if (i === myChair) {
-                        AudioMng.playSFX("sfx_gamewin");
-                        GlobalFun.playEffects(this.node, {
-                            fileName: "yx_wlg3",
-                            anim: "yx_win",
-                            loop: false,
-                        });
-                    }
-                    else {
-                        AudioMng.playSFX("sfx_gamelose");
-                        GlobalFun.playEffects(this.node, {
-                            fileName: "yx_wlg3",
-                            anim: "yx_lose",
-                            loop: false,
-                        });
-                    }
                 }
                 else {
                     this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i])
                     this._gameView.setUserCardType(viewID, saveType[i], "lose_");
                 }
-                // endShow = true;
-                // this._gameView.
-                //....
-                //.....
-
             }
             else {
-                saveType[i] = 1;
+                saveType[i] = 0;
                 this._gameView.setUserTableScore(viewID);
             }
         }
+        var delayTime = 1.0;
+        //移动筹码
+        let winViewID = this.switchViewChairID(winner);
+        this.node.runAction(cc.sequence(
+            cc.delayTime(delayTime),
+            cc.callFunc(()=>{
+                this._gameView.winTheChip(winViewID,gameEnd.lGameScore[winner]);
+            }),
+        ));
+        //牌型动画，胜利失败动画&音效
+        this._gameView.showCardTypeAnim(saveType[winner], () => {
+            if (winner === myChair) {
+                AudioMng.playSFX("sfx_gamewin");
+                GlobalFun.playEffects(this.node, {
+                    fileName: "yx_wlg3",
+                    anim: "yx_win",
+                    loop: false,
+                });
+            }
+            else {
+                AudioMng.playSFX("sfx_gamelose");
+                GlobalFun.playEffects(this.node, {
+                    fileName: "yx_wlg3",
+                    anim: "yx_lose",
+                    loop: false,
+                });
+            }
+        });
 
         // for (var i = 0; i < 4; i++) {
         //     var wUserID = gameEnd.wCompareUser[myChair][i];
