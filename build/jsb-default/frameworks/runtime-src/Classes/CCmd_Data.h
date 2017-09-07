@@ -20,13 +20,15 @@ public:
     static CCmd_Data* create();
     void cleanData();
     void setmaxsize(WORD data);
+    WORD getmaxsize();
     void setDataSize(WORD data);
     WORD getDataSize();
     WORD getReadOffset();
     void* getDataBuffer();
+    
 public:
     void setcmdinfo(WORD main,WORD sub);
-    void pushdata(void* data,WORD datasize);
+    void pushdata(void *data,int unitsize, WORD datalen);
     void pushbyte(BYTE data);
     void pushint(int data);
     void pushword(WORD data);
@@ -38,6 +40,9 @@ public:
     void pushfloat(float data);
     void pushshort(short data);
     void pushpacket(void* data,WORD datasize);
+    void blockBegin(std::string blackName,int unitMaxSize);
+    void blockEnd();
+    
 public:
     WORD getmain();
     WORD getsub();
@@ -52,6 +57,7 @@ public:
     double readdouble(bool bIgnoreAlign=false);
     float readfloat(bool bIgnoreAlign=false);
     short readshort(bool bIgnoreAlign=false);
+    
 private:
     CMD_Command cmdinfo;
     WORD length;
@@ -59,6 +65,11 @@ private:
     WORD push_offset;
     WORD maxsize;
     BYTE buffer[SOCKET_PACKET];
+    bool m_isReadMode;
+    void updateUnitSize(int unitsize,int dataLen);
+    std::string m_curBlockName;
+    std::map<std::string,int> m_blocksLength;
+    std::map<std::string,int> m_blocksUnitSize;
 };
 
 

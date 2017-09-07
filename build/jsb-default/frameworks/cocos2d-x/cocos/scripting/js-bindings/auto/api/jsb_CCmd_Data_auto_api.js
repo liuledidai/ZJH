@@ -211,6 +211,18 @@ short
 },
 
 /**
+ * @method blockBegin
+ * @param {String} arg0
+ * @param {int} arg1
+ */
+blockBegin : function (
+str, 
+int 
+)
+{
+},
+
+/**
  * @method readbool
  * @return {bool}
  */
@@ -279,6 +291,16 @@ cleanData : function (
 },
 
 /**
+ * @method getmaxsize
+ * @return {unsigned short}
+ */
+getmaxsize : function (
+)
+{
+    return 0;
+},
+
+/**
  * @method pushword
  * @param {unsigned short} arg0
  */
@@ -299,6 +321,14 @@ readbyte : function (
 },
 
 /**
+ * @method blockEnd
+ */
+blockEnd : function (
+)
+{
+},
+
+/**
  * @method pushfloat
  * @param {float} arg0
  */
@@ -311,10 +341,12 @@ float
 /**
  * @method pushdata
  * @param {void} arg0
- * @param {unsigned short} arg1
+ * @param {int} arg1
+ * @param {unsigned short} arg2
  */
 pushdata : function (
 void, 
+int, 
 short 
 )
 {

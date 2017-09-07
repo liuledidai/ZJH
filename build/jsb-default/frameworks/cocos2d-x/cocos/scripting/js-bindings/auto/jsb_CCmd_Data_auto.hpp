@@ -32,6 +32,7 @@ bool js_CCmd_Data_CCmd_Data_readstring(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_setmaxsize(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_pushstring(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_pushshort(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_CCmd_Data_CCmd_Data_blockBegin(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_readbool(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_readdouble(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_pushint(JSContext *cx, uint32_t argc, jsval *vp);
@@ -39,8 +40,10 @@ bool js_CCmd_Data_CCmd_Data_getDataSize(JSContext *cx, uint32_t argc, jsval *vp)
 bool js_CCmd_Data_CCmd_Data_getDataBuffer(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_getsub(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_cleanData(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_CCmd_Data_CCmd_Data_getmaxsize(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_pushword(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_readbyte(JSContext *cx, uint32_t argc, jsval *vp);
+bool js_CCmd_Data_CCmd_Data_blockEnd(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_pushfloat(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_pushdata(JSContext *cx, uint32_t argc, jsval *vp);
 bool js_CCmd_Data_CCmd_Data_create(JSContext *cx, uint32_t argc, jsval *vp);

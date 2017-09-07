@@ -1,6 +1,6 @@
 require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"AlertView":[function(require,module,exports){
 "use strict";
-cc._RFpush(module, '18601RzxBJIKIb9IQjkETao', 'AlertView');
+cc._RFpush(module, '96256eD5t9ERKAMm0bGe6YP', 'AlertView');
 // Script/external/AlertView.js
 
 "use strict";
@@ -19,32 +19,89 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        m_Label_alert: cc.Label
+        m_Label_content: {
+            default: null,
+            type: cc.RichText
+        },
+        m_Layout_btnSet: cc.Node
     },
 
     // use this for initialization
     onLoad: function onLoad() {
-        // this.init({message:"this is just test"});
+        //初始隐藏所有按钮
         console.log("[AlertView][onLoad]");
-    },
-    init: function init(params) {
-        var message = params.message;
-        this.m_Label_alert.string = message;
-        this.node.opacity = 0;
-        this.node.runAction(cc.sequence(cc.fadeIn(0.5), cc.delayTime(1.0), cc.fadeOut(0.5), cc.removeSelf()));
-        console.log("[AlertView][init] message = " + message);
+        var btnArray = this.m_Layout_btnSet.children;
+        for (var i = 0; i < btnArray.length; i++) {
+            btnArray[i].active = false;
+        }
     },
     onDestroy: function onDestroy() {
-        cc.sys.garbageCollect();
+        // cc.sys.garbageCollect();
         console.log("[AlertView][onDestroy]");
     },
-    onDisable: function onDisable(params) {
+    close: function close(callback) {
+        if (typeof callback === "function") {
+            callback();
+        }
         this.node.destroy();
-        console.log("[AlertView][onDisable]");
     },
-    onEnable: function onEnable(params) {
-        console.log("[AlertView][onEnable]");
+    init: function init(params) {
+        var _this = this;
+
+        var szText = params.message || "";
+        console.log("[AlertView]", this.m_Label_content.horizontalAlign);
+        var textAlignment;
+        if (params.textAlignment !== undefined) {
+            textAlignment = params.textAlignment;
+        } else {
+            textAlignment = cc.TextAlignment.CENTER;
+        }
+        this.m_Label_content.horizontalAlign = textAlignment;
+        console.log("[AlertView]", this.m_Label_content.horizontalAlign);
+        this.m_Label_content.string = szText;
+        var btnNumber = 0;
+        if (params.btn && params.btn.length > 0) {
+            btnNumber = params.btn.length;
+        } else {
+            params.btn = [{ name: "确定" }];
+            btnNumber = 1;
+        }
+
+        var _loop = function _loop() {
+            console.log("[AlertView] btn ", i, params.btn[i].name);
+            var btn = _this.m_Layout_btnSet.children[i];
+            var btn_callback = params.btn[i].callback;
+            if (!cc.isValid(btn)) return "break";
+            btn.active = true;
+            // TOUCH_START = 0,
+            // TOUCH_MOVE = 0,
+            // TOUCH_END = 0,
+            // TOUCH_CANCEL = 0,
+            var label = btn.getComponentInChildren(cc.Label);
+            label.string = params.btn[i].name;
+            btn.on(cc.Node.EventType.TOUCH_START, function () {
+                label.node.opacity = 175;
+            }, _this);
+            btn.on(cc.Node.EventType.TOUCH_CANCEL, function () {
+                label.node.opacity = 255;
+            }, _this);
+            btn.on(cc.Node.EventType.TOUCH_END, function () {
+                label.node.opacity = 255;
+                _this.close(btn_callback);
+            }, _this);
+        };
+
+        for (var i = 0; i < btnNumber; i++) {
+            var _ret = _loop();
+
+            if (_ret === "break") break;
+        }
     }
+
+    // called every frame, uncomment this function to activate update callback
+    // update: function (dt) {
+
+    // },
 });
 
 cc._RFpop();
@@ -56,8 +113,17 @@ cc._RFpush(module, '40facvaPhFNy6Mw7j/9j4sO', 'AudioMng');
 "use strict";
 
 var AudioMng = {
-    playMusic: function playMusic() {
-        cc.audioEngine.playMusic(cc.url.raw("resources/sounds/bgm//bgm_plaza.mp3"), true);
+    _soundData: undefined,
+    _currentBgm: undefined,
+    playMusic: function playMusic(szKey) {
+        szKey = szKey || this._currentBgm;
+        if (szKey === undefined || szKey === "" || this._soundData === undefined) {
+            return;
+        }
+        var szPath = "resources/" + this._soundData["base"]["base"]["background_music"][szKey];
+        console.log("[AudioMng][playMusic] " + szPath);
+        this._currentBgm = szKey;
+        cc.audioEngine.playMusic(cc.url.raw(szPath), true);
     },
     pauseMusic: function pauseMusic() {
         cc.audioEngine.pauseMusic();
@@ -65,8 +131,37 @@ var AudioMng = {
     resumeMusic: function resumeMusic() {
         cc.audioEngine.resumeMusic();
     },
+    stopMusic: function stopMusic() {
+        this._currentBgm = "";
+        cc.audioEngine.stopMusic();
+    },
     _playSFX: function _playSFX(clip) {
         cc.audioEngine.playEffect(clip, false);
+    },
+    playSFX: function playSFX(szKey) {
+        if (szKey === undefined || szKey === "" || this._soundData === undefined) {
+            return;
+        }
+        var szPath = "resources/" + this._soundData["base"]["base"]["effect"][szKey];
+        console.log("[AudioMng][playSFX] " + szPath);
+        var clip = cc.url.raw(szPath);
+        this._playSFX(clip);
+    },
+    playButton: function playButton() {
+        this.playSFX("sfx_button_click");
+    },
+    setMusicVolume: function setMusicVolume(volume) {
+        cc.audioEngine.setMusicVolume(volume);
+    },
+    setEffectsVolume: function setEffectsVolume(volume) {
+        cc.audioEngine.setEffectsVolume(volume);
+    },
+    loadSoundData: function loadSoundData() {
+        cc.loader.loadRes("json/sound", function (err, content) {
+            console.log(content);
+            AudioMng._soundData = content;
+            // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.shopData, null, ' '));
+        });
     }
 
 };
@@ -100,6 +195,7 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
+        m_Label_bankPwd: cc.Label,
         radioButton: {
             default: [],
             type: cc.Toggle
@@ -115,37 +211,68 @@ cc.Class({
         m_Editbox_get_gold: cc.EditBox,
         m_Editbox_get_bankPwd: cc.EditBox,
         m_Editbox_save_gold: cc.EditBox,
-        m_Editbox_originPassword: {
-            default: null,
-            type: cc.EditBox
-        },
-        m_Editbox_confirmPassword: {
-            default: null,
-            type: cc.EditBox
-        },
-        m_Editbox_newPassword: {
-            default: null,
-            type: cc.EditBox
-        },
+        m_Editbox_originPassword: cc.EditBox,
+        m_Editbox_confirmPassword: cc.EditBox,
+        m_Editbox_newPassword: cc.EditBox,
+
+        m_Editbox_charm_num: cc.EditBox,
+        m_Editbox_charm_pwd: cc.EditBox,
+        m_Label_lottery_gold: cc.Label,
+        m_Label_lottery_charm: cc.Label,
+        m_Label_lottery_num: cc.RichText,
         _selectIndex: 0
     },
 
     // use this for initialization
     onLoad: function onLoad() {
         this.refreshUI();
+        //默认选中选择第一个
+        this.radioButtonClicked(this.radioButton[this._selectIndex]);
     },
     refreshUI: function refreshUI() {
-        this.m_Label_get_userGold.string = GlobalUserData.llGameScore;
-        this.m_Label_save_userGold.string = GlobalUserData.llGameScore;
-        this.m_Label_get_bankGold.string = GlobalUserData.llInsureScore;
-        this.m_Label_save_bankGold.string = GlobalUserData.llInsureScore;
+        // if (GlobalUserData.isGuest) {
+        //     this.m_Label_bankPwd.node.active = true;
+        //     //游客隐藏银行密码和魅力抽奖页签
+        //     this.radioButton[2].node.active = false;
+        //     this.radioButton[3].node.active = false;
+        // }
+        // else {
+        //     this.m_Label_bankPwd.node.active = false;
+        //     //游客隐藏银行密码和魅力抽奖页签
+        //     this.radioButton[2].node.active = true;
+        //     this.radioButton[3].node.active = true;
+        // }
+        var szGoldCount = GlobalUserData.llGameScore;
+        var szCharmCount = GlobalUserData.dwLoveLiness;
+        var szInsureCount = GlobalUserData.llInsureScore;
+        var wExchangenum = GlobalUserData.wExchangenum || 0;
+        var szLottryNum = "<color=#4e0c01>当日抽奖剩余次数</c><color=#ff0000> " + wExchangenum + "</color>";
+        this.m_Label_get_userGold.string = szGoldCount;
+        this.m_Label_save_userGold.string = szGoldCount;
+        this.m_Label_get_bankGold.string = szInsureCount;
+        this.m_Label_save_bankGold.string = szInsureCount;
+
+        this.m_Label_lottery_gold.string = szGoldCount;
+        this.m_Label_lottery_charm.string = szCharmCount;
+        this.m_Label_lottery_num.string = szLottryNum;
+
+        //魅力抽奖
+        this.m_Editbox_charm_num.string = "";
+        this.m_Editbox_charm_pwd.string = "";
+        //修改密码
+        this.m_Editbox_originPassword.string = "";
+        this.m_Editbox_newPassword.string = "";
+        this.m_Editbox_confirmPassword.string = "";
+        //取款
+        this.m_Editbox_get_gold.string = "";
+        this.m_Editbox_get_bankPwd.string = "";
+        //存款
+        this.m_Editbox_save_gold.string = "";
     },
     onEnable: function onEnable() {
-        // cc.director.on('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[BankView][onEnable]");
     },
     onDisable: function onDisable() {
-        // cc.director.off('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[BankView][onDisable]");
     },
     onDestroy: function onDestroy() {
@@ -171,6 +298,10 @@ cc.Class({
             case 2:
                 title += "3";
                 break;
+            case 3:
+                title += "4";
+                break;
+
             default:
                 break;
         }
@@ -200,13 +331,13 @@ cc.Class({
             var re = /./;
             if (szGoldCount.length <= 0 || szPassWord.length <= 0) {
                 console.log("[BankView][onClickConfirm] 金额或密码不能为空！");
-                GlobalFun.showAlert("金额或密码不能为空!");
+                GlobalFun.showToast("金额或密码不能为空!");
                 return;
             }
-            if (Number(szGoldCount) <= 0 || Number(szGoldCount) > GlobalUserData.llInsureScore) {
+            if (isNaN(Number(szGoldCount)) || Number(szGoldCount) <= 0 || Number(szGoldCount) > GlobalUserData.llInsureScore) {
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出银行的金额限制！");
-                GlobalFun.showAlert("数值不合法或超出银行的金额限制!");
+                GlobalFun.showToast("数值不合法或超出银行的金额限制!");
                 return;
             }
 
@@ -215,47 +346,49 @@ cc.Class({
             params["insurepass"] = cc.md5Encode(szPassWord);
             params["type"] = "2";
 
-            url += "/hz/hzUserBankMobile.ashx";
+            // url += "/hz/hzUserBankMobile.ashx";
+            url += "/hz/hzUserBankMobile3_0.ashx";
         } else if (this._selectIndex == 1) {
             var szGoldCount = this.m_Editbox_save_gold.string;
             if (szGoldCount.length <= 0) {
                 console.log("[BankView][onClickConfirm] 金额不能为空！");
-                GlobalFun.showAlert("金额不能为空！");
+                GlobalFun.showToast("金额不能为空！");
                 return;
             }
-            if (Number(szGoldCount) <= 0 || Number(szGoldCount) > Number(GlobalUserData.llGameScore)) {
+            if (isNaN(Number(szGoldCount)) || Number(szGoldCount) <= 0 || Number(szGoldCount) > Number(GlobalUserData.llGameScore)) {
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出身上金额！");
-                GlobalFun.showAlert("数值不合法或超出身上金额！");
+                GlobalFun.showToast("数值不合法或超出身上金额！");
                 return;
             }
             params["userid"] = GlobalUserData.dwUserID;
             params["score"] = szGoldCount;
             params["type"] = "1";
 
-            url += "/hz/hzUserBankMobile.ashx";
+            // url += "/hz/hzUserBankMobile.ashx";
+            url += "/hz/hzUserBankMobile3_0.ashx";
         } else if (this._selectIndex == 2) {
             var szPassWord = this.m_Editbox_originPassword.string;
             var szNewPassWord = this.m_Editbox_newPassword.string;
             var szConfirmPassWord = this.m_Editbox_confirmPassword.string;
             if (szPassWord.length <= 0 || szNewPassWord.length <= 0 || szConfirmPassWord.length <= 0) {
                 console.log("[BankView][onClickConfirm] 密码不能为空！");
-                GlobalFun.showAlert("密码不能为空！");
+                GlobalFun.showToast("密码不能为空！");
                 return;
             }
             if (szPassWord == szNewPassWord) {
                 console.log("[BankView][onClickConfirm] 新旧密码不能相同!");
-                GlobalFun.showAlert("新旧密码不能相同!");
+                GlobalFun.showToast("新旧密码不能相同!");
                 return;
             }
             if (szConfirmPassWord != szNewPassWord) {
                 console.log("[BankView][onClickConfirm] 确认密码不一致!");
-                GlobalFun.showAlert("确认密码不一致!");
+                GlobalFun.showToast("确认密码不一致!");
                 return;
             }
             if (szNewPassWord.length < 6 || szNewPassWord.length > 16) {
                 console.log("[BankView][onClickConfirm] 密码长度为6-16位!");
-                GlobalFun.showAlert("密码长度为6-16位!");
+                GlobalFun.showToast("密码长度为6-16位!");
                 return;
             }
 
@@ -264,7 +397,8 @@ cc.Class({
             params["oldpass"] = cc.md5Encode(szPassWord);
             params["newpass"] = cc.md5Encode(szNewPassWord);
 
-            url += "/hz/hzUpdatePassWord.ashx";
+            // url += "/hz/hzUpdatePassWord.ashx";
+            url += "/hz/hzUpdatePassWord3_0.ashx";
         } else {
             return;
         }
@@ -287,13 +421,46 @@ cc.Class({
                     cc.director.emit("onBankSuccess");
                     self.refreshUI();
                 }
-                GlobalFun.showAlert(value.msg);
+                GlobalFun.showToast(value.msg);
             }
         };
         xhr.open("POST", url, true);
         // xhr.setRequestHeader("Content-Type","application/json");
         xhr.send(paramString);
         console.log("[BankView][onClickConfirm] " + paramString);
+    },
+    onClickReward: function onClickReward() {
+        var szcharmCount = this.m_Editbox_charm_num.string;
+        var szPassWord = this.m_Editbox_charm_pwd.string;
+
+        if (isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 || Number(szcharmCount) > 100) {
+            GlobalFun.showToast("您输入的魅力值不符合规定!");
+            return;
+        }
+        if (szPassWord.length <= 0) {
+            GlobalFun.showToast("密码不能为空!");
+            return;
+        }
+        if (Number(szcharmCount) > GlobalUserData.dwLoveLiness) {
+            GlobalFun.showToast("您的魅力值不足!");
+            return;
+        }
+        var tipText = "<color=#971a01>确定消耗" + szcharmCount + "点魅力值,进行招财进宝？</c>";
+        GlobalFun.showAlert({
+            message: tipText,
+            // textAlignment: cc.TextAlignment.LEFT,
+            btn: [{
+                name: "取消"
+            }, {
+                name: "确定",
+                callback: function callback() {
+                    GlobalFun.showToast("抽奖" + szcharmCount);
+                }
+            }]
+        });
+    },
+    selectCharmNum: function selectCharmNum(event, num) {
+        this.m_Editbox_charm_num.string = num;
     },
     onClickSaveAll: function onClickSaveAll(params) {
         this.m_Editbox_save_gold.string = GlobalUserData.llGameScore;
@@ -370,9 +537,10 @@ var BaseFrame = cc.Class({
     },
     onSocketError: function onSocketError(pData) {
         if (this._threadid === undefined) {
+            console.log("[BaseFrame][onSocketError] _threadid undefined");
             return;
         }
-
+        console.log("[BaseFrame][onSocketError] 服务器连接异常，请稍后重试");
         this.onCloseSocket();
         cc.director.emit("LoadingViewError", { msg: "服务器连接异常，请稍后重试", type: GlobalDef.SMT_CLOSE_GAME });
         //todo...
@@ -437,6 +605,7 @@ var BaseFrame = cc.Class({
         if (this._socket === undefined) {
             return false;
         }
+        console.log("[BaseFrame][sendSocketData] main = " + pData.getmain() + " sub = " + pData.getsub() + " dataLen = " + pData.getDataSize());
         this._socket.sendSocketData(pData);
     },
     onConnectCompeleted: function onConnectCompeleted() {
@@ -478,6 +647,27 @@ Bridge_android.getIpAddress = function () {
     return ret;
 };
 
+//获取游戏version
+Bridge_android.getAppVersion = function () {
+    var sigs = "()Ljava/lang/String;";
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getAppVersion", sigs);
+    return ret;
+};
+
+//获取设备电量信息
+Bridge_android.getBatteryLevel = function () {
+    var sigs = "()F";
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getBatteryLevel", sigs);
+    return ret;
+};
+
+//获取设备网络类型
+Bridge_android.getNetconnType = function () {
+    var sigs = "()Ljava/lang/String;";
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getNetconnType", sigs);
+    return ret;
+};
+
 Bridge_android.showAlert = function (title, message) {
     var sigs = "(Ljava/lang/String;Ljava/lang/String;)V";
     var ret = jsb.reflection.callStaticMethod(BRIDGE_CLASS, "showAlert", sigs, title, message);
@@ -506,6 +696,24 @@ Bridge_ios.getMachineID = function () {
 //获取设备ip
 Bridge_ios.getIpAddress = function () {
     var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getUserIP");
+    return ret;
+};
+
+//获取游戏version
+Bridge_ios.getAppVersion = function () {
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getAppVersion");
+    return ret;
+};
+
+//获取设备电量信息
+Bridge_ios.getBatteryLevel = function () {
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getBatteryLevel");
+    return ret;
+};
+
+//获取设备网络类型
+Bridge_ios.getNetconnType = function () {
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE, "getNetconnType");
     return ret;
 };
 
@@ -1001,6 +1209,7 @@ plaza_cmd.SUB_GP_REGISTER_MOBILE = 151; //手机注册
 plaza_cmd.SUB_GP_LOGON_SUCCESS_MOBILE = 260; //手机登陆成功
 plaza_cmd.SUB_GP_LOGON_ERROR_MOBILE = 261; //手机登陆失败
 plaza_cmd.SUB_GP_LOGON_FINISH_MOBILE = 262; //手机登陆完成
+plaza_cmd.DTP_SEND_MOBILE_GUID = 2013; //手机GUID
 
 // //帐号登录
 // struct CMD_GP_LogonByAccountsMobile
@@ -1838,19 +2047,10 @@ cc.Class({
         console.log("[ChoosePayTypeView][init] " + JSON.stringify(this._params, null, ' '));
     },
     onEnable: function onEnable() {
-        // cc.director.on('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[ChoosePayTypeView][onEnable]");
     },
     onDisable: function onDisable() {
-        // cc.director.off('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[ChoosePayTypeView][onDisable]");
-    },
-    onChangeUserFace: function onChangeUserFace(params) {
-        // GlobalUserData.wFaceID = params.detail.faceID;
-        // this._faceID = params.detail.faceID;
-        // this.onClickCloseButton();
-        // console.log("[ChoosePayTypeView][onChangeUserFace] faceID = "+ JSON.stringify(params.detail));
-        // cc.director.emit("onChangeUserFace",params.detail);
     },
     onDestroy: function onDestroy() {
         cc.sys.garbageCollect();
@@ -1874,7 +2074,7 @@ cc._RFpop();
 },{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"CoverView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'a5920m13KdNGL114wFtOW7i', 'CoverView');
-// Scene/CoverView.js
+// Script/CoverView.js
 
 "use strict";
 
@@ -2103,7 +2303,93 @@ cc.Class({
 });
 
 cc._RFpop();
-},{}],"GameFrame":[function(require,module,exports){
+},{}],"GameChatView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '84fc5v6srpG2I37eB9lHeKX', 'GameChatView');
+// Script/game/GameChatView.js
+
+"use strict";
+
+var GlobalFun = require("GlobalFun");
+var ChatType = cc.Enum({
+    Face: 0,
+    Text: 1
+});
+var chatTextList = ["快点啊，都等到我花儿都谢了！", "怎么又断线了，网络怎么这么差啊！", "不要走决战到天亮！", "你的牌打得也太好了！", "你是妹妹还是哥哥啊！", "和你合作真是愉快了！", "大家好，很高兴见到各位！", "各位，真是不好意思我得离开一会。", "不要吵了,吵啥嘛吵,专心玩游戏吧！"];
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_scrollView: cc.ScrollView,
+        textPrefab: cc.Node,
+        facePrefab: cc.Node,
+        chatAtlas: cc.SpriteAtlas,
+        radioButton: {
+            default: [],
+            type: cc.Toggle
+        }
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {
+        this._selectIndex = 0;
+        this.refreshList(this._selectIndex);
+        var bgNode = this.node.getChildByName("game_chat_bg");
+        bgNode.opacity = 0;
+        bgNode.runAction(cc.sequence(cc.moveBy(0, 600, 0), cc.spawn(cc.moveBy(0.3, -600, 0), cc.fadeIn(0.3))));
+    },
+    onDestroy: function onDestroy() {
+        cc.sys.garbageCollect();
+    },
+    refreshList: function refreshList(index) {
+        var contentList = this.m_scrollView.content;
+        contentList.removeAllChildren();
+        if (this._selectIndex === ChatType.Text) {
+            for (var i = 0; i < chatTextList.length; i++) {
+                var text = chatTextList[i];
+                var textNode = cc.instantiate(this.textPrefab);
+                textNode.active = true;
+                var textLabel = textNode.getChildByName("m_Label_chat").getComponent(cc.Label).string = text;
+                contentList.addChild(textNode);
+            }
+        } else if (this._selectIndex === ChatType.Face) {
+            for (var i = 0; i < 12; i++) {
+                var faceNode = cc.instantiate(this.facePrefab);
+                faceNode.active = true;
+                var faceSprite = faceNode.getChildByName("m_Image_chatFace").getComponent(cc.Sprite);
+                faceSprite.spriteFrame = this.chatAtlas.getSpriteFrame("chat_emoticon_" + GlobalFun.PrefixInteger(i + 1, 2));
+                contentList.addChild(faceNode);
+            }
+        }
+    },
+    radioButtonClicked: function radioButtonClicked(toggle) {
+        var index = this.radioButton.indexOf(toggle);
+        this._selectIndex = index;
+        this.refreshList(this._selectIndex);
+    },
+    close: function close() {
+        var self = this;
+        var bgNode = this.node.getChildByName("game_chat_bg");
+        // bgNode.opacity = 0;
+        bgNode.runAction(cc.sequence(cc.spawn(cc.moveBy(0.3, 600, 0), cc.fadeOut(0.3)), cc.callFunc(function () {
+            self.node.destroy();
+        })));
+        // this.node.destroy();
+    }
+});
+
+cc._RFpop();
+},{"GlobalFun":"GlobalFun"}],"GameFrame":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '0917fhGquREZ5AtcS81ZpEL', 'GameFrame');
 // Script/plaza/models/GameFrame.js
@@ -2165,6 +2451,8 @@ cc.Class({
         return true;
     },
     onConnectCompeleted: function onConnectCompeleted() {
+        //初始化参数
+        this.init();
         cc.director.emit("LoadingViewOnConnect", { message: "正在连接游戏房间..." });
         this.sendLogonPacket();
     },
@@ -2179,7 +2467,7 @@ cc.Class({
                     sub: sub,
                     pData: pData
                 });
-            }), _defineProperty(_socketEventCallback, GlobalDef.MDM_GF_FRAME, this.OnSocketMainGameFrame), _defineProperty(_socketEventCallback, GlobalDef.MDM_GF_PRESENT, function (sub, pData) {}), _socketEventCallback);
+            }), _defineProperty(_socketEventCallback, GlobalDef.MDM_GF_FRAME, this.OnSocketMainGameFrame), _defineProperty(_socketEventCallback, GlobalDef.MDM_GF_PRESENT, this.OnGamePresentMessage), _socketEventCallback);
         }
         if (this._socketEventCallback && this._socketEventCallback[main]) {
             var fun = this._socketEventCallback[main];
@@ -2206,7 +2494,7 @@ cc.Class({
             logonError.szErrorDescribe = pData.readstring(128);
             console.log("[GameFrame][OnSocketMainLogon] errorCode = " + logonError.lErrorCode + " des = " + logonError.szErrorDescribe);
             this.onCloseSocket();
-            // GlobalFun.showToast({message:logonError.szErrorDescribe});
+            // GlobalFun.showAlert({message:logonError.szErrorDescribe});
             if (logonError.szErrorDescribe) {
                 cc.director.emit("LoadingViewError", { msg: logonError.szErrorDescribe, type: GlobalDef.SMT_CLOSE_GAME });
             }
@@ -2367,13 +2655,19 @@ cc.Class({
                     bIntermet = true;
                 }
 
-                console.log("[GameFrame][OnSocketMainSystem] " + message.szContent);
+                console.log("[GameFrame][OnSocketMainSystem] message = " + message.szContent + " type = " + message.wMessageType);
                 if (bIntermet) {
                     if (message.szContent) {
                         cc.director.emit("LoadingViewError", { msg: message.szContent, type: GlobalDef.SMT_CLOSE_GAME });
                     }
                     console.log("[GameFrame][OnSocketMainSystem] " + message.szContent);
                     this.onCloseSocket();
+                }
+                if (message.wMessageType & GlobalDef.SMT_EJECT) {
+                    // console.log("[GameFrame][OnSocketMainSystem] message = " + message.szContent + " type = " + message.wMessageType);
+                    GlobalFun.showAlert({
+                        message: message.szContent
+                    });
                 }
                 break;
             default:
@@ -2428,6 +2722,15 @@ cc.Class({
                 }
                 if (message.wMessageType & GlobalDef.SMT_EJECT) {
                     console.log("[GameFrame][OnSocketMainGameFrame] message = " + message.szContent + " type = " + message.wMessageType);
+                    GlobalFun.showAlert({
+                        message: message.szContent,
+                        btn: [{
+                            name: "确定",
+                            callback: function callback() {
+                                cc.director.emit("onExitRoom");
+                            }
+                        }]
+                    });
                 }
                 if (message.wMessageType & GlobalDef.SMT_GLOBAL) {}
                 break;
@@ -2468,7 +2771,7 @@ cc.Class({
             });
         }
         if (userItem.dwUserID === GlobalUserData.dwUserID) {
-            this.onSocketLogonFinish();
+            // this.onSocketLogonFinish();
         }
     },
     OnSocketSubStatus: function OnSocketSubStatus(sub, pData) {
@@ -2631,11 +2934,14 @@ cc.Class({
         if (userScore.dwUserID == myUserItem.dwUserID) {
             //更新自己全局分数
             GlobalUserData.llGameScore = userScore.UserScore.lGameGold;
+            GlobalUserData.llInsureScore = userScore.UserScore.lInsureScore;
+            GlobalUserData.dwLoveLiness = userScore.lLoveliness;
         }
         if (userItem) {
             console.log("[GameFrame][OnSocketSubScore] 更新 " + JSON.stringify(userScore, null, ' '));
             userItem.lScore = userScore.UserScore.lScore;
             userItem.lGameGold = userScore.UserScore.lGameGold;
+            userItem.lInsureScore = userScore.UserScore.lInsureScore;
             userItem.lWinCount = userScore.UserScore.lWinCount;
             userItem.lLostCount = userScore.UserScore.lLostCount;
             userItem.lDrawCount = userScore.UserScore.lDrawCount;
@@ -2680,6 +2986,30 @@ cc.Class({
     },
     OnSocketSubPresentQuery: function OnSocketSubPresentQuery(sub, pData) {
         console.log("[GameFrame][OnSocketSubPresentQuery]");
+    },
+    OnGamePresentMessage: function OnGamePresentMessage(sub, pData) {
+        console.log("[GameFrame][OnGamePresentMessage]");
+        if (sub == GlobalDef.SUB_GF_PRESENT_RESULT) {
+            this.OnSubMoblieGift(sub, pData);
+        }
+    },
+    OnSubMoblieGift: function OnSubMoblieGift(sub, pData) {
+        //赠送人气值(服务器消息)
+        // struct CMD_GF_PresentMB
+        // {
+        //     BYTE								cbGiftID;                       //礼物ID
+        //     WORD								wSendChairID;					//发送用户
+        //     WORD                                wRecvChairID;					//接收用户
+        //     WORD                                wGiftCount;                     //数量
+        // };
+        var present = {};
+        present.cbGiftID = pData.readbyte();
+        present.wSendChairID = pData.readword();
+        present.wRecvChairID = pData.readword();
+        present.wGiftCount = pData.readword();
+
+        cc.director.emit("OnSubMoblieGift", { present: present });
+        console.log("[GameFrame][OnSubMoblieGift] present = " + JSON.stringify(present, null, ' '));
     },
     sendLogonPacket: function sendLogonPacket() {
         console.log("[GameFrame][sendLogonPacket]");
@@ -2805,6 +3135,24 @@ cc.Class({
         data.setDataSize(sendSize);
 
         // this.sendSocketData(sitData);
+
+        this.sendSocketData(data);
+    },
+    sendGift: function sendGift(wRecvChairID, cbGiftID, count, password) {
+        //赠送结构
+        // struct CMD_GF_Gift_MB
+        // {
+        //     WORD								wChairID;                       //接受者ID
+        //     WORD								wGiftID;						//礼物	ID
+        //     WORD                                wGiftCount;                     //礼物数量
+        //     TCHAR                               szPassword[PASS_LEN];           //密码
+        // };
+        var data = CCmd_Data.create();
+        data.setcmdinfo(GlobalDef.MDM_GF_PRESENT, GlobalDef.SUB_GF_FLOWER_MB);
+        data.pushword(wRecvChairID);
+        data.pushword(cbGiftID);
+        data.pushword(count);
+        data.pushstring(password, GlobalDef.PASS_LEN);
 
         this.sendSocketData(data);
     },
@@ -3058,6 +3406,7 @@ var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 
+var AudioMng = require("AudioMng");
 var GameModel = cc.Class({
     extends: cc.Component,
 
@@ -3084,6 +3433,12 @@ var GameModel = cc.Class({
         this.onInitGameEngine();
         this.m_bOnGame = false;
         this.m_cbGameStatus = -1;
+        AudioMng.playMusic("bgm_room");
+    },
+    onDestroy: function onDestroy() {
+        AudioMng.stopMusic();
+        this._gameFrame.onCloseSocket();
+        cc.sys.garbageCollect();
     },
     onEnable: function onEnable(params) {
         console.log("[GameModel][onEnable]");
@@ -3094,6 +3449,7 @@ var GameModel = cc.Class({
         cc.director.on("onEventUserScore", this.onEventUserScore, this);
         cc.director.on("onExitRoom", this.onExitRoom, this);
         cc.director.on("onExitTable", this.onExitTable, this);
+        cc.director.on("OnSubMoblieGift", this.OnSubMoblieGift, this);
     },
     onDisable: function onDisable(params) {
         console.log("[GameModel][onDisable]");
@@ -3104,6 +3460,7 @@ var GameModel = cc.Class({
         cc.director.off("onEventUserScore", this.onEventUserScore, this);
         cc.director.off("onExitRoom", this.onExitRoom, this);
         cc.director.off("onExitTable", this.onExitTable, this);
+        cc.director.off("OnSubMoblieGift", this.OnSubMoblieGift, this);
     },
     //初始化游戏数据
     onInitGameEngine: function onInitGameEngine() {
@@ -3121,7 +3478,22 @@ var GameModel = cc.Class({
     },
     //退出询问
     onQueryExitGame: function onQueryExitGame() {
-        this.onExitTable();
+        // this.onExitTable();
+        if (this.m_bOnGame) {
+            GlobalFun.showAlert({
+                message: "陛下，打算临战退缩吗？强退将会被笨笨的机器人托管，确定离开？",
+                btn: [{
+                    name: "取消"
+                }, {
+                    name: "确定",
+                    callback: function callback() {
+                        cc.director.emit("onExitRoom");
+                    }
+                }]
+            });
+        } else {
+            this.onExitRoom();
+        }
     },
     standUpAndQuit: function standUpAndQuit() {},
     //退出桌子
@@ -3136,7 +3508,9 @@ var GameModel = cc.Class({
         }
     },
     onExitRoom: function onExitRoom() {
-        this._gameFrame.onCloseSocket();
+        this._gameFrame.sendStandupPacket();
+        this._gameFrame.sendLeftGamePacket();
+        // this._gameFrame.onCloseSocket();
         this.killGameClock();
     },
     onKeyBack: function onKeyBack() {
@@ -3200,8 +3574,8 @@ var GameModel = cc.Class({
     },
     //计时器更新
     onClockUpdata: function onClockUpdata(dt) {
-        console.log("---------------------------dt = " + dt);
-        console.log("[GameModel][onClockUpdata] chair = " + this._ClockChair + " time = " + this._ClockTime + " id = " + this._ClockID);
+        // console.log("---------------------------dt = " + dt);
+        // console.log("[GameModel][onClockUpdata] chair = " + this._ClockChair + " time = " + this._ClockTime + " id = " + this._ClockID);
         if (this._ClockID !== GlobalDef.INVALID_ITEM) {
             this._ClockTime = this._ClockTime - 1;
             var ret = this.onEventGameClockInfo(this._ClockChair, this._ClockTime, this._ClockID);
@@ -3294,12 +3668,26 @@ var GameModel = cc.Class({
             }
         }
     },
+    //魅力赠送
+    OnSubMoblieGift: function OnSubMoblieGift(params) {
+        // present.cbGiftID 
+        // present.wSendChairID 
+        // present.wRecvChairID
+        // present.wGiftCount
+        var present = params.detail.present;
+        if (present && this._gameView && this._gameView.showSendPresent) {
+            this._gameView.showSendPresent(present.wSendChairID, present.wRecvChairID, present.cbGiftID, present.wGiftCount);
+        }
+    },
     //发送准备
     sendUserReady: function sendUserReady() {
         this._gameFrame.sendUserReady();
     },
     sendTextChat: function sendTextChat(msg, tagetUser, color) {
         this._gameFrame.sendTextChat(msg, tagetUser, color);
+    },
+    sendGift: function sendGift(wRecvChairID, cbGiftID, count, password) {
+        this._gameFrame.sendGift(wRecvChairID, cbGiftID, count, password);
     },
     //发送数据
     sendData: function sendData(sub, dataBuf) {
@@ -3319,7 +3707,77 @@ var GameModel = cc.Class({
 module.exports = GameModel;
 
 cc._RFpop();
-},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GameScene":[function(require,module,exports){
+},{"AudioMng":"AudioMng","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GamePresentConfirmView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, 'f660cUpTU9CKI3tKBjUc/h4', 'GamePresentConfirmView');
+// Script/game/GamePresentConfirmView.js
+
+"use strict";
+
+var GlobalUserData = require("GlobalUserData");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_Label_nickname: cc.Label,
+        m_Label_id: cc.Label,
+        m_Label_presentname: cc.Label,
+        m_Label_num: cc.Label,
+        m_Label_gold: cc.Label,
+        m_Label_charm: cc.Label,
+        m_Label_des: cc.Label
+
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    onDestroy: function onDestroy() {},
+    close: function close(callback) {
+        if (callback && typeof callback == "function") {
+            callback();
+        }
+        this.node.removeFromParent();
+        this.node.destroy();
+    },
+    onClickConfirm: function onClickConfirm() {
+        this.close(this.callback);
+    },
+    init: function init(params) {
+        this.callback = params.callback;
+        var itemInfo = params.itemInfo;
+        var userItem = params.userItem;
+        var sendNum = params.sendNum;
+        var szNickName = userItem.szName;
+        var dwUserID = userItem.dwUserID;
+        var goldVal = itemInfo.gold;
+        var costGold = goldVal * sendNum;
+        var llInsureScore = GlobalUserData.llInsureScore;
+        var leftGold = llInsureScore - costGold;
+
+        this.m_Label_nickname.string = szNickName;
+        this.m_Label_id.string = dwUserID;
+        this.m_Label_presentname.string = itemInfo.name;
+        this.m_Label_num.string = sendNum;
+        this.m_Label_gold.string = costGold;
+        this.m_Label_charm.string = itemInfo.charm * sendNum + "魅力";
+
+        var szDes = "说明：您的银行存款" + llInsureScore + ",购买礼物后存款剩余" + leftGold + ".";
+        this.m_Label_des.string = szDes;
+    }
+});
+
+cc._RFpop();
+},{"GlobalUserData":"GlobalUserData"}],"GameScene":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '6ad91+qsMxCQ6GFQhDN2oXK', 'GameScene');
 // Script/game/GameScene.js
@@ -3336,6 +3794,16 @@ var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
 var GameModel = require("GameModel");
 var GameLogic = require("GameLogic");
+var AudioMng = require("AudioMng");
+var SoundEffectType = cc.Enum({
+    kSoundEffectXiaZhu: 1,
+    kSoundEffectGenZhu: 2,
+    kSoundEffectJiaZhu: 3,
+    kSoundEffectKanPai: 4,
+    kSoundEffectFaQiBiPai: 5,
+    kSoundEffectBiPaiShiBai: 6,
+    kSoundEffectQiPai: 7
+});
 cc.Class({
     extends: GameModel,
 
@@ -3362,14 +3830,33 @@ cc.Class({
         this.m_lMaxTurnCount = 8;
         this._gameView = this.node.getComponent("GameView");
     },
+    onDestroy: function onDestroy() {
+        this._super();
+    },
     onEnable: function onEnable(params) {
-        // cc.director.on("onEventGameMessage",this.onEventGameMessage,this);
+        cc.director.on("sendGift", this.onSendGift, this);
         this._super();
     },
     onDisable: function onDisable(params) {
-        // cc.director.off("onEventGameMessage",this.onEventGameMessage,this);
+        cc.director.off("sendGift", this.onSendGift, this);
         this._super();
         // this.onExitRoom();
+    },
+    onSendGift: function onSendGift(params) {
+        params = params.detail || params;
+        var userItem = params.userItem;
+        var cbGiftID = params.cbGiftID;
+        var count = params.count;
+        var szPassword = params.szPassword;
+        if (userItem && userItem.wTableID === this.getMeTableID()) {
+            this.sendGift(userItem.wChairID, cbGiftID, count, cc.md5Encode(szPassword));
+        } else {
+            GlobalFun.showToast("玩家已离开当前桌位，无法发送礼物！");
+        }
+    },
+    onExitRoom: function onExitRoom() {
+        this._super();
+        cc.director.loadScene("PlazaScene");
     },
     onInitGameEngine: function onInitGameEngine() {
         this._super();
@@ -3393,6 +3880,7 @@ cc.Class({
         this.m_wWinnerUser = GlobalDef.INVALID_CHAIR; //胜利用户
 
         this.m_llAllTableScore = 0;
+        this.m_bLastAddOver = false; //是否孤注一掷结束
 
         // this.setGameClock(zjh_cmd.MY_VIEWID, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME)
     },
@@ -3412,6 +3900,7 @@ cc.Class({
         this.m_wLostUser = GlobalDef.INVALID_CHAIR; //比牌失败
         this.m_wWinnerUser = GlobalDef.INVALID_CHAIR; //胜利用户
         this.m_llAllTableScore = 0;
+        this.m_bLastAddOver = false; //是否孤注一掷结束
         // this.setGameClock(zjh_cmd.MY_VIEWID, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME)
     },
     //设置计时器
@@ -3455,7 +3944,7 @@ cc.Class({
     },
     //时钟处理
     onEventGameClockInfo: function onEventGameClockInfo(chair, time, clockID) {
-        console.log("[GameScene][onEventGameClockInfo] chair = " + chair + " time = " + time + " clockID = " + clockID);
+        // console.log("[GameScene][onEventGameClockInfo] chair = " + chair + " time = " + time + " clockID = " + clockID);
         if (chair !== GlobalDef.INVALID_CHAIR && chair !== this.getMeChairID()) {
             return;
         }
@@ -3743,6 +4232,8 @@ cc.Class({
                 this._gameView.setUserTableScore(wViewChairID, this.m_lCellScore);
                 //移动筹码
                 this._gameView.playerJetton(wViewChairID, this.m_lTableScore[i]);
+                //加注动作
+                // this._gameView.playUserAnim("chip",viewID);
             }
         }
         //总计下注
@@ -3766,6 +4257,7 @@ cc.Class({
         if (this.m_wCurrentUser === this.getMeChairID()) {
             this.updateControl();
         }
+        AudioMng.playSFX("sfx_addscore");
     },
     onSubAddScore: function onSubAddScore(sub, pData) {
         console.log("[GameScene][onSubAddScore]");
@@ -3793,9 +4285,22 @@ cc.Class({
         var viewID = this.switchViewChairID(addScore.wAddScoreUser);
 
         this.m_wCurrentUser = addScore.wCurrentUser;
-        if (this.m_lCurrentTimes < addScore.lCurrentTimes) {
-            // this._gameView.runAddTimesAnimate(viewID);
+        if (this.m_lCurrentTimes < addScore.lCurrentTimes) {}
+        // this._gameView.runAddTimesAnimate(viewID);
+
+
+        //播放音效
+        if (addScore.wCompareState === 0 && this.m_cbPlayStatus[addScore.wAddScoreUser]) {
+            AudioMng.playSFX("sfx_addscore");
+            var sfxType = SoundEffectType.kSoundEffectJiaZhu;
+            if (this.m_isFirstAdd) {
+                sfxType = SoundEffectType.kSoundEffectXiaZhu;
+            } else if (this.m_lCurrentTimes === addScore.lCurrentTimes) {
+                sfxType = SoundEffectType.kSoundEffectGenZhu;
+            }
+            this.playSound(sfxType, addScore.wAddScoreUser);
         }
+
         this.m_lCurrentTimes = addScore.lCurrentTimes;
 
         if (addScore.wAddScoreUser !== myChair) {
@@ -3822,6 +4327,7 @@ cc.Class({
         this.m_isFirstAdd = false;
     },
     onSubLookCard: function onSubLookCard(sub, pData) {
+        AudioMng.playSFX("sfx_lookcard");
         console.log("[GameScene][onSubLookCard]");
         //看牌数据包
         // struct CMD_S_LookCard
@@ -3837,8 +4343,15 @@ cc.Class({
             lookCard.cbCardData[i] = pData.readbyte();
         }
         lookCard.cbLastAdd = pData.readbyte();
+
+        //看牌音效 
+        this.playSound(SoundEffectType.kSoundEffectKanPai, lookCard.wLookCardUser);
+
         console.log("[GameScene][onSubLookCard] lookCard = " + JSON.stringify(lookCard, null, ' '));
         var viewID = this.switchViewChairID(lookCard.wLookCardUser);
+        //看牌动作
+        this._gameView.playUserAnim("chip", viewID);
+
         this._gameView.setLookCard(viewID, true);
         if (this.getMeChairID() === this.m_wCurrentUser) {
             this.updateControl();
@@ -3890,12 +4403,18 @@ cc.Class({
         var self = this;
         var firstUser = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), compareCard.wCompareUser[0]);
         var secondUser = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), compareCard.wCompareUser[1]);
-        this._gameView.compareCard(firstUser, secondUser, undefined, undefined, compareCard.wCompareUser[0] === this.m_wWinnerUser, function name(params) {
+        this._gameView.compareCard(firstUser, secondUser, undefined, undefined, compareCard.wCompareUser[0] === this.m_wWinnerUser, function (params) {
             self.onFlushCardFinish();
+            self.playSound(SoundEffectType.kSoundEffectBiPaiShiBai, self.m_wLostUser);
         });
+        this.playSound(SoundEffectType.kSoundEffectFaQiBiPai, compareCard.wCompareUser[0]);
+        AudioMng.playSFX("sfx_comparecard");
     },
     onFlushCardFinish: function onFlushCardFinish() {
+        console.log("[onFlushCardFinish]time = ", Date.now());
         //todo
+        var viewID = this.switchViewChairID(this.m_wLostUser);
+        this._gameView.setUserLose(viewID, true);
         this._gameView.stopCompareCard();
         var count = this.getPlayingNum();
         if (count > 1) {
@@ -3912,6 +4431,8 @@ cc.Class({
         }
     },
     onSubOpenCard: function onSubOpenCard(sub, pData) {
+        var _this = this;
+
         console.log("[GameScene][onSubOpenCard]");
         //开牌数据包
         // struct CMD_S_OpenCard
@@ -3919,9 +4440,13 @@ cc.Class({
         //     WORD								wWinner;							//胜利用户
         // };
         var myChair = this.getMeChairID();
+        //8轮结束开牌发送
         if (this.m_cbPlayStatus[myChair] === 1 && !this.m_bLastAddOver) {
-            var data = CCmd_Data.create();
-            this.sendData(zjh_cmd.SUB_C_FINISH_FLASH, data);
+            this.node.runAction(cc.sequence(cc.delayTime(1.0), cc.callFunc(function () {
+                var data = CCmd_Data.create();
+                //比牌结束定时器
+                _this.sendData(zjh_cmd.SUB_C_FINISH_FLASH, data);
+            })));
         }
     },
     onSubGiveUp: function onSubGiveUp(sub, pData) {
@@ -3935,7 +4460,10 @@ cc.Class({
         var viewID = this.switchViewChairID(wGiveUpUser);
         this._gameView.setUserGiveUp(viewID, true);
         this.m_cbPlayStatus[wGiveUpUser] = 0;
-
+        //弃牌音效
+        this.playSound(SoundEffectType.kSoundEffectQiPai, wGiveUpUser);
+        //弃牌动作
+        this._gameView.playUserAnim("chip", viewID);
         //超时服务器自动放弃
         if (wGiveUpUser === this.getMeChairID()) {
             this.killGameClock();
@@ -3958,6 +4486,9 @@ cc.Class({
         this._gameView.m_Node_player[wViewChairID].active = false;
     },
     onSubGameEnd: function onSubGameEnd(sub, pData) {
+        var _this2 = this;
+
+        console.log("[onSubGameEnd]time = ", Date.now());
         console.log("[GameScene][onSubGameEnd]");
         //游戏结束
         // struct CMD_S_GameEnd
@@ -4006,32 +4537,50 @@ cc.Class({
 
         // var endShow;
         var saveType = [];
-        //移动筹码
+        //亮牌
         for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
             var viewID = this.switchViewChairID(i);
             if (gameEnd.lGameScore[i] !== 0) {
-                var viewID = this.switchViewChairID(i);
                 saveType[i] = GameLogic.getCardType(gameEnd.cbCardData[i]);
                 if (!(i === myChair && this.m_bLookCard[i])) {
                     this._gameView.setUserCard(viewID, gameEnd.cbCardData[i]);
                 }
                 if (gameEnd.lGameScore[i] > 0) {
                     this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i]);
-                    this._gameView.winTheChip(viewID);
                     this._gameView.setUserCardType(viewID, saveType[i], "win_");
                 } else {
                     this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i]);
                     this._gameView.setUserCardType(viewID, saveType[i], "lose_");
                 }
-                // endShow = true;
-                // this._gameView.
-                //....
-                //.....
             } else {
-                saveType[i] = 1;
+                saveType[i] = 0;
                 this._gameView.setUserTableScore(viewID);
             }
         }
+        var delayTime = 1.0;
+        //移动筹码
+        var winViewID = this.switchViewChairID(winner);
+        this.node.runAction(cc.sequence(cc.delayTime(delayTime), cc.callFunc(function () {
+            _this2._gameView.winTheChip(winViewID, gameEnd.lGameScore[winner]);
+        })));
+        //牌型动画，胜利失败动画&音效
+        this._gameView.showCardTypeAnim(saveType[winner], function () {
+            if (winner === myChair) {
+                AudioMng.playSFX("sfx_gamewin");
+                GlobalFun.playEffects(_this2.node, {
+                    fileName: "yx_wlg3",
+                    anim: "yx_win",
+                    loop: false
+                });
+            } else {
+                AudioMng.playSFX("sfx_gamelose");
+                GlobalFun.playEffects(_this2.node, {
+                    fileName: "yx_wlg3",
+                    anim: "yx_lose",
+                    loop: false
+                });
+            }
+        });
 
         // for (var i = 0; i < 4; i++) {
         //     var wUserID = gameEnd.wCompareUser[myChair][i];
@@ -4103,7 +4652,11 @@ cc.Class({
         // }
     },
     onSubLastAdd: function onSubLastAdd(sub, pData) {
+        var _this3 = this;
+
         console.log("[GameScene][onSubLastAdd]");
+        console.log("[onSubLastAdd]time = ", Date.now());
+
         //孤注一掷
         // struct CMD_S_LastAdd
         // {
@@ -4127,13 +4680,79 @@ cc.Class({
         lastAdd.lCurrentTurn = pData.readint();
 
         this.m_lCurrentTurn = lastAdd.lCurrentTurn;
+        this.m_wCurrentUser = lastAdd.wCurrentUser;
+
+        var wStartLastAddUser = lastAdd.wStartLastAddUser;
+
+        //播放孤注一掷动画
+        GlobalFun.playEffects(this.node, {
+            fileName: "yx_wlg3",
+            anim: "yx_gzyz",
+            loop: false
+        });
+
+        var delayTime = 1.6;
+        //播放比牌动画
+        for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+            if (lastAdd.wCompareUser[i] !== GlobalDef.INVALID_CHAIR && lastAdd.wLostUser[i] !== GlobalDef.INVALID_CHAIR) {
+                var self;
+
+                (function () {
+                    var wCompareUser = lastAdd.wCompareUser[i];
+                    var wLostUser = lastAdd.wLostUser[i];
+                    self = _this3;
+
+                    var firstUser = _this3._gameFrame.getTableUserItem(_this3._gameFrame.getTableID(), wStartLastAddUser);
+                    var secondUser = _this3._gameFrame.getTableUserItem(_this3._gameFrame.getTableID(), wCompareUser);
+                    _this3.node.runAction(cc.sequence(cc.delayTime(delayTime), cc.callFunc(function () {
+                        _this3.playSound(SoundEffectType.kSoundEffectFaQiBiPai, wStartLastAddUser);
+                        AudioMng.playSFX("sfx_comparecard");
+                        _this3._gameView.compareCard(firstUser, secondUser, undefined, undefined, wStartLastAddUser !== wLostUser, function name(params) {
+                            console.log("[onSubLastAdd][onFlushCardFinish]time = ", Date.now());
+                            self.onFlushCardFinish();
+                            self.playSound(SoundEffectType.kSoundEffectBiPaiShiBai, wLostUser);
+                        });
+                    })));
+                    delayTime += 1.5;
+                })();
+            }
+        }
+        //找到被淘汰的玩家
+        if (this.m_wCurrentUser !== GlobalDef.INVALID_CHAIR) {
+            for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+                if (lastAdd.wCompareUser[i] !== GlobalDef.INVALID_CHAIR && lastAdd.wLostUser[i] !== GlobalDef.INVALID_CHAIR) {
+                    var wLostUser = lastAdd.wLostUser[i];
+                    this.m_cbPlayStatus[wLostUser] = 0;
+                    //如果自己被淘汰
+                    if (wLostUser === this.getMeChairID()) {
+                        this.updateControl();
+                    }
+                    // this._gameView.setUserCard()
+                }
+            }
+            this.node.runAction(cc.sequence(cc.delayTime(delayTime), cc.callFunc(function () {
+                if (_this3.m_wCurrentUser === _this3.getMeChairID()) {
+                    _this3.updateControl();
+                }
+                _this3.setGameClock(_this3.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
+            })));
+        } else {
+            this.m_bLastAddOver = true;
+            if (this.m_cbPlayStatus[this.getMeChairID()]) {
+                this.node.runAction(cc.sequence(cc.delayTime(delayTime), cc.callFunc(function () {
+                    var data = CCmd_Data.create();
+                    _this3.sendData(zjh_cmd.SUB_C_FINISH_FLASH, data);
+                })));
+            }
+        }
     },
-    onClickChangeTable: function onClickChangeTable(params) {
-        this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR);
-    },
+    // onClickChangeTable: function (params) {
+    //     this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR)
+    // },
     onClickQuit: function onClickQuit(params) {
-        this._gameFrame.sendStandupPacket();
-        cc.director.loadScene("PlazaScene");
+        // this._gameFrame.sendStandupPacket();
+        // cc.director.loadScene("PlazaScene");
+        this.onQueryExitGame();
     },
     // sendData : function (sub, dataBuf) {
     //     if (this._gameFrame) {
@@ -4284,7 +4903,13 @@ cc.Class({
 
     //换位操作
     onChangeDesk: function onChangeDesk() {
-        this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR);
+        if (this.m_bOnGame) {
+            GlobalFun.showAlert({
+                message: "陛下，游戏中无法切换座位。"
+            });
+        } else {
+            this._gameFrame.sendSitDownPacket(GlobalDef.INVALID_TABLE, GlobalDef.INVALID_CHAIR);
+        }
     },
 
     //看牌操作
@@ -4337,6 +4962,16 @@ cc.Class({
         //发送数据
         this.onSendAddScore(addScore, false);
     },
+    //孤注一掷
+    onLastAdd: function onLastAdd() {
+        var dataBuf = CCmd_Data.create();
+        this.sendData(zjh_cmd.SUB_C_LAST_ADD, dataBuf);
+        this.killGameClock();
+        this.m_wCurrentUser = GlobalDef.INVALID_CHAIR;
+    },
+    onShowUserInfo: function onShowUserInfo(index) {
+        var userItem = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), index);
+    },
     //更新按钮控制
     updateControl: function updateControl() {
 
@@ -4365,9 +5000,10 @@ cc.Class({
         var followScore = this.m_lCurrentTimes * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
         var followLabel = this._gameView.m_Button_follow.node.children[0].getComponent(cc.Label);
         followLabel.string = followScore;
-        if (maxAddScore < followScore) {
-            this._gameView.m_Button_follow.interactable = false;
-        }
+        // if (maxAddScore < followScore) {
+        // console.log("[GameScene][updateControl] [this.m_lUserMaxScore, this.m_lTableScore[myChair], followScore]" + [this.m_lUserMaxScore, this.m_lTableScore[myChair], followScore])
+        this._gameView.m_Button_follow.interactable = !(maxAddScore < followScore);
+        // }
         // //是否第一次下注
 
         // var textLabel = children[0].children[0].getComponent(cc.Label);
@@ -4414,11 +5050,132 @@ cc.Class({
             }
         }
         this._gameView.m_Button_addscore.interactable = bCanAdd;
+    },
+    playSound: function playSound(sfxType, chair) {
+        var szKey = "";
+        var userItem = this._gameFrame.getTableUserItem(this.getMeTableID(), chair);
+        var cbGender = 1;
+        if (userItem) {
+            cbGender = userItem.cbGender;
+        }
+        if (cbGender === 1) {
+            szKey += "male_yuyin_";
+        } else {
+            szKey += "female_yuyin_";
+        }
+        switch (sfxType) {
+            case SoundEffectType.kSoundEffectXiaZhu:
+                szKey += "xiazhu";
+                break;
+            case SoundEffectType.kSoundEffectGenZhu:
+                szKey += "genzhu_";
+                var randNum = GlobalFun.getRandomInt(1, 3);
+                szKey += randNum;
+                break;
+            case SoundEffectType.kSoundEffectJiaZhu:
+                szKey += "jiazhu_";
+                var randNum = GlobalFun.getRandomInt(1, 3);
+                szKey += randNum;
+                break;
+            case SoundEffectType.kSoundEffectKanPai:
+                szKey += "kanpai_";
+                var randNum = GlobalFun.getRandomInt(1, 4);
+                szKey += randNum;
+                break;
+            case SoundEffectType.kSoundEffectFaQiBiPai:
+                szKey += "faqibipai";
+                break;
+            case SoundEffectType.kSoundEffectBiPaiShiBai:
+                szKey += "bipaishibai_";
+                var randNum = GlobalFun.getRandomInt(1, 3);
+                szKey += randNum;
+                break;
+            case SoundEffectType.kSoundEffectQiPai:
+                szKey += "qipai_";
+                var randNum = GlobalFun.getRandomInt(1, 4);
+                szKey += randNum;
+                break;
+            default:
+                break;
+        }
+        AudioMng.playSFX(szKey);
     }
 });
 
 cc._RFpop();
-},{"CMD_ZaJinHua":"CMD_ZaJinHua","GameLogic":"GameLogic","GameModel":"GameModel","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GameServerItem":[function(require,module,exports){
+},{"AudioMng":"AudioMng","CMD_ZaJinHua":"CMD_ZaJinHua","GameLogic":"GameLogic","GameModel":"GameModel","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GameSelfInfoView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '97fb1nxKNJK3L+FfCMDoZRu', 'GameSelfInfoView');
+// Script/game/GameSelfInfoView.js
+
+"use strict";
+
+var GlobalUserData = require("GlobalUserData");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_Label_name: cc.Label,
+        m_Label_gold: cc.Label,
+        m_Label_charm: cc.Label,
+        m_Label_ID: cc.Label,
+        m_Image_userface: cc.Sprite,
+        m_Image_gender: cc.Sprite,
+        gameUserAtlas: cc.SpriteAtlas,
+        userFaceAtals: cc.SpriteAtlas
+
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    init: function init(userItem) {
+        if (userItem === undefined) {
+            console.log("[GameSelfInfoView][init] userItem is undefined");
+            return;
+        }
+        console.log("[GameSelfInfoView] " + JSON.stringify(userItem, null, ' '));
+        var szNickName = userItem.szName;
+        var szGold = userItem.lScore;
+        var szCharm = userItem.lLoveliness;
+        var dwUserID = userItem.dwUserID;
+        var cbGender = userItem.cbGender;
+
+        this.m_Label_name.string = szNickName;
+        this.m_Label_gold.string = szGold;
+        this.m_Label_charm.string = szCharm;
+        this.m_Label_ID.string = dwUserID;
+
+        var faceID = userItem.wFaceID;
+        if (faceID <= 0 || faceID > 8) {
+            faceID = 1;
+        }
+        var szGenderImgName = "gameuser_man";
+        if (cbGender == 1) {
+            szGenderImgName = "gameuser_man";
+        } else {
+            szGenderImgName = "gameuser_woman";
+        }
+        this.m_Image_gender.spriteFrame = this.gameUserAtlas.getSpriteFrame(szGenderImgName);
+        this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+    },
+    close: function close() {
+        this.node.removeFromParent();
+        this.node.destroy();
+    }
+});
+
+cc._RFpop();
+},{"GlobalUserData":"GlobalUserData"}],"GameServerItem":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'c2e88fJn+RCy7BT7oSlWT7S', 'GameServerItem');
 // Script/GameServerItem.js
@@ -4499,7 +5256,260 @@ var GameServerItem = cc.Class({
 module.exports = GameServerItem;
 
 cc._RFpop();
-},{}],"GameUserItem":[function(require,module,exports){
+},{}],"GameSettingView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '96571oGxqNCebmK4+Z21RpZ', 'GameSettingView');
+// Script/game/GameSettingView.js
+
+"use strict";
+
+var GlobalUserData = require("GlobalUserData");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_Button_music_switch_off: cc.Button,
+        m_Button_music_switch_on: cc.Button,
+        m_Button_effect_switch_off: cc.Button,
+        m_Button_effect_switch_on: cc.Button
+
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {
+        this.onRefreshEffect();
+        this.onRefreshMusic();
+    },
+    onRefreshMusic: function onRefreshMusic() {
+        // this.m_Button_music_switch_off.node.active = !GlobalUserData.bMusicAble;
+        this.m_Button_music_switch_on.node.active = GlobalUserData.bMusicAble;
+    },
+    onRefreshEffect: function onRefreshEffect() {
+        // this.m_Button_effect_switch_off.node.active = !GlobalUserData.bEffectAble;
+        this.m_Button_effect_switch_on.node.active = GlobalUserData.bEffectAble;
+    },
+    onDestroy: function onDestroy() {
+        cc.sys.garbageCollect();
+        console.log("[SettingView][onDestroy]");
+    },
+    onClickCloseButton: function onClickCloseButton() {
+        // this.node.active = false;  
+        this.node.destroy();
+        console.log("[SettingView][onClickCloseButton] destroy");
+    },
+    onClickMusicSwitch: function onClickMusicSwitch() {
+        GlobalUserData.setMusicAble(!GlobalUserData.bMusicAble);
+        this.onRefreshMusic();
+    },
+    onClickEffectSwitch: function onClickEffectSwitch() {
+        GlobalUserData.setEffectAble(!GlobalUserData.bEffectAble);
+        this.onRefreshEffect();
+    }
+});
+
+cc._RFpop();
+},{"GlobalUserData":"GlobalUserData"}],"GameUserInfoView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '5424bJsbxtLEIg0l86reKQF', 'GameUserInfoView');
+// Script/game/GameUserInfoView.js
+
+"use strict";
+
+var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        scroll_offset: 0,
+        m_Label_name: cc.Label,
+        m_Label_gold: cc.Label,
+        m_Label_charm: cc.Label,
+        m_Label_ID: cc.Label,
+        m_scrollView: cc.ScrollView,
+        m_toggle_all: cc.Toggle,
+        m_Image_userface: cc.Sprite,
+        m_Image_gender: cc.Sprite,
+        gameUserAtlas: cc.SpriteAtlas,
+        facePrefab: cc.Prefab,
+        userFaceAtals: cc.SpriteAtlas,
+        m_Editbox_num: cc.EditBox,
+        m_Editbox_secret: cc.EditBox,
+        _selectIndex: -1
+
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    init: function init(userItem) {
+        if (userItem === undefined) {
+            console.log("[GameUserInfoView][init] userItem is undefined");
+            return;
+        }
+        console.log("[GameUserInfoView] " + JSON.stringify(userItem, null, ' '));
+        this.userItem = userItem;
+        var szNickName = userItem.szName;
+        var szGold = userItem.lScore;
+        var szCharm = userItem.lLoveliness;
+        var dwUserID = userItem.dwUserID;
+        var cbGender = userItem.cbGender;
+
+        this.m_Label_name.string = szNickName;
+        this.m_Label_gold.string = szGold;
+        this.m_Label_charm.string = szCharm;
+        this.m_Label_ID.string = dwUserID;
+
+        var faceID = userItem.wFaceID;
+        if (faceID <= 0 || faceID > 8) {
+            faceID = 1;
+        }
+        var szGenderImgName = "gameuser_man";
+        if (cbGender == 1) {
+            szGenderImgName = "gameuser_man";
+        } else {
+            szGenderImgName = "gameuser_woman";
+        }
+        this.m_Image_gender.spriteFrame = this.gameUserAtlas.getSpriteFrame(szGenderImgName);
+        this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+
+        this._presentData = GlobalUserData.presentData;
+        this.refreshPresentList();
+    },
+    refreshPresentList: function refreshPresentList() {
+        var _this = this;
+
+        var itemList = this._presentData['present']['base'];
+        var contentList = this.m_scrollView.content;
+        contentList.removeAllChildren();
+
+        var _loop = function _loop() {
+            element = itemList[i];
+            newNode = cc.instantiate(_this.facePrefab);
+
+            newNode.active = true;
+            contentList.addChild(newNode);
+            newNode.getComponent("PresentNode").init(element);
+            var idx = i;
+            newNode.on(cc.Node.EventType.TOUCH_END, function () {
+                _this.onPresentTouch(idx);
+            }, _this);
+        };
+
+        for (var i = 0; i < itemList.length; i++) {
+            var element;
+            var newNode;
+
+            _loop();
+        }
+    },
+    onPresentTouch: function onPresentTouch(idx) {
+        if (idx == this._selectIndex) return;
+        var children = this.m_scrollView.content.children;
+        if (this._selectIndex >= 0 && cc.isValid(children[this._selectIndex])) {
+            children[this._selectIndex].getComponent("PresentNode").setSelect(false);
+        }
+        this._selectIndex = idx;
+        if (idx >= 0 && cc.isValid(children[idx])) {
+            children[idx].getComponent("PresentNode").setSelect(true);
+        }
+    },
+    onArrowLeft: function onArrowLeft(params) {
+        var offset = new cc.Vec2(this.scroll_offset, 0);
+        this.scrollOffsetBy(offset);
+    },
+    onArrowRight: function onArrowRight(params) {
+        var offset = new cc.Vec2(-this.scroll_offset, 0);
+        this.scrollOffsetBy(offset);
+    },
+    scrollOffsetBy: function scrollOffsetBy(offset) {
+        var curOffset = this.m_scrollView.getScrollOffset();
+        var endOffset = curOffset.add(offset);
+        console.log("[curOffset,offset,endOffset] = " + [curOffset, offset, endOffset]);
+        this.m_scrollView.scrollToOffset(cc.pSub(cc.Vec2.ZERO, endOffset), 0.2);
+    },
+    close: function close() {
+        this.node.removeFromParent();
+        this.node.destroy();
+    },
+    onClickConfirm: function onClickConfirm() {
+        if (this._selectIndex < 0) {
+            GlobalFun.showToast("请选择您要赠送的礼物");
+            return;
+        }
+        var szNum = this.m_Editbox_num.string;
+        if (isNaN(Number(szNum)) || Number(szNum) <= 0 || Number(szNum) > 100) {
+            GlobalFun.showToast("赠送的数目必须大于0且小于等于100！");
+            return;
+        }
+        var szPassword = this.m_Editbox_secret.string;
+        if (szPassword.length <= 0) {
+            GlobalFun.showToast("密码不能为空");
+            return;
+        }
+        var itemList = this._presentData['present']['base'];
+        var itemInfo = itemList[this._selectIndex];
+        if (!itemInfo) {
+            GlobalFun.showToast("礼物出差，重新选择");
+            return;
+        }
+        var goldVal = itemInfo.gold;
+        if (goldVal * szNum > GlobalUserData.llInsureScore) {
+            GlobalFun.showToast("赠送的礼物价值超过银行存款，请重新选择");
+            return;
+        }
+
+        var self = this;
+        if (cc.isValid(self._confirmView) === false) {
+            cc.loader.loadRes("prefab/GamePresentConfirmView", function (err, prefab) {
+                if (cc.isValid(self.node)) {
+                    self._confirmView = cc.instantiate(prefab);
+                    self.node.addChild(self._confirmView);
+                    self._confirmView.getComponent("GamePresentConfirmView").init({
+                        userItem: self.userItem,
+                        itemInfo: itemInfo,
+                        sendNum: szNum,
+                        callback: function callback() {
+                            cc.director.emit("sendGift", {
+                                userItem: self.userItem,
+                                cbGiftID: self._selectIndex,
+                                count: szNum,
+                                szPassword: szPassword
+                            });
+                            self.close();
+                        }
+                    });
+                    GlobalFun.ActionShowTanChuang(self._confirmView, function () {
+                        console.log("[GameView][onClickSetting]ActionShowTanChuang callback");
+                    });
+                }
+            });
+        }
+    }
+
+});
+
+cc._RFpop();
+},{"GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GameUserItem":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'a4e148RJJ9PfYCgtqaAeCye', 'GameUserItem');
 // Script/GameUserItem.js
@@ -4611,6 +5621,7 @@ var GameUserItem = cc.Class({
             this.lFleeCount = userInfoHead.UserScoreInfo.lFleeCount;
             this.lExperience = userInfoHead.UserScoreInfo.lExperience;
         }
+        pData.blockEnd();
         while (true) {
             //默认信息
             // #define DTP_NULL					0								//无效数据
@@ -4693,6 +5704,9 @@ var GameUserItem = cc.Class({
         //     //LONG								lGameGold;							//游戏金币
         //     DWORD								dwCustomFaceVer;					//上传头像
         //     DWORD								dwPropResidualTime[15];	//道具时间
+        // BYTE                                cbUserType;                     //用户类型
+        // TCHAR								szWeChatImgURL[256];			// 微信头相
+        // TCHAR								szWeChatNickName[NAME_LEN];		// 微信昵称
         // };
         var userInfoHead = {};
         userInfoHead.wFaceID = pData.readword(); //头像索引
@@ -4714,6 +5728,7 @@ var GameUserItem = cc.Class({
         userInfoHead.cbUserStatus = pData.readbyte(); //用户状态
 
         //用户积分
+        pData.blockBegin("tagUserScore", 8);
         userInfoHead.UserScoreInfo = {};
         userInfoHead.UserScoreInfo.lScore = pData.readint64(); //用户分数
         userInfoHead.UserScoreInfo.lGameGold = pData.readint64(); //游戏金币
@@ -4723,13 +5738,16 @@ var GameUserItem = cc.Class({
         userInfoHead.UserScoreInfo.lDrawCount = pData.readint(); //和局盘数
         userInfoHead.UserScoreInfo.lFleeCount = pData.readint(); //断线数目
         userInfoHead.UserScoreInfo.lExperience = pData.readint(); //用户经验
-
+        pData.blockEnd();
         userInfoHead.dwCustomFaceVer = pData.readdword(); //上传头像
         userInfoHead.dwPropResidualTime = []; //道具时间
-        for (var index = 0; index < 16; index++) {
+        for (var index = 0; index < 15; index++) {
             var val = pData.readdword();
             userInfoHead.dwPropResidualTime.push(val);
         }
+        userInfoHead.cbUserType = pData.readbyte();
+        userInfoHead.szWeChatImgURL = pData.readstring(256);
+        userInfoHead.szWeChatNickName = pData.readstring(32);
         console.log("[GameUserItem][userInfoHead] = " + JSON.stringify(userInfoHead, null, ' '));
         return userInfoHead;
     }
@@ -4751,6 +5769,7 @@ var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
 var GameModel = require("GameModel");
 var GameLogic = require("GameLogic");
+var AudioMng = require("AudioMng");
 cc.Class({
     extends: cc.Component,
 
@@ -4828,6 +5847,8 @@ cc.Class({
 
     // use this for initialization
     onLoad: function onLoad() {
+        var _this = this;
+
         this._scene = this.node.getComponent("GameScene");
         this.m_Label_cellTurn.node.active = false;
         this._ping = true;
@@ -4838,25 +5859,42 @@ cc.Class({
         this.m_timeProgress = [];
         this.m_rcCompare = [];
         var userHeadList = this.node.getChildByName("m_Panel_center").getChildByName("m_userhead").children;
-        for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
-            var userNode = cc.instantiate(this.userInfacePrefab);
-            this.node.getChildByName("nodePlayer").addChild(userNode);
-            this.m_Node_player[index] = userNode;
-            userNode.setPosition(this.ptPlayer[index]);
+
+        var _loop = function _loop() {
+            userNode = cc.instantiate(_this.userInfacePrefab);
+
+            _this.node.getChildByName("nodePlayer").addChild(userNode);
+            _this.m_Node_player[index] = userNode;
+            userNode.setPosition(_this.ptPlayer[index]);
             userNode.rotation = index * -90;
+            // userNode.getComponentInChildren("UserInfaceItem").playerAnimate("wait",index,{cbGender:(Math.floor(index/2) + 1)});
+            // userNode.setScale(1.5);
             userNode.active = false;
 
-            this.m_userHead[index] = {};
-            this.m_userHead[index].name = userHeadList[index].getChildByName("m_Label_username").getComponent(cc.Label);
-            this.m_userHead[index].score = userHeadList[index].getChildByName("game_gold_back").children[0].getComponent(cc.Label);
-            this.m_userHead[index].bg = userHeadList[index];
-            this.m_userHead[index].bg.active = false;
+            _this.m_userHead[index] = {};
+            _this.m_userHead[index].name = userHeadList[index].getChildByName("m_Label_username").getComponent(cc.Label);
+            _this.m_userHead[index].score = userHeadList[index].getChildByName("game_gold_back").children[0].getComponent(cc.Label);
+            _this.m_userHead[index].bg = userHeadList[index];
+            _this.m_userHead[index].bg.active = false;
+            var idx = index;
+            userNode.on(cc.Node.EventType.TOUCH_END, function () {
+                _this.onShowUserInfo(idx, true);
+            }, _this);
+            _this.m_userHead[index].bg.on(cc.Node.EventType.TOUCH_END, function () {
+                _this.onShowUserInfo(idx, false);
+            }, _this);
 
             //计时器
-            this.m_timeProgress[index] = userHeadList[index].getComponent(cc.ProgressBar);
-            this.m_timeProgress[index].progress = 0;
-            this.m_rcCompare[index] = this.node.getChildByName("flagCompare").children[index];
-            this.m_rcCompare[index].active = false;
+            _this.m_timeProgress[index] = userHeadList[index].getComponent(cc.ProgressBar);
+            _this.m_timeProgress[index].progress = 0;
+            _this.m_rcCompare[index] = _this.node.getChildByName("flagCompare").children[index];
+            _this.m_rcCompare[index].active = false;
+        };
+
+        for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
+            var userNode;
+
+            _loop();
         }
         this.m_userCard = [];
         //用户手牌
@@ -4915,7 +5953,7 @@ cc.Class({
 
     //更新时钟
     onUpdateClockView: function onUpdateClockView(viewID, time) {
-        console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
+        // console.log("[GameView][onUpdateClockView] [viewID, time] = " + [viewID, time]);
         if (time <= 0) {
             this.m_Progress_time.node.active = false;
             if (this.m_timeProgress[viewID]) {
@@ -4945,16 +5983,22 @@ cc.Class({
         console.log("[GameView][onUpdateUser] viewID = " + viewID + " userItem = " + JSON.stringify(userItem, null, ' '));
         this.m_Node_player[viewID].active = userItem !== undefined;
         if (userItem) {
+            this.playUserAnim("wait", viewID, userItem);
             this.m_flagReady[viewID].active = GlobalDef.US_READY === userItem.cbUserStatus;
             this.m_userHead[viewID].bg.active = true;
             this.m_userHead[viewID].name.string = userItem.szName;
             this.m_userHead[viewID].score.string = userItem.lScore;
+            this.m_userHead[viewID].userItem = userItem;
         } else {
             this.m_flagReady[viewID].active = false;
             this.m_userHead[viewID].name.string = "";
             this.m_userHead[viewID].score.string = "";
             this.m_userHead[viewID].bg.active = false;
+            this.m_userHead[viewID].userItem = undefined;
         }
+    },
+    playUserAnim: function playUserAnim(szAnim, viewID, userItem) {
+        this.m_Node_player[viewID].getComponentInChildren("UserInfaceItem").playerAnimate(szAnim, viewID, userItem);
     },
     //牌类型介绍的弹出与弹入
     onShowIntroduce: function onShowIntroduce(bShow) {},
@@ -4964,24 +6008,17 @@ cc.Class({
                 console.log("[GameView][playerJetton] num is invalid");
                 return;
             }
-        // var count = Math.floor(num/this.m_lCellScore);
-        // if (count > 10) {
-        //     count = 10;
-        // }
-        // if (count <= 0) {
-        //     count = 1;
-        // }
-        // for (var i = 0; i < count; i++) {
+        //加注动作
+        this.playUserAnim("chip", wViewChairID);
         var chip = cc.instantiate(this.chipPrefab);
         this.nodeChipPool.addChild(chip);
         var chipItem = chip.getComponent("ChipItem");
         chipItem.init(num);
         chip.setPosition(this.ptPlayer[wViewChairID]);
-        // chip.setScale(0.5);
         var x = Math.random() * 200 - 100;
         var y = Math.random() * 100 - 50;
         console.log("[GameView][playerJetton] [x,y] = " + [x, y]);
-        chip.runAction(cc.moveTo(0.2, cc.p(x, y)));
+        chip.runAction(cc.moveTo(0.4, cc.p(x, y)).easing(cc.easeOut(0.5)));
         // }
     },
     //停止比牌动画
@@ -4990,6 +6027,7 @@ cc.Class({
     },
     //比牌
     compareCard: function compareCard(firstuser, seconduser, firstcard, secondcard, bfirstwin, callback) {
+        // AudioMng.playSFX("sfx_comparecard");
         var compareView = this.node.getChildByName("compareView");
         compareView.active = true;
         compareView.runAction(cc.sequence(cc.delayTime(3.0), cc.callFunc(function () {
@@ -5058,7 +6096,9 @@ cc.Class({
         cardItem.showCardBack();
         spriteCard.runAction(cc.sequence(cc.delayTime(fDelay),
         // cc.fadeIn(0),
-        cc.spawn(cc.fadeIn(0.1), cc.moveTo(0.2, self.ptCard[viewID].x + (viewID === zjh_cmd.MY_VIEWID && 80 || 35) * index, self.ptCard[viewID].y))));
+        cc.callFunc(function () {
+            AudioMng.playSFX("sfx_sendcard");
+        }), cc.spawn(cc.fadeIn(0.1), cc.moveTo(0.2, self.ptCard[viewID].x + (viewID === zjh_cmd.MY_VIEWID && 80 || 35) * index, self.ptCard[viewID].y))));
     },
     //看牌状态
     setLookCard: function setLookCard(viewID, bLook) {
@@ -5076,7 +6116,21 @@ cc.Class({
             cardNode.active = true;
         }
         this.m_GiveUp[viewID].active = bGiveup;
+        this.m_GiveUp[viewID].getComponentInChildren(cc.Label).string = "弃牌";
         if (bGiveup) {
+            this.setLookCard(viewID, false);
+        }
+    },
+    //比牌输状态
+    setUserLose: function setUserLose(viewID, bLose) {
+        var nodeCard = this.m_userCard[viewID];
+        for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
+            var cardNode = nodeCard.card[i];
+            cardNode.active = true;
+        }
+        this.m_GiveUp[viewID].active = bLose;
+        this.m_GiveUp[viewID].getComponentInChildren(cc.Label).string = "比牌输";
+        if (bLose) {
             this.setLookCard(viewID, false);
         }
     },
@@ -5137,19 +6191,147 @@ cc.Class({
             nodeCardType.active = false;
         }
     },
+    showCardTypeAnim: function showCardTypeAnim(cardType, callback) {
+        switch (cardType) {
+            case GameLogic.CT_JIN_HUA:
+                AudioMng.playSFX("sfx_jinhua");
+                GlobalFun.playEffects(this.node, {
+                    fileName: "jinhuabaoziths",
+                    anim: "yx_tonghua",
+                    loop: false,
+                    callback: callback
+                });
+                break;
+            case GameLogic.CT_SHUN_JIN:
+                AudioMng.playSFX("sfx_shunjin");
+                GlobalFun.playEffects(this.node, {
+                    fileName: "jinhuabaoziths",
+                    anim: "yx_tonghuashun",
+                    loop: false,
+                    callback: callback
+                });
+                break;
+            case GameLogic.CT_BAO_ZI:
+                AudioMng.playSFX("sfx_baozi");
+                GlobalFun.playEffects(this.node, {
+                    fileName: "jinhuabaoziths",
+                    anim: "yx_baozi",
+                    loop: false,
+                    callback: callback
+                });
+                break;
+
+            default:
+                if (typeof callback == "function") {
+                    callback();
+                }
+                break;
+        }
+    },
+    winScore: function name(params) {
+        // for (var index = 0; index < 4; index++) {
+        //     this.winTheChip(index,index + 2000);
+        // }
+        // this.showSendPresent(0,0,1,1);
+        for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+            // for (var j = i + 1; j < zjh_cmd.GAME_PLAYER; j++) {
+            this.showSendPresent(0, i, i, 1);
+            // }
+        }
+    },
     //赢得筹码
-    winTheChip: function winTheChip(wWinner) {
+    winTheChip: function winTheChip(wWinner, score) {
+        this.playUserAnim("collect", wWinner);
         var children = this.nodeChipPool.children;
+        var delayTime = 0.1 * children.length + 0.4;
         for (var i = 0; i < children.length; i++) {
             var element = children[i];
-            element.runAction(cc.sequence(cc.delayTime(0.1 * (children.length - i)), cc.moveTo(0.4, this.ptPlayer[wWinner]), cc.callFunc(function (node) {
+            element.runAction(cc.sequence(cc.delayTime(0.1 * (children.length - i)), cc.moveTo(0.4, this.ptPlayer[wWinner]).easing(cc.easeOut(0.4)), cc.callFunc(function (node) {
+                AudioMng.playSFX("sfx_addscore");
                 node.destroy();
             })));
         }
+        //显示赢家积分
+        var self = this;
+        this.node.runAction(cc.sequence(cc.delayTime(delayTime), cc.callFunc(function () {
+            cc.loader.loadRes("prefab/winScoreLabel", function (err, prefab) {
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                var label = cc.instantiate(prefab);
+                label.setPosition(self.ptCard[wWinner].x + (wWinner === zjh_cmd.MY_VIEWID && 80 || 35), self.ptCard[wWinner].y);
+                self.node.getChildByName("nodePlayer").addChild(label);
+                label.getComponent(cc.Label).string = "+" + score;
+                label.opacity = 0;
+                label.runAction(cc.sequence(cc.spawn(cc.moveBy(0.4, 0, 90), cc.fadeIn(0.2)), cc.delayTime(0.4), cc.spawn(cc.moveBy(0.2, 0, 20), cc.fadeOut(0.2)), cc.callFunc(function (node) {
+                    node.destroy();
+                })));
+            });
+        })));
     },
     //清理筹码
     cleanAllJettons: function cleanAllJettons() {
         this.nodeChipPool.removeAllChildren();
+    },
+    showSendPresent: function showSendPresent(wSendChairID, wRecvChairID, cbGiftID, wGiftCount) {
+        if (wSendChairID === GlobalDef.INVALID_CHAIR) {
+            //送全场
+        } else {
+            var sendViewID = this._scene.switchViewChairID(wSendChairID);
+            var recvViewID = this._scene.switchViewChairID(wRecvChairID);
+            var sendPoint = this.ptPlayer[sendViewID];
+            var recvPoint = this.ptPlayer[recvViewID];
+            var presentData = GlobalUserData.presentData['present']['base'];
+            var icon = presentData[cbGiftID].icon;
+            var charm = presentData[cbGiftID].charm * wGiftCount;
+            var presentView = cc.find("Canvas/presentView");
+            var fileName = "jjh_liwu1_10";
+            var animName = "jjh_liwu_" + GlobalFun.PrefixInteger(cbGiftID + 1, 2);
+            cc.loader.loadRes("res/gameUserInfo", cc.SpriteAtlas, function (err, atlas) {
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                var node = new cc.Node("present");
+                var sprite = node.addComponent(cc.Sprite);
+                var frame = atlas.getSpriteFrame(icon.split('.')[0]);
+                sprite.spriteFrame = frame;
+                presentView.addChild(node);
+                node.setPosition(sendPoint);
+                node.runAction(cc.sequence(cc.delayTime(1.0), cc.moveTo(0.5, recvPoint), cc.callFunc(function (pnode) {
+                    AudioMng.playSFX("sfx_present_" + GlobalFun.PrefixInteger(cbGiftID + 1, 2));
+                    GlobalFun.playEffects(presentView, {
+                        fileName: fileName,
+                        anim: animName,
+                        tag: fileName + animName,
+                        loop: false,
+                        x: recvPoint.x,
+                        y: recvPoint.y,
+                        callback: function callback() {
+                            // 显示魅力
+                            cc.loader.loadRes("prefab/charmLabel", function (err, prefab) {
+                                if (err) {
+                                    console.log(err.message || err);
+                                    return;
+                                }
+                                var label = cc.instantiate(prefab);
+                                label.setPosition(recvPoint.x, recvPoint.y - 90);
+                                presentView.addChild(label);
+                                label.getComponent(cc.Label).string = "魅力+" + charm;
+                                label.opacity = 0;
+                                label.runAction(cc.sequence(cc.spawn(cc.moveBy(0.4, 0, 90), cc.fadeIn(0.2)), cc.delayTime(0.4), cc.spawn(cc.moveBy(0.2, 0, 20), cc.fadeOut(0.2)), cc.callFunc(function (labelnode) {
+                                    labelnode.removeFromParent();
+                                    labelnode.destroy();
+                                })));
+                            });
+                        }
+                    });
+                    pnode.removeFromParent();
+                    pnode.destroy();
+                })));
+            });
+        }
     },
     //取消比牌选择
     setCompareCard: function setCompareCard(bChoose, status) {
@@ -5163,12 +6345,7 @@ cc.Class({
             }
         }
     },
-    onTouch: function onTouch(params) {
-        // console.log(params);
-        // if (this.m_bShowMenu) {
-        //     this.m_Toggle_menuOpen.uncheck();
-        // }
-    },
+    onTouch: function onTouch(params) {},
     onClickAddScoreButton: function onClickAddScoreButton() {
         // this.m_nodeBottom.active = false;
         this.m_chipBG.active = !this.m_chipBG.active;
@@ -5180,31 +6357,37 @@ cc.Class({
         this._scene.onAutoFollow();
     },
     onClickChat: function onClickChat() {
-        this._scene.sendTextChat('hello world');
+        // this._scene.sendTextChat('hello world');
+        console.log("[GameView][onClickChat]");
+        var self = this;
+        if (cc.isValid(self._chatView) === false) {
+            cc.loader.loadRes("prefab/GameChatView", function (err, chatPrefab) {
+                if (cc.isValid(self.node)) {
+                    self._chatView = cc.instantiate(chatPrefab);
+                    self.node.addChild(self._chatView);
+                }
+            });
+        }
+    },
+    onClickSetting: function onClickSetting() {
+        console.log("[GameView][onClickSetting]");
+        var self = this;
+        if (cc.isValid(self._settingView) === false) {
+            cc.loader.loadRes("prefab/GameSettingView", function (err, settingPrefab) {
+                if (cc.isValid(self.node)) {
+                    self._settingView = cc.instantiate(settingPrefab);
+                    self.node.addChild(self._settingView);
+                    // self._chatView.getComponent("GameChatView")
+                    GlobalFun.ActionShowTanChuang(self._settingView, function () {
+                        console.log("[GameView][onClickSetting]ActionShowTanChuang callback");
+                    });
+                }
+            });
+        }
     },
     //按键响应
     onStartGame: function onStartGame() {
         this._scene.onStartGame(true);
-        // this.m_Button_ready.node.active = false;
-        // var delayCount = 1;
-        // for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
-        //     for (var j = 0; j < zjh_cmd.GAME_PLAYER; j++) {
-        //         // console.log("[GameScene][onSubGameStart] [this.m_wBankerUser,j,zjh_cmd.GAME_PLAYER] = " + [this.m_wBankerUser,j,zjh_cmd.GAME_PLAYER]);
-        //         var chair = j;
-        //         console.log("[GameScene][onSubGameStart] chair = " + chair);
-        //         // if (this.m_cbPlayStatus[chair] === 1) {
-        //             this.sendCard(chair, i, delayCount * 0.1);
-        //             delayCount += 1;
-        //         // }
-        //     }
-
-        // }
-        // this._bBack = !this._bBack;
-        // for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
-        //     var cardData = [2,3,4];
-        //     this.setUserCard(i,this._bBack && cardData || []);
-
-        // }
     },
     onGiveUp: function onGiveUp() {
         this._scene.onGiveUp();
@@ -5218,16 +6401,40 @@ cc.Class({
     onCompareChoose: function onCompareChoose(event, index) {
         this._scene.onCompareChoose(index);
     },
+    onLastAdd: function onLastAdd() {
+        this._scene.onLastAdd();
+    },
     onAddScore: function onAddScore(event, params) {
         console.log(params);
         this._scene.addScore(params);
-        // var arr = [0,1000,10000,100000];
-        // this.playerJetton(zjh_cmd.MY_VIEWID,arr[params]);
+    },
+    onShowUserInfo: function onShowUserInfo(index, isSelf) {
+        console.log("[GameView][onShowUserInfo] index = " + index);
+        // this._scene.onShowUserInfo(index);
+        var userItem = this.m_userHead[index].userItem;
+        var self = this;
+        var ViewName = "GameUserInfoView";
+        if (isSelf) {
+            ViewName = "GameSelfInfoView";
+        }
+        if (cc.isValid(self._gameUserInfoView) === false) {
+            cc.loader.loadRes("prefab/" + ViewName, function (err, UserInfoPrefab) {
+                if (cc.isValid(self.node)) {
+                    self._gameUserInfoView = cc.instantiate(UserInfoPrefab);
+                    self.node.addChild(self._gameUserInfoView);
+                    var gameUserInfoView = self._gameUserInfoView.getComponent(ViewName);
+                    gameUserInfoView.init(userItem);
+                    GlobalFun.ActionShowTanChuang(self._gameUserInfoView, function () {
+                        console.log("[GameView][onShowUserInfo]ActionShowTanChuang callback");
+                    });
+                }
+            });
+        }
     }
 });
 
 cc._RFpop();
-},{"CMD_ZaJinHua":"CMD_ZaJinHua","GameLogic":"GameLogic","GameModel":"GameModel","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GlobalDef":[function(require,module,exports){
+},{"AudioMng":"AudioMng","CMD_ZaJinHua":"CMD_ZaJinHua","GameLogic":"GameLogic","GameModel":"GameModel","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"GlobalDef":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'd85baIYnERFsIqEdSH5SyZY', 'GlobalDef');
 // Script/GlobalDef.js
@@ -5251,13 +6458,20 @@ var GlobalDef = {
     MAX_CHAT_LEN: 128, //聊天长度
     LIMIT_CHAT_TIMES: 1200, //限时聊天
     //正式服务器地址
-    httpInitUrl: "http://ver.jjhgame.com/Handle/hz/init.ashx", //app初始化接口地址
-    httpBaseUrl: "http://interface.jjhgame.com/Handle", //web接口地址
-    httpOpenUrl: "http://user.jjhgame.com/findpasswordHZ.aspx", //找回密码
-    httpUserCenter: "http://f.jjhgame.com/Handle", //用户中心
+    httpInitUrl: "http://tver.jjhgame.com/Handle/hz/init.ashx", //app初始化接口地址
+    // httpBaseUrl: "http://interface.jjhgame.com/Handle",        //web接口地址
+    // httpBaseUrl:"http://thzinterface.jjhgame.com/Handle",
+    httpBaseUrl: "http://thzguest.jjhgame.com/Handle",
+    // httpOpenUrl: "http://user.jjhgame.com/findpasswordHZ.aspx",  //找回密码
+    httpOpenUrl: "http://thzguestu.jjhgame.com", //找回密码
+    // httpUserCenter: "http://f.jjhgame.com/Handle",                  //用户中心
+    httpUserCenter: "http://thzguest.jjhgame.com/Handle",
     LOGON_SERVER_DOMAIN: "nnapp.jjhgame.com", //登录服务器
-    LOGON_SERVER_IP: "122.226.186.38", //登录服务器
-    PORT_LOGON_SERVER: 9009, //登陆服务器
+    // LOGON_SERVER_IP: "122.226.186.38",                               //登录服务器
+    // PORT_LOGON_SERVER: 9009,                                           //登陆服务器
+    LOGON_SERVER_IP: "183.146.209.139", // 测试登录服务器
+    PORT_LOGON_SERVER: 9008, //测试登陆服务器
+
 
     //端口定义
     PORT_VIDEO_SERVER: 7600, //视频服务器
@@ -5399,6 +6613,8 @@ var GlobalDef = {
     SUB_GF_FLOWER: 531, //鲜花消息
     SUB_GF_EXCHANGE_CHARM: 532, //兑换魅力
 
+    SUB_GF_FLOWER_MB: 533, //手机端送人气值
+
     SUB_GF_PROPERTY: 510, //道具消息
     SUB_GF_PROPERTY_RESULT: 511, //道具结果
     SUB_GF_RESIDUAL_PROPERTY: 512, //剩余道具
@@ -5407,6 +6623,8 @@ var GlobalDef = {
     SUB_GF_QUERY_USER_INFO: 515, //鲜花消息
     SUB_GF_SEND_HONG_BAO: 516, //发红包
     SUB_GF_QIANG_HONG_BAO: 517, //发红包
+
+    SUB_GF_PRESENT_RESULT: 519, //送人气值结果
 
     //消息类型
     SMT_INFO: 0x0001, //信息消息
@@ -5428,7 +6646,15 @@ cc._RFpush(module, 'b14e7zGx6xFk7bWtN1oxErw', 'GlobalFun');
 "use strict";
 
 require("MD5");
-function ActionShowTanChuang(widget, cb) {
+var GlobalUserData = require("GlobalUserData");
+var GlobalFun = {};
+var ZORDER = cc.Enum({
+    LoadingOrder: 1000,
+    AlertOrder: 1001,
+    ToastOrder: 1002
+});
+
+GlobalFun.ActionShowTanChuang = function ActionShowTanChuang(widget, cb) {
     if (cc.isValid(widget) === false) {
         console.log("[GlobalFun][ActionShowTanChuang] widget is invalid");
         return;
@@ -5440,37 +6666,60 @@ function ActionShowTanChuang(widget, cb) {
             cb();
         }
     })));
-}
-function showToast(params, context) {
-    context = context || cc.Canvas.instance.node;
-    if (cc.isValid(context) === false) {
-        return;
-    }
-    cc.loader.loadRes("prefab/ToastView", function (err, ToastPrefab) {
-        if (cc.isValid(context)) {
-            var newNode = cc.instantiate(ToastPrefab);
-            newNode.getComponent("ToastView").onInit(params);
-            context.addChild(newNode);
-            ActionShowTanChuang(newNode.children[0]);
-            console.log("showToast");
-        }
-    });
-}
-
-function showAlert(message, context) {
+};
+/**
+ * 
+ * @param {*} params 
+ * {
+ *  message:对话框显示的文本,
+ *  textAlignment:文本对齐模式，默认居中
+ *  btn: [
+ *      {
+ *          name:按钮显示的文本，
+ *          callback: 按钮回调，
+ *      }
+ *      ]
+ * }
+ * @param {*} context 
+ */
+GlobalFun.showAlert = function showAlert(params, context) {
     context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         return;
     }
     cc.loader.loadRes("prefab/AlertView", function (err, AlertPrefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(AlertPrefab);
-            newNode.getComponent("AlertView").init({ message: message });
-            context.addChild(newNode);
+            context.addChild(newNode, ZORDER.AlertOrder);
+            newNode.getComponent("AlertView").init(params);
+            GlobalFun.ActionShowTanChuang(cc.find("commonBg", newNode));
             console.log("showAlert");
         }
     });
-}
+};
+
+GlobalFun.showToast = function showToast(message, context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        return;
+    }
+    cc.loader.loadRes("prefab/ToastView", function (err, ToastPrefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(ToastPrefab);
+            newNode.getComponent("ToastView").init({ message: message });
+            context.addChild(newNode, ZORDER.ToastOrder);
+            console.log("showToast");
+        }
+    });
+};
 /*
 showPopWaiting()
 @params{
@@ -5480,44 +6729,95 @@ showPopWaiting()
     callBackFunc: 收到监听事件执行的回调函数,
 }
 */
-function showPopWaiting(context, params) {
+GlobalFun.showPopWaiting = function showPopWaiting(context, params) {
     if (cc.isValid(context) === false) {
         return;
     }
     cc.loader.loadRes("prefab/PopWaitingView", function (err, PopWaitPrefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(PopWaitPrefab);
             newNode.getComponent("PopWaitView").onInit(params);
             context.addChild(newNode);
-            ActionShowTanChuang(newNode);
+            GlobalFun.ActionShowTanChuang(newNode);
             console.log("showPopWaiting");
         }
     });
-}
+};
 
-function showLoadingView(params, context) {
+GlobalFun.showLoadingView = function showLoadingView(params, context) {
     context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         console.log("[GlobalFun][showLoadingView] context is invalid");
         return;
     }
     cc.loader.loadRes("prefab/LoadingView", function (err, res) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(res);
             newNode.getComponent("LoadingView").init(params);
-            context.addChild(newNode);
+            context.addChild(newNode, ZORDER.LoadingOrder);
         }
     });
-}
+};
 
-function getsign(params) {
+GlobalFun.showBindView = function showBindView(context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        console.log("[GlobalFun][showBindView] context is invalid");
+        return;
+    }
+    cc.loader.loadRes("prefab/GuestBindView", function (err, prefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(prefab);
+            context.addChild(newNode);
+            GlobalFun.ActionShowTanChuang(newNode);
+        }
+    });
+};
+
+GlobalFun.showShopView = function showShopView(context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        console.log("[GlobalFun][showShopView] context is invalid");
+        return;
+    }
+    cc.loader.loadRes("prefab/ShopView", function (err, prefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(prefab);
+            context.addChild(newNode);
+            GlobalFun.ActionShowTanChuang(newNode);
+        }
+    });
+};
+
+GlobalFun.getsign = function getsign(params) {
     params = params + "key=fgr7hk5ds35h30hnj7hwas4gfy6sj78x"; //加入key
     return cc.md5Encode(params).toLowerCase();
-}
+};
 
-function buildRequestParam(params) {
+GlobalFun.buildRequestParam = function buildRequestParam(params) {
     var nowTime = Math.floor(Date.now() / 1000);
+    //加入时间戳
     params["datetamp"] = nowTime;
+    //加入GUID
+    if (GlobalUserData.szUserGUID && GlobalUserData.szUserGUID.length > 0) {
+        params["token"] = GlobalUserData.szUserGUID;
+    }
     var sort_params = Object.keys(params).sort();
     console.log("[GlobalFun][buildRequestParam] " + JSON.stringify(params, null, ' '));
     var paramString = "";
@@ -5528,11 +6828,11 @@ function buildRequestParam(params) {
             paramString = paramString + key + "=" + element + "&";
         }
     }
-    paramString = paramString + "sign=" + getsign(paramString);
+    paramString = paramString + "sign=" + GlobalFun.getsign(paramString);
     return paramString;
-}
+};
 
-function ipToNumber(ip) {
+GlobalFun.ipToNumber = function ipToNumber(ip) {
     var num = 0;
     if (ip == "") {
         return num;
@@ -5547,9 +6847,9 @@ function ipToNumber(ip) {
     num += parseInt(aNum[3]) << 0;
     num = num >>> 0; //这个很关键，不然可能会出现负数的情况
     return num;
-}
+};
 
-function numberToIp(number) {
+GlobalFun.numberToIp = function numberToIp(number) {
     var ip = "";
     if (number <= 0) {
         return ip;
@@ -5562,32 +6862,140 @@ function numberToIp(number) {
     ip += ip0 + "." + ip1 + "." + ip2 + "." + ip3;
 
     return ip;
-}
+};
 //数字填充前缀0
-function PrefixInteger(num, length) {
+GlobalFun.PrefixInteger = function PrefixInteger(num, length) {
     return (Array(length).join('0') + num).slice(-length);
-}
-
-module.exports = {
-    ActionShowTanChuang: ActionShowTanChuang,
-    showToast: showToast,
-    showAlert: showAlert,
-    showPopWaiting: showPopWaiting,
-    buildRequestParam: buildRequestParam,
-    ipToNumber: ipToNumber,
-    numberToIp: numberToIp,
-    PrefixInteger: PrefixInteger,
-    showLoadingView: showLoadingView
 };
 
+//获得(min,max)之间的随机整数，（min<= x <= max）
+GlobalFun.getRandomInt = function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+/* args {
+    fileName,
+    *anim,
+    *loop,
+    *remove,
+    *callback,
+    *x,
+    *y,
+    *scale,
+    *tag,
+} */
+GlobalFun.playEffects = function playEffects(parent, args) {
+    if (cc.isValid(parent) == false) {
+        return;
+    }
+    var fileName = args.fileName;
+    var tag = args.tag || fileName;
+    var anim = args.anim;
+    var loop = args.loop;
+    var node;
+    if (parent.getChildByName(tag)) {
+        node = parent.getChildByName(tag);
+        console.log("node exist ", tag);
+    } else {
+        node = new cc.Node(tag);
+        node.parent = parent;
+        console.log("node create ", tag);
+    }
+    node.setPosition(cc.p(args.x || 0, args.y || 0));
+    if (args.remove === undefined) {
+        args.remove = true;
+    }
+    var filePath = "anim/";
+    var ske = filePath + fileName + "_ske";
+    var tex = filePath + fileName + "_tex";
+    var display = node.getComponent(dragonBones.ArmatureDisplay) || node.addComponent(dragonBones.ArmatureDisplay);
+    display.removeEventListener(dragonBones.EventObject.COMPLETE, display.eventHandler, display);
+    display.removeEventListener(dragonBones.EventObject.LOOP_COMPLETE, display.eventHandler, display);
+    display.removeEventListener(dragonBones.EventObject.FADE_IN_COMPLETE, display.eventHandler, display);
+    display.removeEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, display.eventHandler, display);
+    display.removeEventListener(dragonBones.EventObject.FRAME_EVENT, display.eventHandler, display);
+    display.eventHandler = function (event) {
+        console.log("[playEffects]", fileName, event.type);
+        if (event.type === dragonBones.EventObject.COMPLETE) {
+            if (typeof args.callback === "function") {
+                args.callback(node);
+            }
+            if (args.remove) {
+                node.destroy();
+            }
+        }
+    };
+
+    cc.loader.loadRes(ske, function (err, dragonBonesAsset) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
+        if (dragonBonesAsset instanceof dragonBones.DragonBonesAsset) {
+            display.dragonAsset = dragonBonesAsset;
+            cc.loader.loadRes(tex, dragonBones.DragonBonesAtlasAsset, function (err, dragonBonesAtlasAsset) {
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                if (dragonBonesAtlasAsset instanceof dragonBones.DragonBonesAtlasAsset) {
+                    display.dragonAtlasAsset = dragonBonesAtlasAsset;
+                    var armatureNames = display.getArmatureNames();
+                    if (armatureNames.length <= 0) {
+                        console.log("[playEffects][armatureNames] " + fileName + " is empty");
+                        return;
+                    }
+                    var armatureName = armatureNames[0];
+                    // // display.buildArmature(armatureName);
+                    display.armatureName = armatureName;
+                    var animationNames = display.getAnimationNames(armatureName);
+                    if (animationNames.length <= 0) {
+                        console.log("[playEffects][animationNames] " + fileName + " is empty");
+                        return;
+                    }
+                    var animationName = animationNames.indexOf(anim) !== -1 && anim || animationNames[0];
+                    var times = loop && -1 || 1;
+                    display.addEventListener(dragonBones.EventObject.COMPLETE, display.eventHandler, display);
+                    display.addEventListener(dragonBones.EventObject.LOOP_COMPLETE, display.eventHandler, display);
+                    display.addEventListener(dragonBones.EventObject.FADE_IN_COMPLETE, display.eventHandler, display);
+                    display.addEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, display.eventHandler, display);
+                    display.addEventListener(dragonBones.EventObject.FRAME_EVENT, display.eventHandler, display);
+                    display.playAnimation(animationName, times);
+                    console.log(animationName);
+                } else {}
+            });
+        } else {}
+    });
+};
+
+module.exports = GlobalFun;
+// {
+//     ActionShowTanChuang: ActionShowTanChuang,
+//     showAlert: showAlert,
+//     showToast: showToast,
+//     showPopWaiting: showPopWaiting,
+//     buildRequestParam: buildRequestParam,
+//     ipToNumber: ipToNumber,
+//     numberToIp: numberToIp,
+//     PrefixInteger: PrefixInteger,
+//     showLoadingView: showLoadingView,
+//     getRandomInt: getRandomInt,
+//     playEffects: playEffects,
+//     showBindView: showBindView,
+//     showShopView: showShopView,
+// };
+
 cc._RFpop();
-},{"MD5":"MD5"}],"GlobalUserData":[function(require,module,exports){
+},{"GlobalUserData":"GlobalUserData","MD5":"MD5"}],"GlobalUserData":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '82fedQuEdFL3YFUwo343EL9', 'GlobalUserData');
 // Script/GlobalUserData.js
 
 "use strict";
 
+var AudioMng = require("AudioMng");
+var plaza_cmd = require("CMD_Plaza");
 var GlobalUserData = {
     wFaceID: undefined, //头像索引
     cbGender: undefined, //用户性别
@@ -5617,6 +7025,8 @@ var GlobalUserData = {
     dwInsureCoupon: undefined, //银行贝壳
     dwMatchTicket: undefined, //参赛券
     isFirstBank: undefined, // 首次使用
+    bServerIndex: undefined, //进入服务器的index
+    wExchangenum: undefined, //魅力兑换次数
 
     roomList: [],
     init: function init() {
@@ -5630,6 +7040,11 @@ var GlobalUserData = {
             GlobalUserData.shopData = content;
             // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.shopData, null, ' '));
         });
+        cc.loader.loadRes("json/present", function (err, content) {
+            console.log(content);
+            GlobalUserData.presentData = content;
+            // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.presentData, null, ' '));
+        });
         this.roomList = [];
         var music_setting = JSON.parse(cc.sys.localStorage.getItem('music_setting') || "{}");
         var effect_setting = JSON.parse(cc.sys.localStorage.getItem('effect_setting') || "{}");
@@ -5637,13 +7052,28 @@ var GlobalUserData = {
         this.nMusic = music_setting.musicvalue === undefined && 1.0 || music_setting.musicvalue;
         this.bEffectAble = effect_setting.effectable === undefined || effect_setting.effectable;
         this.nEffect = effect_setting.effectvalue === undefined && 1.0 || effect_setting.effectvalue;
+
+        if (GlobalUserData.bMusicAble) {
+            AudioMng.setMusicVolume(GlobalUserData.nMusic);
+        } else {
+            AudioMng.setMusicVolume(0);
+        }
+        if (GlobalUserData.bEffectAble) {
+            AudioMng.setEffectsVolume(GlobalUserData.nEffect);
+        } else {
+            AudioMng.setEffectsVolume(0);
+        }
     },
     setMusicAble: function setMusicAble(able) {
         this.bMusicAble = able;
         if (able) {
             this.nMusic = 1.0;
+            AudioMng.setMusicVolume(GlobalUserData.nMusic);
+            AudioMng.resumeMusic();
         } else {
             this.nMusic = 0;
+            AudioMng.setMusicVolume(GlobalUserData.nMusic);
+            AudioMng.pauseMusic();
         }
         var music_setting = {
             musicable: able,
@@ -5655,8 +7085,10 @@ var GlobalUserData = {
         this.bEffectAble = able;
         if (able) {
             this.nEffect = 1.0;
+            AudioMng.setEffectsVolume(GlobalUserData.nEffect);
         } else {
             this.nEffect = 0;
+            AudioMng.setEffectsVolume(GlobalUserData.nEffect);
         }
         var effect_setting = {
             effectable: able,
@@ -5679,10 +7111,15 @@ var GlobalUserData = {
         //     DWORD								dwExperience;					//用户经验
         //     DWORD								dwGameID;						//游戏 I D
         //     DWORD								dwUserID;						//用户 I D
+        //---- DWORD                               dwLoveLiness;                   //用户魅力值
         //     LONGLONG							llGameScore;					//游戏金币
         //     LONGLONG							llInsureScore;					//银行金币
         //     TCHAR								szAccounts[NAME_LEN];			//登录帐号
         //     TCHAR								szNickName[NAME_LEN];			//昵称
+        //-----------新增
+        // BYTE                                cbUserType;                     //用户类型
+        // TCHAR								szWeChatImgURL[256];			// 微信头相
+        // TCHAR								szWeChatNickName[NAME_LEN];		// 微信昵称
         // };
         this.dwCustomFaceVer = pData.readdword();
         this.cbMoorMachine = pData.readbyte();
@@ -5695,15 +7132,31 @@ var GlobalUserData = {
         this.dwExperience = pData.readdword();
         this.dwGameID = pData.readdword();
         this.dwUserID = pData.readdword();
+        this.dwLoveLiness = pData.readdword();
         this.llGameScore = pData.readint64();
         this.llInsureScore = pData.readint64();
         this.szAccounts = pData.readstring(32);
         this.szNickName = pData.readstring(32);
-        // console.log(this);
-        // for (var prop in this) {
-        //     if (typeof(this[prop]) == "function") continue;
-        //     console.log('this.' + prop, '=', this[prop]);
-        // }
+
+        this.cbUserType = pData.readbyte();
+        this.szWeChatImgURL = pData.readstring(256);
+        this.szWeChatNickName = pData.readstring(32);
+        pData.blockEnd();
+        while (true) {
+            var dataSize = pData.readword(true);
+            var dataDescribe = pData.readword(true);
+            console.log("[GlobalUserData]size = " + dataSize + " describe = " + dataDescribe);
+            if (dataDescribe === 0) {
+                break;
+            }
+            // pData.setmaxsize(1);
+            switch (dataDescribe) {
+                case plaza_cmd.DTP_SEND_MOBILE_GUID:
+                    this.szUserGUID = pData.readstring(dataSize);
+                default:
+                    break;
+            }
+        }
     },
     getRoomByGame: function getRoomByGame(wKindID) {
         var roomList = [];
@@ -5720,7 +7173,7 @@ var GlobalUserData = {
 module.exports = GlobalUserData;
 
 cc._RFpop();
-},{}],"GuestBindView":[function(require,module,exports){
+},{"AudioMng":"AudioMng","CMD_Plaza":"CMD_Plaza"}],"GuestBindView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '9622c+r5ThJnYo5FBmGVn8W', 'GuestBindView');
 // Script/plaza/views/plaza/GuestBindView.js
@@ -5731,6 +7184,7 @@ require("MD5");
 var GlobalDef = require("GlobalDef");
 var GlobalFun = require("GlobalFun");
 var GlobalUserData = require("GlobalUserData");
+var zjh_cmd = require("CMD_ZaJinHua");
 cc.Class({
     extends: cc.Component,
 
@@ -5757,7 +7211,7 @@ cc.Class({
         var re = /1[3578][0-9]{9}/;
         if (re.exec(szTel) === null) {
             console.log("[GuestBindView][onSend] 手机号码不合法");
-            GlobalFun.showAlert("手机号码不合法");
+            GlobalFun.showToast("手机号码不合法");
             return;
         }
 
@@ -5771,7 +7225,7 @@ cc.Class({
                 console.log(response);
                 var value = JSON.parse(response);
                 if (value.status == 1) {}
-                GlobalFun.showAlert(value.Msg);
+                GlobalFun.showToast(value.Msg);
             }
         };
         xhr.open("POST", url, true);
@@ -5784,31 +7238,35 @@ cc.Class({
         var szVerify = this.m_Editbox_verify.string;
         if (szTel.length <= 0 || szPwd.length <= 0 || szVerify.length <= 0) {
             console.log("帐号密码等信息不能为空");
-            GlobalFun.showAlert("帐号密码等信息不能为空");
+            GlobalFun.showToast("帐号密码等信息不能为空");
             return;
         }
         if (szPwd.length < 6 || szPwd.length > 16) {
             console.log("密码长度为6-16位");
-            GlobalFun.showAlert("密码长度为6-16位");
+            GlobalFun.showToast("密码长度为6-16位");
             return;
         }
 
         var re = /1[3578][0-9]{9}/;
         if (re.exec(szTel) === null) {
             console.log("[GuestBindView][onConfirm] 手机号码不合法");
-            GlobalFun.showAlert("手机号码不合法");
+            GlobalFun.showToast("手机号码不合法");
             return;
         }
 
         var url = GlobalDef.httpUserCenter;
-        url += "/Guest/GuestBindMobile.ashx";
+        // url += "/Guest/GuestBindMobile.ashx";
+        url += "/HZMobile/GuestBindMobile.ashx";
 
         var params = {};
+        params["userid"] = GlobalUserData.dwUserID;
         params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
         params["channelid"] = GlobalDef.CHANNELID_center;
         params["mobile"] = szTel;
         params["pwd"] = cc.md5Encode(szPwd);
         params["code"] = szVerify;
+        params["kindid"] = zjh_cmd.KIND_ID;
+        params["nickname"] = GlobalUserData.szNickName;
 
         var paramString = GlobalFun.buildRequestParam(params);
 
@@ -5834,11 +7292,11 @@ cc.Class({
                     }
                     GlobalUserData.szPassWord = cc.md5Encode(szPwd);
                     GlobalUserData.isGuest = false;
-                    GlobalFun.showAlert("帐号绑定成功，您可以用正式帐号登录游戏了");
+                    GlobalFun.showToast("帐号绑定成功，您可以用正式帐号登录游戏了");
                     cc.director.emit("onGuestBindSuccess");
                     self.onClose();
                 }
-                GlobalFun.showAlert(value.msg);
+                GlobalFun.showToast(value.msg || value.Msg);
             }
         };
         xhr.open("POST", url, true);
@@ -5851,7 +7309,7 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MD5":"MD5"}],"HelloWorld":[function(require,module,exports){
+},{"CMD_ZaJinHua":"CMD_ZaJinHua","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MD5":"MD5"}],"HelloWorld":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '280c3rsZJJKnZ9RqbALVwtK', 'HelloWorld');
 // Script/HelloWorld.js
@@ -5862,6 +7320,7 @@ require("MD5");
 var game_cmd = require("CMD_Game");
 var plaza_cmd = require("CMD_Plaza");
 var BaseFrame = require("BaseFrame");
+var GlobalFun = require("GlobalFun");
 cc.Class({
     extends: BaseFrame,
 
@@ -5871,23 +7330,11 @@ cc.Class({
             type: cc.Label
         },
         // defaults, set visually when attaching this script to the Canvas
-        text: 'Hello, World!',
-        tableView: cc.Node
+        text: 'Hello, World!'
     },
     // name: "helloFrame",
     // use this for initialization
-    _getdata: function _getdata(num) {
-        var array = [];
-        for (var i = 0; i < num; ++i) {
-            var obj = {};
-            obj.name = 'a' + i;
-            array.push(obj);
-        }
-        return array;
-    },
     onLoad: function onLoad() {
-        // console.log(navigator);
-        // console.log(navigator.connection);
         // jsbTest.testlog();
         // var self = this;
         // this.socket = ClientSocket.createSocket(function(pData){
@@ -5912,31 +7359,40 @@ cc.Class({
         // this.socket.ConnectSocket("122.226.186.38",9009);
         // this.onCreateSocket("122.226.186.38",9009);
         // this.label.string = this.text;
-        // var data = this._getdata(100);
-        // this.tableView.getComponent("tableview").initTableView(data.length, { array: data, target: this });
-        this.tableView.getComponent(cc.ScrollView).scrollToLeft(0.1);
+        console.log("[HelloWorld][onLoad]");
     },
-    onScrollEvent: function onScrollEvent(event) {
-        console.log(event);
-        console.log(event.scrollEvents);
-        // this.tableView.getComponent("CoverView").scrollToIndex(2);
-        var coverView = this.tableView.getComponent("CoverView");
-        // coverView.adjustEndScrollView();
-        var children = coverView.content.children;
-        var curIndex = coverView.getCurIndex();
-        // console.log("curIndex = " + curIndex);
-        for (var index = 0; index < children.length; index++) {
-            var element = children[index];
-            var PlazaRoomItem = element.getComponent("PlazaRoomItem");
-            if (index === curIndex) {
-                PlazaRoomItem.select();
-            } else {
-                PlazaRoomItem.unselect();
-            }
-        }
+    onEnable: function onEnable(params) {
+        console.log("[HelloWorld][onEnable]");
+    },
+    start: function start(params) {
+        console.log("[HelloWorld][start]");
     },
     // called every frame
     update: function update(dt) {},
+    play: function play(params) {
+        console.log("play");
+        // var node = new cc.Node();
+        // this.node.addChild(node,9999);
+        var bDate = Date.now();
+        GlobalFun.playEffects(this.node, {
+            fileName: "yx_wlg3",
+            anim: "yx_gzyz",
+            loop: false,
+            // x: 200,
+            // y: 200,
+            callback: function callback() {
+                var eDate = Date.now();
+                console.log("time = ", eDate - bDate);
+            }
+        });
+        // node.runAction(cc.sequence(
+        //     cc.delayTime(2),
+        //     cc.callFunc(function (node) {
+        //         node.destroy();
+        //     })
+        // )
+        // )
+    },
     // onSocketCallBack: function(pData) {
     //     if(pData === undefined)
     //     {
@@ -5988,7 +7444,7 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"BaseFrame":"BaseFrame","CMD_Game":"CMD_Game","CMD_Plaza":"CMD_Plaza","MD5":"MD5"}],"LoadingView":[function(require,module,exports){
+},{"BaseFrame":"BaseFrame","CMD_Game":"CMD_Game","CMD_Plaza":"CMD_Plaza","GlobalFun":"GlobalFun","MD5":"MD5"}],"LoadingView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '8ad8eeapDBLD7IzFVMMTYu2', 'LoadingView');
 // Script/LoadingView.js
@@ -6034,11 +7490,14 @@ cc.Class({
         var msg = params.detail.msg;
         var type = params.detail.type;
         var self = this;
-        GlobalFun.showToast({
+        GlobalFun.showAlert({
             message: msg,
-            confirmfunc: function confirmfunc() {
-                self.node.destroy();
-            }
+            btn: [{
+                name: "确认",
+                callback: function callback() {
+                    self.node.destroy();
+                }
+            }]
         });
     },
     onConnected: function onConnected(params) {
@@ -6225,6 +7684,7 @@ cc.Class({
             logonData.pushstring(cc.md5Encode(this._szPassword), 33);
         }
         logonData.pushstring("", 33);
+        logonData.pushstring("", 32);
         this.sendSocketData(logonData);
     },
     sendRegister: function sendRegister() {
@@ -6273,7 +7733,11 @@ cc.Class({
         GlobalUserData.isGuest = false;
         this._logonMode = 0;
         console.log("[logonframe][onLogonByAccount] " + szAccount + " # " + szPassword);
-        if (this.onCreateSocket("122.226.186.38", 9009) === false) {
+        // if(this.onCreateSocket("122.226.186.38",9009) === false) {
+        //     console.log("[logonframe][onLogonByAccount][onCreateSocket] fail");
+        //     return false;
+        // }
+        if (this.onCreateSocket(GlobalDef.LOGON_SERVER_IP, GlobalDef.PORT_LOGON_SERVER) === false) {
             console.log("[logonframe][onLogonByAccount][onCreateSocket] fail");
             return false;
         }
@@ -6285,8 +7749,12 @@ cc.Class({
         this._szPassword = szPassword;
         this._szMobilePhone = "0123456789";
         this._logonMode = 2;
-        if (this.onCreateSocket("122.226.186.38", 9009) === false) {
-            console.log("[logonframe][onLogonByVisitor][onCreateSocket] fail");
+        // if(this.onCreateSocket("122.226.186.38",9009) === false) {
+        //     console.log("[logonframe][onLogonByVisitor][onCreateSocket] fail");
+        //     return false;
+        // }
+        if (this.onCreateSocket(GlobalDef.LOGON_SERVER_IP, GlobalDef.PORT_LOGON_SERVER) === false) {
+            console.log("[logonframe][onLogonByAccount][onCreateSocket] fail");
             return false;
         }
         console.log("[logonframe][onLogonByVisitor][onCreateSocket] success");
@@ -6299,8 +7767,12 @@ cc.Class({
         this._szMobilePhone = szAccount;
         this._szMobileAuth = szMobileAuth;
         this._logonMode = 1;
-        if (this.onCreateSocket("122.226.186.38", 9009) === false) {
-            console.log("[logonframe][onRegister][onCreateSocket] fail");
+        // if(this.onCreateSocket("122.226.186.38",9009) === false) {
+        //     console.log("[logonframe][onRegister][onCreateSocket] fail");
+        //     return false;
+        // }
+        if (this.onCreateSocket(GlobalDef.LOGON_SERVER_IP, GlobalDef.PORT_LOGON_SERVER) === false) {
+            console.log("[logonframe][onLogonByAccount][onCreateSocket] fail");
             return false;
         }
         console.log("[logonframe][onRegister][onCreateSocket] success");
@@ -6321,6 +7793,7 @@ var GlobalDef = require("GlobalDef");
 var GlobalUserData = require("GlobalUserData");
 var zjh_cmd = require("CMD_ZaJinHua");
 var MultiPlatform = require("MultiPlatform");
+var AudioMng = require("AudioMng");
 cc.Class({
     extends: cc.Component,
 
@@ -6349,20 +7822,179 @@ cc.Class({
     onLoad: function onLoad() {
         console.log("[LogonScene][onLoad]");
         GlobalUserData.init();
+        AudioMng.playMusic("bgm_plaza");
         this._logonFrame = this.node.getComponent("LogonFrame");
+        this._logonView = cc.find("Canvas/LogonView");
+        this.appUpdate();
     },
     onEnable: function onEnable() {
         cc.director.on('onLogon', this.onLogon, this);
         cc.director.on('onShowRegister', this.onShowRegister, this);
+        cc.director.on('onShowLogon', this.onShowLogon, this);
         cc.director.on('onRegister', this.onRegister, this);
     },
     onDisable: function onDisable() {
         cc.director.off('onLogon', this.onLogon, this);
         cc.director.off('onShowRegister', this.onShowRegister, this);
+        cc.director.off('onShowLogon', this.onShowLogon, this);
         cc.director.off('onRegister', this.onRegister, this);
     },
     onDestroy: function onDestroy() {
         cc.sys.garbageCollect();
+    },
+    appUpdate: function appUpdate() {
+        var szMachineID = MultiPlatform.getMachineID();
+        var url = GlobalDef.httpInitUrl;
+        var params = {};
+        params["kindid"] = zjh_cmd.KIND_ID;
+        params["version"] = "1.1";
+        // params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
+        params["mobilemachine"] = szMachineID || "2d4d7c95e5df0179af2466f635ca71de";
+        params["schannelid"] = "AppStore";
+        // params["channelid"] = GlobalDef.CHANNELID_center;
+        if (cc.sys.os == cc.sys.OS_IOS) {
+            params["os"] = "2";
+        } else {
+            // todo
+            params["os"] = "2"; //"1";
+        }
+        var paramString = GlobalFun.buildRequestParam(params);
+        console.log("[LogonScene][appUpdate] params ", paramString);
+        var xhr = new XMLHttpRequest();
+        var self = this;
+        xhr.onreadystatechange = function () {
+            console.log("[LogonScene][appUpdate] " + xhr.readyState);
+            if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
+                var response = xhr.responseText;
+                console.log(response);
+                response = response.replace(/[\b\f\n\r\t]/g, '');
+                console.log(response);
+                var value = JSON.parse(response);
+                if (value.status == 1) {
+                    var version = parseFloat(value.version);
+                    var curVersion = parseFloat(MultiPlatform.getAppVersion() || "1.0");
+                    var IsMaintained = parseInt(value.ismaintained);
+                    if (IsMaintained) {
+                        GlobalFun.showAlert({
+                            message: value.maintaintime,
+                            btn: [{
+                                name: "确定",
+                                callback: function callback() {
+                                    self.appUpdate();
+                                }
+                            }]
+                        });
+                    } else if (version > curVersion) {
+                        var isForceUpdate = parseInt(value.isforceupdate);
+                        var description = value.description;
+                        var szUrl = value.url;
+                        if (isForceUpdate) {
+                            GlobalFun.showAlert({
+                                message: description,
+                                btn: [{
+                                    name: "更新",
+                                    callback: function callback() {
+                                        cc.sys.openURL(szUrl);
+                                    }
+                                }]
+                            });
+                        } else {
+                            GlobalFun.showAlert({
+                                message: description,
+                                btn: [{
+                                    name: "暂不更新"
+                                }, {
+                                    name: "去更新",
+                                    callback: function callback() {
+                                        cc.sys.openURL(szUrl);
+                                    }
+                                }]
+                            });
+                        }
+                    }
+                    if (value.isopenregister !== undefined) {
+                        var isOpenRegister = parseInt(value.isopenregister);
+                        GlobalUserData.isOpenRegister = !isOpenRegister;
+                    }
+                    if (value.systemmessage !== undefined) {
+                        if (value.systemmessage.length > 0) {
+                            cc.sys.localStorage.setItem("systemmessage", value.systemmessage);
+                        }
+                    }
+                    if (value.config !== undefined) {
+                        self.requestServerCfg(value.config);
+                    }
+                } else {
+                    GlobalFun.showAlert({
+                        message: value.msg || "服务器开小差了，请稍后重试",
+                        btn: [{
+                            name: "确定",
+                            callback: function callback() {
+                                self.appUpdate();
+                            }
+                        }]
+                    });
+                }
+                cc.director.emit("appUpdateCompleted");
+            }
+        };
+        GlobalFun.showPopWaiting(cc.director.getScene(), {
+            closeEvent: "appUpdateCompleted",
+            callBackFunc: function callBackFunc() {
+                console.log("[LogonScene][appUpdate] callbackfunc");
+            },
+            waitingTime: 8
+        });
+        xhr.open("POST", url, true);
+        // xhr.setRequestHeader("Content-Type","application/json");
+        xhr.timeout = 8000;
+        xhr.ontimeout = function (e) {
+            GlobalFun.showAlert({
+                message: "服务器连接失败，请检查网络后重试",
+                btn: [{
+                    name: "确定",
+                    callback: function callback() {
+                        self.appUpdate();
+                    }
+                }]
+            });
+            cc.director.emit("appUpdateCompleted");
+            xhr.abort();
+        };
+        xhr.send(paramString);
+    },
+    requestServerCfg: function requestServerCfg(url) {
+        var xhr = new XMLHttpRequest();
+        var self = this;
+        xhr.onreadystatechange = function () {
+            console.log("[LogonScene][appUpdate] " + xhr.readyState);
+            if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
+                var response = xhr.responseText;
+                console.log(response);
+                response = response.replace(/[\b\f\n\r\t]/g, '');
+                console.log(response);
+                var value = JSON.parse(response);
+                if (value.server !== undefined) {
+                    GlobalUserData.serverData = value;
+                    console.log(JSON.stringify(GlobalUserData.serverData, null, ' '));
+                }
+                cc.director.emit("configCompleted");
+            }
+        };
+        GlobalFun.showPopWaiting(cc.director.getScene(), {
+            closeEvent: "configCompleted",
+            callBackFunc: function callBackFunc() {
+                console.log("[LogonScene][requestServerCfg] callbackfunc");
+            },
+            waitingTime: 8
+        });
+        xhr.open("GET", url, true);
+        xhr.timeout = 8000;
+        xhr.ontimeout = function (e) {
+            GlobalFun.showToast("服务器开小差了，请稍后重试");
+            xhr.abort();
+        };
+        xhr.send();
     },
     onLogon: function onLogon(event) {
         console.log("[LogonScene][onLogon]");
@@ -6403,27 +8035,31 @@ cc.Class({
         this._logonFrame.onRegister(szAccount, szPassword, szNickName, szMobileAuth);
     },
     onShowLogon: function onShowLogon() {
+        // AudioMng.playButton();
         // console.log(cc.isValid(this._logonView));
-        if (cc.isValid(this._logonView) === false) {
-            this._logonView = cc.instantiate(this.logonView);
-            this.node.addChild(this._logonView);
+        if (cc.isValid(this._logonView)) {
+            // this._logonView = cc.instantiate(this.logonView);
+            // this.node.addChild(this._logonView);
+            this._logonView.active = true;
         }
-        GlobalFun.ActionShowTanChuang(this._logonView, function () {
-            console.log("[LogonScene][onShowLogon]ActionShowTanChuang callback");
-        });
+        // GlobalFun.ActionShowTanChuang(this._logonView,function () {
+        //     console.log("[LogonScene][onShowLogon]ActionShowTanChuang callback");
+        // })
     },
     onShowVistor: function onShowVistor() {
+        AudioMng.playButton();
         console.log("[LogonScene][onShowVistor]");
-        // GlobalFun.showToast(cc.director.getScene(),"游客登录暂未开放,敬请期待!");
+        // GlobalFun.showAlert(cc.director.getScene(),"游客登录暂未开放,敬请期待!");
         var szMachineID = MultiPlatform.getMachineID();
-        GlobalFun.showAlert(szMachineID);
+        // GlobalFun.showToast(szMachineID);
         var url = GlobalDef.httpUserCenter;
-        url += "/Guest/GuestLogin.ashx";
+        // url += "/Guest/GuestLogin.ashx";
+        url += "/HZMobile/GuestLogin.ashx";
         var params = {};
         params["kindid"] = zjh_cmd.KIND_ID;
         params["versionnum"] = "1.1";
         // params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
-        params["useridentity"] = szMachineID;
+        params["useridentity"] = szMachineID || "2d4d7c95e5df0179af2466f635ca71de";
         params["channelid"] = GlobalDef.CHANNELID_center;
         if (cc.sys.os == cc.sys.OS_IOS) {
             params["os"] = "2";
@@ -6433,10 +8069,11 @@ cc.Class({
         }
         var paramString = GlobalFun.buildRequestParam(params);
         // "datetamp=1497411512&faceId=2&userid=27142649&sign=909c47b530c68c8e97ebe407c212c7de"
+        console.log("[LogonScene][onShowVistor] params ", paramString);
         var xhr = new XMLHttpRequest();
         var self = this;
         xhr.onreadystatechange = function () {
-            console.log("[LogonScene][onShowVistor] " + xhr.getResponseHeader("Content-Type"));
+            console.log("[LogonScene][onShowVistor] " + xhr.readyState);
             if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
                 var response = xhr.responseText;
                 console.log(response);
@@ -6462,7 +8099,7 @@ cc.Class({
                     });
                 } else {
                     if (value.msg !== undefined) {
-                        GlobalFun.showToast({ message: value.msg });
+                        GlobalFun.showAlert({ message: value.msg });
                     }
                 }
                 cc.director.emit("GuestLoginCompleted");
@@ -6472,15 +8109,24 @@ cc.Class({
             closeEvent: "GuestLoginCompleted",
             callBackFunc: function callBackFunc() {
                 console.log("[LogonScene][onShowVistor] callbackfunc");
-            }
+            },
+            waitingTime: 8
         });
         xhr.open("POST", url, true);
         // xhr.setRequestHeader("Content-Type","application/json");
+        xhr.timeout = 8000;
+        xhr.ontimeout = function (e) {
+            GlobalFun.showToast("服务器连接超时，请稍候重试");
+            cc.director.emit("GuestLoginCompleted");
+            xhr.abort();
+        };
         xhr.send(paramString);
     },
     onShowRegister: function onShowRegister() {
+        AudioMng.playButton();
         if (cc.isValid(this._logonView) === true) {
-            this._logonView.destroy();
+            // this._logonView.destroy();
+            this._logonView.active = false;
         }
         if (cc.isValid(this._registerView) === false) {
             this._registerView = cc.instantiate(this.registerView);
@@ -6492,12 +8138,13 @@ cc.Class({
     },
 
     onShowWxLogon: function onShowWxLogon() {
-        MultiPlatform.showAlert(MultiPlatform.getMachineID(), MultiPlatform.getIpAddress());
+        AudioMng.playButton();
+        MultiPlatform.showAlert(MultiPlatform.getAppVersion(), MultiPlatform.getIpAddress());
     }
 });
 
 cc._RFpop();
-},{"CMD_ZaJinHua":"CMD_ZaJinHua","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MultiPlatform":"MultiPlatform"}],"LogonView":[function(require,module,exports){
+},{"AudioMng":"AudioMng","CMD_ZaJinHua":"CMD_ZaJinHua","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MultiPlatform":"MultiPlatform"}],"LogonView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '6408fGx9nxB45qz0RIhtVt6', 'LogonView');
 // Script/plaza/views/logon/LogonView.js
@@ -6585,7 +8232,51 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalDef":"GlobalDef"}],"MD5":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef"}],"LotteryView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, 'ac3d57NFRVGgqKX5dVqJsms', 'LotteryView');
+// Script/plaza/views/plaza/LotteryView.js
+
+"use strict";
+
+var GlobalFun = require("GlobalFun");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_arrow: cc.Node,
+        arrow_times: 6,
+        arrow_rounds: 10
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    onDestroy: function onDestroy() {},
+    onDisable: function onDisable() {},
+    onEnable: function onEnable() {},
+    close: function close() {
+        this.node.removeFromParent();
+        this.node.destroy();
+    },
+    onClickStart: function onClickStart() {
+        var ang = GlobalFun.getRandomInt(0, 360);
+        var rotate = cc.rotateBy(this.arrow_times, ang + 360 * this.arrow_rounds);
+        this.m_arrow.runAction(rotate.easing(cc.easeCubicActionOut(this.arrow_times)));
+    }
+});
+
+cc._RFpop();
+},{"GlobalFun":"GlobalFun"}],"MD5":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'e0a12eDSeNI/YjpYPcqGtrL', 'MD5');
 // Script/MD5.js
@@ -6886,6 +8577,33 @@ MultiPlatform.getIpAddress = function () {
     }
 };
 
+MultiPlatform.getAppVersion = function () {
+    if (PLATFORM[cc.sys.os] && PLATFORM[cc.sys.os].getIpAddress) {
+        return PLATFORM[cc.sys.os].getAppVersion();
+    } else {
+        console.log("[MultiPlatform][getAppVersion] unsupport platform -> " + cc.sys.os);
+        return "";
+    }
+};
+
+MultiPlatform.getBatteryLevel = function () {
+    if (PLATFORM[cc.sys.os] && PLATFORM[cc.sys.os].getBatteryLevel) {
+        return PLATFORM[cc.sys.os].getBatteryLevel();
+    } else {
+        console.log("[MultiPlatform][getBatteryLevel] unsupport platform -> " + cc.sys.os);
+        return 0;
+    }
+};
+
+MultiPlatform.getNetconnType = function () {
+    if (PLATFORM[cc.sys.os] && PLATFORM[cc.sys.os].getNetconnType) {
+        return PLATFORM[cc.sys.os].getNetconnType();
+    } else {
+        console.log("[MultiPlatform][getNetconnType] unsupport platform -> " + cc.sys.os);
+        return "";
+    }
+};
+
 MultiPlatform.showAlert = function (title, message) {
     title = title || cc.sys.os;
     message = message || cc.sys.os;
@@ -6944,21 +8662,37 @@ cc.Class({
         if (this._roomInfo && this._roomInfo.lLimitScore) {
             this.m_Label_scoreLimit.string = this._roomInfo.lLimitScore;
         }
-        var actionNode = this.node.getChildByName("m_Node_back");
-        actionNode.setPosition(1000, 0);
-        actionNode.runAction(cc.sequence(cc.delayTime(this._index * 0.1), cc.moveTo(0.25, -80, 0), cc.moveTo(0.25, 0, 0)));
+        // var actionNode = this.node.getChildByName("m_Node_back");
+        // actionNode.setPosition(1000,0);
+        // actionNode.runAction(cc.sequence(
+        //     cc.delayTime(this._index * 0.1),
+        //     cc.moveTo(0.25,-80,0),
+        //     cc.moveTo(0.25,0,0)
+        // ))
     },
     onClick: function onClick(params) {
         console.log("[PlazaRoomItem][onClick]");
         if (!this._roomInfo) {
-            GlobalFun.showAlert("房间暂未开放，请稍后再试");
+            GlobalFun.showToast("房间暂未开放，请稍后再试");
             return;
         }
         if (GlobalUserData.llGameScore >= this._roomInfo.lLimitScore) {
-            // GlobalFun.showAlert("进入房间");
+            // GlobalFun.showToast("进入房间");
             cc.director.emit("onLogonRoom", { roomInfo: this._roomInfo });
         } else {
-            GlobalFun.showToast({ message: "进入房间需要" + this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!" });
+            var tipText = "进入房间需要" + this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!";
+            GlobalFun.showAlert({
+                message: tipText,
+                // textAlignment: cc.TextAlignment.LEFT,
+                btn: [{
+                    name: "取消"
+                }, {
+                    name: "充值",
+                    callback: function callback() {
+                        GlobalFun.showShopView();
+                    }
+                }]
+            });
         }
     },
     select: function select() {
@@ -6978,7 +8712,122 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"PlazaView":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"PlazaScrollRing":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '7f4baNXUN9CnYfnpUhR2OLT', 'PlazaScrollRing');
+// Script/PlazaScrollRing.js
+
+"use strict";
+
+var ScrollRing = require("ScrollRing");
+var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
+cc.Class({
+    extends: ScrollRing,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {
+        this._super();
+    },
+    addItem: function addItem(itemNode) {
+        var layout = this.node.getComponent(cc.Layout);
+        if (layout) {
+            layout.enabled = true;
+        }
+        this.node.addChild(itemNode);
+        // if (layout) {
+        //     layout.enabled = false;
+        // }
+    },
+    clearItem: function clearItem() {
+        this.node.removeAllChildren();
+    },
+    // start:function(){
+    //     this._super();
+    //     //
+    // },
+    refreshRoomList: function refreshRoomList(roomList) {
+        var itemidx = { "item1": 0, "item2": 1, "item3": 2 };
+        this.roominfos = {};
+        for (var i = 0; i < this.node.childrenCount; i++) {
+            var ch = this.node.children[i];
+            console.log("item", ch.name, roomList[itemidx[ch.name]]);
+            var lab = ch.getChildByName("label").getComponent(cc.Label);
+            if (roomList[itemidx[ch.name]]) {
+                this.roominfos[ch.name] = roomList[itemidx[ch.name]];
+                lab.string = "财富：" + this.roominfos[ch.name].lLimitScore;
+            } else {
+                lab.string = "未开放";
+            }
+        }
+    },
+    onFocusChange: function onFocusChange(evName, itemNode) {
+        console.log("onFocusChange", evName);
+        for (var i = 0; i < itemNode.childrenCount; i++) {
+            var node = itemNode.children[i];
+            if (node.name == "dragon") {
+                if (evName == "loseFocus") {
+                    node.script.stop();
+                } else if (evName == "focused") {
+                    node.script.play();
+                }
+            }
+        }
+    },
+    /*
+    roominfo://游戏房间列表结构
+    struct tagMobileGameServer
+    {
+        BYTE                                cbRoomLevel;                        //房间等级
+        LONG                                lBaseScore;                         //房间底分
+        LONG                                lLimitScore;                        //进入限制
+        LONG                                lMaxBombLimit;                      //最大倍数限制
+        WORD								wSortID;							//排序号码
+        WORD								wKindID;							//名称号码
+        WORD								wServerID;							//房间号码
+        WORD								wStationID;							//站点号码
+        WORD								wServerPort;						//房间端口
+        DWORD								dwServerAddr;						//房间地址
+        DWORD								dwOnLineCount;						//在线人数
+        TCHAR								szServerName[SERVER_LEN];			//房间名称
+        TCHAR								szDescribeTxt[128];                 //房间信息
+    };
+    */
+    onClickItem: function onClickItem(itemNode) {
+        itemNode.getComponent("PlazaRoomItem").onClick();
+        // var roominfo = this.roominfos[itemNode.name];
+
+        // console.log("[PlazaRoomItem][onClick]");  
+        // if(!roominfo) {
+        //     console.log("error:not found roominfo");
+        //     // GlobalFun.showAlert(cc.director.getScene(),"房间暂未开放，请稍后再试");
+        //     return;
+        // }
+        // if(GlobalUserData.llGameScore >= roominfo.lLimitScore) {
+        //     // GlobalFunc.showAlert(cc.director.getScene(),"进入房间");
+        //     cc.director.emit("onLogonRoom",{roomInfo:roominfo});
+        // }
+        // else {
+        //     // GlobalFun.showToast("进入房间需要"+ roominfo.lLimitScore + "金豆,您的金豆不足,请充值!");
+        // }
+    }
+});
+
+cc._RFpop();
+},{"GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","ScrollRing":"ScrollRing"}],"PlazaView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '52d5546nrtCUJireJfeVAhU', 'PlazaView');
 // Script/PlazaView.js
@@ -6990,6 +8839,14 @@ var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
 var AudioMng = require("AudioMng");
+var MultiPlatform = require("MultiPlatform");
+var bindText = "<size=32><color=#B35B1B>尊敬的用户，你当前为【游客模式】<br/>\
+1.绑定账号后，体验币无法转换为金币。<br/>\
+2.游客账号购买的金币，注册后等值赠送<br/>\
+3.游客账号会不定期重置，对此造成的损失，本公司概不负责。<br/>\
+为了保障你的虚拟财产安全，以及您获得更好的游戏体验，我们建议你绑定账号。<br/>\
+                                                        《集结号拼三张》团队</c></size>\
+";
 cc.Class({
     extends: cc.Component,
 
@@ -7037,10 +8894,12 @@ cc.Class({
             type: cc.Label
         },
         m_Label_ID: cc.Label,
+        m_Label_userCharm: cc.Label,
         m_Label_userGold: {
             default: null,
             type: cc.Label
         },
+        m_Label_notice: cc.RichText,
         userFaceAtals: {
             default: null,
             type: cc.SpriteAtlas
@@ -7056,10 +8915,61 @@ cc.Class({
             console.log("[PlazaView][onLoad] 获取GameFrame 所在节点 并设置为常驻节点");
             cc.game.addPersistRootNode(GameFrameNode);
             this._gameFrame = GameFrameNode.getComponent("GameFrame");
+            // this._gameFrame.onCloseSocket();
         }
-        AudioMng.playMusic();
+
+        //显示滚动消息
+        var noticeMsg = cc.sys.localStorage.getItem("systemmessage") || "测试通知";
+
+        if (noticeMsg && noticeMsg.length > 0) {
+            this.m_Label_notice.string = noticeMsg;
+            var fLabelWidth = this.m_Label_notice.node.getContentSize().width;
+            var fParenWidth = this.m_Label_notice.node.parent.getContentSize().width;
+            var runDis = fLabelWidth + fParenWidth + 30;
+            var runTime = runDis / 80;
+            this.m_Label_notice.node.stopAllActions();
+            this.m_Label_notice.node.runAction(cc.repeatForever(cc.sequence(cc.place((fParenWidth + 30) / 2, 0), cc.moveBy(runTime, -runDis, 0))));
+        }
+
+        AudioMng.playMusic("bgm_plaza");
+        if (GlobalUserData.isGuest) {
+            GlobalFun.showAlert({
+                message: bindText,
+                textAlignment: cc.TextAlignment.LEFT,
+                btn: [{
+                    name: "继续游戏"
+                }, {
+                    name: "绑定账号",
+                    callback: function callback() {
+                        GlobalFun.showBindView();
+                    }
+                }]
+            });
+        }
         // this._gameFrame = this.getScene().getChildByName("GameFrame").getComponent("GameFrame");
         this.refreshUI();
+        this.refreshRoomList();
+        this.refreshData();
+        // this.m_Label_time = cc.find("Canvas/m_Panel_top_right/plaza_state/m_Label_time");
+        // this.m_Label_networkState = cc.find("Canvas/m_Panel_top_right/plaza_state/m_Label_networkState");
+        // if (this.m_Label_time) {
+        //     console.log("[PlazaView][schedule]");
+        //     cc.director.getScheduler().schedule(this.refreshTimeAndNetworkInfo, this, 1, cc.macro.REPEAT_FOREVER, 0, false);
+        // }
+        // this.refreshTimeAndNetworkInfo();
+    },
+    onDestroy: function onDestroy() {
+        cc.director.getScheduler().unschedule(this.refreshTimeAndNetworkInfo, this);
+        AudioMng.stopMusic();
+        cc.sys.garbageCollect();
+    },
+    refreshTimeAndNetworkInfo: function refreshTimeAndNetworkInfo() {
+        var date = new Date(Date.now());
+        var timeStr = date.toTimeString().slice(0, 8);
+        var batteryLevel = MultiPlatform.getBatteryLevel();
+        var netWorkType = MultiPlatform.getNetconnType();
+        this.m_Label_time.getComponent(cc.Label).string = timeStr;
+        this.m_Label_networkState.getComponent(cc.Label).string = netWorkType;
     },
     refreshUI: function refreshUI() {
         console.log("[PlazaView][refreshUI]");
@@ -7068,6 +8978,7 @@ cc.Class({
             console.log('GlobalUserData.' + prop, '=', GlobalUserData[prop]);
         }
         this.m_Label_userGold.string = GlobalUserData.llGameScore;
+        this.m_Label_userCharm.string = GlobalUserData.dwLoveLiness;
         this.m_Label_name.string = GlobalUserData.szNickName;
         this.m_Label_ID.string = "ID" + GlobalUserData.dwUserID;
         var faceID = GlobalUserData.wFaceID;
@@ -7076,108 +8987,37 @@ cc.Class({
         }
         this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
 
-        this.refreshRoomList();
+        // this.refreshRoomList();
     },
     refreshRoomList: function refreshRoomList() {
-        var _this = this;
-
         var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
         console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList, null, ' '));
-        var coverView = cc.find("Canvas/scrollview").getComponent("CoverView");
-        var roomListPanel = coverView.content;
-        roomListPanel.removeAllChildren();
-        for (var index = 0; index < 4; index++) {
-            var item = cc.instantiate(this.plazaRoomItem);
-            item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
-            roomListPanel.addChild(item);
+        var PlazaScrollRing = cc.find("Canvas/PlazaScrollRing").getComponent("PlazaScrollRing");
+        var beginx = -PlazaScrollRing.node.getContentSize().width / 2;
+        var space = 600;
+        if (PlazaScrollRing) {
+            PlazaScrollRing.clearItem();
+            // PlazaScrollRing.node.getComponent(cc.Layout).enabled = true;
+            for (var index = 0; index < 3; index++) {
+                var item = cc.instantiate(this.plazaRoomItem);
+                item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
+                item.setPositionX(beginx + space * index);
+                PlazaScrollRing.addItem(item);
+            }
+            for (var index = 0; index < 3; index++) {
+                var item = cc.instantiate(this.plazaRoomItem);
+                item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
+                item.setPositionX(beginx + space * (index + 3));
+                PlazaScrollRing.addItem(item);
+            }
+            PlazaScrollRing.init();
+            PlazaScrollRing._updateToFocus("init");
         }
-        var scContentSize = coverView.node.getContentSize();
-        var padding = roomListPanel.children[1].getPositionX() - roomListPanel.children[0].getPositionX();
-        coverView.init({
-            paddingLeft: scContentSize.width / 2 - padding / 2,
-            paddingRight: scContentSize.width / 2 - padding / 2,
-            endCallBack: function endCallBack() {
-                _this.onCoverViewEndCallBack();
-            }
-        });
-        // coverView.scrollToLeft(0.1);
-        this.node.runAction(cc.sequence(cc.delayTime(0.2), cc.callFunc(function () {
-            if (GlobalUserData.llGameScore < 10000) {
-                coverView.scrollToIndex(0);
-            } else if (GlobalUserData.llGameScore < 100000) {
-                coverView.scrollToIndex(1);
-            } else {
-                coverView.scrollToIndex(2);
-            }
-        })));
-        // this.scheduleOnce(coverView.scrollToLeft(0.1));
-        // var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
-        // roomPageView.removeAllPages();
-        // for (var index = 0; index < 4; index++) {
-        //     var item = cc.instantiate(this.plazaRoomItem);
-        //     var PlazaRoomItem = item.getComponent("PlazaRoomItem");
-        //     PlazaRoomItem.init({index:index+1,roomInfo:roomList[index]});
-        //     // if (index === 0) {
-        //     //     PlazaRoomItem.select();
-        //     // }
-        //     // else {
-        //     //     PlazaRoomItem.unselect();
-        //     // }
-        //     // roomPageView.addPage(item);
-        // }
-        // roomPageView.scrollToPage(1,0.5);
-    },
-    onCoverViewEndCallBack: function onCoverViewEndCallBack() {
-        var coverView = cc.find("Canvas/scrollview").getComponent("CoverView");
-        var children = coverView.content.children;
-        var curIndex = coverView.getCurIndex();
-        for (var index = 0; index < children.length; index++) {
-            var element = children[index];
-            var PlazaRoomItem = element.getComponent("PlazaRoomItem");
-            if (index === curIndex) {
-                PlazaRoomItem.select();
-            } else {
-                PlazaRoomItem.unselect();
-            }
-        }
-    },
-    onScrollViewEvent: function onScrollViewEvent(event) {
-        console.log(event);
-        // console.log(this.roomItemList.content);
-        console.log([this.roomItemList.getMaxScrollOffset(), this.roomItemList.getScrollOffset(), this.roomItemList.getContentPosition()]);
-    },
-    onPageViewEvent: function onPageViewEvent(event) {
-        var roomPageView = cc.find("Canvas/pageview").getComponent(cc.PageView);
-        var curIndex = roomPageView.getCurrentPageIndex();
-        var allPages = roomPageView.getPages();
-        console.log("[PlazaView][onPageViewEvent] curIndex = " + curIndex);
-        for (var index = 0; index < allPages.length; index++) {
-            var element = allPages[index];
-            var PlazaRoomItem = element.getComponent("PlazaRoomItem");
-            if (curIndex === index) {
-                PlazaRoomItem.select();
-            } else {
-                // element.color = new cc.Color(170,170,170);
-                PlazaRoomItem.unselect();
-            }
-        }
-        // if (curIndex === allPages.length - 1) {
-        //     var firstPage = cc.instantiate(allPages[0]);
-        //     roomPageView.removePageAtIndex(0);            
-        //     roomPageView.insertPage(firstPage,allPages.length);            
-        //     // roomPageView.setCurrentPageIndex(allPages.length - 2);
-
-        // }
-        // else if (curIndex === 0) {
-        //     var lastPage = cc.instantiate(allPages[allPages.length - 1]);
-        //     roomPageView.removePageAtIndex(allPages.length -1);
-        //     roomPageView.insertPage(lastPage,0);
-        //     // roomPageView.setCurrentPageIndex(1);
-        // }
     },
     refreshData: function refreshData() {
         var url = GlobalDef.httpBaseUrl;
-        url += "/hz/hzGameUserInfo.ashx";
+        // url += "/hz/hzGameUserInfo.ashx";
+        url += "/hz/hzGameUserInfo3_0.ashx";
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;
         var paramString = GlobalFun.buildRequestParam(params);
@@ -7209,10 +9049,17 @@ cc.Class({
                         GlobalUserData.cbGender = value.gender;
                     }
                     if (value.isguest !== undefined) {
-                        GlobalUserData.isGuest = value.isguest;
+                        GlobalUserData.isGuest = Number(value.isguest) && true || false;
                     }
                     if (value.nickname !== undefined) {
                         GlobalUserData.szNickName = value.nickname;
+                    }
+                    if (value.loveliness !== undefined) {
+                        GlobalUserData.dwLoveLiness = value.loveliness;
+                    }
+                    //抽奖次数
+                    if (value.counteLoveliness !== undefined) {
+                        GlobalUserData.wExchangenum = value.counteLoveliness;
                     }
                 }
                 self.refreshUI();
@@ -7249,7 +9096,6 @@ cc.Class({
             loadfunc: function loadfunc() {
                 cc.director.preloadScene("GameScene", function () {
                     cc.log("GameScene scene preloaded");
-                    self._gameFrame.onLogonRoom(roomInfo);
                     self._gameFrame.onLogonRoom(roomInfo);
                 });
             },
@@ -7311,7 +9157,26 @@ cc.Class({
     },
     onClickActivity: function onClickActivity(params) {
         console.log("[PlazaView][conClickActivity]");
-        GlobalFun.showToast({ message: "暂未开放,敬请期待!" });
+        GlobalFun.showAlert({ message: "暂未开放,敬请期待!" });
+    },
+    onClickRankList: function name(params) {
+        console.log("[PlazaView][onClickRankList]");
+        GlobalFun.showAlert({ message: "暂未开放,敬请期待!" });
+    },
+    onClickRule: function onClickRule(params) {
+        console.log("[PlazaView][onClickRule]");
+        var self = this;
+        if (cc.isValid(self._ruleView) === false) {
+            cc.loader.loadRes("prefab/RuleView", function (err, Prefab) {
+                if (cc.isValid(self.node)) {
+                    self._ruleView = cc.instantiate(Prefab);
+                    self.node.addChild(self._ruleView);
+                    GlobalFun.ActionShowTanChuang(self._ruleView, function () {
+                        console.log("[PlazaView][onClickRule]ActionShowTanChuang callback");
+                    });
+                }
+            });
+        }
     },
     onClickBank: function onClickBank(params) {
         console.log("[PlazaView][conClickBank]");
@@ -7336,7 +9201,7 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"AudioMng":"AudioMng","CMD_ZaJinHua":"CMD_ZaJinHua","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"PopWaitView":[function(require,module,exports){
+},{"AudioMng":"AudioMng","CMD_ZaJinHua":"CMD_ZaJinHua","GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MultiPlatform":"MultiPlatform"}],"PopWaitView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'b62aboUA7hHj6uWOgxgWCqy', 'PopWaitView');
 // Script/external/PopWaitView.js
@@ -7408,6 +9273,54 @@ cc.Class({
 });
 
 cc._RFpop();
+},{}],"PresentNode":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '5ef96bG/GdO6YvNykCQmfER', 'PresentNode');
+// Script/game/PresentNode.js
+
+"use strict";
+
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_Image_select: cc.Node,
+        m_Image_present: cc.Sprite,
+        presentAtlas: cc.SpriteAtlas,
+        m_Label_charm: cc.Label,
+        m_Label_price: cc.Label
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {},
+    init: function init(params) {
+        var icon = params.icon;
+        var gold = params.gold;
+        var charm = params.charm;
+        this.m_Image_present.spriteFrame = this.presentAtlas.getSpriteFrame(icon.split('.')[0]);
+        this.m_Label_charm.string = "魅力" + charm;
+        this.m_Label_price.string = gold;
+    },
+    setSelect: function setSelect(bSelect) {
+        this.m_Image_select.active = bSelect;
+    }
+    // called every frame, uncomment this function to activate update callback
+    // update: function (dt) {
+
+    // },
+});
+
+cc._RFpop();
 },{}],"RegisterView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '8f2b26mcj1Ig675dVb8++wU', 'RegisterView');
@@ -7458,6 +9371,7 @@ cc.Class({
     },
     onClickCloseButton: function onClickCloseButton() {
         // this.node.active = false;  
+        cc.director.emit("onShowLogon");
         this.node.destroy();
         console.log("[RegisterView][onClickCloseButton] destroy");
     },
@@ -7469,12 +9383,12 @@ cc.Class({
         console.log("[RegisterView][onClickConfirmButton] " + szAccount + " # " + szPassword);
         if (szAccount.length <= 0 || szPassword.length <= 0 || szNickName.length <= 0 || szMobileAuth.length <= 0) {
             console.log("帐号密码等注册信息不能为空");
-            GlobalFun.showAlert("帐号密码等注册信息不能为空");
+            GlobalFun.showToast("帐号密码等注册信息不能为空");
             return;
         }
         if (szPassword.length < 6 || szPassword.length > 16) {
             console.log("密码长度为6-16位");
-            GlobalFun.showAlert("密码长度为6-16位");
+            GlobalFun.showToast("密码长度为6-16位");
             return;
         }
         // 通过用户中心web接口注册用户
@@ -7517,6 +9431,9 @@ cc.Class({
                 if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
                     var response = xhr.responseText;
                     console.log(response);
+                    var value = JSON.parse(response);
+                    if (value.status == 1) {}
+                    GlobalFun.showToast(value.msg || value.Msg);
                 }
             };
             xhr.open("POST", url, true);
@@ -7530,7 +9447,7 @@ cc.Class({
         var re = /1[3578][0-9]{9}/;
         if (re.exec(szAccount) === null) {
             console.log("[RegisterView][onClickSendButton] 手机号码不合法");
-            GlobalFun.showAlert("手机号码不合法");
+            GlobalFun.showToast("手机号码不合法");
             return;
         }
         var url = GlobalDef.httpUserCenter;
@@ -7542,6 +9459,9 @@ cc.Class({
             if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
                 var response = xhr.responseText;
                 console.log(response);
+                var value = JSON.parse(response);
+                if (value.status == 1) {}
+                GlobalFun.showToast(value.msg || value.Msg);
             }
         };
         xhr.open("POST", url, true);
@@ -7552,7 +9472,446 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","MD5":"MD5"}],"ServiceView":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","MD5":"MD5"}],"ScrollRing":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, '8e4e5iUpKhH74bskijCiPQ2', 'ScrollRing');
+// Script/ScrollRing.js
+
+"use strict";
+
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        isFocusMode: true,
+        isVertival: false,
+        speedLimit: 1
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {
+        // this.init();
+    },
+    init: function init() {
+        this._bIsInit = true;
+        this._acceleration = 1.5;
+        this._farLeftIdx = 0;
+        this.speedLimit = 1;
+        this._minScale = 0.8;
+        this._totalMoveDist = 0;
+        this._clickAbleDist = 10;
+        this._touchState = undefined;
+        this._initFocusId = 0;
+        var spacecount = 0;
+        var layout = this.node.getComponent(cc.Layout);
+        if (layout) layout.enabled = false;
+        if (this.node.childrenCount > 1) {
+            for (var i = 0; i < this.node.childrenCount; i++) {
+                this.node.children[i].tag = i;
+            }
+
+            if (this.isVertival) {
+                spacecount = Math.abs(this.node.children[0].getPositionY() - this.node.children[this.node.childrenCount - 1].getPositionY());
+            } else {
+                spacecount = Math.abs(this.node.children[0].getPositionX() - this.node.children[this.node.childrenCount - 1].getPositionX());
+            }
+            this._space = spacecount / (this.node.childrenCount - 1);
+
+            console.log("this.speedLimit", this.speedLimit);
+            if (this.speedLimit < 3) {
+                this._calcSpeed = this.calcSpeedForDist(this.speedLimit * this._space / 2, this._acceleration);
+            }
+        } else {
+            console.log("error:no children");
+            this._space = 0;
+        }
+    },
+    start: function start() {
+        console.log("_updateToFocus start");
+        if (this.isFocusMode && this._bIsInit) {
+            this._updateToFocus("init");
+        }
+        // this._updateToFocus(0);
+        // this._updatePostion();
+    },
+    onEnable: function onEnable() {
+        this.node.on(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.node.on(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+        this.node.on(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.node.on(cc.Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+    },
+    onDisable: function onDisable() {
+        this.node.off(cc.Node.EventType.TOUCH_START, this.onTouchStart, this);
+        this.node.off(cc.Node.EventType.TOUCH_MOVE, this.onTouchMove, this);
+        this.node.off(cc.Node.EventType.TOUCH_END, this.onTouchEnd, this);
+        this.node.off(cc.Node.EventType.TOUCH_CANCEL, this.onTouchEnd, this);
+    },
+    onTouchStart: function onTouchStart(param) {
+        if (this.node.childrenCount < 1) {
+            return false;
+        }
+        if (this._isMoving) return;
+        //if(this._touchState != undefined){return false;}
+
+        this._touchState = "start";
+        this._totalMoveDist = 0;
+        this._touchStartNode = undefined;
+        this._moveDirection = 0;
+        this._speed = 0;
+        this._startFocusid = this._focusid;
+        var pt = new cc.Vec2(param.touch.getLocation());
+        for (var i = 0; i < this.node.childrenCount; i++) {
+            if (this.node.children[i].getBoundingBoxToWorld().contains(pt)) {
+                this._touchStartNode = this.node.children[i];
+                this.setItemClickState(this._touchStartNode, "pressed");
+                break;
+            }
+        }
+    },
+
+    onTouchMove: function onTouchMove(param) {
+        if (this._isMoving) return;
+        this._touchState = "move";
+        var prevPoint = new cc.Vec2(param.touch.getPreviousLocation());
+        var movePoint = new cc.Vec2(param.touch.getLocation());
+        var adjustPoint = movePoint.sub(prevPoint);
+
+        var speed = undefined;
+        if (this.isVertival) {
+            speed = adjustPoint.y;
+        } else {
+            speed = adjustPoint.x;
+        }
+        if (this._moveDirection != speed > 0 ? 1 : -1) {
+            //changed direction
+            this._moveDirection = speed > 0 ? 1 : -1;
+            this._speed = 0;
+        }
+        if (Math.abs(this._speed) < Math.abs(speed)) {
+            this._speed = speed;
+        }
+
+        this._totalMoveDist += Math.abs(adjustPoint.x);
+        if (this._totalMoveDist >= this._clickAbleDist && this._touchStartNode) {
+            this.setItemClickState(this._touchStartNode, "normal");
+        }
+        // console.log("adjustPoint",adjustPoint);
+        for (var i = 0; i < this.node.childrenCount; i++) {
+            var pt = this.node.children[i].getPosition();
+            if (this.isVertival) {
+                pt.y += adjustPoint.y;
+            } else {
+                pt.x += adjustPoint.x;
+            }
+            this.node.children[i].setPosition(pt);
+        }
+        this._updatePostion();
+        this._updateToFocus("stateOnly");
+    },
+    calcSpeedForDist: function calcSpeedForDist(dist, accele) {
+        var speed = accele + 1;
+        while (true) {
+            var tmpdist = 0,
+                tmpspeed = speed;
+            while (tmpspeed > accele) {
+                tmpdist += tmpspeed;
+                tmpspeed -= accele;
+            }
+
+            if (tmpdist >= dist) {
+                return speed - 1;
+            }
+            speed++;
+        }
+    },
+    onTouchEnd: function onTouchEnd(param) {
+        if (this._isMoving) return;
+        this._touchState = "touchend";
+
+        if (this.speedLimit == 1) {
+            if (Math.abs(this._speed) > 10) {
+                if (this._startFocusid == this._focusid) {
+                    this._updateToFocus((this._focusid + (this._speed > 0 ? this.node.childrenCount - 1 : 1)) % this.node.childrenCount);
+                } else {
+                    this._updateToFocus();
+                }
+                this._speed = undefined;
+                // console.log("this._calcSpeed",this._calcSpeed);
+                // var tmpnode = this.node.children[this._focusid];
+                // var tmpdist = Math.abs(this.isVertival?tmpnode.getPositionY():tmpnode.getPositionX());
+                // this._speed = this.calcSpeedForDist(tmpdist,this._acceleration)*(this._speed<0?-1:1);
+            }
+        } else if (this.speedLimit) {
+            if (this.speedLimit < 3) {
+                this._speed = this._calcSpeed * (this._speed < 0 ? -1 : 1);
+            } else {
+                this._speed = Math.min(this._speed, this.speedLimit * (this._speed < 0 ? -1 : 1));
+            }
+        }
+
+        if (this._totalMoveDist < this._clickAbleDist && this._touchStartNode) {
+            //check click able;
+            var endPoint = new cc.Vec2(param.touch.getLocation());
+            if (this._touchStartNode.getBoundingBoxToWorld().contains(endPoint)) {
+                if (this.isFocusMode && this._touchStartNode.tag != this._focusid) {
+                    this._updateToFocus(this._touchStartNode.tag);
+                } else {
+                    this.onClickItem(this._touchStartNode);
+                    this.setItemClickState(this._touchStartNode, "normal");
+                }
+            }
+        }
+    },
+    setItemFocusState: function setItemFocusState(itemNode, bFocus) {
+        this.setItemColor(itemNode, bFocus ? "normal" : "gray");
+    },
+    setItemColor: function setItemColor(itemNode, clr) {
+        if (clr == "gray") {
+            clr = cc.color(125, 125, 125, 125);
+        } else if (clr == "normal") {
+            clr = cc.color(255, 255, 255, 255);
+        } else if (typeof clr == "string") {
+            console.log("not buidin color:", clr);
+            return;
+        }
+        itemNode.color = clr;
+        for (var i = 0; i < itemNode.childrenCount; i++) {
+            itemNode.children[i].color = clr;
+        }
+    },
+    setItemClickState: function setItemClickState(itemNode, state) {
+        if (this.isFocusMode) {
+            if (itemNode != this.node.children[this._focusid]) {
+                return;
+            }
+        }
+        this.setItemColor(itemNode, state == "pressed" ? "gray" : "normal");
+    },
+
+    _updateFocusScale: function _updateFocusScale() {
+        for (var i = 0; i < this.node.childrenCount; i++) {
+            var ch = this.node.children[i];
+            var tmpdist = Math.abs(this.isVertival ? ch.getPositionY() : ch.getPositionX());
+            if (tmpdist > this._space) {
+                ch.setScale(this._minScale);
+            } else {
+                var scale = this._minScale + (1 - this._minScale) * ((this._space - tmpdist) / this._space);
+                ch.setScale(scale);
+            }
+        }
+    },
+    _updatePostion: function _updatePostion(mdir) {
+        if (this._moveDirection == 1) {
+            //1:right ||top
+            var node = this.node.children[this._farLeftIdx];
+            var pt = node.getPosition();
+            var size = node.getContentSize();
+            var beyondline = undefined,
+                moveTail = undefined;
+
+            if (this.isVertival) {
+                beyondline = this.node.getPositionY() - this.node.getContentSize().height / 2;
+                if (pt.y - size.height / 2 > beyondline) {
+                    moveTail = (this._farLeftIdx + this.node.childrenCount - 1) % this.node.childrenCount;
+                }
+            } else {
+                beyondline = this.node.getPositionX() - this.node.getContentSize().width / 2;
+                //console.log("update postion",beyondline,pt.x - size.width/2);
+                if (pt.x - size.width / 2 > beyondline) {
+                    moveTail = (this._farLeftIdx + this.node.childrenCount - 1) % this.node.childrenCount;
+                }
+            }
+            if (moveTail != undefined) {
+                var tail = this.node.children[moveTail];
+                if (this.isVertival) {
+                    tail.setPositionY(this.node.children[this._farLeftIdx].getPositionY() - this._space);
+                } else {
+                    tail.setPositionX(this.node.children[this._farLeftIdx].getPositionX() - this._space);
+                }
+                this._farLeftIdx = moveTail;
+            }
+        } else {
+            var tailidx = (this._farLeftIdx + this.node.childrenCount - 1) % this.node.childrenCount;
+            var node = this.node.children[tailidx];
+            var pt = node.getPosition();
+            var size = node.getContentSize();
+            var beyondline = undefined,
+                moveHead = undefined;
+            if (this.isVertival) {
+                beyondline = this.node.getPositionY() + this.node.getContentSize().height / 2;
+                if (pt.y + size.height / 2 < beyondline) {
+                    moveHead = this._farLeftIdx;
+                }
+            } else {
+                beyondline = this.node.getPositionX() + this.node.getContentSize().width / 2;
+                //console.log("update postion",beyondline,pt.x + size.width/2,this._farLeftIdx);
+                if (pt.x + size.width / 2 < beyondline) {
+                    moveHead = this._farLeftIdx;
+                }
+            }
+
+            if (moveHead != undefined) {
+                // console.log("move postion",moveHead,tailidx);
+                var head = this.node.children[moveHead];
+                if (this.isVertival) {
+                    head.setPositionY(this.node.children[tailidx].getPositionY() + this._space);
+                } else {
+                    head.setPositionX(this.node.children[tailidx].getPositionX() + this._space);
+                }
+                this._farLeftIdx = (moveHead + 1) % this.node.childrenCount;
+            }
+        }
+    },
+    _updateToFocus: function _updateToFocus(focusid) {
+        var _this = this;
+
+        if (!this.isFocusMode) return;
+        if (this._isMoving) {
+            this.node.stopAllActions();
+            for (var i = 0; i < this.node.childrenCount; i++) {
+                this.node.children[i].stopAllActions();
+            }
+            this._focusid = undefined;
+        }
+        var focusChanged = false,
+            tmpfocusid = this._focusid;
+        if (focusid == undefined || focusid == "stateOnly" || focusid == "init") {
+            var dist = 1000;
+            for (var i = 0; i < this.node.childrenCount; i++) {
+                var tmpdist = Math.abs(this.node.children[i].getPositionX());
+                if (this.isVertival) {
+                    if (Math.abs(this.node.children[i].getPositionY()) < dist) {
+                        tmpfocusid = i;
+                        dist = Math.abs(this.node.children[i].getPositionY());
+                    }
+                } else {
+                    if (Math.abs(this.node.children[i].getPositionX()) < dist) {
+                        tmpfocusid = i;
+                        dist = Math.abs(this.node.children[i].getPositionX());
+                    }
+                }
+                if (focusid == "init") {
+                    this.onFocusChange("loseFocus", this.node.children[i]);
+                }
+            }
+            if (focusid == "init") {
+                tmpfocusid = this._initFocusId != undefined ? this._initFocusId : tmpfocusid;
+            }
+            focusChanged = this._focusid != tmpfocusid;
+            if (focusChanged) {
+                if (this._focusid) {
+                    this.onFocusChange("loseFocus", this.node.children[this._focusid]);
+                }
+                this._focusid = tmpfocusid;
+            }
+        } else {
+            focusChanged = this._focusid != focusid;
+            if (focusChanged) this.onFocusChange("loseFocus", this.node.children[this._focusid]);
+            this._focusid = focusid;
+        }
+
+        var movesub = this.node.children[this._focusid].getPosition();
+        var time = Math.abs(this.isVertival ? movesub.y : movesub.x) / 1000;
+        if (time > 0.4) time = 0.4;
+
+        if (focusid == "stateOnly" || time == 0) {
+            for (var i = 0; i < this.node.childrenCount; i++) {
+                this.setItemFocusState(this.node.children[i], i == this._focusid);
+            }
+            this._updateFocusScale();
+            if (focusChanged) {
+                this.onFocusChange("focused", this.node.children[this._focusid]);
+            }
+        } else if (time != 0) {
+            this._isMoving = true;
+            this.node.runAction(cc.sequence(cc.delayTime(time), cc.callFunc(function () {
+                _this._touchState = undefined;
+                _this._isMoving = undefined;
+                for (var i = 0; i < _this.node.childrenCount; i++) {
+                    _this.setItemFocusState(_this.node.children[i], i == _this._focusid);
+                }
+                if (focusChanged) {
+                    _this.onFocusChange("focused", _this.node.children[_this._focusid]);
+                }
+            })));
+            for (var i = 0; i < this.node.childrenCount; i++) {
+                var movedist = this.node.children[i].getPosition().sub(movesub);
+                var move = cc.moveTo(time, movedist); //
+                move.easing(cc.easeOut(3.0));
+                this.node.children[i].runAction(move);
+            }
+            this._touchState = "focusing";
+            if (this.isVertival) {
+                this._moveDirection = this.node.children[this._focusid].getPositionY() < 0 ? 1 : -1;
+            } else {
+                this._moveDirection = this.node.children[this._focusid].getPositionX() < 0 ? 1 : -1;
+            }
+        }
+    },
+    update: function update(dt) {
+        //console.log("update",dt);
+
+        if (!this._bIsInit) return;
+
+        if (this._touchState == "focusing") {
+            this._updatePostion();
+            this._updateFocusScale();
+        }
+        if (this._speed != undefined && this._touchState == "touchend") {
+            // console.log("update",this._speed,this._space,this._touchState);
+
+            if (this.isFocusMode && Math.abs(this._speed) < 5) {
+                this._updateToFocus();
+                this._speed = undefined;
+            } else if (this._speed != 0) {
+                var dist = this._speed;
+                if (Math.abs(this._speed) <= this._acceleration) {
+                    this._speed = undefined;
+                    this._touchState = undefined;
+                }
+                this._speed -= this._speed < 0 ? -this._acceleration : this._acceleration;
+                for (var i = 0; i < this.node.childrenCount; i++) {
+                    var pt = this.node.children[i].getPosition();
+
+                    if (this.isVertival) {
+                        pt.y += dist;
+                    } else {
+                        pt.x += dist;
+                    }
+                    this.node.children[i].setPosition(pt);
+                }
+                this._updatePostion();
+                this._updateFocusScale();
+            } else {
+                this._speed = undefined;
+            }
+        }
+    },
+    addChild: function addChild(child) {
+        var tailidx = (this._farLeftIdx + this.node.childrenCount - 1) % this.node.childrenCount;
+        this.node.addChild(child);
+        var pt = this.node.children[tailidx].getPosition();
+        if (this.isVertival) {
+            pt.y += this._space;
+        } else {
+            pt.x += this._space;
+        }
+        child.setPosition(pt);
+    },
+    setFocusid: function setFocusid(focusid) {
+        this._updateToFocus(focusid);
+    },
+    onClickItem: function onClickItem(itemNode) {
+        console.log("clicked itemnode", itemNode.name);
+    },
+    onFocusChange: function onFocusChange(evName, itemNode) {
+        console.log("onFocusChange", itemNode.tag, evName);
+        itemNode.emit(evName, { event: evName, name: itemNode.name });
+    }
+});
+
+cc._RFpop();
+},{}],"ServiceView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'a775eLbcw9NwqbV0pFztLLF', 'ServiceView');
 // Script/plaza/views/plaza/ServiceView.js
@@ -7580,6 +9939,7 @@ cc.Class({
 
     onClickCloseButton: function onClickCloseButton() {
         // this.node.active = false;  
+        this.node.removeFromParent();
         this.node.destroy();
         console.log("[ServiceView][onClickCloseButton] destroy");
     }
@@ -7594,6 +9954,7 @@ cc._RFpush(module, '57ed4FNWZNA8on9xWn39UIJ', 'SettingView');
 "use strict";
 
 var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
 cc.Class({
     extends: cc.Component,
 
@@ -7639,11 +10000,11 @@ cc.Class({
         this.onRefreshMusic();
     },
     onRefreshMusic: function onRefreshMusic() {
-        this.m_Button_music_switch_off.node.active = !GlobalUserData.bMusicAble;
+        // this.m_Button_music_switch_off.node.active = !GlobalUserData.bMusicAble;
         this.m_Button_music_switch_on.node.active = GlobalUserData.bMusicAble;
     },
     onRefreshEffect: function onRefreshEffect() {
-        this.m_Button_effect_switch_off.node.active = !GlobalUserData.bEffectAble;
+        // this.m_Button_effect_switch_off.node.active = !GlobalUserData.bEffectAble;
         this.m_Button_effect_switch_on.node.active = GlobalUserData.bEffectAble;
     },
     onDestroy: function onDestroy() {
@@ -7652,6 +10013,7 @@ cc.Class({
     },
     onClickCloseButton: function onClickCloseButton() {
         // this.node.active = false;  
+        this.node.removeFromParent();
         this.node.destroy();
         console.log("[SettingView][onClickCloseButton] destroy");
     },
@@ -7664,18 +10026,28 @@ cc.Class({
         this.onRefreshEffect();
     },
     onClickSwitchAccount: function onClickSwitchAccount() {
-        var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
-        if (GameFrameNode) {
-            console.log("[SettingView][onClickSwitchAccount] 获取GameFrame 所在节点 并取消为常驻节点");
-            cc.game.removePersistRootNode(GameFrameNode);
-        }
-        cc.director.loadScene("LoginScene");
-        cc.sys.garbageCollect();
+        GlobalFun.showAlert({
+            message: "是否退出当前账号，重新登录？",
+            // textAlignment: cc.TextAlignment.LEFT,
+            btn: [{
+                name: "取消"
+            }, {
+                name: "确定",
+                callback: function callback() {
+                    var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
+                    if (GameFrameNode) {
+                        console.log("[SettingView][onClickSwitchAccount] 获取GameFrame 所在节点 并取消为常驻节点");
+                        cc.game.removePersistRootNode(GameFrameNode);
+                    }
+                    cc.director.loadScene("LoginScene");
+                }
+            }]
+        });
     }
 });
 
 cc._RFpop();
-},{"GlobalUserData":"GlobalUserData"}],"ShopItem":[function(require,module,exports){
+},{"GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"ShopItem":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '0332dr8AGZOoahYR3nJs/re', 'ShopItem');
 // Script/plaza/views/plaza/ShopItem.js
@@ -7683,6 +10055,7 @@ cc._RFpush(module, '0332dr8AGZOoahYR3nJs/re', 'ShopItem');
 "use strict";
 
 var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
 cc.Class({
     extends: cc.Component,
 
@@ -7734,10 +10107,31 @@ cc.Class({
         this.m_Label_price.string = price;
         this.m_Image_shopItem.spriteFrame = this.shopItemAtals.getSpriteFrame("shop_icon_" + shopID);
     },
-    onClick: function onClick(params) {
-        console.log("[ShopItem][onClick] shopID = " + this._shopID);
-        cc.director.emit('onInCharge', { goodsID: this._goodsID });
-    }
+    onClick: function onClick(params) {}
+    // console.log("[ShopItem][onClick] shopID = " + this._shopID);
+    // if (GlobalUserData.isGuest) {
+    //     GlobalFun.showAlert({
+    //         message: "<color=#000000>为了您的账号安全,充值前请绑定手机号!<br/> (绑定就送<color=#FF0000>2000</c>金币,账号和手机号均限领一次)</c>",
+    //         btn: [
+    //             {
+    //                 name: "去绑定",
+    //                 callback: function () {
+    //                     GlobalFun.showBindView();
+    //                 }
+    //             },
+    //             {
+    //                 name: "继续",
+    //                 callback: () => {
+    //                     cc.director.emit('onInCharge', { goodsID: this._goodsID });
+    //                 }
+    //             }
+    //         ],
+    //     })
+    // }
+    // else {
+    //     cc.director.emit('onInCharge', { goodsID: this._goodsID });
+    // }
+
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {
 
@@ -7745,7 +10139,7 @@ cc.Class({
 });
 
 cc._RFpop();
-},{"GlobalUserData":"GlobalUserData"}],"ShopView":[function(require,module,exports){
+},{"GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"ShopView":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, 'd9f64TYV25HYKL062f4Ojzg', 'ShopView');
 // Script/plaza/views/plaza/ShopView.js
@@ -7755,6 +10149,7 @@ cc._RFpush(module, 'd9f64TYV25HYKL062f4Ojzg', 'ShopView');
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
+var MultiPlatform = require("MultiPlatform");
 cc.Class({
     extends: cc.Component,
 
@@ -7786,30 +10181,68 @@ cc.Class({
         console.log("[ShopView][onLoad] " + JSON.stringify(GlobalUserData.shopData));
     },
     refreshUI: function refreshUI(params) {
+        var _this = this;
+
         this.shopItemList.content.removeAllChildren();
-        for (var index = 0; index < this.shopItemCount; index++) {
-            var item = cc.instantiate(this.shopItemPrefab);
-            var shopID;
+
+        var _loop = function _loop() {
+            item = cc.instantiate(_this.shopItemPrefab);
+
+            var shopID = void 0;
+            var goodsID = index;
             if (GlobalUserData.isOpenIAP) {
                 shopID = index;
             } else {
                 shopID = index + 6;
             }
-            item.getComponent("ShopItem").init({ shopID: index });
-            this.shopItemList.content.addChild(item);
+            item.on(cc.Node.EventType.TOUCH_END, function () {
+                _this.onShopItemClick(goodsID);
+            }, item);
+            item.getComponent("ShopItem").init({ shopID: goodsID });
+            _this.shopItemList.content.addChild(item);
+        };
+
+        for (var index = 0; index < this.shopItemCount; index++) {
+            var item;
+
+            _loop();
         }
     },
     onEnable: function onEnable() {
-        cc.director.on('onInCharge', this.onInCharge, this);
+        // cc.director.on('onInCharge',this.onInCharge,this);
         console.log("[ShopView][onEnable]");
     },
     onDisable: function onDisable() {
-        cc.director.off('onInCharge', this.onInCharge, this);
+        // cc.director.off('onInCharge',this.onInCharge,this);
         console.log("[ShopView][onDisable]");
     },
-    onInCharge: function onInCharge(params) {
+    onShopItemClick: function onShopItemClick(goodsID) {
+        var _this2 = this;
+
+        console.log("[ShopView][onShopItemClick] goodsID = ", goodsID);
+        if (GlobalUserData.isGuest) {
+            GlobalFun.showAlert({
+                message: "<color=#000000>为了您的账号安全,充值前请绑定手机号!<br/> (绑定就送<color=#FF0000>2000</c>金币,账号和手机号均限领一次)</c>",
+                btn: [{
+                    name: "去绑定",
+                    callback: function callback() {
+                        GlobalFun.showBindView();
+                        _this2.close();
+                    }
+                }, {
+                    name: "继续",
+                    callback: function callback() {
+                        _this2.onInCharge({ goodsID: goodsID });
+                    }
+                }]
+            });
+        } else {
+            this.onInCharge({ goodsID: goodsID });
+        }
+    },
+    onInCharge: function onInCharge(args) {
         console.log("[ShopView][onInCharge]");
-        var goodsID = params.detail.goodsID;
+        var goodsID = args.goodsID;
         var shopDataArray = GlobalUserData.shopData.shop.base;
         if (goodsID < 0 || goodsID >= shopDataArray.length) {
             console.log("[ShopView][onInCharge] shopDataArray length = " + shopDataArray.length);
@@ -7824,11 +10257,11 @@ cc.Class({
             params["goods_num"] = "1";
             params["remark"] = "zhajinhuaGame";
             params["goods_note"] = "集结号拼三张";
-            params["user_ip"] = "127.0.0.1"; //todo
-            params["user_identity"] = "usertoken"; //todo
+            params["user_ip"] = MultiPlatform.getIpAddress() || "127.0.0.1"; //todo
+            params["user_identity"] = MultiPlatform.getMachineID() || "usertoken"; //todo
             params["productid"] = itemVal.id;
             params["os"] = "1";
-            params["versionnum"] = "1.1";
+            params["versionnum"] = MultiPlatform.getAppVersion() || "1.1";
             params["channelid"] = GlobalDef.CHANNELID_center;
             params["pay_amt"] = itemVal.price;
 
@@ -7843,12 +10276,12 @@ cc.Class({
             params["goods_num"] = "1";
             params["remark"] = "zhajinhuaGame";
             params["goods_note"] = "集结号拼三张";
-            params["user_ip"] = "127.0.0.1"; //todo
-            params["user_identity"] = "usertoken"; //todo
+            params["user_ip"] = MultiPlatform.getIpAddress() || "127.0.0.1"; //todo
+            params["user_identity"] = MultiPlatform.getMachineID() || "usertoken"; //todo
             params["pay_type"] = "8";
             params["productid"] = itemVal.id;
             params["os"] = "2";
-            params["versionnum"] = "1.1";
+            params["versionnum"] = MultiPlatform.getAppVersion() || "1.1";
             params["channelid"] = GlobalDef.CHANNELID_center;
 
             if (GlobalUserData.isOpenIAP) {
@@ -7870,7 +10303,7 @@ cc.Class({
                             }
                         } else {
                             if (value.msg !== undefined) {
-                                GlobalFun.showAlert(value.msg);
+                                GlobalFun.showToast(value.msg);
                             }
                         }
                         cc.director.emit("ShopCompleted");
@@ -7903,6 +10336,10 @@ cc.Class({
                 console.log("[ShopView][onChoosePaytype]ActionShowTanChuang callback");
             });
         });
+        this.close();
+    },
+    close: function close() {
+        this.node.removeFromParent();
         this.node.destroy();
     },
     onDestroy: function onDestroy() {
@@ -7910,15 +10347,15 @@ cc.Class({
         console.log("[ShopView][onDestroy]");
     },
     onClickCloseButton: function onClickCloseButton() {
-        this.node.destroy();
+        this.close();
         console.log("[ShopView][onClickCloseButton] destroy");
     }
 });
 
 cc._RFpop();
-},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"ToastView":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MultiPlatform":"MultiPlatform"}],"ToastView":[function(require,module,exports){
 "use strict";
-cc._RFpush(module, '96256eD5t9ERKAMm0bGe6YP', 'ToastView');
+cc._RFpush(module, '18601RzxBJIKIb9IQjkETao', 'ToastView');
 // Script/external/ToastView.js
 
 "use strict";
@@ -7937,39 +10374,173 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        m_Label_content: {
+        m_Label_alert: cc.Label
+    },
+
+    // use this for initialization
+    onLoad: function onLoad() {
+        // this.init({message:"this is just test"});
+        console.log("[ToastView][onLoad]");
+    },
+    init: function init(params) {
+        var message = params.message;
+        this.m_Label_alert.string = message;
+        this.node.opacity = 0;
+        this.node.runAction(cc.sequence(cc.fadeIn(0.5), cc.delayTime(1.0), cc.fadeOut(0.5), cc.removeSelf()));
+        console.log("[ToastView][init] message = " + message);
+    },
+    onDestroy: function onDestroy() {
+        cc.sys.garbageCollect();
+        console.log("[ToastView][onDestroy]");
+    },
+    onDisable: function onDisable(params) {
+        this.node.destroy();
+        console.log("[ToastView][onDisable]");
+    },
+    onEnable: function onEnable(params) {
+        console.log("[ToastView][onEnable]");
+    }
+});
+
+cc._RFpop();
+},{}],"UserChangePwdView":[function(require,module,exports){
+"use strict";
+cc._RFpush(module, 'e22d2s+t9hJW6yh21QyOcbQ', 'UserChangePwdView');
+// Script/plaza/views/plaza/UserChangePwdView.js
+
+"use strict";
+
+var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
+var GlobalDef = require("GlobalDef");
+require("MD5");
+cc.Class({
+    extends: cc.Component,
+
+    properties: {
+        // foo: {
+        //    default: null,      // The default value will be used only when the component attaching
+        //                           to a node for the first time
+        //    url: cc.Texture2D,  // optional, default is typeof default
+        //    serializable: true, // optional, default is true
+        //    visible: true,      // optional, default is true
+        //    displayName: 'Foo', // optional
+        //    readonly: false,    // optional, default is false
+        // },
+        // ...
+        m_Editbox_originPassword: {
             default: null,
-            type: cc.Label
+            type: cc.EditBox
+        },
+        m_Editbox_confirmPassword: {
+            default: null,
+            type: cc.EditBox
+        },
+        m_Editbox_newPassword: {
+            default: null,
+            type: cc.EditBox
         }
     },
 
     // use this for initialization
     onLoad: function onLoad() {},
+    onEnable: function onEnable() {
+        console.log("[UserChangePwdView][onEnable]");
+    },
+    onDisable: function onDisable() {
+        console.log("[UserChangePwdView][onDisable]");
+    },
     onDestroy: function onDestroy() {
         cc.sys.garbageCollect();
-        console.log("[ToastView][onDestroy]");
+        console.log("[UserChangePwdView][onDestroy]");
+    },
+    close: function close() {
+        this.node.removeFromParent();
+        this.node.destroy();
+    },
+    onClickCloseButton: function onClickCloseButton() {
+        this.close();
+        console.log("[UserChangePwdView][onClickCloseButton] destroy");
+    },
+    onClickEditName: function onClickEditName(params) {
+        this.m_Label_userName.node.active = false;
     },
     onClickConfirmButton: function onClickConfirmButton() {
-        if (typeof this._confirmfunc === "function") {
-            this._confirmfunc();
+        var szPassword = this.m_Editbox_originPassword.string;
+        var szNewPassword = this.m_Editbox_newPassword.string;
+        var szConfirmPassword = this.m_Editbox_confirmPassword.string;
+        if (szPassword.length <= 0 || szNewPassword.length <= 0 || szConfirmPassword.length <= 0) {
+            console.log("[UserChangePwdView][onClickConfirmButton] 密码不能为空!");
+            GlobalFun.showToast("密码不能为空!");
+            return;
         }
-        this.node.destroy();
-        console.log("[ToastView][onClickConfirmButton] destroy");
+        if (szPassword == szNewPassword) {
+            console.log("[UserChangePwdView][onClickConfirmButton] 新旧密码不能相同!");
+            GlobalFun.showToast("新旧密码不能相同!");
+            return;
+        }
+        if (szConfirmPassword != szNewPassword) {
+            console.log("[UserChangePwdView][onClickConfirmButton] 确认密码不一致!");
+            GlobalFun.showToast("确认密码不一致!");
+            return;
+        }
+        if (szNewPassword.length < 6 || szNewPassword.length > 16) {
+            console.log("[UserChangePwdView][onClickConfirmButton] 密码长度为6-16位!");
+            GlobalFun.showToast("密码长度为6-16位!");
+            return;
+        }
+        var url = GlobalDef.httpBaseUrl;
+        // url += "/hz/hzUpdatePassWord.ashx";
+        url += "/hz/hzUpdatePassWord3_0.ashx";
+        var params = {};
+        params["userid"] = GlobalUserData.dwUserID;
+        params["type"] = "1";
+        params["oldpass"] = cc.md5Encode(szPassword);
+        params["newpass"] = cc.md5Encode(szNewPassword);
+        var paramString = GlobalFun.buildRequestParam(params);
+        // "datetamp=1497411512&faceId=2&userid=27142649&sign=909c47b530c68c8e97ebe407c212c7de"
+        var xhr = new XMLHttpRequest();
+        var self = this;
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
+                var response = xhr.responseText;
+                console.log(response);
+                var value = JSON.parse(response);
+                if (value.status == 1) {
+                    GlobalUserData.szPassWord = cc.md5Encode(szNewPassword);
+                    cc.sys.localStorage.setItem('password', szNewPassword);
+                    self.m_Editbox_confirmPassword.string = "";
+                    self.m_Editbox_newPassword.string = "";
+                    self.m_Editbox_originPassword.string = "";
+                    self.showUserProfileView();
+                    self.close();
+                    cc.director.emit("onChangePasswordSuccess");
+                }
+                if (value.msg !== undefined) {
+                    GlobalFun.showToast(value.msg);
+                }
+            }
+        };
+        xhr.open("POST", url, true);
+        // xhr.setRequestHeader("Content-Type","application/json");
+        xhr.send(paramString);
+        console.log("[UserChangePwdView][onClickConfirmButton] " + paramString);
     },
-    onInit: function onInit(params) {
-        var szText = params.message;
-        this._confirmfunc = params.confirmfunc;
-        this.m_Label_content.string = szText;
+    showUserProfileView: function showUserProfileView() {
+        var self = this;
+        cc.loader.loadRes("prefab/UserProfileView", function (err, prefab) {
+            var context = cc.Canvas.instance.node;
+            if (cc.isValid(context)) {
+                var newNode = cc.instantiate(prefab);
+                context.addChild(newNode);
+                GlobalFun.ActionShowTanChuang(newNode);
+            }
+        });
     }
-
-    // called every frame, uncomment this function to activate update callback
-    // update: function (dt) {
-
-    // },
 });
 
 cc._RFpop();
-},{}],"UserFaceItem":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData","MD5":"MD5"}],"UserFaceItem":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '2bd3fFOAp9PNrRljOXgyZDB', 'UserFaceItem');
 // Script/plaza/views/plaza/UserFaceItem.js
@@ -7994,6 +10565,7 @@ cc.Class({
             default: null,
             type: cc.Sprite
         },
+        m_Image_select: cc.Sprite,
         userFaceAtals: {
             default: null,
             type: cc.SpriteAtlas
@@ -8009,14 +10581,9 @@ cc.Class({
         this._faceID = faceID;
         this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + faceID);
     },
-    onClick: function onClick(params) {
-        console.log("[UserFaceItem][onClick] faceID = " + this._faceID);
-        cc.director.emit('onChangeUserFace', { faceID: this._faceID + 1 });
+    setSelect: function setSelect(bSelect) {
+        this.m_Image_select.node.active = bSelect;
     }
-    // called every frame, uncomment this function to activate update callback
-    // update: function (dt) {
-
-    // },
 });
 
 cc._RFpop();
@@ -8029,6 +10596,7 @@ cc._RFpush(module, '3a2b4GP6WJOxJfMBnJgNHQU', 'UserFaceView');
 
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
+var GlobalDef = require("GlobalDef");
 cc.Class({
     extends: cc.Component,
 
@@ -8051,63 +10619,244 @@ cc.Class({
             default: null,
             type: cc.ScrollView
         },
-        userFaceCount: 0
+        userFaceCount: 0,
+        _selectIndex: -1
     },
 
     // use this for initialization
     onLoad: function onLoad() {
-        for (var index = 0; index < this.userFaceCount; index++) {
-            var item = cc.instantiate(this.userFaceItemPrefab);
+        var _this = this;
+
+        var _loop = function _loop() {
+            item = cc.instantiate(_this.userFaceItemPrefab);
+
+            var idx = index;
             item.getComponent("UserFaceItem").init({ faceID: index });
-            this.userFaceList.content.addChild(item);
+            item.on(cc.Node.EventType.TOUCH_END, function () {
+                _this.onFaceItemClick(idx);
+            });
+            _this.userFaceList.content.addChild(item);
+        };
+
+        for (var index = 0; index < this.userFaceCount; index++) {
+            var item;
+
+            _loop();
         }
+        this.onFaceItemClick(GlobalUserData.wFaceID - 1);
     },
     onEnable: function onEnable() {
-        cc.director.on('onChangeUserFace', this.onChangeUserFace, this);
         console.log("[UserFaceView][onEnable]");
     },
     onDisable: function onDisable() {
-        cc.director.off('onChangeUserFace', this.onChangeUserFace, this);
         console.log("[UserFaceView][onDisable]");
     },
+    close: function close(params) {
+        this.node.removeFromParent();
+        this.node.destroy();
+    },
+    onFaceItemClick: function onFaceItemClick(idx) {
+        if (idx === this._selectIndex) {
+            return;
+        }
+        var children = this.userFaceList.content.children;
+        if (this._selectIndex >= 0 && cc.isValid(children[this._selectIndex])) {
+            children[this._selectIndex].getComponent("UserFaceItem").setSelect(false);
+        }
+        this._selectIndex = idx;
+        if (idx >= 0 && cc.isValid(children[idx])) {
+            children[idx].getComponent("UserFaceItem").setSelect(true);
+        }
+    },
+    onClickConfirm: function onClickConfirm() {
+        this.onChangeUserFace({ faceID: this._selectIndex + 1 });
+    },
     onChangeUserFace: function onChangeUserFace(params) {
-        // GlobalUserData.wFaceID = params.detail.faceID;
-        this._faceID = params.detail.faceID;
-        this.onClickCloseButton();
-        console.log("[UserFaceView][onChangeUserFace] faceID = " + JSON.stringify(params.detail));
-        cc.director.emit("onChangeUserFace", params.detail);
+        this._faceID = params.faceID;
+        var faceID = this._faceID;
+        var url = GlobalDef.httpBaseUrl;
+        // url += "/hz/hzUpdateFaceId.ashx";
+        url += "/hz/hzUpdateFaceId3_0.ashx";
+        var params = {};
+        params["userid"] = GlobalUserData.dwUserID;
+        params["faceId"] = faceID;
+        var paramString = GlobalFun.buildRequestParam(params);
+        var xhr = new XMLHttpRequest();
+        var self = this;
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
+                var response = xhr.responseText;
+                console.log(response);
+                cc.director.emit("onChangeUserFaceSuccess");
+                var value = JSON.parse(response);
+                if (value.msg !== undefined) {
+                    GlobalFun.showToast(value.msg);
+                }
+                if (value.status == 1) {
+                    self.close();
+                }
+            }
+        };
+        xhr.open("POST", url, true);
+        // xhr.setRequestHeader("Content-Type","application/json");
+        xhr.send(paramString);
+        console.log("[UserFaceView][onChangeUserFace] " + paramString);
     },
     onDestroy: function onDestroy() {
         cc.sys.garbageCollect();
         console.log("[UserFaceView][onDestroy]");
     },
     onClickCloseButton: function onClickCloseButton() {
-        var FaceID = this._faceID;
-        cc.loader.loadRes("prefab/UserProfileView", function (err, prefab) {
-            var newNode = cc.instantiate(prefab);
-            newNode.getComponent("UserProfileView")._faceID = FaceID;
-            cc.director.getScene().getChildByName("Canvas").addChild(newNode);
-            GlobalFun.ActionShowTanChuang(newNode, function () {
-                console.log("[UserFaceView][onClickUserProfile]ActionShowTanChuang callback");
-            });
-        });
-        this.node.destroy();
+        // var FaceID = this._faceID;
+        // cc.loader.loadRes("prefab/UserProfileView", function (err, prefab) {
+        //     var newNode = cc.instantiate(prefab);
+        //     newNode.getComponent("UserProfileView")._faceID = FaceID;
+        //     cc.director.getScene().getChildByName("Canvas").addChild(newNode);
+        //     GlobalFun.ActionShowTanChuang(newNode, function () {
+        //         console.log("[UserFaceView][onClickUserProfile]ActionShowTanChuang callback");
+        //     })
+
+        // });
+        this.close();
         console.log("[UserFaceView][onClickCloseButton] destroy");
     }
 });
 
 cc._RFpop();
-},{"GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"UserInfaceItem":[function(require,module,exports){
+},{"GlobalDef":"GlobalDef","GlobalFun":"GlobalFun","GlobalUserData":"GlobalUserData"}],"UserInfaceItem":[function(require,module,exports){
 "use strict";
 cc._RFpush(module, '7c4c4ho+FdH6L1IdAB9cthx', 'UserInfaceItem');
 // Script/game/UserInfaceItem.js
 
 "use strict";
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var GlobalFun = require("GlobalFun");
+var people = {
+    "base": [[{
+        "wait1": {
+            "image": "res/people/people_1_1",
+            "frame": 17
+        },
+        "wait2": {
+            "image": "res/people/people_1_5",
+            "frame": 16
+        },
+        "wait3": {
+            "image": "res/people/people_1_6",
+            "frame": 31
+        },
+        "chip": {
+            "image": "res/people/people_1_2",
+            "frame": 24
+        },
+        "lose": {
+            "image": "res/people/people_1_3",
+            "frame": 20
+        },
+        "win": {
+            "image": "res/people/people_1_4",
+            "frame": 15
+        },
+        "collect": {
+            "image": "res/people/people_1_7",
+            "frame": 21
+        }
+    }, {
+        "wait1": {
+            "image": "res/people/people_2_1",
+            "frame": 17
+        },
+        "wait2": {
+            "image": "res/people/people_2_5",
+            "frame": 20
+        },
+        "wait3": {
+            "image": "res/people/people_2_6",
+            "frame": 30
+        },
+        "chip": {
+            "image": "res/people/people_2_2",
+            "frame": 24
+        },
+        "lose": {
+            "image": "res/people/people_2_3",
+            "frame": 24
+        },
+        "win": {
+            "image": "res/people/people_2_4",
+            "frame": 28
+        },
+        "collect": {
+            "image": "res/people/people_2_7",
+            "frame": 23
+        }
+    }], [{
+        "wait1": {
+            "image": "res/people/people_3_1",
+            "frame": 17
+        },
+        "wait2": {
+            "image": "res/people/people_3_5",
+            "frame": 45
+        },
+        "wait3": {
+            "image": "res/people/people_3_6",
+            "frame": 33
+        },
+        "chip": {
+            "image": "res/people/people_3_2",
+            "frame": 21
+        },
+        "lose": {
+            "image": "res/people/people_3_3",
+            "frame": 37
+        },
+        "win": {
+            "image": "res/people/people_3_4",
+            "frame": 28
+        },
+        "collect": {
+            "image": "res/people/people_3_7",
+            "frame": 26
+        }
+    }, {
+        "wait1": {
+            "image": "res/people/people_4_1",
+            "frame": 17
+        },
+        "wait2": {
+            "image": "res/people/people_4_5",
+            "frame": 15
+        },
+        "wait3": {
+            "image": "res/people/people_4_6",
+            "frame": 30
+        },
+        "chip": {
+            "image": "res/people/people_4_2",
+            "frame": 22
+        },
+        "lose": {
+            "image": "res/people/people_4_3",
+            "frame": 33
+        },
+        "win": {
+            "image": "res/people/people_4_4",
+            "frame": 19
+        },
+        "collect": {
+            "image": "res/people/people_4_7",
+            "frame": 19
+        }
+    }]]
+};
 cc.Class({
     extends: cc.Component,
-
+    editor: _defineProperty({
+        requireComponent: cc.Sprite
+    }, "requireComponent", cc.Animation),
     properties: {
         // foo: {
         //    default: null,      // The default value will be used only when the component attaching
@@ -8119,85 +10868,116 @@ cc.Class({
         //    readonly: false,    // optional, default is false
         // },
         // ...
-        chipFrames: {
-            default: [],
-            type: cc.SpriteFrame
-        },
-        winFrames: {
-            default: [],
-            type: cc.SpriteFrame
-        },
-        loseFrames: {
-            default: [],
-            type: cc.SpriteFrame
-        },
-        lookFrames: {
-            default: [],
-            type: cc.SpriteFrame
-        },
-        peopleAtals: {
-            default: null,
-            type: cc.SpriteAtlas
-        }
     },
 
     // use this for initialization
     onLoad: function onLoad() {
+        // this.playerAnimate("win",0);
+    },
+    playerAnimate: function playerAnimate(szAnim, viewID, userItem) {
+        var _this = this;
+
+        console.log("play_______", szAnim);
         var animation = this.node.getComponent(cc.Animation);
-        for (var index = 0; index < 16; index++) {
-            this.chipFrames[index] = this.peopleAtals.getSpriteFrame("people_chip_" + GlobalFun.PrefixInteger(index + 1, 2));
+        var gender = 0;
+        this.m_userItem = userItem || this.m_userItem;
+        if (this.m_userItem && this.m_userItem.cbGender) {
+            gender = this.m_userItem.cbGender - 1;
         }
-        for (var index = 0; index < 18; index++) {
-            this.winFrames[index] = this.peopleAtals.getSpriteFrame("people_win_" + GlobalFun.PrefixInteger(index + 1, 2));
+        var index = viewID % 2;
+        if (szAnim == "wait") {
+            szAnim = szAnim + GlobalFun.getRandomInt(1, 3);
         }
-        for (var index = 0; index < 32; index++) {
-            this.loseFrames[index] = this.peopleAtals.getSpriteFrame("people_lose_" + GlobalFun.PrefixInteger(index + 1, 2));
+        var animName = "";
+        if (gender == 0) {
+            animName = "male_" + index + "_" + szAnim;
+        } else {
+            animName = "female_" + index + "_" + szAnim;
         }
-        for (var index = 0; index < 20; index++) {
-            this.lookFrames[index] = this.peopleAtals.getSpriteFrame("people_look_" + GlobalFun.PrefixInteger(index + 1, 2));
+        var pVal = people["base"][gender][index][szAnim];
+        if (pVal == null) {
+            console.log("people is null", gender, index, szAnim);
+            return;
         }
-        var chip_clip = cc.AnimationClip.createWithSpriteFrames(this.chipFrames, this.chipFrames.length);
-        chip_clip.name = "chip";
-        chip_clip.events.push({
-            frame: 1, // 准确的时间，以秒为单位。这里表示将在动画播放到 1s 时触发事件
-            func: "playanim", // 回调函数名称
-            params: ["win"] // 回调参数
-        });
-        chip_clip.wrapMode = cc.WrapMode.Loop;
-        animation.addClip(chip_clip);
-        // animation.play('chip');
-
-        var win_clip = cc.AnimationClip.createWithSpriteFrames(this.winFrames, this.winFrames.length);
-        win_clip.name = "win";
-        win_clip.events.push({
-            frame: 1, // 准确的时间，以秒为单位。这里表示将在动画播放到 1s 时触发事件
-            func: "playanim", // 回调函数名称
-            params: ["lose"] // 回调参数
-        });
-        win_clip.wrapMode = cc.WrapMode.Loop;
-        animation.addClip(win_clip);
-
-        var lose_clip = cc.AnimationClip.createWithSpriteFrames(this.loseFrames, this.loseFrames.length);
-        lose_clip.name = "lose";
-        lose_clip.events.push({
-            frame: 1, // 准确的时间，以秒为单位。这里表示将在动画播放到 1s 时触发事件
-            func: "playanim", // 回调函数名称
-            params: ["look"] // 回调参数
-        });
-        lose_clip.wrapMode = cc.WrapMode.Loop;
-        animation.addClip(lose_clip);
-
-        var look_clip = cc.AnimationClip.createWithSpriteFrames(this.lookFrames, this.lookFrames.length);
-        look_clip.name = "look";
-        look_clip.events.push({
-            frame: this.lookFrames.length / 60, // 准确的时间，以秒为单位。这里表示将在动画播放到 1s 时触发事件
-            func: "playanim", // 回调函数名称
-            params: ["chip"] // 回调参数
-        });
-        look_clip.wrapMode = cc.WrapMode.Loop;
-        animation.addClip(look_clip);
-
-        animation.play("look");
+        var urls = [];
+        for (var i = 0; i < pVal.frame; i++) {
+            var str = pVal.image + "_" + GlobalFun.PrefixInteger(i + 1, 2);
+            urls.push(str);
+        }
+        if (animation.getAnimationState(animName)) {
+            animation.play(animName);
+            console.log("anim is exist", animName);
+        } else {
+            this.loadResArray(urls, cc.SpriteFrame, function (err, assets) {
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                var spriteFrames = assets;
+                var clip = cc.AnimationClip.createWithSpriteFrames(spriteFrames, spriteFrames.length);
+                clip.name = animName;
+                clip.wrapMode = cc.WrapMode.Default;
+                console.log(animation.addClip(clip));
+                animation.play(animName);
+                // clip.events.push({
+                //     frame: 1,               // 准确的时间，以秒为单位。这里表示将在动画播放到 1s 时触发事件
+                //     func: "playanim",     // 回调函数名称
+                //     params: ["win"]    // 回调参数
+                // });
+            });
+        }
+        this.node.stopAllActions();
+        this.node.runAction(cc.sequence(cc.delayTime(GlobalFun.getRandomInt(5, 10)), cc.callFunc(function () {
+            _this.playerAnimate("wait", viewID, userItem);
+        })));
+    },
+    loadResArray: function loadResArray(urls, type, completeCallback) {
+        if (!completeCallback && type && !cc.isChildClassOf(type, cc.RawAsset)) {
+            completeCallback = type;
+            type = null;
+        }
+        var self = this;
+        var uuids = [];
+        for (var i = 0; i < urls.length; i++) {
+            var url = urls[i];
+            var uuid = cc.loader._getResUuid(url, type);
+            if (uuid) {
+                uuids.push(uuid);
+            }
+        }
+        var remain = uuids.length;
+        if (remain > 0) {
+            var res = [];
+            for (var i = 0, len = remain; i < len; ++i) {
+                var uuid = uuids[i];
+                res.push({
+                    type: 'uuid',
+                    uuid: uuid
+                });
+            }
+            cc.loader.load(res, function (errors, items) {
+                var results = [];
+                for (var i = 0; i < res.length; ++i) {
+                    var uuid = res[i].uuid;
+                    var id = this._getReferenceKey(uuid);
+                    var item = items.getContent(id);
+                    if (item) {
+                        // should not release these assets, even if they are static referenced in the scene.
+                        this.setAutoReleaseRecursively(uuid, false);
+                        results.push(item);
+                    }
+                }
+                if (completeCallback) {
+                    completeCallback(errors, results);
+                }
+            });
+        } else {
+            this.scheduleOnce(function () {
+                if (completeCallback) {
+                    completeCallback(null, []);
+                }
+            });
+        }
     },
     playanim: function playanim(params) {
         // console.log("[UserInfaceItem][playanim] " + params);
@@ -8242,6 +11022,7 @@ cc.Class({
             default: null,
             type: cc.Label
         },
+        m_Label_userCharm: cc.Label,
         m_Label_userID: {
             default: null,
             type: cc.Label
@@ -8269,21 +11050,7 @@ cc.Class({
         genderWomanButton: {
             default: null,
             type: cc.Toggle
-        },
-        m_Editbox_originPassword: {
-            default: null,
-            type: cc.EditBox
-        },
-        m_Editbox_confirmPassword: {
-            default: null,
-            type: cc.EditBox
-        },
-        m_Editbox_newPassword: {
-            default: null,
-            type: cc.EditBox
-        },
-        m_Panel_userChange: cc.Node,
-        m_Panel_userInfo: cc.Node
+        }
     },
 
     // use this for initialization
@@ -8293,10 +11060,12 @@ cc.Class({
     refreshUI: function refreshUI() {
         var szNickName = GlobalUserData.szNickName;
         var llGameScore = GlobalUserData.llGameScore;
+        var dwLoveLiness = GlobalUserData.dwLoveLiness;
         var dwUserID = GlobalUserData.dwUserID;
         var cbGender = GlobalUserData.cbGender || 1;
         var isGuest = GlobalUserData.isGuest;
         this.m_Label_userGold.string = llGameScore;
+        this.m_Label_userCharm.string = dwLoveLiness;
         this.m_Label_userID.string = dwUserID;
         this.m_Label_userName.string = szNickName;
         if (isGuest) {
@@ -8306,10 +11075,10 @@ cc.Class({
             this.m_Button_binding.node.active = false;
             this.m_Button_changepwd.node.active = true;
         }
-        if (this._faceID !== undefined) {
-            this.onChangeUserFace();
-            cbGender = Math.floor((this._faceID - 1) / 4) + 1;
-        }
+        // if( this._faceID !== undefined) {
+        //     this.onChangeUserFace();
+        //     cbGender = Math.floor((this._faceID - 1)/4) + 1;
+        // }
         var faceID = this._faceID || GlobalUserData.wFaceID;
         if (faceID <= 0 || faceID > 8) {
             faceID = 1;
@@ -8324,51 +11093,21 @@ cc.Class({
         }
     },
     onEnable: function onEnable() {
-        // cc.director.on('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[UserProfileView][onEnable]");
     },
     onDisable: function onDisable() {
-        // cc.director.off('onChangeUserFace',this.onChangeUserFace,this);
         console.log("[UserProfileView][onDisable]");
     },
     onDestroy: function onDestroy() {
         cc.sys.garbageCollect();
         console.log("[UserProfileView][onDestroy]");
     },
-    onChangeUserFace: function onChangeUserFace() {
-        var faceID = this._faceID;
-        // if (faceID <=0 || faceID > 8) {
-        //     faceID = 1;
-        // }
-        // console.log("[UserProfileView][onChangeUserFace] faceID = "+ faceID);
-        // this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
-        var url = GlobalDef.httpBaseUrl;
-        url += "/hz/hzUpdateFaceId.ashx";
-        var params = {};
-        params["userid"] = GlobalUserData.dwUserID;
-        params["faceId"] = faceID;
-        var paramString = GlobalFun.buildRequestParam(params);
-        // "datetamp=1497411512&faceId=2&userid=27142649&sign=909c47b530c68c8e97ebe407c212c7de"
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            console.log("[UserProfileView][onChangeUserFace] " + xhr.getResponseHeader("Content-Type"));
-            if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
-                var response = xhr.responseText;
-                console.log(response);
-                cc.director.emit("onChangeUserFaceSuccess");
-                var value = JSON.parse(response);
-                if (value.msg !== undefined) {
-                    GlobalFun.showAlert(value.msg);
-                }
-            }
-        };
-        xhr.open("POST", url, true);
-        // xhr.setRequestHeader("Content-Type","application/json");
-        xhr.send(paramString);
-        console.log("[UserProfileView][onChangeUserFace] " + paramString);
+    close: function close() {
+        this.node.removeFromParent();
+        this.node.destroy();
     },
     onClickCloseButton: function onClickCloseButton() {
-        this.node.destroy();
+        this.close();
         console.log("[UserProfileView][onClickCloseButton] destroy");
     },
     onClickEditName: function onClickEditName(params) {
@@ -8400,7 +11139,7 @@ cc.Class({
                     }
                 }
                 if (value.msg !== undefined) {
-                    GlobalFun.showAlert(value.msg);
+                    GlobalFun.showToast(value.msg);
                 }
             }
         };
@@ -8420,10 +11159,15 @@ cc.Class({
         });
     },
     onClickChangePassword: function onClickChangePassword(params) {
-        this.m_Panel_userInfo.active = false;
-        this.m_Panel_userChange.active = true;
-        GlobalFun.ActionShowTanChuang(this.m_Panel_userChange, function () {
-            console.log("[PlazaView][onClickChangePassword]ActionShowTanChuang callback");
+        var self = this;
+        self.onClickCloseButton();
+        cc.loader.loadRes("prefab/UserChangePwdView", function (err, prefab) {
+            var context = cc.Canvas.instance.node;
+            if (cc.isValid(context)) {
+                var newNode = cc.instantiate(prefab);
+                context.addChild(newNode);
+                GlobalFun.ActionShowTanChuang(newNode);
+            }
         });
     },
     onClickGuestBind: function onClickGuestBind(params) {
@@ -8437,75 +11181,7 @@ cc.Class({
                 GlobalFun.ActionShowTanChuang(newNode);
             }
         });
-    },
-    onClickConfirmButton: function onClickConfirmButton() {
-        var szPassword = this.m_Editbox_originPassword.string;
-        var szNewPassword = this.m_Editbox_newPassword.string;
-        var szConfirmPassword = this.m_Editbox_confirmPassword.string;
-        if (szPassword.length <= 0 || szNewPassword.length <= 0 || szConfirmPassword.length <= 0) {
-            console.log("[PlazaView][onClickConfirmButton] 密码不能为空!");
-            GlobalFun.showAlert("密码不能为空!");
-            return;
-        }
-        if (szPassword == szNewPassword) {
-            console.log("[PlazaView][onClickConfirmButton] 新旧密码不能相同!");
-            GlobalFun.showAlert("新旧密码不能相同!");
-            return;
-        }
-        if (szConfirmPassword != szNewPassword) {
-            console.log("[PlazaView][onClickConfirmButton] 确认密码不一致!");
-            GlobalFun.showAlert("确认密码不一致!");
-            return;
-        }
-        if (szNewPassword.length < 6 || szNewPassword.length > 16) {
-            console.log("[PlazaView][onClickConfirmButton] 密码长度为6-16位!");
-            GlobalFun.showAlert("密码长度为6-16位!");
-            return;
-        }
-        var url = GlobalDef.httpBaseUrl;
-        url += "/hz/hzUpdatePassWord.ashx";
-        var params = {};
-        params["userid"] = GlobalUserData.dwUserID;
-        params["type"] = "1";
-        params["oldpass"] = cc.md5Encode(szPassword);
-        params["newpass"] = cc.md5Encode(szNewPassword);
-        var paramString = GlobalFun.buildRequestParam(params);
-        // "datetamp=1497411512&faceId=2&userid=27142649&sign=909c47b530c68c8e97ebe407c212c7de"
-        var xhr = new XMLHttpRequest();
-        var self = this;
-        xhr.onreadystatechange = function () {
-            console.log("[UserProfileView][onClickConfirmButton] " + xhr.getResponseHeader("Content-Type"));
-            if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status < 400) {
-                var response = xhr.responseText;
-                console.log(response);
-                var value = JSON.parse(response);
-                if (value.status == 1) {
-                    GlobalUserData.szPassWord = cc.md5Encode(szNewPassword);
-                    cc.sys.localStorage.setItem('password', szNewPassword);
-                    self.m_Editbox_confirmPassword.string = "";
-                    self.m_Editbox_newPassword.string = "";
-                    self.m_Editbox_originPassword.string = "";
-                    self.m_Panel_userInfo.active = true;
-                    self.m_Panel_userChange.active = false;
-                    GlobalFun.ActionShowTanChuang(self.m_Panel_userInfo, function () {
-                        console.log("[PlazaView][onClickConfirmButton]ActionShowTanChuang callback");
-                    });
-                    cc.director.emit("onChangePasswordSuccess");
-                }
-                if (value.msg !== undefined) {
-                    GlobalFun.showAlert(value.msg);
-                }
-            }
-        };
-        xhr.open("POST", url, true);
-        // xhr.setRequestHeader("Content-Type","application/json");
-        xhr.send(paramString);
-        console.log("[UserProfileView][onClickConfirmButton] " + paramString);
     }
-    // called every frame, uncomment this function to activate update callback
-    // update: function (dt) {
-
-    // },
 });
 
 cc._RFpop();
@@ -8516,6 +11192,7 @@ cc._RFpush(module, '6a0e2y7VopBJYbq+UQRna/j', 'WelcomeView');
 
 "use strict";
 
+var AudioMng = require("AudioMng");
 cc.Class({
     extends: cc.Component,
 
@@ -8550,8 +11227,13 @@ cc.Class({
         // this.scheduleOnce(function(){
         //     cc.director.loadScene("LoginScene");
         // }, 2);
+        AudioMng.loadSoundData();
+        cc.loader.loadRes("prefab/PopWaitingView", function (err, res) {});
     },
-
+    onDestroy: function onDestroy(params) {
+        console.log("[WelcomeView][onDestroy]");
+        cc.sys.garbageCollect();
+    },
     // called every frame, uncomment this function to activate update callback
     update: function update(dt) {
         this._count += dt;
@@ -8565,7 +11247,6 @@ cc.Class({
                 this.splash.active = false;
                 this._count = 0;
                 cc.director.loadScene("LoginScene");
-                cc.sys.garbageCollect();
             } else {
                 var op = 255 * (1.0 - Math.sin(this._count / 1.0 * 0.5 * Math.PI));
                 this.splash.opacity = op;
@@ -8575,1143 +11256,4 @@ cc.Class({
 });
 
 cc._RFpop();
-},{}],"labelCell":[function(require,module,exports){
-"use strict";
-cc._RFpush(module, 'a6527xMI35HwY9ELBXxJ3eR', 'labelCell');
-// userCell/labelCell.js
-
-'use strict';
-
-cc.Class({
-    extends: require('viewCell'),
-
-    properties: {
-        index: cc.Label,
-        group: cc.Label
-    },
-
-    // use this for initialization
-    onLoad: function onLoad() {},
-    init: function init(index, data, reload, group) {
-        if (index >= data.array.length) {
-            this.index.string = '越界';
-            this.group.string = group.toString();
-            return;
-        }
-        this._target = data.target;
-        this._data = data.array[index];
-        this.index.string = index;
-        this.group.string = group.toString();
-    },
-    clicked: function clicked() {
-        this._target.show('下标:' + this.index.string + ',组:' + this.group.string);
-    }
-});
-
-cc._RFpop();
-},{"viewCell":"viewCell"}],"tableview":[function(require,module,exports){
-"use strict";
-cc._RFpush(module, 'd7b0d7G9NFOHqFDEfigaFIC', 'tableview');
-// tableView/tableview.js
-
-"use strict";
-
-var ScrollModel = cc.Enum({ Horizontal: 0, Vertical: 1 });
-var ScrollDirection = cc.Enum({ None: 0, Up: 1, Down: 2, Left: 3, Rigth: 4 });
-var Direction = cc.Enum({ LEFT_TO_RIGHT__TOP_TO_BOTTOM: 0, TOP_TO_BOTTOM__LEFT_TO_RIGHT: 1 });
-var ViewType = cc.Enum({ Scroll: 0, Flip: 1 });
-
-var _searchMaskParent = function _searchMaskParent(node) {
-    if (cc.Mask) {
-        var index = 0;
-        var mask = null;
-        for (var curr = node; curr && curr instanceof cc.Node; curr = curr.parent, ++index) {
-            mask = curr.getComponent(cc.Mask);
-            if (mask) {
-                return {
-                    index: index,
-                    node: curr
-                };
-            }
-        }
-    }
-
-    return null;
-};
-
-//返回一个有序数组(对象,排序字段,[0-正序,1-倒序])
-var orderBy = function orderBy(o, key, desc) {
-    var a = [];
-    for (var k in o) {
-        for (var i = 0; i < a.length; i++) {
-            if (desc) {
-                if (o[k][key] > a[i][key]) {
-                    a.splice(i, 0, o[k]);
-                    break;
-                }
-            } else {
-                if (o[k][key] < a[i][key]) {
-                    a.splice(i, 0, o[k]);
-                    break;
-                }
-            }
-        }
-        if (a.length === i) {
-            a.push(o[k]);
-        }
-    }
-    return a;
-};
-
-var tableView = cc.Class({
-    extends: cc.ScrollView,
-    editor: CC_EDITOR && {
-        menu: "添加 UI 组件/tableView(自定义)",
-        help: "https://github.com/a1076559139/creator_tableView",
-        inspector: 'packages://tableView/inspector.js'
-    },
-    properties: {
-        _data: null,
-        _minCellIndex: 0, //cell的最小下标
-        _maxCellIndex: 0, //cell的最大下标
-        _paramCount: 0,
-        _count: 0, //一共有多少节点
-        _cellCount: 0, //scroll下有多少节点
-        _showCellCount: 0, //scroll一个屏幕能显示多少节点
-        //GRID模式下，对cell进行分组管理
-        _groupCellCount: null, //每组有几个节点
-
-        _scrollDirection: ScrollDirection.None,
-
-        _cellPool: null,
-        _view: null,
-
-        _page: 0, //当前处于那一页
-        _pageTotal: 0, //总共有多少页
-
-        _touchLayer: cc.Node,
-
-        _loadSuccess: false,
-        _initSuccess: false, //是否初始化成功
-        _scheduleInit: false,
-
-        cell: {
-            default: null,
-            type: cc.Prefab,
-            notify: function notify(oldValue) {}
-        },
-
-        ScrollModel: {
-            default: 0,
-            type: ScrollModel,
-            notify: function notify(oldValue) {
-                if (this.ScrollModel === ScrollModel.Horizontal) {
-                    this.horizontal = true;
-                    this.vertical = false;
-                    this.verticalScrollBar = null;
-                } else {
-                    this.vertical = true;
-                    this.horizontal = false;
-                    this.horizontalScrollBar = null;
-                }
-            },
-            tooltip: '横向纵向滑动'
-        },
-        ViewType: {
-            default: 0,
-            type: ViewType,
-            notify: function notify(oldValue) {
-                if (this.ViewType === ViewType.Flip) {
-                    this.inertia = false;
-                } else {
-                    this.inertia = true;
-                }
-            },
-            tooltip: '为Scroll时,不做解释\n为Flipw时，在Scroll的基础上增加翻页的行为'
-        },
-        isFill: {
-            default: false,
-            tooltip: '当节点不能铺满一页时，选择isFill为true会填充节点铺满整个view'
-        },
-        Direction: {
-            default: 0,
-            type: Direction,
-            tooltip: '规定cell的排列方向'
-        },
-        pageChangeEvents: {
-            default: [],
-            type: cc.Component.EventHandler,
-            tooltip: '仅当ViewType为pageView时有效，初始化或翻页时触发回调，向回调传入两个参数，参数一为当前处于哪一页，参数二为一共多少页'
-        }
-    },
-    statics: {
-        _cellPoolCache: {}
-    },
-    onLoad: function onLoad() {
-        window.s = this;
-        var self = this;
-        tableView._tableView.push(this);
-
-        //当销毁tableView的时候，回收cell
-        var destroy = this.node.destroy;
-        this.node.destroy = function () {
-            self.clear();
-            destroy.call(self.node);
-        };
-
-        var _onPreDestroy = this.node._onPreDestroy;
-        this.node._onPreDestroy = function () {
-            self.clear();
-            _onPreDestroy.call(self.node);
-        };
-    },
-    onDestroy: function onDestroy() {
-        cc.eventManager.removeListener(this._touchListener);
-        if (CC_JSB) {
-            this._touchListener.release();
-        }
-        for (var key in tableView._tableView) {
-            if (tableView._tableView[key] === this) {
-                tableView._tableView.splice(key);
-                return;
-            }
-        }
-    },
-    _addListenerToTouchLayer: function _addListenerToTouchLayer() {
-        this._touchLayer = new cc.Node();
-        var widget = this._touchLayer.addComponent(cc.Widget);
-        widget.isAlignTop = true;
-        widget.isAlignBottom = true;
-        widget.isAlignLeft = true;
-        widget.isAlignRight = true;
-        widget.top = 0;
-        widget.bottom = 0;
-        widget.left = 0;
-        widget.right = 0;
-        widget.isAlignOnce = false;
-        this._touchLayer.parent = this._view;
-
-        var self = this;
-        // 添加单点触摸事件监听器
-        this._touchListener = cc.EventListener.create({
-            event: cc.EventListener.TOUCH_ONE_BY_ONE,
-            swallowTouches: false,
-            ower: this._touchLayer,
-            mask: _searchMaskParent(this._touchLayer),
-            onTouchBegan: function onTouchBegan(touch, event) {
-                var pos = touch.getLocation();
-                var node = this.ower;
-
-                if (node._hitTest(pos, this)) {
-                    self._touchstart(touch);
-                    return true;
-                }
-                return false;
-            },
-            onTouchMoved: function onTouchMoved(touch, event) {
-                self._touchmove(touch);
-            },
-            onTouchEnded: function onTouchEnded(touch, event) {
-                self._touchend(touch);
-            }
-        });
-        if (CC_JSB) {
-            this._touchListener.retain();
-        }
-        cc.eventManager.addListener(this._touchListener, this._touchLayer);
-    },
-    _setStopPropagation: function _setStopPropagation() {
-        this.node.on('touchstart', function (event) {
-            event.stopPropagation();
-        });
-        this.node.on('touchmove', function (event) {
-            event.stopPropagation();
-        });
-        this.node.on('touchend', function (event) {
-            event.stopPropagation();
-        });
-        this.node.on('touchcancel', function (event) {
-            event.stopPropagation();
-        });
-    },
-    //初始化cell
-    _initCell: function _initCell(cell, reload) {
-        if (this.ScrollModel === ScrollModel.Horizontal && this.Direction === Direction.TOP_TO_BOTTOM__LEFT_TO_RIGHT || this.ScrollModel === ScrollModel.Vertical && this.Direction === Direction.LEFT_TO_RIGHT__TOP_TO_BOTTOM) {
-            var tag = cell.tag * cell.childrenCount;
-            for (var index = 0; index < cell.childrenCount; ++index) {
-                var node = cell.children[index];
-                var viewCell = node.getComponent('viewCell');
-                if (viewCell) {
-                    viewCell._cellInit_(this);
-                    // viewCell.init(tag + index, this._data, cell.tag);
-                    viewCell.init(tag + index, this._data, reload, [cell.tag, index]);
-                }
-            }
-        } else {
-            if (this.ViewType === ViewType.Flip) {
-                var tag = Math.floor(cell.tag / this._showCellCount);
-                var tagnum = tag * this._showCellCount * cell.childrenCount;
-                for (var index = 0; index < cell.childrenCount; ++index) {
-                    var node = cell.children[index];
-                    var viewCell = node.getComponent('viewCell');
-                    if (viewCell) {
-                        viewCell._cellInit_(this);
-                        // viewCell.init(this._showCellCount * index + cell.tag % this._showCellCount + tagnum, this._data, index + tag * cell.childrenCount);
-                        viewCell.init(this._showCellCount * index + cell.tag % this._showCellCount + tagnum, this._data, reload, [index + tag * cell.childrenCount, index]);
-                    }
-                }
-            } else {
-                for (var index = 0; index < cell.childrenCount; ++index) {
-                    var node = cell.children[index];
-                    var viewCell = node.getComponent('viewCell');
-                    if (viewCell) {
-                        viewCell._cellInit_(this);
-                        // viewCell.init(index * this._count + cell.tag, this._data, index);
-                        viewCell.init(index * this._count + cell.tag, this._data, reload, [index, index]);
-                    }
-                }
-            }
-        }
-    },
-    //设置cell的位置
-    _setCellPosition: function _setCellPosition(node, index) {
-        if (this.ScrollModel === ScrollModel.Horizontal) {
-            if (index === 0) {
-                node.x = -this.content.width * this.content.anchorX + node.width * node.anchorX;
-            } else {
-                node.x = this.content.getChildByTag(index - 1).x + node.width;
-            }
-            node.y = (node.anchorY - this.content.anchorY) * node.height;
-        } else {
-            if (index === 0) {
-                node.y = this.content.height * (1 - this.content.anchorY) - node.height * (1 - node.anchorY);
-            } else {
-                node.y = this.content.getChildByTag(index - 1).y - node.height;
-            }
-            node.x = (node.anchorX - this.content.anchorX) * node.width;
-        }
-    },
-    _addCell: function _addCell(index) {
-        var cell = this._getCell();
-        this._setCellAttr(cell, index);
-        this._setCellPosition(cell, index);
-        cell.parent = this.content;
-        this._initCell(cell);
-    },
-    _setCellAttr: function _setCellAttr(cell, index) {
-        cell.tag = index;
-        cell.zIndex = index;
-    },
-    _addCellsToView: function _addCellsToView() {
-        for (var index = 0; index <= this._maxCellIndex; ++index) {
-            this._addCell(index);
-        }
-    },
-    _getCell: function _getCell() {
-        if (this._cellPool.size() === 0) {
-            var cell = cc.instantiate(this.cell);
-
-            var node = new cc.Node();
-            node.anchorX = 0.5;
-            node.anchorY = 0.5;
-
-            var length = 0;
-            if (this.ScrollModel === ScrollModel.Horizontal) {
-                node.width = cell.width;
-                var childrenCount = Math.floor(this.content.height / cell.height);
-                node.height = this.content.height;
-
-                for (var index = 0; index < childrenCount; ++index) {
-                    if (!cell) {
-                        cell = cc.instantiate(this.cell);
-                    }
-                    cell.x = (cell.anchorX - 0.5) * cell.width;
-                    cell.y = node.height / 2 - cell.height * (1 - cell.anchorY) - length;
-                    length += cell.height;
-                    cell.parent = node;
-                    cell = null;
-                }
-            } else {
-                node.height = cell.height;
-                var childrenCount = Math.floor(this.content.width / cell.width);
-                node.width = this.content.width;
-
-                for (var index = 0; index < childrenCount; ++index) {
-                    if (!cell) {
-                        cell = cc.instantiate(this.cell);
-                    }
-                    cell.y = (cell.anchorY - 0.5) * cell.height;
-                    cell.x = -node.width / 2 + cell.width * cell.anchorX + length;
-                    length += cell.width;
-                    cell.parent = node;
-                    cell = null;
-                }
-            }
-            this._cellPool.put(node);
-        }
-        var cell = this._cellPool.get();
-        return cell;
-    },
-    _getCellSize: function _getCellSize() {
-        var cell = this._getCell();
-        var cellSize = cell.getContentSize();
-        this._cellPool.put(cell);
-        return cellSize;
-    },
-    _getGroupCellCount: function _getGroupCellCount() {
-        var cell = this._getCell();
-        var groupCellCount = cell.childrenCount;
-        this._cellPool.put(cell);
-        return groupCellCount;
-    },
-    clear: function clear() {
-        for (var index = this.content.childrenCount - 1; index >= 0; --index) {
-            this._cellPool.put(this.content.children[index]);
-        }
-        this._cellCount = 0;
-        this._showCellCount = 0;
-    },
-    reload: function reload(data) {
-        if (data !== undefined) {
-            this._data = data;
-        }
-        for (var index = this.content.childrenCount - 1; index >= 0; --index) {
-            this._initCell(this.content.children[index], true);
-        }
-    },
-    _getCellPoolCacheName: function _getCellPoolCacheName() {
-        if (this.ScrollModel === ScrollModel.Horizontal) {
-            return this.cell.name + 'h' + this.content.height;
-        } else {
-            return this.cell.name + 'w' + this.content.width;
-        }
-    },
-    _initTableView: function _initTableView() {
-        this._scheduleInit = false;
-
-        if (this._cellPool) {
-            this.clear();
-        }
-
-        var name = this._getCellPoolCacheName();
-        if (!tableView._cellPoolCache[name]) {
-            tableView._cellPoolCache[name] = new cc.NodePool('viewCell');
-        }
-        this._cellPool = tableView._cellPoolCache[name];
-
-        this._cellSize = this._getCellSize();
-        this._groupCellCount = this._getGroupCellCount();
-
-        this._count = Math.ceil(this._paramCount / this._groupCellCount);
-
-        if (this.ScrollModel === ScrollModel.Horizontal) {
-            this._view.width = this.node.width;
-            this._view.x = (this._view.anchorX - this.node.anchorX) * this._view.width;
-
-            this._cellCount = Math.ceil(this._view.width / this._cellSize.width) + 1;
-            if (this.ViewType === ViewType.Flip) {
-                if (this._cellCount > this._count) {
-                    if (this.isFill) {
-                        this._cellCount = Math.floor(this._view.width / this._cellSize.width);
-                    } else {
-                        this._cellCount = this._count;
-                    }
-                    this._showCellCount = this._cellCount;
-                    this._pageTotal = 1;
-                } else {
-                    this._pageTotal = Math.ceil(this._count / (this._cellCount - 1));
-                    this._count = this._pageTotal * (this._cellCount - 1);
-                    this._showCellCount = this._cellCount - 1;
-                }
-            } else {
-                if (this._cellCount > this._count) {
-                    if (this.isFill) {
-                        this._cellCount = Math.floor(this._view.width / this._cellSize.width);
-                    } else {
-                        this._cellCount = this._count;
-                    }
-                    this._showCellCount = this._cellCount;
-                } else {
-                    this._showCellCount = this._cellCount - 1;
-                }
-            }
-
-            this.content.width = this._count * this._cellSize.width;
-            // if (this.content.width <= this._view.width) {
-            //     this.content.width = this._view.width + 1;
-            // }
-
-            //停止_scrollView滚动
-            this.stopAutoScroll();
-            this.scrollToLeft();
-        } else {
-            this._view.height = this.node.height;
-            this._view.y = (this._view.anchorY - this.node.anchorY) * this._view.height;
-
-            this._cellCount = Math.ceil(this._view.height / this._cellSize.height) + 1;
-            if (this.ViewType === ViewType.Flip) {
-                if (this._cellCount > this._count) {
-                    if (this.isFill) {
-                        this._cellCount = Math.floor(this._view.height / this._cellSize.height);
-                    } else {
-                        this._cellCount = this._count;
-                    }
-                    this._showCellCount = this._cellCount;
-                    this._pageTotal = 1;
-                } else {
-                    this._pageTotal = Math.ceil(this._count / (this._cellCount - 1));
-                    this._count = this._pageTotal * (this._cellCount - 1);
-                    this._showCellCount = this._cellCount - 1;
-                }
-            } else {
-                if (this._cellCount > this._count) {
-                    if (this.isFill) {
-                        this._cellCount = Math.floor(this._view.height / this._cellSize.height);
-                    } else {
-                        this._cellCount = this._count;
-                    }
-                    this._showCellCount = this._cellCount;
-                } else {
-                    this._showCellCount = this._cellCount - 1;
-                }
-            }
-
-            this.content.height = this._count * this._cellSize.height;
-            // if (this.content.height <= this._view.height) {
-            //     this.content.height = this._view.height + 1;
-            // }
-
-            //停止_scrollView滚动
-            this.stopAutoScroll();
-            this.scrollToTop();
-        }
-
-        this._changePageNum(1 - this._page);
-
-        this._lastOffset = this.getScrollOffset();
-        this._minCellIndex = 0;
-        this._maxCellIndex = this._cellCount - 1;
-
-        this._addCellsToView();
-
-        this._initSuccess = true;
-    },
-    //count:cell的总个数  data:要向cell传递的数据
-    initTableView: function initTableView(paramCount, data) {
-        this._paramCount = paramCount;
-        this._data = data;
-
-        if (!this._loadSuccess) {
-            if (this.ScrollModel === ScrollModel.Horizontal) {
-                this.horizontal = true;
-                this.vertical = false;
-            } else {
-                this.vertical = true;
-                this.horizontal = false;
-            }
-            this._view = this.content.parent;
-            //为scrollBar添加size改变的监听
-            this.verticalScrollBar && this.verticalScrollBar.node.on('size-changed', function () {
-                this._updateScrollBar(this._getHowMuchOutOfBoundary());
-            }, this);
-            this.horizontalScrollBar && this.horizontalScrollBar.node.on('size-changed', function () {
-                this._updateScrollBar(this._getHowMuchOutOfBoundary());
-            }, this);
-            //给触摸层添加时间
-            this._addListenerToTouchLayer();
-            //禁止tableView点击事件向父级传递
-            this._setStopPropagation();
-            //存在Widget则在下一帧进行初始化
-            if (this.node.getComponent(cc.Widget) || this._view.getComponent(cc.Widget) || this.content.getComponent(cc.Widget)) {
-                this.scheduleOnce(this._initTableView);
-                this._scheduleInit = true;
-            } else {
-                this._initTableView();
-            }
-            this._loadSuccess = true;
-        } else {
-            if (!this._scheduleInit) {
-                this._initTableView();
-            }
-        }
-    },
-    //*************************************************重写ScrollView方法*************************************************//
-    stopAutoScroll: function stopAutoScroll() {
-        if (this._scheduleInit) {
-            this.scheduleOnce(function () {
-                this.stopAutoScroll();
-            });
-            return;
-        }
-        this._scrollDirection = ScrollDirection.None;
-        this._super();
-    },
-    scrollToBottom: function scrollToBottom(timeInSecond, attenuated) {
-        if (this._scheduleInit) {
-            this.scheduleOnce(function () {
-                this.scrollToBottom(timeInSecond, attenuated);
-            });
-            return;
-        }
-        this._scrollDirection = ScrollDirection.Up;
-        this._super(timeInSecond, attenuated);
-    },
-    scrollToTop: function scrollToTop(timeInSecond, attenuated) {
-        if (this._scheduleInit) {
-            this.scheduleOnce(function () {
-                this.scrollToTop(timeInSecond, attenuated);
-            });
-            return;
-        }
-        this._scrollDirection = ScrollDirection.Down;
-        this._super(timeInSecond, attenuated);
-    },
-    scrollToLeft: function scrollToLeft(timeInSecond, attenuated) {
-        if (this._scheduleInit) {
-            this.scheduleOnce(function () {
-                this.scrollToLeft(timeInSecond, attenuated);
-            });
-            return;
-        }
-        this._scrollDirection = ScrollDirection.Rigth;
-        this._super(timeInSecond, attenuated);
-    },
-    scrollToRight: function scrollToRight(timeInSecond, attenuated) {
-        if (this._scheduleInit) {
-            this.scheduleOnce(function () {
-                this.scrollToRight(timeInSecond, attenuated);
-            });
-            return;
-        }
-        this._scrollDirection = ScrollDirection.Left;
-        this._super(timeInSecond, attenuated);
-    },
-    scrollToOffset: function scrollToOffset(offset, timeInSecond, attenuated) {
-        if (this._scheduleInit) {
-            this.scheduleOnce(function () {
-                this.scrollToOffset(offset, timeInSecond, attenuated);
-            });
-            return;
-        }
-        var nowoffset = this.getScrollOffset();
-        var p = cc.pSub(offset, nowoffset);
-        if (this.ScrollModel === ScrollModel.Horizontal) {
-            if (p.x > 0) {
-                this._scrollDirection = ScrollDirection.Left;
-            } else if (p.x < 0) {
-                this._scrollDirection = ScrollDirection.Rigth;
-            }
-        } else {
-            if (p.y > 0) {
-                this._scrollDirection = ScrollDirection.Up;
-            } else if (p.y < 0) {
-                this._scrollDirection = ScrollDirection.Down;
-            }
-        }
-
-        this._super(offset, timeInSecond, attenuated);
-    },
-    //*******************************************************END*********************************************************//
-
-    addScrollEvent: function addScrollEvent(target, component, handler) {
-        var eventHandler = new cc.Component.EventHandler();
-        eventHandler.target = target;
-        eventHandler.component = component;
-        eventHandler.handler = handler;
-        this.scrollEvents.push(eventHandler);
-    },
-    removeScrollEvent: function removeScrollEvent(target) {
-        for (var key in this.scrollEvents) {
-            var eventHandler = this.scrollEvents[key];
-            if (eventHandler.target === target) {
-                this.scrollEvents.splice(key, 1);
-                return;
-            }
-        }
-    },
-    clearScrollEvent: function clearScrollEvent() {
-        this.scrollEvents = [];
-    },
-    addPageEvent: function addPageEvent(target, component, handler) {
-        var eventHandler = new cc.Component.EventHandler();
-        eventHandler.target = target;
-        eventHandler.component = component;
-        eventHandler.handler = handler;
-        this.pageChangeEvents.push(eventHandler);
-    },
-    removePageEvent: function removePageEvent(target) {
-        for (var key in this.pageChangeEvents) {
-            var eventHandler = this.pageChangeEvents[key];
-            if (eventHandler.target === target) {
-                this.pageChangeEvents.splice(key, 1);
-                return;
-            }
-        }
-    },
-    clearPageEvent: function clearPageEvent() {
-        this.pageChangeEvents = [];
-    },
-    scrollToNextPage: function scrollToNextPage() {
-        this.scrollToPage(this._page + 1);
-    },
-    scrollToLastPage: function scrollToLastPage() {
-        this.scrollToPage(this._page - 1);
-    },
-    scrollToPage: function scrollToPage(page) {
-        if (this.ViewType !== ViewType.Flip || page === this._page) {
-            return;
-        }
-
-        if (page < 1 || page > this._pageTotal) {
-            return;
-        }
-
-        var time = 0.3 * Math.abs(page - this._page);
-
-        this._changePageNum(page - this._page);
-
-        if (this._initSuccess) {
-            var x = this._view.width;
-            var y = this._view.height;
-            x = (this._page - 1) * x;
-            y = (this._page - 1) * y;
-            this.scrollToOffset({ x: x, y: y }, time);
-        } else {
-            this.scheduleOnce(function () {
-                var x = this._view.width;
-                var y = this._view.height;
-                x = (this._page - 1) * x;
-                y = (this._page - 1) * y;
-                this.scrollToOffset({ x: x, y: y }, time);
-            });
-        }
-    },
-    getCells: function getCells(callback) {
-        var self = this;
-        var f = function f() {
-            var cells = [];
-            var nodes = orderBy(self.content.children, 'tag');
-            for (var key in nodes) {
-                var node = nodes[key];
-                for (var k in node.children) {
-                    cells.push(node.children[k]);
-                }
-            }
-            callback(cells);
-        };
-
-        if (this._initSuccess) {
-            f();
-        } else {
-            this.scheduleOnce(f);
-        }
-    },
-    getData: function getData() {
-        return this._data;
-    },
-    getGroupsRange: function getGroupsRange(callback) {
-        var self = this;
-        var f = function f() {
-            var arr = [];
-            for (var i = self._minCellIndex; i <= self._maxCellIndex; i++) {
-                arr.push(i);
-            }
-            callback(arr);
-        };
-
-        if (this._initSuccess) {
-            f();
-        } else {
-            this.scheduleOnce(f);
-        }
-    },
-    _changePageNum: function _changePageNum(num) {
-        this._page += num;
-
-        if (this._page <= 0) {
-            this._page = 1;
-        } else if (this._page > this._pageTotal) {
-            this._page = this._pageTotal;
-        }
-
-        for (var key in this.pageChangeEvents) {
-            var event = this.pageChangeEvents[key];
-            event.emit([this._page, this._pageTotal]);
-        }
-    },
-    _touchstart: function _touchstart(event) {
-        if (this.ScrollModel === ScrollModel.Horizontal) {
-            this.horizontal = false;
-        } else {
-            this.vertical = false;
-        }
-    },
-    _touchmove: function _touchmove(event) {
-        if (this.horizontal === this.vertical) {
-            var startL = event.getStartLocation();
-            var l = event.getLocation();
-            if (this.ScrollModel === ScrollModel.Horizontal) {
-                if (Math.abs(l.x - startL.x) <= 7) {
-                    return;
-                }
-            } else {
-                if (Math.abs(l.y - startL.y) <= 7) {
-                    return;
-                }
-            }
-
-            if (this.ScrollModel === ScrollModel.Horizontal) {
-                this.horizontal = true;
-            } else {
-                this.vertical = true;
-            }
-        }
-    },
-    _touchend: function _touchend(event) {
-        if (this.ScrollModel === ScrollModel.Horizontal) {
-            this.horizontal = true;
-        } else {
-            this.vertical = true;
-        }
-
-        if (this.ViewType === ViewType.Flip && this._pageTotal > 1) {
-            this._pageMove(event);
-        }
-
-        // this._ckickCell(event);
-    },
-    _ckickCell: function _ckickCell(event) {
-        var srartp = event.getStartLocation();
-        var p = event.getLocation();
-
-        if (this.ScrollModel === ScrollModel.Horizontal) {
-            if (Math.abs(p.x - srartp.x) > 7) {
-                return;
-            }
-        } else {
-            if (Math.abs(p.y - srartp.y) > 7) {
-                return;
-            }
-        }
-
-        var convertp = this.content.convertToNodeSpaceAR(p);
-        for (var key in this.content.children) {
-            var node = this.content.children[key];
-            var nodebox = node.getBoundingBox();
-            if (nodebox.contains(convertp)) {
-                convertp = node.convertToNodeSpaceAR(p);
-                for (var k in node.children) {
-                    var cell = node.children[k];
-                    var cellbox = cell.getBoundingBox();
-                    if (cellbox.contains(convertp)) {
-                        if (cell.activeInHierarchy && cell.opacity !== 0) {
-                            cell.clicked();
-                        }
-                        return;
-                    }
-                }
-                return;
-            }
-        }
-    },
-    //移动距离小于25%则不翻页
-    _pageMove: function _pageMove(event) {
-        var x = this._view.width;
-        var y = this._view.height;
-
-        if (this.ViewType === ViewType.Flip) {
-            var offset = this.getScrollOffset();
-            var offsetMax = this.getMaxScrollOffset();
-
-            if (this.ScrollModel === ScrollModel.Horizontal) {
-                if (offset.x >= 0 || offset.x <= -offsetMax.x) {
-                    return;
-                }
-                y = 0;
-                if (Math.abs(event.getLocation().x - event.getStartLocation().x) > this._view.width / 4) {
-                    if (this._scrollDirection === ScrollDirection.Left) {
-                        if (this._page < this._pageTotal) {
-                            this._changePageNum(1);
-                        } else {
-                            return;
-                        }
-                    } else if (this._scrollDirection === ScrollDirection.Rigth) {
-                        if (this._page > 1) {
-                            this._changePageNum(-1);
-                        } else {
-                            return;
-                        }
-                    }
-                }
-            } else {
-                if (offset.y >= offsetMax.y || offset.y <= 0) {
-                    return;
-                }
-                x = 0;
-                if (Math.abs(event.getLocation().y - event.getStartLocation().y) > this._view.height / 4) {
-                    if (this._scrollDirection === ScrollDirection.Up) {
-                        if (this._page < this._pageTotal) {
-                            this._changePageNum(1);
-                        } else {
-                            return;
-                        }
-                    } else if (this._scrollDirection === ScrollDirection.Down) {
-                        if (this._page > 1) {
-                            this._changePageNum(-1);
-                        } else {
-                            return;
-                        }
-                    }
-                }
-            }
-
-            x = (this._page - 1) * x;
-            y = (this._page - 1) * y;
-
-            this.scrollToOffset({ x: x, y: y }, 0.3);
-        }
-    },
-    _getBoundingBoxToWorld: function _getBoundingBoxToWorld(node) {
-        var p = node.convertToWorldSpace(cc.p(0, 0));
-        return cc.rect(p.x, p.y, node.width, node.height);
-    },
-    _updateCells: function _updateCells() {
-        if (this.ScrollModel === ScrollModel.Horizontal) {
-            if (this._scrollDirection === ScrollDirection.Left) {
-                if (this._maxCellIndex < this._count - 1) {
-                    var viewBox = this._getBoundingBoxToWorld(this._view);
-                    do {
-                        var node = this.content.getChildByTag(this._minCellIndex);
-                        var nodeBox = this._getBoundingBoxToWorld(node);
-
-                        if (nodeBox.xMax <= viewBox.xMin) {
-                            node.x = this.content.getChildByTag(this._maxCellIndex).x + node.width;
-                            this._minCellIndex++;
-                            this._maxCellIndex++;
-                            // this._setCellAttr(node, this._maxCellIndex);
-                            // this._initCell(node);
-                            node.tag = this._maxCellIndex;
-                            if (nodeBox.xMax + (this._maxCellIndex - this._minCellIndex + 1) * node.width > viewBox.xMin) {
-                                node.zIndex = this._maxCellIndex;
-                                this._initCell(node);
-                            }
-                        } else {
-                            break;
-                        }
-                    } while (this._maxCellIndex !== this._count - 1);
-                }
-            } else if (this._scrollDirection === ScrollDirection.Rigth) {
-                if (this._minCellIndex > 0) {
-                    var viewBox = this._getBoundingBoxToWorld(this._view);
-                    do {
-                        var node = this.content.getChildByTag(this._maxCellIndex);
-                        var nodeBox = this._getBoundingBoxToWorld(node);
-
-                        if (nodeBox.xMin >= viewBox.xMax) {
-                            node.x = this.content.getChildByTag(this._minCellIndex).x - node.width;
-                            this._minCellIndex--;
-                            this._maxCellIndex--;
-                            // this._setCellAttr(node, this._minCellIndex);
-                            // this._initCell(node);
-                            node.tag = this._minCellIndex;
-                            if (nodeBox.xMin - (this._maxCellIndex - this._minCellIndex + 1) * node.width < viewBox.xMax) {
-                                node.zIndex = this._minCellIndex;
-                                this._initCell(node);
-                            }
-                        } else {
-                            break;
-                        }
-                    } while (this._minCellIndex !== 0);
-                }
-            }
-        } else {
-            if (this._scrollDirection === ScrollDirection.Up) {
-                if (this._maxCellIndex < this._count - 1) {
-                    var viewBox = this._getBoundingBoxToWorld(this._view);
-                    do {
-                        var node = this.content.getChildByTag(this._minCellIndex);
-                        var nodeBox = this._getBoundingBoxToWorld(node);
-
-                        if (nodeBox.yMin >= viewBox.yMax) {
-                            node.y = this.content.getChildByTag(this._maxCellIndex).y - node.height;
-                            this._minCellIndex++;
-                            this._maxCellIndex++;
-                            // this._setCellAttr(node, this._maxCellIndex);
-                            // this._initCell(node);
-                            node.tag = this._maxCellIndex;
-                            if (nodeBox.yMin - (this._maxCellIndex - this._minCellIndex + 1) * node.height < viewBox.yMax) {
-                                node.zIndex = this._maxCellIndex;
-                                this._initCell(node);
-                            }
-                        } else {
-                            break;
-                        }
-                    } while (this._maxCellIndex !== this._count - 1);
-                }
-            } else if (this._scrollDirection === ScrollDirection.Down) {
-                if (this._minCellIndex > 0) {
-                    var viewBox = this._getBoundingBoxToWorld(this._view);
-                    do {
-                        var node = this.content.getChildByTag(this._maxCellIndex);
-                        var nodeBox = this._getBoundingBoxToWorld(node);
-
-                        if (nodeBox.yMax <= viewBox.yMin) {
-                            node.y = this.content.getChildByTag(this._minCellIndex).y + node.height;
-                            this._minCellIndex--;
-                            this._maxCellIndex--;
-                            // this._setCellAttr(node, this._minCellIndex);
-                            // this._initCell(node);
-                            node.tag = this._minCellIndex;
-                            if (nodeBox.yMax + (this._maxCellIndex - this._minCellIndex + 1) * node.width > viewBox.yMin) {
-                                node.zIndex = this._minCellIndex;
-                                this._initCell(node);
-                            }
-                        } else {
-                            break;
-                        }
-                    } while (this._minCellIndex !== 0);
-                }
-            }
-        }
-    },
-    _getScrollDirection: function _getScrollDirection() {
-        var offset = this.getScrollOffset();
-        // var offsetMax = this.getMaxScrollOffset();
-        // if (this.ScrollModel === ScrollModel.Horizontal) {
-        //     if (offset.x >= 0 || offset.x <= -offsetMax.x) {
-        //         return;
-        //     }
-        // } else {
-        //     if (offset.y >= offsetMax.y || offset.y <= 0) {
-        //         return;
-        //     }
-        // }
-
-        var lastOffset = this._lastOffset;
-        this._lastOffset = offset;
-        offset = cc.pSub(offset, lastOffset);
-
-        if (this.ScrollModel === ScrollModel.Horizontal) {
-            if (offset.x > 0) {
-                this._scrollDirection = ScrollDirection.Rigth;
-            } else if (offset.x < 0) {
-                this._scrollDirection = ScrollDirection.Left;
-            } else {
-                this._scrollDirection = ScrollDirection.None;
-            }
-        } else {
-            if (offset.y < 0) {
-
-                this._scrollDirection = ScrollDirection.Down;
-            } else if (offset.y > 0) {
-                this._scrollDirection = ScrollDirection.Up;
-            } else {
-                this._scrollDirection = ScrollDirection.None;
-            }
-        }
-    },
-
-    // called every frame, uncomment this function to activate update callback
-    update: function update(dt) {
-        this._super(dt);
-
-        if (!this._initSuccess || this._cellCount === this._showCellCount || this._pageTotal === 1) {
-            return;
-        }
-        this._getScrollDirection();
-        this._updateCells();
-    }
-});
-tableView._tableView = [];
-tableView.reload = function () {
-    for (var key in tableView._tableView) {
-        tableView._tableView[key].reload();
-    }
-};
-tableView.clear = function () {
-    for (var key in tableView._tableView) {
-        tableView._tableView[key].clear();
-    }
-};
-
-cc.tableView = module.export = tableView;
-
-cc._RFpop();
-},{}],"viewCell":[function(require,module,exports){
-"use strict";
-cc._RFpush(module, 'd1dfablitpJ5rXHxnkR6CpH', 'viewCell');
-// tableView/viewCell.js
-
-"use strict";
-
-cc.Class({
-    extends: cc.Component,
-
-    properties: {
-        tableView: {
-            default: null,
-            visible: false
-        },
-        _isCellInit_: false,
-        _longClicked_: false
-    },
-
-    //不可以重写
-    _cellAddMethodToNode_: function _cellAddMethodToNode_() {
-        this.node.clicked = this.clicked.bind(this);
-    },
-    _cellAddTouch_: function _cellAddTouch_() {
-        this.node.on(cc.Node.EventType.TOUCH_START, function (event) {
-            if (this.node.active === true && this.node.opacity !== 0) {
-                if (!this._longClicked_) {
-                    this._longClicked_ = true;
-                    this.scheduleOnce(this._longClicked, 1.5);
-                }
-            }
-        }, this);
-        this.node.on(cc.Node.EventType.TOUCH_MOVE, function () {
-            if (this._longClicked_) {
-                this._longClicked_ = false;
-                this.unschedule(this._longClicked);
-            }
-        }, this);
-        this.node.on(cc.Node.EventType.TOUCH_END, function () {
-            this.clicked();
-            if (this._longClicked_) {
-                this._longClicked_ = false;
-                this.unschedule(this._longClicked);
-            }
-        }, this);
-        this.node.on(cc.Node.EventType.TOUCH_CANCEL, function () {
-            if (this._longClicked_) {
-                this._longClicked_ = false;
-                this.unschedule(this._longClicked);
-            }
-        }, this);
-    },
-    _cellInit_: function _cellInit_(tableView) {
-        this.tableView = tableView;
-        if (!this._isCellInit_) {
-            this._cellAddMethodToNode_();
-            this._cellAddTouch_();
-            this._isCellInit_ = true;
-        }
-    },
-    _longClicked: function _longClicked() {
-        this._longClicked_ = false;
-        this.node.emit(cc.Node.EventType.TOUCH_CANCEL);
-        this.longClicked();
-    },
-    //可以重写的方法
-
-    //需要重写的方法
-    longClicked: function longClicked() {},
-    //被点击时相应的方法
-    clicked: function clicked() {},
-
-    //加载需要初始化数据时调用
-    init: function init(index, data, reload, group) {}
-});
-
-cc._RFpop();
-},{}]},{},["CoverView","AudioMng","Bridge_android","Bridge_ios","GameServerItem","GameUserItem","GlobalDef","GlobalUserData","HelloWorld","LoadingView","MD5","MultiPlatform","PlazaView","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CardItem","ChipItem","GameLogic","GameScene","GameView","UserInfaceItem","GameModel","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","GameFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","GuestBindView","PlazaRoomItem","ServiceView","SettingView","ShopItem","ShopView","UserFaceItem","UserFaceView","UserProfileView","tableview","viewCell","labelCell"]);
+},{"AudioMng":"AudioMng"}]},{},["AudioMng","Bridge_android","Bridge_ios","CoverView","GameServerItem","GameUserItem","GlobalDef","GlobalUserData","HelloWorld","LoadingView","MD5","MultiPlatform","PlazaScrollRing","PlazaView","ScrollRing","WelcomeView","AlertView","GlobalFun","PopWaitView","ToastView","CardItem","ChipItem","GameChatView","GameLogic","GamePresentConfirmView","GameScene","GameSelfInfoView","GameSettingView","GameUserInfoView","GameView","PresentNode","UserInfaceItem","GameModel","CMD_Game","CMD_Plaza","CMD_ZaJinHua","LogonScene","BaseFrame","GameFrame","LogonFrame","LogonView","RegisterView","BankView","ChoosePayTypeView","GuestBindView","LotteryView","PlazaRoomItem","ServiceView","SettingView","ShopItem","ShopView","UserChangePwdView","UserFaceItem","UserFaceView","UserProfileView"]);
