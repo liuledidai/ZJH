@@ -153,6 +153,7 @@ cc.Class({
             logonData.pushstring(cc.md5Encode(this._szPassword),33);
         }
         logonData.pushstring("",33);
+        logonData.pushstring("",32);
         this.sendSocketData(logonData);
     },
     sendRegister: function() {
@@ -202,7 +203,11 @@ cc.Class({
         GlobalUserData.isGuest = false;
         this._logonMode = 0;
         console.log("[logonframe][onLogonByAccount] "+szAccount+" # "+ szPassword);
-        if(this.onCreateSocket("122.226.186.38",9009) === false) {
+        // if(this.onCreateSocket("122.226.186.38",9009) === false) {
+        //     console.log("[logonframe][onLogonByAccount][onCreateSocket] fail");
+        //     return false;
+        // }
+        if(this.onCreateSocket(GlobalDef.LOGON_SERVER_IP,GlobalDef.PORT_LOGON_SERVER) === false) {
             console.log("[logonframe][onLogonByAccount][onCreateSocket] fail");
             return false;
         }
@@ -214,8 +219,12 @@ cc.Class({
         this._szPassword = szPassword;
         this._szMobilePhone = "0123456789";
         this._logonMode = 2;
-        if(this.onCreateSocket("122.226.186.38",9009) === false) {
-            console.log("[logonframe][onLogonByVisitor][onCreateSocket] fail");
+        // if(this.onCreateSocket("122.226.186.38",9009) === false) {
+        //     console.log("[logonframe][onLogonByVisitor][onCreateSocket] fail");
+        //     return false;
+        // }
+        if(this.onCreateSocket(GlobalDef.LOGON_SERVER_IP,GlobalDef.PORT_LOGON_SERVER) === false) {
+            console.log("[logonframe][onLogonByAccount][onCreateSocket] fail");
             return false;
         }
         console.log("[logonframe][onLogonByVisitor][onCreateSocket] success");
@@ -228,8 +237,12 @@ cc.Class({
         this._szMobilePhone = szAccount;
         this._szMobileAuth = szMobileAuth;
         this._logonMode = 1;
-        if(this.onCreateSocket("122.226.186.38",9009) === false) {
-            console.log("[logonframe][onRegister][onCreateSocket] fail");
+        // if(this.onCreateSocket("122.226.186.38",9009) === false) {
+        //     console.log("[logonframe][onRegister][onCreateSocket] fail");
+        //     return false;
+        // }
+        if(this.onCreateSocket(GlobalDef.LOGON_SERVER_IP,GlobalDef.PORT_LOGON_SERVER) === false) {
+            console.log("[logonframe][onLogonByAccount][onCreateSocket] fail");
             return false;
         }
         console.log("[logonframe][onRegister][onCreateSocket] success");

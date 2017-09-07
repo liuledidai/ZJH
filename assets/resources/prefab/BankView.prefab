@@ -2564,7 +2564,7 @@
     "_tag": -1,
     "_opacityModifyRGB": false,
     "_id": "",
-    "_active": true,
+    "_active": false,
     "_components": [],
     "_prefab": {
       "__id__": 129
@@ -6894,7 +6894,7 @@
     "_tag": -1,
     "_opacityModifyRGB": false,
     "_id": "",
-    "_active": false,
+    "_active": true,
     "_components": [
       {
         "__id__": 275
@@ -7053,7 +7053,7 @@
       "b": 0,
       "a": 255
     },
-    "_N$placeholder": "点击输入数量",
+    "_N$placeholder": "输入魅力值",
     "_N$placeholderFontSize": 38,
     "_N$placeholderFontColor": {
       "__type__": "cc.Color",
@@ -8136,7 +8136,7 @@
       "b": 0,
       "a": 255
     },
-    "_N$placeholder": "",
+    "_N$placeholder": "输入银行密码",
     "_N$placeholderFontSize": 38,
     "_N$placeholderFontColor": {
       "__type__": "cc.Color",
@@ -9135,6 +9135,15 @@
     },
     "m_Editbox_charm_pwd": {
       "__id__": 248
+    },
+    "m_Label_lottery_gold": {
+      "__id__": 265
+    },
+    "m_Label_lottery_charm": {
+      "__id__": 271
+    },
+    "m_Label_lottery_num": {
+      "__id__": 253
     },
     "_selectIndex": 0
   },

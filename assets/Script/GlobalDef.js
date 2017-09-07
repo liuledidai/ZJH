@@ -15,13 +15,20 @@ var GlobalDef = {
     MAX_CHAT_LEN: 128,								//聊天长度
     LIMIT_CHAT_TIMES: 1200,							//限时聊天
     //正式服务器地址
-    httpInitUrl: "http://ver.jjhgame.com/Handle/hz/init.ashx",   //app初始化接口地址
-    httpBaseUrl: "http://interface.jjhgame.com/Handle",        //web接口地址
-    httpOpenUrl: "http://user.jjhgame.com/findpasswordHZ.aspx",  //找回密码
-    httpUserCenter: "http://f.jjhgame.com/Handle",                  //用户中心
+    httpInitUrl: "http://tver.jjhgame.com/Handle/hz/init.ashx",   //app初始化接口地址
+    // httpBaseUrl: "http://interface.jjhgame.com/Handle",        //web接口地址
+    // httpBaseUrl:"http://thzinterface.jjhgame.com/Handle",
+    httpBaseUrl:"http://thzguest.jjhgame.com/Handle",
+    // httpOpenUrl: "http://user.jjhgame.com/findpasswordHZ.aspx",  //找回密码
+    httpOpenUrl: "http://thzguestu.jjhgame.com",  //找回密码
+    // httpUserCenter: "http://f.jjhgame.com/Handle",                  //用户中心
+    httpUserCenter: "http://thzguest.jjhgame.com/Handle",
     LOGON_SERVER_DOMAIN: "nnapp.jjhgame.com",                            //登录服务器
-    LOGON_SERVER_IP: "122.226.186.38",                               //登录服务器
-    PORT_LOGON_SERVER: 9009,                                           //登陆服务器
+    // LOGON_SERVER_IP: "122.226.186.38",                               //登录服务器
+    // PORT_LOGON_SERVER: 9009,                                           //登陆服务器
+    LOGON_SERVER_IP: "183.146.209.139",                               // 测试登录服务器
+    PORT_LOGON_SERVER: 9008,                                           //测试登陆服务器
+    
 
 //端口定义
     PORT_VIDEO_SERVER: 7600,								//视频服务器
@@ -163,6 +170,8 @@ var GlobalDef = {
     SUB_GF_FLOWER: 531,                             //鲜花消息
     SUB_GF_EXCHANGE_CHARM: 532,                             //兑换魅力
 
+    SUB_GF_FLOWER_MB: 533,								//手机端送人气值
+
     SUB_GF_PROPERTY: 510,                             //道具消息
     SUB_GF_PROPERTY_RESULT: 511,                             //道具结果
     SUB_GF_RESIDUAL_PROPERTY: 512,                             //剩余道具
@@ -171,6 +180,8 @@ var GlobalDef = {
     SUB_GF_QUERY_USER_INFO: 515,                             //鲜花消息
     SUB_GF_SEND_HONG_BAO: 516,                             //发红包
     SUB_GF_QIANG_HONG_BAO: 517,                             //发红包
+
+    SUB_GF_PRESENT_RESULT: 519,								//送人气值结果
 
     //消息类型
     SMT_INFO: 0x0001,                          //信息消息

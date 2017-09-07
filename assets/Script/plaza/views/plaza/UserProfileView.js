@@ -26,6 +26,7 @@ cc.Class({
             default: null,
             type: cc.Label,
         },
+        m_Label_userCharm: cc.Label,
         m_Label_userID: {
             default: null,
             type: cc.Label,
@@ -63,10 +64,12 @@ cc.Class({
     refreshUI: function () {
         var szNickName = GlobalUserData.szNickName;
         var llGameScore = GlobalUserData.llGameScore;
+        var dwLoveLiness = GlobalUserData.dwLoveLiness;
         var dwUserID = GlobalUserData.dwUserID;
         var cbGender = GlobalUserData.cbGender || 1;
         var isGuest = GlobalUserData.isGuest;
         this.m_Label_userGold.string = llGameScore;
+        this.m_Label_userCharm.string = dwLoveLiness;
         this.m_Label_userID.string = dwUserID;
         this.m_Label_userName.string = szNickName;
         if (isGuest) {
@@ -105,7 +108,7 @@ cc.Class({
         cc.sys.garbageCollect();
         console.log("[UserProfileView][onDestroy]");
     },
-    close: function() {
+    close: function () {
         this.node.removeFromParent();
         this.node.destroy();
     },

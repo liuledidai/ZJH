@@ -74,9 +74,7 @@ cc.Class({
                     })
                 },
                 [GlobalDef.MDM_GF_FRAME] : this.OnSocketMainGameFrame,//框架消息
-                [GlobalDef.MDM_GF_PRESENT] : function (sub, pData) {
-                    
-                },
+                [GlobalDef.MDM_GF_PRESENT] : this.OnGamePresentMessage,//礼物消息
             }
         }
         if (this._socketEventCallback && this._socketEventCallback[main]) {
@@ -284,13 +282,27 @@ cc.Class({
                     bIntermet = true;
                 }
 
-                console.log("[GameFrame][OnSocketMainSystem] " + message.szContent);
+                console.log("[GameFrame][OnSocketMainSystem] message = " + message.szContent + " type = " + message.wMessageType);
                 if (bIntermet) {
                     if (message.szContent) {
                         cc.director.emit("LoadingViewError",{msg:message.szContent,type:GlobalDef.SMT_CLOSE_GAME});
                     }
                     console.log("[GameFrame][OnSocketMainSystem] " + message.szContent);
                     this.onCloseSocket();
+                }
+                if (message.wMessageType & GlobalDef.SMT_EJECT) {
+                    // console.log("[GameFrame][OnSocketMainSystem] message = " + message.szContent + " type = " + message.wMessageType);
+                    GlobalFun.showAlert({
+                        message: message.szContent,
+                        // btn: [
+                        //     {
+                        //         name: "确定",
+                        //         callback: function () {
+                        //             cc.director.emit("onExitRoom")
+                        //         }
+                        //     }
+                        // ],
+                    })
                 }
                 break;
             default:
@@ -564,11 +576,14 @@ cc.Class({
         if (userScore.dwUserID == myUserItem.dwUserID) {
             //更新自己全局分数
             GlobalUserData.llGameScore = userScore.UserScore.lGameGold;
+            GlobalUserData.llInsureScore = userScore.UserScore.lInsureScore;
+            GlobalUserData.dwLoveLiness = userScore.lLoveliness;
         }
         if (userItem) {
             console.log("[GameFrame][OnSocketSubScore] 更新 " + JSON.stringify(userScore, null, ' '));
             userItem.lScore = userScore.UserScore.lScore;
             userItem.lGameGold = userScore.UserScore.lGameGold;
+            userItem.lInsureScore = userScore.UserScore.lInsureScore;
             userItem.lWinCount = userScore.UserScore.lWinCount;
             userItem.lLostCount = userScore.UserScore.lLostCount;
             userItem.lDrawCount = userScore.UserScore.lDrawCount;
@@ -614,6 +629,30 @@ cc.Class({
     },
     OnSocketSubPresentQuery: function (sub,pData) {
         console.log("[GameFrame][OnSocketSubPresentQuery]");
+    },
+    OnGamePresentMessage: function (sub,pData) {
+        console.log("[GameFrame][OnGamePresentMessage]");
+        if(sub == GlobalDef.SUB_GF_PRESENT_RESULT) {
+            this.OnSubMoblieGift(sub,pData);
+        }
+    },
+    OnSubMoblieGift: function (sub,pData) {
+        //赠送人气值(服务器消息)
+        // struct CMD_GF_PresentMB
+        // {
+        //     BYTE								cbGiftID;                       //礼物ID
+        //     WORD								wSendChairID;					//发送用户
+        //     WORD                                wRecvChairID;					//接收用户
+        //     WORD                                wGiftCount;                     //数量
+        // };
+        var present = {};
+        present.cbGiftID = pData.readbyte();
+        present.wSendChairID = pData.readword();
+        present.wRecvChairID = pData.readword();
+        present.wGiftCount = pData.readword();
+
+        cc.director.emit("OnSubMoblieGift",{present:present});
+        console.log("[GameFrame][OnSubMoblieGift] present = " + JSON.stringify(present, null, ' '));
     },
     sendLogonPacket: function() {
         console.log("[GameFrame][sendLogonPacket]");
@@ -742,6 +781,24 @@ cc.Class({
 
 
         // this.sendSocketData(sitData);
+
+        this.sendSocketData(data);
+    },
+    sendGift: function (wRecvChairID, cbGiftID, count, password) {
+        //赠送结构
+        // struct CMD_GF_Gift_MB
+        // {
+        //     WORD								wChairID;                       //接受者ID
+        //     WORD								wGiftID;						//礼物	ID
+        //     WORD                                wGiftCount;                     //礼物数量
+        //     TCHAR                               szPassword[PASS_LEN];           //密码
+        // };
+        var data = CCmd_Data.create();
+        data.setcmdinfo(GlobalDef.MDM_GF_PRESENT, GlobalDef.SUB_GF_FLOWER_MB);
+        data.pushword(wRecvChairID);
+        data.pushword(cbGiftID);
+        data.pushword(count);
+        data.pushstring(password,GlobalDef.PASS_LEN);
 
         this.sendSocketData(data);
     },

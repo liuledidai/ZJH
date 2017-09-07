@@ -1,4 +1,5 @@
 var AudioMng = require("AudioMng");
+var plaza_cmd = require("CMD_Plaza");
 var GlobalUserData = {
     wFaceID: undefined,					//头像索引
     cbGender: undefined,						//用户性别
@@ -28,6 +29,8 @@ var GlobalUserData = {
     dwInsureCoupon: undefined,                 //银行贝壳
     dwMatchTicket: undefined,                  //参赛券
     isFirstBank: undefined,					// 首次使用
+    bServerIndex: undefined,                   //进入服务器的index
+    wExchangenum: undefined,                   //魅力兑换次数
 
     roomList: [],
     init: function () {
@@ -117,10 +120,15 @@ var GlobalUserData = {
         //     DWORD								dwExperience;					//用户经验
         //     DWORD								dwGameID;						//游戏 I D
         //     DWORD								dwUserID;						//用户 I D
+        //---- DWORD                               dwLoveLiness;                   //用户魅力值
         //     LONGLONG							llGameScore;					//游戏金币
         //     LONGLONG							llInsureScore;					//银行金币
         //     TCHAR								szAccounts[NAME_LEN];			//登录帐号
         //     TCHAR								szNickName[NAME_LEN];			//昵称
+        //-----------新增
+        // BYTE                                cbUserType;                     //用户类型
+        // TCHAR								szWeChatImgURL[256];			// 微信头相
+        // TCHAR								szWeChatNickName[NAME_LEN];		// 微信昵称
         // };
         this.dwCustomFaceVer = pData.readdword();
         this.cbMoorMachine = pData.readbyte();
@@ -133,15 +141,31 @@ var GlobalUserData = {
         this.dwExperience = pData.readdword();
         this.dwGameID = pData.readdword();
         this.dwUserID = pData.readdword();
+        this.dwLoveLiness = pData.readdword();
         this.llGameScore = pData.readint64();
         this.llInsureScore = pData.readint64();
         this.szAccounts = pData.readstring(32);
         this.szNickName = pData.readstring(32);
-        // console.log(this);
-        // for (var prop in this) {
-        //     if (typeof(this[prop]) == "function") continue;
-        //     console.log('this.' + prop, '=', this[prop]);
-        // }
+
+        this.cbUserType = pData.readbyte();
+        this.szWeChatImgURL = pData.readstring(256);
+        this.szWeChatNickName = pData.readstring(32);
+        pData.blockEnd();
+        while(true){
+            var dataSize = pData.readword(true);
+            var dataDescribe = pData.readword(true);
+            console.log("[GlobalUserData]size = "+dataSize+" describe = "+dataDescribe);
+            if (dataDescribe === 0) {
+                break;
+            }
+            // pData.setmaxsize(1);
+            switch(dataDescribe){
+                case plaza_cmd.DTP_SEND_MOBILE_GUID:
+                    this.szUserGUID = pData.readstring(dataSize);
+                default:
+                    break;
+            }
+        }
     },
     getRoomByGame: function (wKindID) {
         var roomList = [];

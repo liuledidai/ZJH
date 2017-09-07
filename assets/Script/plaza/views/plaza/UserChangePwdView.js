@@ -80,7 +80,8 @@ cc.Class({
             return;
         }
         var url = GlobalDef.httpBaseUrl;
-        url += "/hz/hzUpdatePassWord.ashx";
+        // url += "/hz/hzUpdatePassWord.ashx";
+        url += "/hz/hzUpdatePassWord3_0.ashx";
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;
         params["type"] = "1";

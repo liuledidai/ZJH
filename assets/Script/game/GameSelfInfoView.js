@@ -36,7 +36,7 @@ cc.Class({
         console.log("[GameSelfInfoView] " + JSON.stringify(userItem,null,' '));
         var szNickName = userItem.szName;
         var szGold = userItem.lScore;
-        var szCharm = 0;
+        var szCharm = userItem.lLoveliness;
         var dwUserID = userItem.dwUserID;
         var cbGender = userItem.cbGender;
 

@@ -43,6 +43,7 @@
     },
     onClickCloseButton: function() {
         // this.node.active = false;  
+        cc.director.emit("onShowLogon");
         this.node.destroy();
         console.log("[RegisterView][onClickCloseButton] destroy");
     },
@@ -103,6 +104,10 @@
                 if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
                     var response = xhr.responseText;
                     console.log(response);
+                    var value = JSON.parse(response);
+                    if (value.status == 1) {
+                    }
+                    GlobalFun.showToast(value.msg || value.Msg);
                 }
             };
             xhr.open("POST", url, true);
@@ -128,6 +133,10 @@
             if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
                 var response = xhr.responseText;
                 console.log(response);
+                var value = JSON.parse(response);
+                if (value.status == 1) {
+                }
+                GlobalFun.showToast(value.msg || value.Msg);
             }
         };
         xhr.open("POST", url, true);

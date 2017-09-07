@@ -39,30 +39,58 @@ cc.Class({
 
         m_Editbox_charm_num: cc.EditBox,
         m_Editbox_charm_pwd: cc.EditBox,
+        m_Label_lottery_gold: cc.Label,
+        m_Label_lottery_charm: cc.Label,
+        m_Label_lottery_num: cc.RichText,
         _selectIndex: 0,
     },
 
     // use this for initialization
     onLoad: function () {
         this.refreshUI();
+        //默认选中选择第一个
+        this.radioButtonClicked(this.radioButton[this._selectIndex]);
     },
     refreshUI: function () {
-        if (GlobalUserData.isGuest) {
-            this.m_Label_bankPwd.node.active = true;
-            //游客隐藏银行密码和魅力抽奖页签
-            this.radioButton[2].node.active = false;
-            this.radioButton[3].node.active = false;
-        }
-        else {
-            this.m_Label_bankPwd.node.active = false;
-            //游客隐藏银行密码和魅力抽奖页签
-            this.radioButton[2].node.active = true;
-            this.radioButton[3].node.active = true;
-        }
-        this.m_Label_get_userGold.string = GlobalUserData.llGameScore;
-        this.m_Label_save_userGold.string = GlobalUserData.llGameScore;
-        this.m_Label_get_bankGold.string = GlobalUserData.llInsureScore;
-        this.m_Label_save_bankGold.string = GlobalUserData.llInsureScore;
+        // if (GlobalUserData.isGuest) {
+        //     this.m_Label_bankPwd.node.active = true;
+        //     //游客隐藏银行密码和魅力抽奖页签
+        //     this.radioButton[2].node.active = false;
+        //     this.radioButton[3].node.active = false;
+        // }
+        // else {
+        //     this.m_Label_bankPwd.node.active = false;
+        //     //游客隐藏银行密码和魅力抽奖页签
+        //     this.radioButton[2].node.active = true;
+        //     this.radioButton[3].node.active = true;
+        // }
+        var szGoldCount = GlobalUserData.llGameScore;
+        var szCharmCount = GlobalUserData.dwLoveLiness;
+        var szInsureCount = GlobalUserData.llInsureScore;
+        var wExchangenum = GlobalUserData.wExchangenum || 0;
+        var szLottryNum = "<color=#4e0c01>当日抽奖剩余次数</c><color=#ff0000> " + wExchangenum + "</color>"
+        this.m_Label_get_userGold.string = szGoldCount;
+        this.m_Label_save_userGold.string = szGoldCount;
+        this.m_Label_get_bankGold.string = szInsureCount;
+        this.m_Label_save_bankGold.string = szInsureCount;
+
+        this.m_Label_lottery_gold.string = szGoldCount;
+        this.m_Label_lottery_charm.string = szCharmCount;
+        this.m_Label_lottery_num.string = szLottryNum;
+
+        //魅力抽奖
+        this.m_Editbox_charm_num.string = "";
+        this.m_Editbox_charm_pwd.string = "";
+        //修改密码
+        this.m_Editbox_originPassword.string = "";
+        this.m_Editbox_newPassword.string = "";
+        this.m_Editbox_confirmPassword.string = "";
+        //取款
+        this.m_Editbox_get_gold.string = "";
+        this.m_Editbox_get_bankPwd.string = "";
+        //存款
+        this.m_Editbox_save_gold.string = "";
+
     },
     onEnable: function () {
         console.log("[BankView][onEnable]");
@@ -143,7 +171,9 @@ cc.Class({
             params["insurepass"] = cc.md5Encode(szPassWord);
             params["type"] = "2";
 
-            url += "/hz/hzUserBankMobile.ashx";
+            // url += "/hz/hzUserBankMobile.ashx";
+            url += "/hz/hzUserBankMobile3_0.ashx";
+
         }
         else if (this._selectIndex == 1) {
             var szGoldCount = this.m_Editbox_save_gold.string;
@@ -162,7 +192,8 @@ cc.Class({
             params["score"] = szGoldCount;
             params["type"] = "1";
 
-            url += "/hz/hzUserBankMobile.ashx";
+            // url += "/hz/hzUserBankMobile.ashx";
+            url += "/hz/hzUserBankMobile3_0.ashx";
         }
         else if (this._selectIndex == 2) {
             var szPassWord = this.m_Editbox_originPassword.string;
@@ -194,7 +225,8 @@ cc.Class({
             params["oldpass"] = cc.md5Encode(szPassWord);
             params["newpass"] = cc.md5Encode(szNewPassWord);
 
-            url += "/hz/hzUpdatePassWord.ashx";
+            // url += "/hz/hzUpdatePassWord.ashx";
+            url += "/hz/hzUpdatePassWord3_0.ashx";
         }
         else {
             return;
@@ -229,12 +261,17 @@ cc.Class({
     onClickReward: function () {
         var szcharmCount = this.m_Editbox_charm_num.string;
         var szPassWord = this.m_Editbox_charm_pwd.string;
-        if (szcharmCount.length <= 0 || szPassWord.length <= 0) {
-            GlobalFun.showToast("魅力或密码不能为空!");
+        
+        if (isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 || Number(szcharmCount) > (100)) {
+            GlobalFun.showToast("您输入的魅力值不符合规定!");
             return;
         }
-        if (isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 /*|| Number(szcharmCount) > (GlobalUserData.llInsureScore)*/) {
-            GlobalFun.showToast("数值不合法或超出限制!");
+        if (szPassWord.length <= 0) {
+            GlobalFun.showToast("密码不能为空!");
+            return;
+        }
+        if (Number(szcharmCount) > GlobalUserData.dwLoveLiness) {
+            GlobalFun.showToast("您的魅力值不足!");
             return;
         }
         var tipText = "<color=#971a01>确定消耗" + szcharmCount + "点魅力值,进行招财进宝？</c>";
@@ -254,7 +291,7 @@ cc.Class({
             ],
         })
     },
-    selectCharmNum: function(event,num) {
+    selectCharmNum: function (event, num) {
         this.m_Editbox_charm_num.string = num;
     },
     onClickSaveAll: function (params) {

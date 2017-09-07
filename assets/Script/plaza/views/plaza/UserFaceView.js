@@ -70,7 +70,8 @@ cc.Class({
         this._faceID = params.faceID;
         var faceID = this._faceID;
         var url = GlobalDef.httpBaseUrl;
-        url += "/hz/hzUpdateFaceId.ashx";
+        // url += "/hz/hzUpdateFaceId.ashx";
+        url += "/hz/hzUpdateFaceId3_0.ashx";
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;
         params["faceId"] = faceID;

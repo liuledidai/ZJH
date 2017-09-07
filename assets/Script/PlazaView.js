@@ -57,14 +57,15 @@ cc.Class({
             default: null,
             type: cc.Label,
         },
-        m_Label_ID:cc.Label,
+        m_Label_ID: cc.Label,
+        m_Label_userCharm: cc.Label,
         m_Label_userGold: {
             default: null,
             type: cc.Label,
         },
         m_Label_notice: cc.RichText,
         userFaceAtals: {
-            default:null,
+            default: null,
             type: cc.SpriteAtlas,
         }
     },
@@ -74,25 +75,34 @@ cc.Class({
         // GlobalUserData.init();
         console.log("Plaza onLoad");
         var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
-        if (GameFrameNode){
+        if (GameFrameNode) {
             console.log("[PlazaView][onLoad] 获取GameFrame 所在节点 并设置为常驻节点");
             cc.game.addPersistRootNode(GameFrameNode);
             this._gameFrame = GameFrameNode.getComponent("GameFrame");
             // this._gameFrame.onCloseSocket();
         }
-        var fLabelWidth = this.m_Label_notice.node.getContentSize().width;
-        var fParenWidth = this.m_Label_notice.node.parent.getContentSize().width;
-        var runDis = (fLabelWidth + fParenWidth + 30);
-        var runTime = runDis / 80;
-        this.m_Label_notice.node.runAction(cc.repeatForever(cc.sequence(
-            cc.place((fParenWidth + 30)/2, 0),
-            cc.moveBy(runTime, -runDis, 0)
-        )))
+
+        //显示滚动消息
+        var noticeMsg = cc.sys.localStorage.getItem("systemmessage") || "测试通知";
+        
+        if (noticeMsg && noticeMsg.length > 0) {
+            this.m_Label_notice.string = noticeMsg;
+            var fLabelWidth = this.m_Label_notice.node.getContentSize().width;
+            var fParenWidth = this.m_Label_notice.node.parent.getContentSize().width;
+            var runDis = (fLabelWidth + fParenWidth + 30);
+            var runTime = runDis / 80;
+            this.m_Label_notice.node.stopAllActions();
+            this.m_Label_notice.node.runAction(cc.repeatForever(cc.sequence(
+                cc.place((fParenWidth + 30) / 2, 0),
+                cc.moveBy(runTime, -runDis, 0)
+            )));
+        }
+        
         AudioMng.playMusic("bgm_plaza");
         if (GlobalUserData.isGuest) {
             GlobalFun.showAlert({
                 message: bindText,
-                textAlignment:cc.TextAlignment.LEFT,
+                textAlignment: cc.TextAlignment.LEFT,
                 btn: [
                     {
                         name: "继续游戏",
@@ -109,6 +119,7 @@ cc.Class({
         // this._gameFrame = this.getScene().getChildByName("GameFrame").getComponent("GameFrame");
         this.refreshUI();
         this.refreshRoomList();
+        this.refreshData();
         // this.m_Label_time = cc.find("Canvas/m_Panel_top_right/plaza_state/m_Label_time");
         // this.m_Label_networkState = cc.find("Canvas/m_Panel_top_right/plaza_state/m_Label_networkState");
         // if (this.m_Label_time) {
@@ -119,12 +130,12 @@ cc.Class({
     },
     onDestroy: function () {
         cc.director.getScheduler().unschedule(this.refreshTimeAndNetworkInfo, this);
-        AudioMng.stopMusic();  
+        AudioMng.stopMusic();
         cc.sys.garbageCollect();
     },
     refreshTimeAndNetworkInfo: function () {
         var date = new Date(Date.now());
-        var timeStr = date.toTimeString().slice(0,8);
+        var timeStr = date.toTimeString().slice(0, 8);
         var batteryLevel = MultiPlatform.getBatteryLevel();
         var netWorkType = MultiPlatform.getNetconnType();
         this.m_Label_time.getComponent(cc.Label).string = timeStr;
@@ -134,17 +145,18 @@ cc.Class({
     refreshUI: function () {
         console.log("[PlazaView][refreshUI]");
         for (var prop in GlobalUserData) {
-            if (typeof(GlobalUserData[prop]) == "function") continue;
+            if (typeof (GlobalUserData[prop]) == "function") continue;
             console.log('GlobalUserData.' + prop, '=', GlobalUserData[prop]);
         }
         this.m_Label_userGold.string = GlobalUserData.llGameScore;
+        this.m_Label_userCharm.string = GlobalUserData.dwLoveLiness;
         this.m_Label_name.string = GlobalUserData.szNickName;
         this.m_Label_ID.string = "ID" + GlobalUserData.dwUserID;
         var faceID = GlobalUserData.wFaceID;
         if (faceID <= 0 || faceID > 8) {
             faceID = 1;
         }
-        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
+        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
 
         // this.refreshRoomList();
     },
@@ -152,7 +164,7 @@ cc.Class({
         var roomList = GlobalUserData.getRoomByGame(zjh_cmd.KIND_ID);
         console.log("[PlazaView][refreshUI] " + JSON.stringify(roomList, null, ' '));
         var PlazaScrollRing = cc.find("Canvas/PlazaScrollRing").getComponent("PlazaScrollRing");
-        var beginx = -PlazaScrollRing.node.getContentSize().width/2;
+        var beginx = -PlazaScrollRing.node.getContentSize().width / 2;
         var space = 600;
         if (PlazaScrollRing) {
             PlazaScrollRing.clearItem();
@@ -160,29 +172,30 @@ cc.Class({
             for (var index = 0; index < 3; index++) {
                 var item = cc.instantiate(this.plazaRoomItem);
                 item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
-                item.setPositionX(beginx + space*index);
+                item.setPositionX(beginx + space * index);
                 PlazaScrollRing.addItem(item);
             }
             for (var index = 0; index < 3; index++) {
                 var item = cc.instantiate(this.plazaRoomItem);
                 item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
-                item.setPositionX(beginx + space*(index+3));
+                item.setPositionX(beginx + space * (index + 3));
                 PlazaScrollRing.addItem(item);
             }
-             PlazaScrollRing.init();
-             PlazaScrollRing._updateToFocus("init");
+            PlazaScrollRing.init();
+            PlazaScrollRing._updateToFocus("init");
         }
     },
     refreshData: function () {
         var url = GlobalDef.httpBaseUrl;
-        url += "/hz/hzGameUserInfo.ashx";
+        // url += "/hz/hzGameUserInfo.ashx";
+        url += "/hz/hzGameUserInfo3_0.ashx";
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;
         var paramString = GlobalFun.buildRequestParam(params);
         var xhr = new XMLHttpRequest();
         var self = this;
         xhr.onreadystatechange = function () {
-            console.log("[PlazaView][refreshData] "+xhr.getResponseHeader("Content-Type"));
+            console.log("[PlazaView][refreshData] " + xhr.getResponseHeader("Content-Type"));
             if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
                 var response = xhr.responseText;
                 console.log(response);
@@ -212,6 +225,13 @@ cc.Class({
                     if (value.nickname !== undefined) {
                         GlobalUserData.szNickName = value.nickname;
                     }
+                    if (value.loveliness !== undefined) {
+                        GlobalUserData.dwLoveLiness = value.loveliness;
+                    }
+                    //抽奖次数
+                    if(value.counteLoveliness !== undefined) {
+                        GlobalUserData.wExchangenum = value.counteLoveliness;
+                    }
                 }
                 self.refreshUI();
             }
@@ -221,21 +241,21 @@ cc.Class({
         xhr.send(paramString);
         console.log("[PlazaView][refreshData] " + paramString);
     },
-    onEnable: function() {
-        cc.director.on('onChangeUserFaceSuccess',this.onChangeUserFaceSuccess,this);
-        cc.director.on('onChangeNameSuccess',this.onChangeUserFaceSuccess,this);
-        cc.director.on('onBankSuccess',this.onBankSuccess,this);
-        cc.director.on('onGuestBindSuccess',this.onGuestBindSuccess,this);
-        cc.director.on('onLogonRoom',this.onLogonRoom,this);
+    onEnable: function () {
+        cc.director.on('onChangeUserFaceSuccess', this.onChangeUserFaceSuccess, this);
+        cc.director.on('onChangeNameSuccess', this.onChangeUserFaceSuccess, this);
+        cc.director.on('onBankSuccess', this.onBankSuccess, this);
+        cc.director.on('onGuestBindSuccess', this.onGuestBindSuccess, this);
+        cc.director.on('onLogonRoom', this.onLogonRoom, this);
         console.log("[PlazaView][onEnable]");
 
     },
-    onDisable: function() {
-        cc.director.off('onChangeUserFaceSuccess',this.onChangeUserFaceSuccess,this);
-        cc.director.off('onChangeNameSuccess',this.onChangeUserFaceSuccess,this);
-        cc.director.off('onBankSuccess',this.onBankSuccess,this);
-        cc.director.off('onGuestBindSuccess',this.onGuestBindSuccess,this);
-        cc.director.off('onLogonRoom',this.onLogonRoom,this);
+    onDisable: function () {
+        cc.director.off('onChangeUserFaceSuccess', this.onChangeUserFaceSuccess, this);
+        cc.director.off('onChangeNameSuccess', this.onChangeUserFaceSuccess, this);
+        cc.director.off('onBankSuccess', this.onBankSuccess, this);
+        cc.director.off('onGuestBindSuccess', this.onGuestBindSuccess, this);
+        cc.director.off('onLogonRoom', this.onLogonRoom, this);
         console.log("[PlazaView][onDisable]");
     },
     onLogonRoom: function (params) {
@@ -266,41 +286,41 @@ cc.Class({
         this.refreshData();
     },
     onChangeNameSuccess: function (params) {
-        this.refreshUI();  
+        this.refreshUI();
     },
     onBankSuccess: function (params) {
-        this.refreshUI();  
+        this.refreshUI();
     },
     onGuestBindSuccess: function (params) {
-        this.refreshUI();  
+        this.refreshUI();
     },
-    onClickSetting: function() {
-        if( cc.isValid(this._settingView) === false ){
+    onClickSetting: function () {
+        if (cc.isValid(this._settingView) === false) {
             this._settingView = cc.instantiate(this.settingView);
             this.node.addChild(this._settingView);
         }
-        GlobalFun.ActionShowTanChuang(this._settingView,function () {
+        GlobalFun.ActionShowTanChuang(this._settingView, function () {
             console.log("[PlazaView][onClickSetting]ActionShowTanChuang callback");
         })
     },
     onClickUserProfile: function (params) {
-        if( cc.isValid(this._userProfileView) === false ){
+        if (cc.isValid(this._userProfileView) === false) {
             this._userProfileView = cc.instantiate(this.userProfileView);
             this.node.addChild(this._userProfileView);
         }
-        GlobalFun.ActionShowTanChuang(this._userProfileView,function () {
+        GlobalFun.ActionShowTanChuang(this._userProfileView, function () {
             console.log("[PlazaView][onClickUserProfile]ActionShowTanChuang callback");
         })
     },
     onClickClient: function (params) {
         console.log("[PlazaView][onClickClient]");
         var self = this;
-        if( cc.isValid(self._serviceView) === false ){
+        if (cc.isValid(self._serviceView) === false) {
             cc.loader.loadRes("prefab/ServiceView", function (err, ServicePrefab) {
                 if (cc.isValid(self.node)) {
                     self._serviceView = cc.instantiate(ServicePrefab);
                     self.node.addChild(self._serviceView);
-                    GlobalFun.ActionShowTanChuang(self._serviceView,function () {
+                    GlobalFun.ActionShowTanChuang(self._serviceView, function () {
                         console.log("[PlazaView][onClickClient]ActionShowTanChuang callback");
                     });
                 }
@@ -309,21 +329,21 @@ cc.Class({
     },
     onClickActivity: function (params) {
         console.log("[PlazaView][conClickActivity]");
-        GlobalFun.showAlert({message:"暂未开放,敬请期待!"});
+        GlobalFun.showAlert({ message: "暂未开放,敬请期待!" });
     },
     onClickRankList: function name(params) {
         console.log("[PlazaView][onClickRankList]");
-        GlobalFun.showAlert({message:"暂未开放,敬请期待!"});
+        GlobalFun.showAlert({ message: "暂未开放,敬请期待!" });
     },
     onClickRule: function (params) {
         console.log("[PlazaView][onClickRule]");
         var self = this;
-        if( cc.isValid(self._ruleView) === false ){
+        if (cc.isValid(self._ruleView) === false) {
             cc.loader.loadRes("prefab/RuleView", function (err, Prefab) {
                 if (cc.isValid(self.node)) {
                     self._ruleView = cc.instantiate(Prefab);
                     self.node.addChild(self._ruleView);
-                    GlobalFun.ActionShowTanChuang(self._ruleView,function () {
+                    GlobalFun.ActionShowTanChuang(self._ruleView, function () {
                         console.log("[PlazaView][onClickRule]ActionShowTanChuang callback");
                     });
                 }
@@ -332,21 +352,21 @@ cc.Class({
     },
     onClickBank: function (params) {
         console.log("[PlazaView][conClickBank]");
-        if( cc.isValid(this._bankView) === false ){
+        if (cc.isValid(this._bankView) === false) {
             this._bankView = cc.instantiate(this.bankView);
             this.node.addChild(this._bankView);
         }
-        GlobalFun.ActionShowTanChuang(this._bankView,function () {
+        GlobalFun.ActionShowTanChuang(this._bankView, function () {
             console.log("[PlazaView][onClickBank]ActionShowTanChuang callback");
         })
     },
     onClickShop: function (params) {
         console.log("[PlazaView][onClickShop]");
-        if( cc.isValid(this._shopView) === false ){
+        if (cc.isValid(this._shopView) === false) {
             this._shopView = cc.instantiate(this.shopView);
             this.node.addChild(this._shopView);
         }
-        GlobalFun.ActionShowTanChuang(this._shopView,function () {
+        GlobalFun.ActionShowTanChuang(this._shopView, function () {
             console.log("[PlazaView][onClickShop]ActionShowTanChuang callback");
         })
     },

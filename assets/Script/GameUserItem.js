@@ -103,6 +103,7 @@ var GameUserItem = cc.Class({
             this.lFleeCount = userInfoHead.UserScoreInfo.lFleeCount;
             this.lExperience = userInfoHead.UserScoreInfo.lExperience;
         }
+        pData.blockEnd();
         while(true){
             //默认信息
             // #define DTP_NULL					0								//无效数据
@@ -185,6 +186,9 @@ var GameUserItem = cc.Class({
         //     //LONG								lGameGold;							//游戏金币
         //     DWORD								dwCustomFaceVer;					//上传头像
         //     DWORD								dwPropResidualTime[15];	//道具时间
+        // BYTE                                cbUserType;                     //用户类型
+        // TCHAR								szWeChatImgURL[256];			// 微信头相
+        // TCHAR								szWeChatNickName[NAME_LEN];		// 微信昵称
         // };
         var userInfoHead = {};
         userInfoHead.wFaceID = pData.readword();                            //头像索引
@@ -206,6 +210,7 @@ var GameUserItem = cc.Class({
         userInfoHead.cbUserStatus = pData.readbyte();                       //用户状态
         
         //用户积分
+        pData.blockBegin("tagUserScore",8);
         userInfoHead.UserScoreInfo = {};
         userInfoHead.UserScoreInfo.lScore = pData.readint64();                             //用户分数
         userInfoHead.UserScoreInfo.lGameGold = pData.readint64();                          //游戏金币
@@ -215,13 +220,16 @@ var GameUserItem = cc.Class({
         userInfoHead.UserScoreInfo.lDrawCount = pData.readint();                         //和局盘数
         userInfoHead.UserScoreInfo.lFleeCount = pData.readint();                         //断线数目
         userInfoHead.UserScoreInfo.lExperience = pData.readint();                        //用户经验
-
+        pData.blockEnd();
         userInfoHead.dwCustomFaceVer = pData.readdword();                    //上传头像
         userInfoHead.dwPropResidualTime = [];//道具时间
-        for (var index = 0; index < 16; index++) {
+        for (var index = 0; index < 15; index++) {
             var val = pData.readdword();
             userInfoHead.dwPropResidualTime.push(val);
         }
+        userInfoHead.cbUserType = pData.readbyte();
+        userInfoHead.szWeChatImgURL = pData.readstring(256);
+        userInfoHead.szWeChatNickName = pData.readstring(32);
         console.log("[GameUserItem][userInfoHead] = " + JSON.stringify(userInfoHead,null,' '));
         return userInfoHead;
     }

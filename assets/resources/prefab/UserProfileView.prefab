@@ -4248,6 +4248,9 @@
     "m_Label_userGold": {
       "__id__": 105
     },
+    "m_Label_userCharm": {
+      "__id__": 113
+    },
     "m_Label_userID": {
       "__id__": 48
     },

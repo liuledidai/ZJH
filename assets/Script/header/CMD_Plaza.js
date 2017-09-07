@@ -34,6 +34,7 @@ plaza_cmd.SUB_GP_REGISTER_MOBILE = 151;                             //手机注�
 plaza_cmd.SUB_GP_LOGON_SUCCESS_MOBILE = 260;                             //手机登陆成功
 plaza_cmd.SUB_GP_LOGON_ERROR_MOBILE = 261;                             //手机登陆失败
 plaza_cmd.SUB_GP_LOGON_FINISH_MOBILE = 262;                             //手机登陆完成
+plaza_cmd.DTP_SEND_MOBILE_GUID = 2013;                            //手机GUID
 
 // //帐号登录
 // struct CMD_GP_LogonByAccountsMobile

@@ -1688,7 +1688,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "m_Label_meili",
+    "_name": "m_Label_charm",
     "_objFlags": 0,
     "_opacity": 255,
     "_color": {
@@ -2444,7 +2444,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 306,
+      "width": 234,
       "height": 48
     },
     "_children": [],
@@ -2454,7 +2454,7 @@
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
-      "x": -433,
+      "x": -455,
       "y": 170
     },
     "_skewX": 0,
@@ -4173,7 +4173,7 @@
     "m_Label_gold": {
       "__id__": 48
     },
-    "m_Label_meili": {
+    "m_Label_charm": {
       "__id__": 51
     },
     "m_Label_ID": {

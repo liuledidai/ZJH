@@ -45,6 +45,7 @@ var GameModel = cc.Class({
         cc.director.on("onEventUserScore",this.onEventUserScore,this);
         cc.director.on("onExitRoom",this.onExitRoom,this);
         cc.director.on("onExitTable",this.onExitTable,this);
+        cc.director.on("OnSubMoblieGift",this.OnSubMoblieGift,this);
     },
     onDisable: function (params) {
         console.log("[GameModel][onDisable]");
@@ -55,6 +56,7 @@ var GameModel = cc.Class({
         cc.director.off("onEventUserScore",this.onEventUserScore,this);
         cc.director.off("onExitRoom",this.onExitRoom,this);
         cc.director.off("onExitTable",this.onExitTable,this);
+        cc.director.off("OnSubMoblieGift",this.OnSubMoblieGift,this);
     },
     //初始化游戏数据
     onInitGameEngine: function () {
@@ -272,12 +274,31 @@ var GameModel = cc.Class({
             }
         }
     },
+    //魅力赠送
+    OnSubMoblieGift: function (params) {
+        // present.cbGiftID 
+        // present.wSendChairID 
+        // present.wRecvChairID
+        // present.wGiftCount
+        var present = params.detail.present;
+        if (present && this._gameView && this._gameView.showSendPresent) {
+            this._gameView.showSendPresent(
+                present.wSendChairID,
+                present.wRecvChairID,
+                present.cbGiftID,
+                present.wGiftCount
+            );
+        } 
+    },
     //发送准备
     sendUserReady: function () {
         this._gameFrame.sendUserReady();
     },
     sendTextChat: function(msg, tagetUser, color) {
         this._gameFrame.sendTextChat(msg, tagetUser, color);
+    },
+    sendGift: function (wRecvChairID, cbGiftID, count, password) {
+        this._gameFrame.sendGift(wRecvChairID, cbGiftID, count, password);
     },
     //发送数据
     sendData : function (sub, dataBuf) {

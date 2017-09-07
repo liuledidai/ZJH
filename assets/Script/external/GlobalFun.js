@@ -1,12 +1,13 @@
 require("MD5");
-
+var GlobalUserData = require("GlobalUserData");
+var GlobalFun = {};
 var ZORDER = cc.Enum({
     LoadingOrder: 1000,
     AlertOrder: 1001,
     ToastOrder: 1002,
 })
 
-function ActionShowTanChuang(widget, cb) {
+GlobalFun.ActionShowTanChuang = function ActionShowTanChuang(widget, cb) {
     if (cc.isValid(widget) === false) {
         console.log("[GlobalFun][ActionShowTanChuang] widget is invalid");
         return;
@@ -21,7 +22,7 @@ function ActionShowTanChuang(widget, cb) {
             }
         })
     ));
-}
+};
 /**
  * 
  * @param {*} params 
@@ -37,7 +38,7 @@ function ActionShowTanChuang(widget, cb) {
  * }
  * @param {*} context 
  */
-function showAlert(params, context) {
+GlobalFun.showAlert = function showAlert(params, context) {
     context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         return;
@@ -51,13 +52,13 @@ function showAlert(params, context) {
             var newNode = cc.instantiate(AlertPrefab);
             context.addChild(newNode, ZORDER.AlertOrder);
             newNode.getComponent("AlertView").init(params);
-            ActionShowTanChuang(cc.find("commonBg", newNode));
+            GlobalFun.ActionShowTanChuang(cc.find("commonBg", newNode));
             console.log("showAlert");
         }
     });
-}
+};
 
-function showToast(message, context) {
+GlobalFun.showToast = function showToast(message, context) {
     context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         return;
@@ -74,7 +75,7 @@ function showToast(message, context) {
             console.log("showToast");
         }
     });
-}
+};
 /*
 showPopWaiting()
 @params{
@@ -84,7 +85,7 @@ showPopWaiting()
     callBackFunc: 收到监听事件执行的回调函数,
 }
 */
-function showPopWaiting(context, params) {
+GlobalFun.showPopWaiting = function showPopWaiting(context, params) {
     if (cc.isValid(context) === false) {
         return;
     }
@@ -97,13 +98,13 @@ function showPopWaiting(context, params) {
             var newNode = cc.instantiate(PopWaitPrefab);
             newNode.getComponent("PopWaitView").onInit(params);
             context.addChild(newNode);
-            ActionShowTanChuang(newNode);
+            GlobalFun.ActionShowTanChuang(newNode);
             console.log("showPopWaiting");
         }
     });
-}
+};
 
-function showLoadingView(params, context) {
+GlobalFun.showLoadingView = function showLoadingView(params, context) {
     context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         console.log("[GlobalFun][showLoadingView] context is invalid");
@@ -122,7 +123,7 @@ function showLoadingView(params, context) {
     })
 }
 
-function showBindView(context) {
+GlobalFun.showBindView = function showBindView(context) {
     context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         console.log("[GlobalFun][showBindView] context is invalid");
@@ -136,12 +137,12 @@ function showBindView(context) {
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(prefab);
             context.addChild(newNode);
-            ActionShowTanChuang(newNode);
+            GlobalFun.ActionShowTanChuang(newNode);
         }
     });
-}
+};
 
-function showShopView(context) {
+GlobalFun.showShopView = function showShopView(context) {
     context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         console.log("[GlobalFun][showShopView] context is invalid");
@@ -155,19 +156,24 @@ function showShopView(context) {
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(prefab);
             context.addChild(newNode);
-            ActionShowTanChuang(newNode);
+            GlobalFun.ActionShowTanChuang(newNode);
         }
     });
-}
+};
 
-function getsign(params) {
+GlobalFun.getsign = function getsign(params) {
     params = params + "key=fgr7hk5ds35h30hnj7hwas4gfy6sj78x";//加入key
     return cc.md5Encode(params).toLowerCase();
-}
+};
 
-function buildRequestParam(params) {
+GlobalFun.buildRequestParam = function buildRequestParam(params) {
     var nowTime = Math.floor(Date.now() / 1000);
+    //加入时间戳
     params["datetamp"] = nowTime;
+    //加入GUID
+    if (GlobalUserData.szUserGUID && GlobalUserData.szUserGUID.length > 0) {
+        params["token"] = GlobalUserData.szUserGUID;
+    }
     var sort_params = Object.keys(params).sort()
     console.log("[GlobalFun][buildRequestParam] " + JSON.stringify(params, null, ' '));
     var paramString = "";
@@ -178,11 +184,11 @@ function buildRequestParam(params) {
             paramString = paramString + key + "=" + element + "&";
         }
     }
-    paramString = paramString + "sign=" + getsign(paramString);
+    paramString = paramString + "sign=" + GlobalFun.getsign(paramString);
     return paramString;
-}
+};
 
-function ipToNumber(ip) {
+GlobalFun.ipToNumber = function ipToNumber(ip) {
     var num = 0;
     if (ip == "") {
         return num;
@@ -197,9 +203,9 @@ function ipToNumber(ip) {
     num += parseInt(aNum[3]) << 0;
     num = num >>> 0;//这个很关键，不然可能会出现负数的情况
     return num;
-}
+};
 
-function numberToIp(number) {
+GlobalFun.numberToIp = function numberToIp(number) {
     var ip = "";
     if (number <= 0) {
         return ip;
@@ -212,18 +218,18 @@ function numberToIp(number) {
     ip += ip0 + "." + ip1 + "." + ip2 + "." + ip3;
 
     return ip;
-}
+};
 //数字填充前缀0
-function PrefixInteger(num, length) {
+GlobalFun.PrefixInteger = function PrefixInteger(num, length) {
     return (Array(length).join('0') + num).slice(-length);
-}
+};
 
 //获得(min,max)之间的随机整数，（min<= x <= max）
-function getRandomInt(min, max) {
+GlobalFun.getRandomInt = function getRandomInt(min, max) {
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+};
 /* args {
     fileName,
     *anim,
@@ -233,23 +239,25 @@ function getRandomInt(min, max) {
     *x,
     *y,
     *scale,
+    *tag,
 } */
-function playEffects(parent, args) {
+GlobalFun.playEffects = function playEffects(parent, args) {
     if (cc.isValid(parent) == false) {
         return;
     }
     var fileName = args.fileName;
+    var tag = args.tag || fileName;
     var anim = args.anim;
     var loop = args.loop;
     var node;
-    if (parent.getChildByName(fileName)) {
-        node = parent.getChildByName(fileName);
-        console.log("node exist ", fileName);
+    if (parent.getChildByName(tag)) {
+        node = parent.getChildByName(tag);
+        console.log("node exist ", tag);
     }
     else {
-        node = new cc.Node(fileName);
+        node = new cc.Node(tag);
         node.parent = parent;
-        console.log("node create ", fileName);
+        console.log("node create ", tag);
     }
     node.setPosition(cc.p(args.x || 0, args.y || 0));
     if (args.remove === undefined) {
@@ -320,20 +328,21 @@ function playEffects(parent, args) {
         else {
         }
     })
-}
-
-module.exports = {
-    ActionShowTanChuang: ActionShowTanChuang,
-    showAlert: showAlert,
-    showToast: showToast,
-    showPopWaiting: showPopWaiting,
-    buildRequestParam: buildRequestParam,
-    ipToNumber: ipToNumber,
-    numberToIp: numberToIp,
-    PrefixInteger: PrefixInteger,
-    showLoadingView: showLoadingView,
-    getRandomInt: getRandomInt,
-    playEffects: playEffects,
-    showBindView: showBindView,
-    showShopView: showShopView,
 };
+
+module.exports = GlobalFun;
+// {
+//     ActionShowTanChuang: ActionShowTanChuang,
+//     showAlert: showAlert,
+//     showToast: showToast,
+//     showPopWaiting: showPopWaiting,
+//     buildRequestParam: buildRequestParam,
+//     ipToNumber: ipToNumber,
+//     numberToIp: numberToIp,
+//     PrefixInteger: PrefixInteger,
+//     showLoadingView: showLoadingView,
+//     getRandomInt: getRandomInt,
+//     playEffects: playEffects,
+//     showBindView: showBindView,
+//     showShopView: showShopView,
+// };

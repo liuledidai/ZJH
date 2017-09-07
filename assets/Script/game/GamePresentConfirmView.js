@@ -37,12 +37,30 @@ cc.Class({
         this.node.removeFromParent();
         this.node.destroy();
     },
+    onClickConfirm: function () {
+        this.close(this.callback)
+    },
     init: function (params) {
+        this.callback = params.callback;
         var itemInfo = params.itemInfo;
         var userItem = params.userItem;
         var sendNum = params.sendNum;
         var szNickName = userItem.szName;
         var dwUserID = userItem.dwUserID;
+        var goldVal = itemInfo.gold;
+        var costGold = goldVal * sendNum;
+        var llInsureScore = GlobalUserData.llInsureScore;
+        var leftGold = llInsureScore - costGold;
+
+        this.m_Label_nickname.string = szNickName;
+        this.m_Label_id.string = dwUserID;
+        this.m_Label_presentname.string = itemInfo.name;
+        this.m_Label_num.string = sendNum;
+        this.m_Label_gold.string = costGold;
+        this.m_Label_charm.string = (itemInfo.charm * sendNum) + "魅力";
+
+        var szDes = "说明：您的银行存款" + llInsureScore + ",购买礼物后存款剩余" + leftGold + ".";
+        this.m_Label_des.string = szDes;
 
     },
     // called every frame, uncomment this function to activate update callback

@@ -142,6 +142,7 @@ var BaseFrame = cc.Class({
         {
             return false;
         }
+        console.log("[BaseFrame][sendSocketData] main = " + pData.getmain() + " sub = " + pData.getsub() + " dataLen = " + pData.getDataSize());
         this._socket.sendSocketData(pData);
     },
     onConnectCompeleted: function(){

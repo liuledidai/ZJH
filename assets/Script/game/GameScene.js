@@ -45,13 +45,26 @@ cc.Class({
         this._super();
     },
     onEnable: function (params) {
-        // cc.director.on("onEventGameMessage",this.onEventGameMessage,this);
+        cc.director.on("sendGift",this.onSendGift,this);
         this._super();
     },
     onDisable: function (params) {
-        // cc.director.off("onEventGameMessage",this.onEventGameMessage,this);
+        cc.director.off("sendGift",this.onSendGift,this);
         this._super();
         // this.onExitRoom();
+    },
+    onSendGift: function (params) {
+        params = params.detail || params;
+        var userItem = params.userItem;
+        var cbGiftID= params.cbGiftID;
+        var count= params.count;
+        var szPassword= params.szPassword;
+        if (userItem && userItem.wTableID === this.getMeTableID()) {
+            this.sendGift(userItem.wChairID, cbGiftID, count, cc.md5Encode(szPassword));
+        }
+        else {
+            GlobalFun.showToast("玩家已离开当前桌位，无法发送礼物！");
+        }
     },
     onExitRoom: function () {
         this._super();

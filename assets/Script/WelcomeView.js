@@ -34,6 +34,9 @@ cc.Class({
         //     cc.director.loadScene("LoginScene");
         // }, 2);
         AudioMng.loadSoundData();
+        cc.loader.loadRes("prefab/PopWaitingView",function (err,res) {
+            
+        });
     },
     onDestroy: function (params) {
         console.log("[WelcomeView][onDestroy]")

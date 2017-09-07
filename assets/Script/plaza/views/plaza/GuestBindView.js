@@ -2,6 +2,7 @@ require("MD5");
 var GlobalDef = require("GlobalDef");
 var GlobalFun = require("GlobalFun");
 var GlobalUserData = require("GlobalUserData");
+var zjh_cmd = require("CMD_ZaJinHua");
 cc.Class({
     extends: cc.Component,
 
@@ -75,14 +76,18 @@ cc.Class({
         }
 
         var url = GlobalDef.httpUserCenter;
-        url += "/Guest/GuestBindMobile.ashx";
+        // url += "/Guest/GuestBindMobile.ashx";
+        url += "/HZMobile/GuestBindMobile.ashx";
 
         var params = {};
+        params["userid"] = GlobalUserData.dwUserID;
         params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
         params["channelid"] = GlobalDef.CHANNELID_center;
         params["mobile"] = szTel;
         params["pwd"] = cc.md5Encode(szPwd);
         params["code"] = szVerify;
+        params["kindid"] = zjh_cmd.KIND_ID;
+        params["nickname"] = GlobalUserData.szNickName;
 
         var paramString = GlobalFun.buildRequestParam(params);
 
@@ -112,7 +117,7 @@ cc.Class({
                     cc.director.emit("onGuestBindSuccess");
                     self.onClose();
                 }
-                GlobalFun.showToast(value.msg);
+                GlobalFun.showToast(value.msg || value.Msg);
             }
         };
         xhr.open("POST", url, true);
