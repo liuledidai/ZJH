@@ -1,3 +1,4 @@
+var GlobalFun = require("GlobalFun");
 var GameServerItem = cc.Class({
     wSortID: undefined,
     wKindID: undefined,
@@ -28,7 +29,9 @@ var GameServerItem = cc.Class({
         this.dwServerAddr = pData.readdword();
         this.dwOnLineCount = pData.readdword();
         this.szServerName = pData.readstring(32);
+        pData.blockEnd();
         console.log("len = "+pData.getDataSize());
+        console.log("房间: " + GlobalFun.numberToIp(this.dwServerAddr) + "# " + this.wServerPort);
         while(true){
             //默认信息
             // #define DTP_NULL					0								//无效数据

@@ -37,6 +37,12 @@ cc.Class({
         cc.loader.loadRes("prefab/PopWaitingView",function (err,res) {
             
         });
+        cc.loader.loadResDir("json",function (err,res) {
+            // for (var i = 0; i < res.length; i++) {
+            //     var element = res[i];
+            //     console.log("resDir ",i,JSON.stringify(element,null,' '));
+            // }
+        });
     },
     onDestroy: function (params) {
         console.log("[WelcomeView][onDestroy]")

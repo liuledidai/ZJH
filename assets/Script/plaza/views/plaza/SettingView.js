@@ -81,6 +81,7 @@ cc.Class({
                 {
                     name: "确定",
                     callback: () => {
+                        GlobalUserData.szUserGUID = undefined;
                         var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
                         if (GameFrameNode) {
                             console.log("[SettingView][onClickSwitchAccount] 获取GameFrame 所在节点 并取消为常驻节点");

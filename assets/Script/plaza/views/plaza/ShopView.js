@@ -110,7 +110,7 @@ cc.Class({
             params["channelid"] = GlobalDef.CHANNELID_center;
             params["pay_amt"] = itemVal.price;
 
-            var url = GlobalDef.httpBaseUrl;
+            var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
             url += "/HZMobile/PayInit2_0.ashx";
             params["url"] = url;
 
@@ -132,7 +132,7 @@ cc.Class({
 
             if (GlobalUserData.isOpenIAP) {
                 params["pay_amt"] = itemVal.iosprice;
-                var url = GlobalDef.httpBaseUrl;
+                var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
                 url += "/HZMobile/PayInit2_0.ashx";
                 var paramString = GlobalFun.buildRequestParam(params);
                 var xhr = new XMLHttpRequest();

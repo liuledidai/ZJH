@@ -1,6 +1,7 @@
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
+var zjh_cmd = require("CMD_ZaJinHua");
 require("MD5");
 
 cc.Class({
@@ -147,8 +148,7 @@ cc.Class({
         // this._updateToggleEventString(title, this.radioButtonEventString, toggle);
     },
     onClickConfirm: function (params) {
-        var url = GlobalDef.httpBaseUrl;
-        // url += "/hz/hzUpdateFaceId.ashx";
+        var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
         var params = {};
         if (this._selectIndex == 0) {
             var szGoldCount = this.m_Editbox_get_gold.string;
@@ -242,10 +242,10 @@ cc.Class({
                 var value = JSON.parse(response);
                 if (value.status == 1) {
                     if (value.score !== undefined) {
-                        GlobalUserData.llGameScore = value.score;
+                        GlobalUserData.llGameScore = Number(value.score);
                     }
                     if (value.insurescore !== undefined) {
-                        GlobalUserData.llInsureScore = value.insurescore;
+                        GlobalUserData.llInsureScore = Number(value.insurescore);
                     }
                     cc.director.emit("onBankSuccess");
                     self.refreshUI();
@@ -262,10 +262,10 @@ cc.Class({
         var szcharmCount = this.m_Editbox_charm_num.string;
         var szPassWord = this.m_Editbox_charm_pwd.string;
         
-        if (isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 || Number(szcharmCount) > (100)) {
-            GlobalFun.showToast("您输入的魅力值不符合规定!");
-            return;
-        }
+        // if (isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 || Number(szcharmCount) > (100)) {
+        //     GlobalFun.showToast("您输入的魅力值不符合规定!");
+        //     return;
+        // }
         if (szPassWord.length <= 0) {
             GlobalFun.showToast("密码不能为空!");
             return;
@@ -286,6 +286,46 @@ cc.Class({
                     name: "确定",
                     callback: () => {
                         GlobalFun.showToast("抽奖" + szcharmCount);
+                        var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
+                        url += "/hz/hzCharmExChange.ashx";
+                        var params = {};
+                        params["userid"] = GlobalUserData.dwUserID;
+                        params["kindid"] = zjh_cmd.KIND_ID;
+                        params["loveline"] = szcharmCount;
+                        params["pwd"] = cc.md5Encode(szPassWord);
+                        var paramString = GlobalFun.buildRequestParam(params);
+                        var self = this;
+                        var xhr = new XMLHttpRequest();
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
+                                var response = xhr.responseText;
+                                console.log(response);
+                                var value = JSON.parse(response);
+                                if (value.status == 1) {
+                                    if (value.score !== undefined) {
+                                        GlobalUserData.llGameScore = Number(value.score);
+                                    }
+                                    if (value.insurescore !== undefined) {
+                                        GlobalUserData.llInsureScore = Number(value.insurescore);
+                                    }
+                                    if (value.exchangenum !== undefined) {
+                                        GlobalUserData.wExchangenum = Number(value.exchangenum);
+                                    }
+                                    if (value.loveline !== undefined) {
+                                        GlobalUserData.dwLoveLiness = Number(value.loveline);
+                                    }
+                                    if (value.exchange !== undefined) {
+                                        // GlobalUserData.llInsureScore = value.exchange;
+                                    }
+                                    cc.director.emit("onBankSuccess");
+                                    self.refreshUI();
+                                }
+                                GlobalFun.showToast(value.msg);
+                            }
+                        };
+                        xhr.open("POST", url, true);
+                        xhr.send(paramString);
+                        console.log("[BankView][onClickReward] " + paramString);
                     }
                 }
             ],

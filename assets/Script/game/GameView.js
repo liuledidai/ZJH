@@ -262,11 +262,137 @@ cc.Class({
     //比牌
     compareCard: function (firstuser, seconduser, firstcard, secondcard, bfirstwin, callback) {
         // AudioMng.playSFX("sfx_comparecard");
-        var compareView = this.node.getChildByName("compareView");
+        var compareView = cc.find("Canvas/compareView");
         compareView.active = true;
-        compareView.runAction(cc.sequence(cc.delayTime(3.0), cc.callFunc(function () {
-            callback();
-        })));
+        // compareView.runAction(cc.sequence(cc.delayTime(3.0), cc.callFunc(function () {
+        //     callback();
+        // })));
+        var firstView = this._scene.switchViewChairID(firstuser.wChairID);
+        var secondView = this._scene.switchViewChairID(seconduser.wChairID);
+        var fileName = "YX_bipai";
+        var animName = "YX_bipai_0";
+        var leftPos = cc.p(-450,100);
+        var rightPos = cc.p(250,-20);
+        var firstPos,secondPos;
+        if (firstView + secondView < 3) {
+            if (firstView < secondView) {
+                [firstPos,secondPos] = [leftPos,rightPos];
+            }
+            else {
+                [firstPos,secondPos] = [rightPos,leftPos];
+            }
+        }
+        else {
+            if (firstView < secondView) {
+                [firstPos,secondPos] = [rightPos,leftPos];
+            }
+            else {
+                [firstPos,secondPos] = [leftPos,rightPos];
+            }
+        }
+        if (firstPos == leftPos) {
+            if (bfirstwin) {
+                animName = "YX_bipai_1";
+            }
+            else {
+                animName = "YX_bipai_0";
+            }
+        } 
+        else {
+            if (bfirstwin) {
+                animName = "YX_bipai_0";
+            }
+            else {
+                animName = "YX_bipai_1";
+            }
+        }
+        if (cc.isValid(this.firstCompareNode) == false) {
+            this.firstCompareNode = new cc.Node("firstCompareNode");
+            this.secondCompareNode = new cc.Node("secondCompareNode");
+            this.firstcardnode = [];
+            this.secondcardnode = [];
+            compareView.addChild(this.firstCompareNode);
+            compareView.addChild(this.secondCompareNode);
+            for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
+                let firstcardnode = cc.instantiate(this.cardPrefab);
+                let secondcardnode = cc.instantiate(this.cardPrefab);
+                this.firstCompareNode.addChild(firstcardnode);
+                this.secondCompareNode.addChild(secondcardnode);
+                this.firstcardnode[i] = firstcardnode;
+                this.secondcardnode[i] = secondcardnode;
+            }
+        }
+        for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
+            this.firstcardnode[i].setPosition((firstView === zjh_cmd.MY_VIEWID && 80 || 35) * i,0);
+            this.firstcardnode[i].setScale((firstView === zjh_cmd.MY_VIEWID && 1.0 || 0.7));
+            this.secondcardnode[i].setPosition((secondView === zjh_cmd.MY_VIEWID && 80 || 35) * i,0);
+            this.secondcardnode[i].setScale((secondView === zjh_cmd.MY_VIEWID && 1.0 || 0.7));
+        }
+        this.firstCompareNode.setScale(1.0);
+        this.secondCompareNode.setScale(1.0);
+        this.firstCompareNode.setPosition(this.ptCard[firstView]);
+        this.secondCompareNode.setPosition(this.ptCard[secondView]);
+        this.firstCompareNode.active = true;
+        this.secondCompareNode.active = true;
+        this.m_userCard[firstView].area.active = false;
+        this.m_userCard[secondView].area.active = false;        
+        compareView.stopAllActions();
+
+        this.firstCompareNode.runAction(cc.sequence(
+            cc.scaleTo(0.2, 1.5),
+            cc.delayTime(0.5),
+            cc.moveTo(0.2, firstPos)
+        ))
+        this.secondCompareNode.runAction(cc.sequence(
+            cc.scaleTo(0.2, 1.5),
+            cc.delayTime(0.5),
+            cc.moveTo(0.2, secondPos)
+        ))
+        compareView.runAction(cc.sequence(
+            cc.delayTime(0.9),
+            cc.callFunc(() => {
+                this.firstCompareNode.active = false;
+                this.secondCompareNode.active = false;
+                GlobalFun.playEffects(compareView, {
+                    fileName: fileName,
+                    anim: animName,
+                    tag: fileName + animName,
+                    loop: false,
+                    callback: () => {
+                        // this.stopCompareCard();
+                        this.firstCompareNode.active = true;
+                        this.secondCompareNode.active = true;
+                        this.firstCompareNode.setScale(1.5);
+                        this.secondCompareNode.setScale(1.5);
+                        this.firstCompareNode.setPosition(firstPos);
+                        this.secondCompareNode.setPosition(secondPos);
+                        this.firstCompareNode.runAction(cc.sequence(
+                            cc.spawn(
+                                cc.scaleTo(0.2,1.0),
+                                cc.moveTo(0.2, this.ptCard[firstView]),
+                            ),
+                            cc.delayTime(0.3),
+                        ))
+                        this.secondCompareNode.runAction(cc.sequence(
+                            cc.spawn(
+                                cc.scaleTo(0.2,1.0),
+                                cc.moveTo(0.2, this.ptCard[secondView]),
+                            ),
+                            cc.delayTime(0.3),
+                            cc.callFunc(()=>{
+                                this.m_userCard[firstView].area.active = true;
+                                this.m_userCard[secondView].area.active = true; 
+                                this.stopCompareCard();
+                                if (typeof(callback) == "function") {
+                                    callback();
+                                }
+                            })
+                        ))
+                    }
+                });
+            }),
+        ))
+        
     },
     //底注显示
     setCellScore: function (cellScore) {
@@ -491,12 +617,19 @@ cc.Class({
         //     this.winTheChip(index,index + 2000);
         // }
         // this.showSendPresent(0,0,1,1);
-        for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
-            // for (var j = i + 1; j < zjh_cmd.GAME_PLAYER; j++) {
-            this.showSendPresent(0, i, i, 1);
-            // }
+        // for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+        //     // for (var j = i + 1; j < zjh_cmd.GAME_PLAYER; j++) {
+        //     this.showSendPresent(0, i, i, 1);
+        //     // }
 
+        // }
+        var firstUser = {
+            wChairID:0,
         }
+        var seconduser = {
+            wChairID:1,
+        }
+        this.compareCard(firstUser,seconduser,undefined,undefined,true);
     },
     //赢得筹码
     winTheChip: function (wWinner, score) {

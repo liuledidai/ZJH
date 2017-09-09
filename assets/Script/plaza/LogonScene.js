@@ -35,7 +35,9 @@ cc.Class({
         AudioMng.playMusic("bgm_plaza");
         this._logonFrame = this.node.getComponent("LogonFrame");
         this._logonView = cc.find("Canvas/LogonView");
-        this.appUpdate();
+        this.scheduleOnce(() => {
+            this.appUpdate();
+        }, 0)
     },
     onEnable: function() {
         cc.director.on('onLogon',this.onLogon,this);
@@ -54,7 +56,7 @@ cc.Class({
     },
     appUpdate: function () {
         var szMachineID = MultiPlatform.getMachineID();
-        var url = GlobalDef.httpInitUrl;
+        var url = GlobalUserData.serverData[GlobalDef.INIT]; //GlobalDef.httpInitUrl;
         var params = {};
         params["kindid"] = zjh_cmd.KIND_ID;
         params["version"] = "1.1";
@@ -77,9 +79,9 @@ cc.Class({
             console.log("[LogonScene][appUpdate] "+xhr.readyState);
             if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
                 var response = xhr.responseText;
-                console.log(response);
+                // console.log(response);
                 response =  response.replace(/[\b\f\n\r\t]/g, '');
-                console.log(response);
+                // console.log(response);
                 var value = JSON.parse(response);
                 if (value.status == 1) {
                     var version = parseFloat(value.version);
@@ -195,12 +197,12 @@ cc.Class({
             console.log("[LogonScene][appUpdate] "+xhr.readyState);
             if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
                 var response = xhr.responseText;
-                console.log(response);
+                // console.log(response);
                 response =  response.replace(/[\b\f\n\r\t]/g, '');
-                console.log(response);
+                // console.log(response);
                 var value = JSON.parse(response);
                 if (value.server !== undefined) {
-                    GlobalUserData.serverData = value;
+                    GlobalUserData.loadServerData(value);
                     console.log(JSON.stringify(GlobalUserData.serverData,null,' '));
                 }
                 cc.director.emit("configCompleted");
@@ -232,6 +234,7 @@ cc.Class({
         //         console.log("[LogonScene][onLogon] callbackfunc");
         //     },
         // });
+        GlobalUserData.cbUserType = GlobalDef.USER_TYPE_ACCOUNT;
         var self = this;
         GlobalFun.showLoadingView({
             closeEvent: "LogonFinish",
@@ -277,14 +280,14 @@ cc.Class({
         // GlobalFun.showAlert(cc.director.getScene(),"游客登录暂未开放,敬请期待!");
         var szMachineID = MultiPlatform.getMachineID();
         // GlobalFun.showToast(szMachineID);
-        var url = GlobalDef.httpUserCenter;
+        var url = GlobalUserData.serverData[GlobalDef.GUEST][GlobalDef.USERCENTER]; //GlobalDef.httpUserCenter;
         // url += "/Guest/GuestLogin.ashx";
         url += "/HZMobile/GuestLogin.ashx";
         var params = {};
         params["kindid"] = zjh_cmd.KIND_ID;
         params["versionnum"] = "1.1";
         // params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
-        params["useridentity"] = szMachineID || "2d4d7c95e5df0179af2466f635ca71de";
+        params["useridentity"] = szMachineID || "2d4d7c95e5df0179af2466f635ca71d1";
         params["channelid"] = GlobalDef.CHANNELID_center;
         if(cc.sys.os == cc.sys.OS_IOS){
             params["os"] = "2";
@@ -308,6 +311,7 @@ cc.Class({
                     GlobalUserData.szAccounts = value.username;
                     GlobalUserData.szPassWord = value.pwd;
                     GlobalUserData.isGuest = true;
+                    GlobalUserData.cbUserType = GlobalDef.USER_TYPE_GUEST;
                     // cc.director.loadScene("PlazaScene");
                     // self._logonFrame.onLogonByVisitor(GlobalUserData.szAccounts,GlobalUserData.szPassWord);
                     GlobalFun.showLoadingView({

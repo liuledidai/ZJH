@@ -69,7 +69,7 @@ cc.Class({
     onChangeUserFace: function (params) {
         this._faceID = params.faceID;
         var faceID = this._faceID;
-        var url = GlobalDef.httpBaseUrl;
+        var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
         // url += "/hz/hzUpdateFaceId.ashx";
         url += "/hz/hzUpdateFaceId3_0.ashx";
         var params = {};

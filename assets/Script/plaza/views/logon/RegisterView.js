@@ -1,6 +1,7 @@
  require("MD5");
  var GlobalDef = require("GlobalDef");
  var GlobalFun = require("GlobalFun");
+ var GlobalUserData = require("GlobalUserData");
  cc.Class({
     extends: cc.Component,
 
@@ -74,7 +75,7 @@
             });
         }
         else {
-            var url = GlobalDef.httpUserCenter;
+            var url = GlobalUserData.serverData[GlobalDef.ACCOUNT][GlobalDef.USERCENTER]; //GlobalDef.httpUserCenter;
             url += "/UserCenter/UserCenterRegister.ashx";
             var params = '';
             var nowTime = Math.floor(Date.now()/1000);
@@ -124,7 +125,7 @@
             GlobalFun.showToast("手机号码不合法");
             return;
         }
-        var url = GlobalDef.httpUserCenter;
+        var url = GlobalUserData.serverData[GlobalDef.ACCOUNT][GlobalDef.USERCENTER];//GlobalDef.httpUserCenter;
         url += "/hz/CaptchaMobile.ashx";
         var params = "Mobile=" + szAccount;
         var xhr = new XMLHttpRequest();

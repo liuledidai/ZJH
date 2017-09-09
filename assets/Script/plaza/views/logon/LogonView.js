@@ -1,4 +1,5 @@
 var GlobalDef = require("GlobalDef");
+var GlobalUserData = require("GlobalUserData");
 cc.Class({
     extends: cc.Component,
 
@@ -67,7 +68,8 @@ cc.Class({
         cc.director.emit("onShowRegister");
     },
     onClickForgetPassword: function(){
-        cc.sys.openURL(GlobalDef.httpOpenUrl);
+        var url = GlobalUserData.serverData[GlobalDef.ACCOUNT]["forgetPassword"];
+        cc.sys.openURL(url);
     },
     checkBoxClicked: function (toggle) {
         if (toggle.isChecked) {

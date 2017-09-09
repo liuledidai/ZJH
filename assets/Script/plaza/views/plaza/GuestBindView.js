@@ -35,7 +35,7 @@ cc.Class({
             return;
         }
 
-        var url = GlobalDef.httpUserCenter;
+        var url = GlobalUserData.getUserServer(GlobalDef.USERCENTER);//GlobalDef.httpUserCenter;
         url += "/hz/CaptchaMobile.ashx";
         var params = "Mobile=" + szTel;
         var xhr = new XMLHttpRequest();
@@ -75,7 +75,7 @@ cc.Class({
             return;
         }
 
-        var url = GlobalDef.httpUserCenter;
+        var url = GlobalUserData.getUserServer(GlobalDef.USERCENTER);//GlobalDef.httpUserCenter;
         // url += "/Guest/GuestBindMobile.ashx";
         url += "/HZMobile/GuestBindMobile.ashx";
 
@@ -113,9 +113,27 @@ cc.Class({
                     }
                     GlobalUserData.szPassWord = cc.md5Encode(szPwd);
                     GlobalUserData.isGuest = false;
-                    GlobalFun.showToast("帐号绑定成功，您可以用正式帐号登录游戏了");
+                    // GlobalFun.showToast("帐号绑定成功，您可以用正式帐号登录游戏了");
                     cc.director.emit("onGuestBindSuccess");
                     self.onClose();
+                    GlobalFun.showAlert({
+                        message: "帐号绑定成功，您可以用正式帐号登录游戏了",
+                        // textAlignment: cc.TextAlignment.LEFT,
+                        btn: [
+                            {
+                                name: "确定",
+                                callback: () => {
+                                    GlobalUserData.szUserGUID = undefined;
+                                    var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
+                                    if (GameFrameNode) {
+                                        console.log("[GuestBindView] 获取GameFrame 所在节点 并取消为常驻节点");
+                                        cc.game.removePersistRootNode(GameFrameNode);
+                                    }
+                                    cc.director.loadScene("LoginScene");
+                                }
+                            }
+                        ],
+                    })
                 }
                 GlobalFun.showToast(value.msg || value.Msg);
             }

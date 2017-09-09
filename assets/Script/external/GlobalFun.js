@@ -161,6 +161,25 @@ GlobalFun.showShopView = function showShopView(context) {
     });
 };
 
+GlobalFun.showBankView = function showBankView(context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        console.log("[GlobalFun][showBankView] context is invalid");
+        return;
+    }
+    cc.loader.loadRes("prefab/BankView", function (err, prefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(prefab);
+            context.addChild(newNode);
+            GlobalFun.ActionShowTanChuang(newNode);
+        }
+    });
+};
+
 GlobalFun.getsign = function getsign(params) {
     params = params + "key=fgr7hk5ds35h30hnj7hwas4gfy6sj78x";//加入key
     return cc.md5Encode(params).toLowerCase();

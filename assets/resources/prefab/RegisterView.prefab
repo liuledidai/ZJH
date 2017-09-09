@@ -985,10 +985,10 @@
     "_N$placeholderFontSize": 36,
     "_N$placeholderFontColor": {
       "__type__": "cc.Color",
-      "r": 127,
-      "g": 127,
-      "b": 127,
-      "a": 255
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 127
     },
     "_N$maxLength": 11,
     "_N$stayOnTop": false
@@ -1549,10 +1549,10 @@
     "_N$placeholderFontSize": 36,
     "_N$placeholderFontColor": {
       "__type__": "cc.Color",
-      "r": 127,
-      "g": 127,
-      "b": 127,
-      "a": 255
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 127
     },
     "_N$maxLength": 16,
     "_N$stayOnTop": false
@@ -1841,10 +1841,10 @@
     "_N$placeholderFontSize": 36,
     "_N$placeholderFontColor": {
       "__type__": "cc.Color",
-      "r": 127,
-      "g": 127,
-      "b": 127,
-      "a": 255
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 127
     },
     "_N$maxLength": 16,
     "_N$stayOnTop": false
@@ -2229,10 +2229,10 @@
     "_N$placeholderFontSize": 36,
     "_N$placeholderFontColor": {
       "__type__": "cc.Color",
-      "r": 127,
-      "g": 127,
-      "b": 127,
-      "a": 255
+      "r": 255,
+      "g": 255,
+      "b": 255,
+      "a": 127
     },
     "_N$maxLength": 6,
     "_N$stayOnTop": false

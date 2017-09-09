@@ -148,6 +148,9 @@ cc.Class({
             if (typeof (GlobalUserData[prop]) == "function") continue;
             console.log('GlobalUserData.' + prop, '=', GlobalUserData[prop]);
         }
+        if(!cc.isValid(this)) {
+            console.log("[PlazaView is invalid]");
+        }
         this.m_Label_userGold.string = GlobalUserData.llGameScore;
         this.m_Label_userCharm.string = GlobalUserData.dwLoveLiness;
         this.m_Label_name.string = GlobalUserData.szNickName;
@@ -186,7 +189,7 @@ cc.Class({
         }
     },
     refreshData: function () {
-        var url = GlobalDef.httpBaseUrl;
+        var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
         // url += "/hz/hzGameUserInfo.ashx";
         url += "/hz/hzGameUserInfo3_0.ashx";
         var params = {};
@@ -202,22 +205,25 @@ cc.Class({
                 var value = JSON.parse(response);
                 if (value.status == 1) {
                     if (value.score !== undefined) {
-                        GlobalUserData.llGameScore = value.score;
+                        GlobalUserData.llGameScore = Number(value.score);
                     }
                     if (value.insurescore !== undefined) {
-                        GlobalUserData.llInsureScore = value.insurescore;
+                        GlobalUserData.llInsureScore = Number(value.insurescore);
                     }
                     if (value.accounts !== undefined) {
                         GlobalUserData.szAccounts = value.accounts;
                     }
                     if (value.gameid !== undefined) {
-                        GlobalUserData.dwGameID = value.gameid;
+                        GlobalUserData.dwGameID = Number(value.gameid);
                     }
                     if (value.faceid !== undefined) {
-                        GlobalUserData.wFaceID = value.faceid;
+                        GlobalUserData.wFaceID = Number(value.faceid);
                     }
                     if (value.gender !== undefined) {
                         GlobalUserData.cbGender = value.gender;
+                    }
+                    if (value.usertype !== undefined) {
+                        GlobalUserData.cbUserType = parseInt(value.usertype);
                     }
                     if (value.isguest !== undefined) {
                         GlobalUserData.isGuest = Number(value.isguest) && true || false;
@@ -226,11 +232,11 @@ cc.Class({
                         GlobalUserData.szNickName = value.nickname;
                     }
                     if (value.loveliness !== undefined) {
-                        GlobalUserData.dwLoveLiness = value.loveliness;
+                        GlobalUserData.dwLoveLiness = Number(value.loveliness);
                     }
                     //抽奖次数
                     if(value.counteLoveliness !== undefined) {
-                        GlobalUserData.wExchangenum = value.counteLoveliness;
+                        GlobalUserData.wExchangenum = Number(value.counteLoveliness);
                     }
                 }
                 self.refreshUI();

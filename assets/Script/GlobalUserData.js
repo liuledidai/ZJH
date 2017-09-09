@@ -1,5 +1,6 @@
 var AudioMng = require("AudioMng");
 var plaza_cmd = require("CMD_Plaza");
+var GlobalDef = require("GlobalDef");
 var GlobalUserData = {
     wFaceID: undefined,					//头像索引
     cbGender: undefined,						//用户性别
@@ -41,14 +42,19 @@ var GlobalUserData = {
             this.isOpenIAP = false;
         }
         cc.loader.loadRes("json/shoppage", function (err, content) {
-            console.log(content);
+            // console.log(content);
             GlobalUserData.shopData = content;
             // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.shopData, null, ' '));
         });
         cc.loader.loadRes("json/present", function (err, content) {
-            console.log(content);
+            // console.log(content);
             GlobalUserData.presentData = content;
             // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.presentData, null, ' '));
+        });
+        cc.loader.loadRes("json/serverInfo", function (err, content) {
+            // console.log(content);
+            GlobalUserData.loadServerData(content);
+            // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.serverData, null, ' '));
         });
         this.roomList = [];
         var music_setting =  JSON.parse(cc.sys.localStorage.getItem('music_setting') || "{}");
@@ -69,6 +75,21 @@ var GlobalUserData = {
         }
         else {
             AudioMng.setEffectsVolume(0);
+        }
+    },
+    loadServerData: function (value) {
+        if (value && value.server && value.server[GlobalDef.Environment]) {
+            GlobalUserData.serverData = value.server[GlobalDef.Environment];
+            console.log("[GlobalUserData][loadServerData] "+JSON.stringify(GlobalUserData.serverData, null, ' '));
+        }
+    },
+    getUserServer: function (serverName) {
+        // return GlobalUserData.serverData[GlobalDef.GUEST][serverName];
+        if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST) {
+            return GlobalUserData.serverData[GlobalDef.GUEST][serverName];
+        }
+        else {
+            return GlobalUserData.serverData[GlobalDef.ACCOUNT][serverName];
         }
     },
     setMusicAble: function (able) {
@@ -147,7 +168,8 @@ var GlobalUserData = {
         this.szAccounts = pData.readstring(32);
         this.szNickName = pData.readstring(32);
 
-        this.cbUserType = pData.readbyte();
+        //this.cbUserType = 注册用户是1   微信用户是2 和接口返回不一致
+        pData.readbyte();
         this.szWeChatImgURL = pData.readstring(256);
         this.szWeChatNickName = pData.readstring(32);
         pData.blockEnd();

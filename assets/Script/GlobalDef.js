@@ -14,6 +14,25 @@ var GlobalDef = {
     MAX_ANDROID: 10,								//最大机器
     MAX_CHAT_LEN: 128,								//聊天长度
     LIMIT_CHAT_TIMES: 1200,							//限时聊天
+
+    //测试服务器地址
+    Environment: "test",                            //服务器环境
+    // Environment: "release",                            //服务器环境
+    INIT: "init",
+    GUEST: "guest",
+    ACCOUNT: "account",
+    INTERFACE: "interface",
+    USERCENTER: "userCenter",
+    RECHARGE: "recharge",
+    LOGINURL: "loginUrl",
+    LOGINIP: "loginIP",
+    PORT: "loginPort",
+
+    //用户类型
+    USER_TYPE_ACCOUNT: 0,                    //注册用户
+    USER_TYPE_GUEST: 1,                            //游客用户
+    USER_TYPE_WEIXIN: 2,                             //微信用户
+
     //正式服务器地址
     httpInitUrl: "http://tver.jjhgame.com/Handle/hz/init.ashx",   //app初始化接口地址
     // httpBaseUrl: "http://interface.jjhgame.com/Handle",        //web接口地址

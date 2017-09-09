@@ -51,12 +51,9 @@ cc.Class({
             GlobalFun.showToast("房间暂未开放，请稍后再试");
             return;
         }
-        if(GlobalUserData.llGameScore >= this._roomInfo.lLimitScore) {
-            // GlobalFun.showToast("进入房间");
-            cc.director.emit("onLogonRoom",{roomInfo:this._roomInfo});
-        }
-        else {
-            var tipText = "进入房间需要"+ this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!"
+
+        if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST && this._roomInfo.wSortID > 3000) {
+            var tipText = "尊敬的游客用户,该房间只有正式用户才能进入，是否绑定为正式用户";
             GlobalFun.showAlert({
                 message: tipText,
                 // textAlignment: cc.TextAlignment.LEFT,
@@ -65,9 +62,62 @@ cc.Class({
                         name: "取消",
                     },
                     {
-                        name: "充值",
+                        name: "绑定",
                         callback: () => {
-                            GlobalFun.showShopView();
+                            GlobalFun.showBindView();
+                        }
+                    }
+                ],
+            })
+            return;
+        }
+        if(GlobalUserData.llGameScore >= this._roomInfo.lLimitScore) {
+            // GlobalFun.showToast("进入房间");
+            cc.director.emit("onLogonRoom",{roomInfo:this._roomInfo});
+            return;
+        }
+        else if ((GlobalUserData.llGameScore + GlobalUserData.llInsureScore) >= this._roomInfo.lLimitScore) {
+            var tipText = "您身上的金币不足，需要去银行取款吗?";
+            console.log(GlobalUserData.llGameScore + GlobalUserData.llInsureScore);
+            GlobalFun.showAlert({
+                message: tipText,
+                // textAlignment: cc.TextAlignment.LEFT,
+                btn: [
+                    {
+                        name: "取消",
+                    },
+                    {
+                        name: "取款",
+                        callback: () => {
+                            GlobalFun.showBankView();
+                        }
+                    }
+                ],
+            })
+        }
+        else {
+            var tipText = "进入房间需要"+ this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!"
+            var btncallback = GlobalFun.showShopView;
+            var btnName = "充值";
+            if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST) {
+                tipText = "亲爱的游客用户，您的金币不足，您可以领取系统赠送的救济金，每天仅限领两次!";
+                btnName = "领取";
+                btncallback = ()=> {
+                    GlobalFun.showToast("领取救济金");
+                }
+            }
+            GlobalFun.showAlert({
+                message: tipText,
+                // textAlignment: cc.TextAlignment.LEFT,
+                btn: [
+                    {
+                        name: "取消",
+                    },
+                    {
+                        name: btnName,
+                        callback: () => {
+                            // GlobalFun.showShopView();
+                            btncallback();
                         }
                     }
                 ],

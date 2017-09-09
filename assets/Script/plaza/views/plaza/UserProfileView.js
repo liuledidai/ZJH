@@ -121,7 +121,7 @@ cc.Class({
     },
     onClickChangeName: function (params) {
         this.m_Label_userName.node.active = true;
-        var url = GlobalDef.httpUserCenter;
+        var url = GlobalUserData.getUserServer(GlobalDef.USERCENTER);//GlobalDef.httpUserCenter;
         url += "/HZMobile/UpdateNickName.ashx";
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;
