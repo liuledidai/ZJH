@@ -17,13 +17,17 @@ cc.Class({
             default:null,
             type:cc.Node,
         },
+        videoPlayer: {
+            default: null,
+            type: cc.VideoPlayer
+        },
         _step: 0,
         _count: 0,
         kDesignFrameRate: 60.0,
         kSplashStepLogo1Still: 0,
         kSplashStepLogo1FadeOut: 1,
-        kSplashFadeTime: 0.5,
-        kSplashStillTime: 2.0,
+        kSplashFadeTime: 1.5,
+        kSplashStillTime: 5.0,
     },
 
     // use this for initialization
@@ -44,12 +48,88 @@ cc.Class({
             // }
         });
     },
+    _pausedCallback: function () {
+        this.videoPlayer.pause();
+    },
+    _restoreCallback: function () {
+        // this.videoPlayer.play();
+        this.scheduleOnce(()=>{
+            this.videoPlayer.node.active = false;
+            cc.director.loadScene("LoginScene");
+        })
+    },
+    onEnable: function () {
+        cc.game.on(cc.game.EVENT_HIDE, this._pausedCallback, this);
+        cc.game.on(cc.game.EVENT_SHOW, this._restoreCallback, this);
+        console.log("[WelcomeView][onEnable]");
+    },
+    onDisable: function () {
+        cc.game.off(cc.game.EVENT_HIDE, this._pausedCallback, this);
+        cc.game.off(cc.game.EVENT_SHOW, this._restoreCallback, this);
+        console.log("[WelcomeView][onDisable]");
+    },
     onDestroy: function (params) {
         console.log("[WelcomeView][onDestroy]")
         cc.sys.garbageCollect();  
     },
+    play: function (params) {
+        this.videoPlayer.play();
+    },
+    pause: function (params) {
+        this.videoPlayer.pause();  
+    },
+    stop: function (params) {
+        this.videoPlayer.stop();  
+    },
+    onVideoPlayerEvent: function(sender, event) {
+        console.log("[event]",event);
+        // this.label.string = event;
+        if (event === cc.VideoPlayer.EventType.META_LOADED) {
+            // this.totalTime.string = this.videoPlayer.getDuration().toFixed(2);
+            // this.videoPlayer.play();
+            console.log("[event] META_LOADED",event);
+        } else if (event === cc.VideoPlayer.EventType.CLICKED) {
+            // if(this.videoPlayer.isPlaying()) {
+            //     this.videoPlayer.pause();
+            // } else {
+            //     this.videoPlayer.play();
+            // }
+            console.log("[event] CLICKED",event);
+        }
+        else if (event === cc.VideoPlayer.EventType.COMPLETED) {
+            console.log("[event] COMPLETED",event);
+            cc.director.loadScene("LoginScene");
+        }
+        else if(event === cc.VideoPlayer.EventType.READY_TO_PLAY) {
+            // this.videoPlayer.pause();
+            this.scheduleOnce(()=>{
+                this.videoPlayer.play();
+            })
+            console.log("[event] READY_TO_PLAY",event);
+        }
+        else if(event === cc.VideoPlayer.EventType.PLAYING) {
+            // this.videoPlayer.play();
+            console.log("[event] PLAYING",event);
+        }
+        else if(event === cc.VideoPlayer.EventType.PAUSED) {
+            // this.videoPlayer.play();
+            console.log("[event] PAUSED",event);
+        }
+        else if(event === cc.VideoPlayer.EventType.STOPPED) {
+            // this.videoPlayer.play();
+            console.log("[event] STOPPED",event);
+            cc.director.loadScene("LoginScene");
+        }
+    },
     // called every frame, uncomment this function to activate update callback
     update: function (dt) {
+        if (cc.sys.os === cc.sys.OS_OSX || cc.sys.os === cc.sys.OS_WINDOWS) {
+            // console.log("VideoPlayer is not supported on Mac and Windows!");
+            // return;
+        }
+        else {
+            return;
+        }
         this._count += dt;
         if (this._step === this.kSplashStepLogo1Still)
         {
@@ -69,7 +149,7 @@ cc.Class({
             }
             else
             {
-                var op = 255 * (1.0 - Math.sin((this._count/1.0) * 0.5 * Math.PI));
+                var op = 255 * (1.0 - Math.sin((this._count/(this.kSplashFadeTime * 2.0)) * 0.5 * Math.PI));
                 this.splash.opacity = op;
             }
         }

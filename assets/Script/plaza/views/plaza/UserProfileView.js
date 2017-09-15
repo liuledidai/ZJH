@@ -18,6 +18,7 @@ cc.Class({
         // ...
         m_Button_changepwd: cc.Button,
         m_Button_binding: cc.Button,
+        m_Button_changeface: cc.Button,
         m_Label_userName: {
             default: null,
             type: cc.Label,
@@ -62,33 +63,51 @@ cc.Class({
         this.refreshUI();
     },
     refreshUI: function () {
-        var szNickName = GlobalUserData.szNickName;
+        var szNickName = GlobalUserData.szNickName || GlobalUserData.szAccounts;
         var llGameScore = GlobalUserData.llGameScore;
         var dwLoveLiness = GlobalUserData.dwLoveLiness;
         var dwUserID = GlobalUserData.dwUserID;
         var cbGender = GlobalUserData.cbGender || 1;
-        var isGuest = GlobalUserData.isGuest;
-        this.m_Label_userGold.string = llGameScore;
-        this.m_Label_userCharm.string = dwLoveLiness;
-        this.m_Label_userID.string = dwUserID;
-        this.m_Label_userName.string = szNickName;
-        if (isGuest) {
+        var cbUserType = GlobalUserData.cbUserType;
+        if (cbUserType === GlobalDef.USER_TYPE_GUEST) {
             this.m_Button_binding.node.active = true;
             this.m_Button_changepwd.node.active = false;
+            this.m_Button_changeface.node.active = true;
+        }
+        else if (cbUserType === GlobalDef.USER_TYPE_WEIXIN){
+            this.m_Button_binding.node.active = false;
+            this.m_Button_changepwd.node.active = false;
+            this.m_Button_changeface.node.active = false;
         }
         else {
             this.m_Button_binding.node.active = false;
             this.m_Button_changepwd.node.active = true;
+            this.m_Button_changeface.node.active = true;
         }
-        // if( this._faceID !== undefined) {
-        //     this.onChangeUserFace();
-        //     cbGender = Math.floor((this._faceID - 1)/4) + 1;
-        // }
-        var faceID = this._faceID || GlobalUserData.wFaceID;
-        if (faceID <= 0 || faceID > 8) {
-            faceID = 1;
+
+        if (cbUserType == GlobalDef.USER_TYPE_WEIXIN) {
+            szNickName = GlobalUserData.szWeChatNickName;
+            cc.loader.load({url:GlobalUserData.szWeChatImgURL,type:"png"},(err,tex)=>{
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0,0,tex.width,tex.height));
+                this.m_Image_userFace.spriteFrame = spriteFrame;
+            })
         }
-        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+        else {
+            var faceID = this._faceID || GlobalUserData.wFaceID;
+            if (faceID <= 0 || faceID > 8) {
+                faceID = 1;
+            }
+            this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+        }
+
+        this.m_Label_userGold.string = llGameScore;
+        this.m_Label_userCharm.string = dwLoveLiness;
+        this.m_Label_userID.string = dwUserID;
+        this.m_Label_userName.string = szNickName;
         if (cbGender == 1) {
             this.genderManButton.check();
             console.log("this.genderManButton.isCheck = " + this.genderManButton.isChecked);

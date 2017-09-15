@@ -7,11 +7,11 @@
             <key>bank_button_rechange.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1306,159},{393,145}}</string>
+                <string>{{828,753},{393,145}}</string>
                 <key>offset</key>
                 <string>{0,-3}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{15,14},{393,145}}</string>
                 <key>sourceSize</key>
@@ -20,11 +20,11 @@
             <key>bank_button_rechange_select.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1306,2},{419,155}}</string>
+                <string>{{828,332},{419,155}}</string>
                 <key>offset</key>
                 <string>{0,-3}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{2,9},{419,155}}</string>
                 <key>sourceSize</key>
@@ -33,7 +33,7 @@
             <key>bank_button_reward.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1701,292},{334,334}}</string>
+                <string>{{2,1579},{334,334}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -46,11 +46,11 @@
             <key>bank_button_reward_disable.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1727,2},{288,292}}</string>
+                <string>{{338,1579},{288,292}}</string>
                 <key>offset</key>
                 <string>{2,2}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{25,19},{288,292}}</string>
                 <key>sourceSize</key>
@@ -59,11 +59,11 @@
             <key>bank_button_reward_select.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1636,914},{284,288}}</string>
+                <string>{{715,1148},{284,288}}</string>
                 <key>offset</key>
                 <string>{2,2}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{27,21},{284,288}}</string>
                 <key>sourceSize</key>
@@ -72,7 +72,7 @@
             <key>bank_icon_arrow.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1876,1200},{172,136}}</string>
+                <string>{{338,1873},{172,136}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
                 <key>rotated</key>
@@ -82,23 +82,10 @@
                 <key>sourceSize</key>
                 <string>{172,136}</string>
             </dict>
-            <key>bank_icon_reward.png</key>
-            <dict>
-                <key>frame</key>
-                <string>{{2,2},{1302,712}}</string>
-                <key>offset</key>
-                <string>{0,-1}</string>
-                <key>rotated</key>
-                <false/>
-                <key>sourceColorRect</key>
-                <string>{{4,4},{1302,712}}</string>
-                <key>sourceSize</key>
-                <string>{1310,718}</string>
-            </dict>
             <key>bank_icon_turning.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,716},{938,938}}</string>
+                <string>{{998,2},{938,938}}</string>
                 <key>offset</key>
                 <string>{3,-2}</string>
                 <key>rotated</key>
@@ -111,89 +98,50 @@
             <key>bank_icon_turning_back.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1306,306},{994,328}}</string>
+                <string>{{2,2},{994,328}}</string>
                 <key>offset</key>
                 <string>{-1,-24}</string>
                 <key>rotated</key>
-                <true/>
+                <false/>
                 <key>sourceColorRect</key>
                 <string>{{14,59},{994,328}}</string>
                 <key>sourceSize</key>
                 <string>{1024,398}</string>
             </dict>
-            <key>bank_reward_button.png</key>
+            <key>bank_reward_backline.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1926,1006},{142,77}}</string>
-                <key>offset</key>
-                <string>{0,-1}</string>
-                <key>rotated</key>
-                <true/>
-                <key>sourceColorRect</key>
-                <string>{{6,4},{142,77}}</string>
-                <key>sourceSize</key>
-                <string>{154,83}</string>
-            </dict>
-            <key>bank_reward_button_close.png</key>
-            <dict>
-                <key>frame</key>
-                <string>{{1928,744},{104,106}}</string>
+                <string>{{2,894},{711,683}}</string>
                 <key>offset</key>
                 <string>{0,0}</string>
-                <key>rotated</key>
-                <true/>
-                <key>sourceColorRect</key>
-                <string>{{8,7},{104,106}}</string>
-                <key>sourceSize</key>
-                <string>{120,120}</string>
-            </dict>
-            <key>bank_reward_button_close_select.png</key>
-            <dict>
-                <key>frame</key>
-                <string>{{1928,628},{114,116}}</string>
-                <key>offset</key>
-                <string>{0,0}</string>
-                <key>rotated</key>
-                <true/>
-                <key>sourceColorRect</key>
-                <string>{{3,2},{114,116}}</string>
-                <key>sourceSize</key>
-                <string>{120,120}</string>
-            </dict>
-            <key>bank_reward_button_select.png</key>
-            <dict>
-                <key>frame</key>
-                <string>{{1928,850},{154,83}}</string>
-                <key>offset</key>
-                <string>{0,0}</string>
-                <key>rotated</key>
-                <true/>
-                <key>sourceColorRect</key>
-                <string>{{0,0},{154,83}}</string>
-                <key>sourceSize</key>
-                <string>{154,83}</string>
-            </dict>
-            <key>bank_reward_icon_count.png</key>
-            <dict>
-                <key>frame</key>
-                <string>{{1636,1200},{238,150}}</string>
-                <key>offset</key>
-                <string>{1,-1}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{17,20},{238,150}}</string>
+                <string>{{0,0},{711,683}}</string>
                 <key>sourceSize</key>
-                <string>{270,188}</string>
+                <string>{711,683}</string>
+            </dict>
+            <key>bank_reward_deng.png</key>
+            <dict>
+                <key>frame</key>
+                <string>{{2,332},{560,824}}</string>
+                <key>offset</key>
+                <string>{127,0}</string>
+                <key>rotated</key>
+                <true/>
+                <key>sourceColorRect</key>
+                <string>{{301,42},{560,824}}</string>
+                <key>sourceSize</key>
+                <string>{908,908}</string>
             </dict>
             <key>bank_reward_middle_icon.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{1636,628},{290,284}}</string>
+                <string>{{628,1579},{290,284}}</string>
                 <key>offset</key>
                 <string>{1,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
                 <string>{{5,0},{290,284}}</string>
                 <key>sourceSize</key>
@@ -209,7 +157,7 @@
             <key>size</key>
             <string>{2048,2048}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:06fbe91ec290cfcd461aaef64a954840:1/1$</string>
+            <string>$TexturePacker:SmartUpdate:a1ac606209ac06462d0af07ea7caffba:1/1$</string>
             <key>textureFileName</key>
             <string>reward.png</string>
         </dict>

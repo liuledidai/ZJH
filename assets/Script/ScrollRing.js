@@ -300,15 +300,15 @@ cc.Class({
                 if(focusid == "init"){this.onFocusChange("loseFocus",this.node.children[i]);}
             }
             if(focusid == "init" ){
-                tmpfocusid = this._initFocusId != undefined?this._initFocusId: tmpfocusid;
+                tmpfocusid = this._initFocusId !== undefined?this._initFocusId: tmpfocusid;
             }
-            focusChanged = (this._focusid != tmpfocusid);
+            focusChanged = (this._focusid !== tmpfocusid);
             if(focusChanged){
-                if(this._focusid){this.onFocusChange("loseFocus",this.node.children[this._focusid]);}
+                if(this._focusid >= 0){this.onFocusChange("loseFocus",this.node.children[this._focusid]);}
                 this._focusid = tmpfocusid;
             }
         }else{
-            focusChanged = this._focusid != focusid;
+            focusChanged = this._focusid !== focusid;
             if(focusChanged)this.onFocusChange("loseFocus",this.node.children[this._focusid]);
             this._focusid = focusid;
         }

@@ -1,6 +1,13 @@
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
+var zjh_cmd = require("CMD_ZaJinHua");
+var MultiPlatform = require("MultiPlatform");
+var animConfig = [
+    {fileName:"DT_xsc",animName:"DT_xsc",titleName:"XSC_piaodai"},
+    {fileName:"DT_gsc",animName:"DT_gsc",titleName:"GSC_piaodai"},
+    {fileName:"DT_zsc",animName:"DT_zsc",titleName:"ZSC_piaodai"},
+];
 cc.Class({
     extends: cc.Component,
 
@@ -33,10 +40,27 @@ cc.Class({
         this._roomInfo = params.roomInfo;
         // this.m_Image_back.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_back_" + (this._index));
         this.m_Image_col.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_back_" + (this._index));
-        this.m_Image_title.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_down_" + (this._index));
+        // this.m_Image_title.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_down_" + (this._index));
         if (this._roomInfo && this._roomInfo.lLimitScore) {
-            this.m_Label_scoreLimit.string = this._roomInfo.lLimitScore;
+            this.m_Label_scoreLimit.string = "准入:" + this._roomInfo.lLimitScore;
         }
+        else {
+            this.m_Label_scoreLimit.string = "暂未开放";
+        }
+        GlobalFun.playEffects(this.node, {
+            fileName: animConfig[this._index - 1].fileName,
+            anim: animConfig[this._index - 1].animName,
+            loop: true,
+            // callback: callback,
+        });
+        GlobalFun.playEffects(this.node, {
+            fileName: "DT_piaodai",
+            anim: animConfig[this._index - 1].titleName,
+            loop: true,
+            x: 0,
+            y: -135,
+            // callback: callback,
+        });
         // var actionNode = this.node.getChildByName("m_Node_back");
         // actionNode.setPosition(1000,0);
         // actionNode.runAction(cc.sequence(
@@ -102,8 +126,36 @@ cc.Class({
             if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST) {
                 tipText = "亲爱的游客用户，您的金币不足，您可以领取系统赠送的救济金，每天仅限领两次!";
                 btnName = "领取";
-                btncallback = ()=> {
-                    GlobalFun.showToast("领取救济金");
+                btncallback = () => {
+                    // GlobalFun.showToast("领取救济金");
+                    var szMachineID = MultiPlatform.getMachineID();
+                    var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE); //GlobalDef.httpUserCenter;
+                    url += "/HZMobile/GiveGold.ashx";
+                    var params = {};
+                    params["userid"] = GlobalUserData.dwUserID;
+                    params["kindid"] = zjh_cmd.KIND_ID;
+                    params["user_identity"] = szMachineID || "2d4d7c95e5df0179af2466f635ca71d1";
+                    params["channelid"] = GlobalDef.CHANNELID_center;
+                    if (cc.sys.os == cc.sys.OS_IOS) {
+                        params["os"] = "2";
+                    }
+                    else {
+                        // todo
+                        params["os"] = "2";//"1";
+                    }
+                    var paramString = GlobalFun.buildRequestParam(params);
+                    GlobalFun.sendRequest({
+                        url: url,
+                        paramString: paramString,
+                        callback: (value) => {
+                            if (value.status == 1) {
+                                cc.director.emit("onUserChanged");
+                            }
+                            if (value.msg) {
+                                GlobalFun.showToast(value.msg);
+                            }
+                        },
+                    })
                 }
             }
             GlobalFun.showAlert({
@@ -137,6 +189,30 @@ cc.Class({
         this.m_Image_col.node.runAction(cc.tintTo(0.5,170,170,170));
         this.m_Image_title.node.runAction(cc.tintTo(0.5,170,170,170));
         this.node.getComponent(cc.Button).interactable = false;
+    },
+    playAnim: function (params) {
+        var displays = this.node.getComponentsInChildren(dragonBones.ArmatureDisplay);
+        for (var i = 0; i < displays.length; i++) {
+            var display = displays[i];
+            display.enabled = true;
+            this.m_Image_col.enabled = false;
+            display.playAnimation(display.animationName);
+        }
+    },
+    stopAnim: function (params) {
+        console.log("stopAnim",this._index);
+        this.scheduleOnce(()=>{
+            var displays = this.node.getComponentsInChildren(dragonBones.ArmatureDisplay);
+            for (var i = 0; i < displays.length; i++) {
+                var display = displays[i];
+                display.enabled = false;
+                this.m_Image_col.enabled = true;
+                if (display.animationName) {
+                    display.armature().animation.stop(display.animationName);
+                }
+            }
+        })
+        
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

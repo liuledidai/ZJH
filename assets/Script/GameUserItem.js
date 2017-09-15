@@ -39,6 +39,10 @@ var GameUserItem = cc.Class({
     //     //其他信息
     //     BYTE								cbCompanion;						//用户关系
     //     DWORD								dwPropResidualTime[15];	//道具时间
+
+    // BYTE                                cbUserType;                     //用户类型
+    // TCHAR								szWeChatImgURL[256];			// 微信头相
+    // TCHAR								szWeChatNickName[NAME_LEN];		// 微信昵称
     // };
         //用户属性
     wFaceID:undefined,                            //头像索引
@@ -102,6 +106,9 @@ var GameUserItem = cc.Class({
             this.lDrawCount = userInfoHead.UserScoreInfo.lDrawCount;
             this.lFleeCount = userInfoHead.UserScoreInfo.lFleeCount;
             this.lExperience = userInfoHead.UserScoreInfo.lExperience;
+            this.cbUserType = userInfoHead.cbUserType;
+            this.szWeChatImgURL = userInfoHead.szWeChatImgURL;
+            this.szWeChatNickName = userInfoHead.szWeChatNickName;
         }
         pData.blockEnd();
         while(true){

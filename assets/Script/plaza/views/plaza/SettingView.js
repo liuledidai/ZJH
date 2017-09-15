@@ -1,4 +1,5 @@
 var GlobalUserData = require("GlobalUserData");
+var GlobalDef = require("GlobalDef");
 var GlobalFun = require("GlobalFun");
 cc.Class({
     extends: cc.Component,
@@ -35,12 +36,26 @@ cc.Class({
 
     // use this for initialization
     onLoad: function () {
-        this.m_Label_account.string = GlobalUserData.szAccounts;
-        var faceID = this._faceID || GlobalUserData.wFaceID;
-        if (faceID <=0 || faceID > 8) {
-            faceID = 1;
+        if (GlobalUserData.cbUserType == GlobalDef.USER_TYPE_WEIXIN) {
+            this.m_Label_account.string = GlobalUserData.szWeChatNickName;
+            cc.loader.load({url:GlobalUserData.szWeChatImgURL,type:"png"},(err,tex)=>{
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0,0,tex.width,tex.height));
+                this.m_Image_userFace.spriteFrame = spriteFrame;
+            })
         }
-        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
+        else {
+            this.m_Label_account.string = GlobalUserData.szNickName || GlobalUserData.szAccounts;
+            var faceID = this._faceID || GlobalUserData.wFaceID;
+            if (faceID <= 0 || faceID > 8) {
+                faceID = 1;
+            }
+            this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+        }
+        
         this.onRefreshEffect();
         this.onRefreshMusic();
     },

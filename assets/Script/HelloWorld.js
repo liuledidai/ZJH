@@ -12,7 +12,32 @@ cc.Class({
             type: cc.Label
         },
         // defaults, set visually when attaching this script to the Canvas
-        text: 'Hello, World!'
+        text: 'Hello, World!',
+        videoPlayer: {
+            default: null,
+            type: cc.VideoPlayer
+        }
+    },
+    play: function name(params) {
+        this.videoPlayer.play();
+    },
+    pause: function (params) {
+        this.videoPlayer.pause();  
+    },
+    stop: function (params) {
+        this.videoPlayer.stop();  
+    },
+    onVideoPlayerEvent: function(sender, event) {
+        this.label.string = event;
+        if (event === cc.VideoPlayer.EventType.META_LOADED) {
+            // this.totalTime.string = this.videoPlayer.getDuration().toFixed(2);
+        } else if (event === cc.VideoPlayer.EventType.CLICKED) {
+            if(this.videoPlayer.isPlaying()) {
+                this.videoPlayer.pause();
+            } else {
+                this.videoPlayer.play();
+            }
+        }
     },
     // name: "helloFrame",
     // use this for initialization
@@ -53,30 +78,30 @@ cc.Class({
     update: function (dt) {
 
     },
-    play: function (params) {
-        console.log("play");
-        // var node = new cc.Node();
-        // this.node.addChild(node,9999);
-        let bDate = Date.now();
-        GlobalFun.playEffects(this.node, {
-            fileName: "yx_wlg3",
-            anim: "yx_gzyz",
-            loop: false,
-            // x: 200,
-            // y: 200,
-            callback: ()=> {
-                let eDate = Date.now();
-                console.log("time = ",eDate-bDate);
-            }
-        });
-        // node.runAction(cc.sequence(
-        //     cc.delayTime(2),
-        //     cc.callFunc(function (node) {
-        //         node.destroy();
-        //     })
-        // )
-        // )
-    },
+    // play: function (params) {
+    //     console.log("play");
+    //     // var node = new cc.Node();
+    //     // this.node.addChild(node,9999);
+    //     let bDate = Date.now();
+    //     GlobalFun.playEffects(this.node, {
+    //         fileName: "yx_wlg3",
+    //         anim: "yx_gzyz",
+    //         loop: false,
+    //         // x: 200,
+    //         // y: 200,
+    //         callback: ()=> {
+    //             let eDate = Date.now();
+    //             console.log("time = ",eDate-bDate);
+    //         }
+    //     });
+    //     // node.runAction(cc.sequence(
+    //     //     cc.delayTime(2),
+    //     //     cc.callFunc(function (node) {
+    //     //         node.destroy();
+    //     //     })
+    //     // )
+    //     // )
+    // },
     // onSocketCallBack: function(pData) {
     //     if(pData === undefined)
     //     {

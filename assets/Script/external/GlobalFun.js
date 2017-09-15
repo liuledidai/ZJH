@@ -180,6 +180,117 @@ GlobalFun.showBankView = function showBankView(context) {
     });
 };
 
+GlobalFun.showLotteryView = function showLotteryView(params,context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        console.log("[GlobalFun][showLotteryView] context is invalid");
+        return;
+    }
+    cc.loader.loadRes("prefab/LotteryView", function (err, prefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(prefab);
+            context.addChild(newNode);
+            newNode.getComponent("LotteryView").init(params);
+            GlobalFun.ActionShowTanChuang(newNode);
+        }
+    });
+};
+
+GlobalFun.showAwardView = function showAwardView(params,context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        console.log("[GlobalFun][showAwardView] context is invalid");
+        return;
+    }
+    cc.loader.loadRes("prefab/AwardView", function (err, prefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(prefab);
+            context.addChild(newNode);
+            newNode.getComponent("AwardView").init(params);
+            GlobalFun.ActionShowTanChuang(newNode);
+        }
+    });
+};
+
+GlobalFun.showRanklistView = function showRanklistView(params,context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        console.log("[GlobalFun][showRanklistView] context is invalid");
+        return;
+    }
+    cc.loader.loadRes("prefab/RanklistView", function (err, prefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(prefab);
+            context.addChild(newNode);
+            // newNode.getComponent("RanklistView").init(params);
+            GlobalFun.ActionShowTanChuang(newNode);
+        }
+    });
+};
+/**
+ * params = {
+ * url: url地址，
+ * paramString : url 参数
+ * callback: 正常回调函数
+ * timeoutCallback: 超时回调
+ * timeout: 超时时间 单位秒
+ * }
+ * 
+ */
+GlobalFun.sendRequest = function sendRequest(params) {
+    var url = params.url;
+    var paramString = params.paramString;
+    var callback = params.callback;
+    var timeoutCallback = params.timeoutCallback;
+    var timeout = params.timeout || 8; //单位秒
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
+            var response = xhr.responseText;
+            console.log(response);
+            try {
+                var value = JSON.parse(response);
+                if (callback !== null && typeof (callback) == "function") {
+                    callback(value);
+                }
+            } catch (error) {
+                console.log("err:" + error);
+            }
+            cc.director.emit("sendRequestCompleted");
+        }
+    };
+    GlobalFun.showPopWaiting(cc.director.getScene(), {
+        closeEvent: "sendRequestCompleted",
+        callBackFunc: function () {
+            console.log("[GlobalFun][sendRequest] callbackfunc");
+        },
+        waitingTime: (timeout),
+    });
+    xhr.open("POST", url, true);
+    xhr.timeout = (timeout * 1000);//单位毫秒
+    xhr.ontimeout = function (e) {
+        console.log("[GlobalFun][sendRequest] timeout ",url);
+        if (timeoutCallback !== null && typeof (timeoutCallback) == "function") {
+            timeoutCallback();
+        }
+        cc.director.emit("sendRequestCompleted");
+        xhr.abort();
+    }
+    xhr.send(paramString);
+};
+
 GlobalFun.getsign = function getsign(params) {
     params = params + "key=fgr7hk5ds35h30hnj7hwas4gfy6sj78x";//加入key
     return cc.md5Encode(params).toLowerCase();
@@ -292,7 +403,7 @@ GlobalFun.playEffects = function playEffects(parent, args) {
     display.removeEventListener(dragonBones.EventObject.FADE_OUT_COMPLETE, display.eventHandler, display)
     display.removeEventListener(dragonBones.EventObject.FRAME_EVENT, display.eventHandler, display)
     display.eventHandler = function (event) {
-        console.log("[playEffects]", fileName, event.type);
+        // console.log("[playEffects]", fileName, event.type);
         if (event.type === dragonBones.EventObject.COMPLETE) {
             if (typeof (args.callback) === "function") {
                 args.callback(node);

@@ -134,7 +134,6 @@ cc.Class({
         cc.sys.garbageCollect();
     },
     refreshTimeAndNetworkInfo: function () {
-        var date = new Date(Date.now());
         var timeStr = date.toTimeString().slice(0, 8);
         var batteryLevel = MultiPlatform.getBatteryLevel();
         var netWorkType = MultiPlatform.getNetconnType();
@@ -150,17 +149,33 @@ cc.Class({
         }
         if(!cc.isValid(this)) {
             console.log("[PlazaView is invalid]");
+            return;
         }
         this.m_Label_userGold.string = GlobalUserData.llGameScore;
         this.m_Label_userCharm.string = GlobalUserData.dwLoveLiness;
-        this.m_Label_name.string = GlobalUserData.szNickName;
+        
         this.m_Label_ID.string = "ID" + GlobalUserData.dwUserID;
-        var faceID = GlobalUserData.wFaceID;
-        if (faceID <= 0 || faceID > 8) {
-            faceID = 1;
+        if (GlobalUserData.cbUserType == GlobalDef.USER_TYPE_WEIXIN) {
+            this.m_Label_name.string = GlobalUserData.szWeChatNickName;
+            cc.loader.load({url:GlobalUserData.szWeChatImgURL,type:"png"},(err,tex)=>{
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0,0,tex.width,tex.height));
+                this.m_Image_userFace.spriteFrame = spriteFrame;
+            })
         }
-        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+        else {
+            this.m_Label_name.string = GlobalUserData.szNickName;
+            var faceID = GlobalUserData.wFaceID;
+            if (faceID <= 0 || faceID > 8) {
+                faceID = 1;
+            }
+            this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
 
+        }
+        
         // this.refreshRoomList();
     },
     refreshRoomList: function () {
@@ -253,6 +268,7 @@ cc.Class({
         cc.director.on('onBankSuccess', this.onBankSuccess, this);
         cc.director.on('onGuestBindSuccess', this.onGuestBindSuccess, this);
         cc.director.on('onLogonRoom', this.onLogonRoom, this);
+        cc.director.on("onUserChanged", this.onUserChanged,this);
         console.log("[PlazaView][onEnable]");
 
     },
@@ -262,6 +278,7 @@ cc.Class({
         cc.director.off('onBankSuccess', this.onBankSuccess, this);
         cc.director.off('onGuestBindSuccess', this.onGuestBindSuccess, this);
         cc.director.off('onLogonRoom', this.onLogonRoom, this);
+        cc.director.off("onUserChanged", this.onUserChanged,this);
         console.log("[PlazaView][onDisable]");
     },
     onLogonRoom: function (params) {
@@ -289,6 +306,9 @@ cc.Class({
         //     faceID = 1;
         // }
         // this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
+        this.refreshData();
+    },
+    onUserChanged: function () {
         this.refreshData();
     },
     onChangeNameSuccess: function (params) {
@@ -339,7 +359,8 @@ cc.Class({
     },
     onClickRankList: function name(params) {
         console.log("[PlazaView][onClickRankList]");
-        GlobalFun.showAlert({ message: "暂未开放,敬请期待!" });
+        // GlobalFun.showAlert({ message: "暂未开放,敬请期待!" });
+        GlobalFun.showRanklistView();
     },
     onClickRule: function (params) {
         console.log("[PlazaView][onClickRule]");

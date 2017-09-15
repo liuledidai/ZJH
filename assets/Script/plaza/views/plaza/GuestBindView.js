@@ -3,6 +3,7 @@ var GlobalDef = require("GlobalDef");
 var GlobalFun = require("GlobalFun");
 var GlobalUserData = require("GlobalUserData");
 var zjh_cmd = require("CMD_ZaJinHua");
+var MultiPlatform = require("MultiPlatform");
 cc.Class({
     extends: cc.Component,
 
@@ -78,10 +79,11 @@ cc.Class({
         var url = GlobalUserData.getUserServer(GlobalDef.USERCENTER);//GlobalDef.httpUserCenter;
         // url += "/Guest/GuestBindMobile.ashx";
         url += "/HZMobile/GuestBindMobile.ashx";
+        var szMachineID = MultiPlatform.getMachineID() || "2d4d7c95e5df0179af2466f635ca7123";
 
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;
-        params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
+        params["useridentity"] = szMachineID;
         params["channelid"] = GlobalDef.CHANNELID_center;
         params["mobile"] = szTel;
         params["pwd"] = cc.md5Encode(szPwd);

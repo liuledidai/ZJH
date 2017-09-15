@@ -1,48 +1,70 @@
 {
-  "shop": {
-    "base": [
-      {
-        "id": "com.jjhgame.zhajinhua.tier1",
-        "name": "一小袋金币(40000)",
-        "gold": "40000",
-        "iosprice": "6",
-        "price": "3"
-      },
-      {
-         "id": "com.jjhgame.zhajinhua.tier2",
-         "name": "一中袋金币(150000)",
-         "gold": "150000",
-         "iosprice": "12",
-         "price": "10"
-      },
-      {
-         "id": "com.jjhgame.zhajinhua.tier4",
-         "name": "一大袋金币(450000)",
-         "gold": "450000",
-         "iosprice": "25",
-         "price": "30"
-      },
-      {
-         "id": "com.jjhgame.zhajinhua.tier6",
-         "name": "一小箱金币(750000)",
-         "gold": "750000",
-         "iosprice": "40",
-         "price": "50"
-      },
-      {
-         "id": "com.jjhgame.zhajinhua.tier10",
-         "name": "一中箱金币(1600000)",
-         "gold": "1600000",
-         "iosprice": "68",
-         "price": "100"
-      },
-      {
-         "id": "com.jjhgame.zhajinhua.tier13",
-         "name": "一大箱金币(3400000)",
-         "gold": "3400000",
-         "iosprice": "88",
-         "price": "200"
-     }
-    ]
-  }
+    "shop": {
+        "base": [
+            {
+                "id": "com.jjhgame.zhajinhua.tier1",
+                "icon": "shop_icon_0.png",
+                "name": "6万金币",
+                "give": "2.5万",
+                "gold": "60000",
+                "price": "6"
+            },
+            {
+                "id": "com.jjhgame.zhajinhua.tier2",
+                "icon": "shop_icon_0.png",
+                "name": "12万金币",
+                "give": "6万",
+                "gold": "120000",
+                "price": "12"
+            },
+            {
+                "id": "com.jjhgame.zhajinhua.tier4",
+                "icon": "shop_icon_1.png",
+                "name": "25万金币",
+                "give": "12.5万",
+                "gold": "250000",
+                "price": "25"
+            },
+            {
+                "id": "com.jjhgame.zhajinhua.tier6",
+                "icon": "shop_icon_2.png",
+                "name": "40万金币",
+                "give": "20万",
+                "gold": "400000",
+                "price": "40"
+            },
+            {
+                "id": "com.jjhgame.zhajinhua.tier9",
+                "icon": "shop_icon_3.png",
+                "name": "60万金币",
+                "give": "31万",
+                "gold": "600000",
+                "price": "60"
+            },
+            {
+                "id": "com.jjhgame.zhajinhua.tier10",
+                "icon": "shop_icon_3.png",
+                "name": "68万金币",
+                "give": "36万",
+                "gold": "680000",
+                "price": "68"
+            },
+            {
+                "id": "com.jjhgame.zhajinhua.tier12",
+                "icon": "shop_icon_4.png",
+                "name": "78万金币",
+                "give": "44万",
+                "gold": "780000",
+                "price": "78"
+            },
+            {
+                "id": "com.jjhgame.zhajinhua.tier13",
+                "icon": "shop_icon_5.png",
+                "name": "88万金币",
+                "give": "50万",
+                "gold": "880000",
+                "price": "88"
+            }
+        ]
+    }
 }

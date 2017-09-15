@@ -4242,6 +4242,9 @@
     "m_Button_binding": {
       "__id__": 31
     },
+    "m_Button_changeface": {
+      "__id__": 21
+    },
     "m_Label_userName": {
       "__id__": 59
     },

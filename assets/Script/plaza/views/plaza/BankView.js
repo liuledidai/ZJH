@@ -53,18 +53,18 @@ cc.Class({
         this.radioButtonClicked(this.radioButton[this._selectIndex]);
     },
     refreshUI: function () {
-        // if (GlobalUserData.isGuest) {
-        //     this.m_Label_bankPwd.node.active = true;
-        //     //游客隐藏银行密码和魅力抽奖页签
-        //     this.radioButton[2].node.active = false;
-        //     this.radioButton[3].node.active = false;
-        // }
-        // else {
-        //     this.m_Label_bankPwd.node.active = false;
-        //     //游客隐藏银行密码和魅力抽奖页签
-        //     this.radioButton[2].node.active = true;
-        //     this.radioButton[3].node.active = true;
-        // }
+        if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST) {
+            this.m_Label_bankPwd.node.active = true;
+            //游客隐藏银行密码和魅力抽奖页签
+            this.radioButton[2].node.active = false;
+            this.radioButton[3].node.active = false;
+        }
+        else {
+            this.m_Label_bankPwd.node.active = false;
+            //游客隐藏银行密码和魅力抽奖页签
+            this.radioButton[2].node.active = true;
+            this.radioButton[3].node.active = true;
+        }
         var szGoldCount = GlobalUserData.llGameScore;
         var szCharmCount = GlobalUserData.dwLoveLiness;
         var szInsureCount = GlobalUserData.llInsureScore;
@@ -259,13 +259,15 @@ cc.Class({
         console.log("[BankView][onClickConfirm] " + paramString);
     },
     onClickReward: function () {
+        // GlobalFun.showLotteryView({num:10000});
+        // return;
         var szcharmCount = this.m_Editbox_charm_num.string;
         var szPassWord = this.m_Editbox_charm_pwd.string;
         
-        // if (isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 || Number(szcharmCount) > (100)) {
-        //     GlobalFun.showToast("您输入的魅力值不符合规定!");
-        //     return;
-        // }
+        if (isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 || Number(szcharmCount) > (100)) {
+            GlobalFun.showToast("您输入的魅力值不符合规定!");
+            return;
+        }
         if (szPassWord.length <= 0) {
             GlobalFun.showToast("密码不能为空!");
             return;
@@ -285,7 +287,7 @@ cc.Class({
                 {
                     name: "确定",
                     callback: () => {
-                        GlobalFun.showToast("抽奖" + szcharmCount);
+                        // GlobalFun.showToast("抽奖" + szcharmCount);
                         var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
                         url += "/hz/hzCharmExChange.ashx";
                         var params = {};
@@ -315,12 +317,17 @@ cc.Class({
                                         GlobalUserData.dwLoveLiness = Number(value.loveline);
                                     }
                                     if (value.exchange !== undefined) {
-                                        // GlobalUserData.llInsureScore = value.exchange;
+                                        GlobalFun.showLotteryView({
+                                            num:Number(value.exchange),
+                                        })
                                     }
                                     cc.director.emit("onBankSuccess");
                                     self.refreshUI();
                                 }
-                                GlobalFun.showToast(value.msg);
+                                else {
+                                    GlobalFun.showToast(value.msg);
+                                }
+                                
                             }
                         };
                         xhr.open("POST", url, true);

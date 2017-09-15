@@ -14,6 +14,7 @@ cc.Class({
         // },
         // ...
         m_arrow: cc.Node,
+        m_arrow_back: cc.Node,
         arrow_times: 6,
         arrow_rounds: 10,
     },
@@ -35,10 +36,42 @@ cc.Class({
         this.node.removeFromParent();
         this.node.destroy();
     },
+    init: function (params) {
+        this.szNum = params.num;
+        this.scheduleOnce(()=>{
+            this.onClickStart();
+        },0.4);
+    },
     onClickStart: function () {
-        var ang = GlobalFun.getRandomInt(0,360);
-        var rotate = cc.rotateBy(this.arrow_times,ang + 360 * this.arrow_rounds);
-        this.m_arrow.runAction(rotate.easing(cc.easeCubicActionOut(this.arrow_times)));
+        //在俩个金币奖项离随机一个
+        var rand = GlobalFun.getRandomInt(0,1);
+        var randArray = [1,5];
+        var idx = randArray[rand];//GlobalFun.getRandomInt(0,7);
+
+        var orgAng = 90;
+        var distAng = idx * 45 -orgAng;
+        this.m_arrow.rotation %= 360;
+        this.arrow_rounds = GlobalFun.getRandomInt(6,9);
+        var ang = (360 - this.m_arrow.rotation) + this.arrow_rounds * 360 + distAng;
+        var rotate = cc.rotateBy(this.arrow_times,ang);
+        this.node.stopAllActions();
+        this.m_arrow.runAction(cc.sequence(
+            rotate.easing(cc.easeCubicActionOut(this.arrow_times)),
+            cc.callFunc(() => {
+                this.m_arrow_back.runAction(cc.sequence(
+                    cc.fadeOut(0.2),
+                    cc.callFunc(() => {
+                        GlobalFun.showAwardView({
+                            num: this.szNum,
+                            callback: () => {
+                                this.close();
+                            }
+                        })
+                    })
+                ))
+
+            }),
+        ));
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

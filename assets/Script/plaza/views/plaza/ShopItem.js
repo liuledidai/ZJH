@@ -24,6 +24,7 @@ cc.Class({
         },
         m_Label_des: cc.Label,
         m_Label_price: cc.Label,
+        m_Label_givegold: cc.Label,
         _shopID: 0,
         _goodsID: 0,
     },
@@ -33,26 +34,16 @@ cc.Class({
 
     },
     init: function (params) {
-        var shopID = params.shopID;
-        this._shopID = shopID;
-        this._goodsID = shopID % 6;
-        var shopDataArray = GlobalUserData.shopData.shop.base;
-        if (this._goodsID < 0 || this._goodsID >= shopDataArray.length) {
-            console.log("[ShopItem][init] shopDataArray length = " + shopDataArray.length);
-            return;
-        }
-        var itemVal = shopDataArray[this._goodsID];
+        
+        var itemVal = params.val;
         var des = itemVal.name || "";
-        var price = 0;
-        if (GlobalUserData.isOpenIAP) {
-            price = itemVal.iosprice;
-        }
-        else {
-            price = itemVal.price;
-        }
+        var price = itemVal.price;
+        var icon = itemVal.icon;
         this.m_Label_des.string = des;
         this.m_Label_price.string = price;
-        this.m_Image_shopItem.spriteFrame = this.shopItemAtals.getSpriteFrame("shop_icon_" + (shopID));
+        this.m_Label_givegold.string = itemVal.give;
+
+        this.m_Image_shopItem.spriteFrame = this.shopItemAtals.getSpriteFrame(icon.split('.')[0]);
     },
     onClick: function (params) {
         // console.log("[ShopItem][onClick] shopID = " + this._shopID);

@@ -1,4 +1,5 @@
 var GlobalUserData = require("GlobalUserData");
+var GlobalDef = require("GlobalDef");
 cc.Class({
     extends: cc.Component,
 
@@ -39,12 +40,6 @@ cc.Class({
         var szCharm = userItem.lLoveliness;
         var dwUserID = userItem.dwUserID;
         var cbGender = userItem.cbGender;
-
-        this.m_Label_name.string = szNickName;
-        this.m_Label_gold.string = szGold;
-        this.m_Label_charm.string = szCharm;
-        this.m_Label_ID.string = dwUserID;
-
         var faceID = userItem.wFaceID;
         if (faceID <= 0 || faceID > 8) {
             faceID = 1;
@@ -57,7 +52,26 @@ cc.Class({
             szGenderImgName = "gameuser_woman";
         }
         this.m_Image_gender.spriteFrame = this.gameUserAtlas.getSpriteFrame(szGenderImgName);
-        this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
+
+        if (userItem.cbUserType === GlobalDef.USER_TYPE_WEIXIN) {
+            szNickName = userItem.szWeChatNickName;
+            cc.loader.load({url:userItem.szWeChatImgURL,type:"png"},(err,tex)=>{
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0,0,tex.width,tex.height));
+                this.m_Image_userface.spriteFrame = spriteFrame;
+            })
+        } 
+        else {
+            this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+        }
+
+        this.m_Label_name.string = szNickName;
+        this.m_Label_gold.string = szGold;
+        this.m_Label_charm.string = szCharm;
+        this.m_Label_ID.string = dwUserID;
     },
     close: function () {
         this.node.removeFromParent();

@@ -53,15 +53,18 @@ cc.Class({
             }
         }
     },
-    onFocusChange:function(evName,itemNode){
-        console.log("onFocusChange",evName);
-        for(var i = 0;i < itemNode.childrenCount;i++){
-            var node = itemNode.children[i];
-            if(node.name == "dragon"){
-                if(evName == "loseFocus"){node.script.stop();}
-                else if(evName == "focused"){node.script.play();}
-            }
+    onFocusChange: function (evName, itemNode) {
+        console.log("onFocusChange", evName,itemNode.getComponent("PlazaRoomItem")._index);
+        // for(var i = 0;i < itemNode.childrenCount;i++){
+        // var node = itemNode.children[i];
+        // if(node.name == "dragon"){
+        if (evName == "loseFocus") {
+            itemNode.getComponent("PlazaRoomItem").stopAnim();
         }
+        else if (evName == "focused") {
+            itemNode.getComponent("PlazaRoomItem").playAnim();
+        }
+        // }
     },
     /*
     roominfo://游戏房间列表结构
