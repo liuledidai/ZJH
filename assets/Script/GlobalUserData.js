@@ -56,6 +56,8 @@ var GlobalUserData = {
             GlobalUserData.loadServerData(content);
             // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.serverData, null, ' '));
         });
+        GlobalUserData.activityData = {};
+        
         this.roomList = [];
         var music_setting =  JSON.parse(cc.sys.localStorage.getItem('music_setting') || "{}");
         var effect_setting =  JSON.parse(cc.sys.localStorage.getItem('effect_setting') || "{}");

@@ -239,6 +239,26 @@ GlobalFun.showRanklistView = function showRanklistView(params,context) {
         }
     });
 };
+
+GlobalFun.showActivityView = function showActivityView(params,context) {
+    context = context || cc.Canvas.instance.node;
+    if (cc.isValid(context) === false) {
+        console.log("[GlobalFun][showActivityView] context is invalid");
+        return;
+    }
+    cc.loader.loadRes("prefab/ActivityView", function (err, prefab) {
+        if (err) {
+            console.log(err.message || err);
+            return;
+        }
+        if (cc.isValid(context)) {
+            var newNode = cc.instantiate(prefab);
+            context.addChild(newNode);
+            // newNode.getComponent("RanklistView").init(params);
+            GlobalFun.ActionShowTanChuang(newNode);
+        }
+    });
+};
 /**
  * params = {
  * url: url地址，
@@ -409,7 +429,10 @@ GlobalFun.playEffects = function playEffects(parent, args) {
                 args.callback(node);
             }
             if (args.remove) {
+                console.log("[playEffects] remove 1")
+                node.removeFromParent();
                 node.destroy();
+                console.log("[playEffects] remove 2")
             }
         }
     }

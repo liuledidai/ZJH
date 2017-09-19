@@ -202,6 +202,11 @@ var GlobalDef = {
 
     SUB_GF_PRESENT_RESULT: 519,								//送人气值结果
 
+    SUB_GF_TABLETALK_UP: 703,								//语音聊天上行
+    SUB_GF_TABLETALK_DOWN: 704,							//语音聊天下行
+    SUB_GF_QUICKPHRASE_UP: 705,							//发送快捷短语上行
+    SUB_GF_QUICKPHRASE_DOWN: 706,								//发送快捷短语下行
+
     //消息类型
     SMT_INFO: 0x0001,                          //信息消息
     SMT_EJECT: 0x0002,                          //弹出消息

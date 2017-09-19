@@ -253,6 +253,14 @@ cc.Class({
                     if(value.counteLoveliness !== undefined) {
                         GlobalUserData.wExchangenum = Number(value.counteLoveliness);
                     }
+                    //活动数据
+                    if (value.activity !== undefined) {
+                        GlobalUserData.activityData = value.activity;
+                        console.log("activityData = ",JSON.stringify(value.activity, null, " "));
+                    }
+                    if (value.difference !== undefined) {
+                        GlobalUserData._gameServerDifftime = Number(value.difference);
+                    }
                 }
                 self.refreshUI();
             }
@@ -355,7 +363,8 @@ cc.Class({
     },
     onClickActivity: function (params) {
         console.log("[PlazaView][conClickActivity]");
-        GlobalFun.showAlert({ message: "暂未开放,敬请期待!" });
+        // GlobalFun.showAlert({ message: "暂未开放,敬请期待!" });
+        GlobalFun.showActivityView();
     },
     onClickRankList: function name(params) {
         console.log("[PlazaView][onClickRankList]");

@@ -46,10 +46,12 @@ cc.Class({
     },
     onEnable: function (params) {
         cc.director.on("sendGift",this.onSendGift,this);
+        cc.director.on("sendChatMsg",this.onSendChatMsg,this);
         this._super();
     },
     onDisable: function (params) {
         cc.director.off("sendGift",this.onSendGift,this);
+        cc.director.off("sendChatMsg",this.onSendChatMsg,this);
         this._super();
         // this.onExitRoom();
     },
@@ -65,6 +67,14 @@ cc.Class({
         else {
             GlobalFun.showToast("玩家已离开当前桌位，无法发送礼物！");
         }
+    },
+    onSendChatMsg: function (params) {
+        params = params.detail || params;
+        var wTableID = this.getMeTableID();
+        var wChairID = this.getMeChairID();
+        var chatType = params.chatType;
+        var msg = params.msg;
+        this.sendChatMsg(chatType, wTableID, wChairID, msg);
     },
     onExitRoom: function () {
         this._super();
@@ -122,18 +132,27 @@ cc.Class({
         if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
             //时间进度条
             // this.onEventGameClockInfo(viewID, id);
-            var progressTime = time;
-            var self = this;
-            var progressBar = this._gameView.m_timeProgress[viewID];
-            progressBar.node.runAction(cc.repeatForever(cc.sequence(
-                cc.delayTime(0.05),
-                cc.callFunc(function () {
-                    progressTime -= 0.05;
-                    var progress = 1.0 * progressTime / zjh_cmd.TIME_START_GAME;
-                    // console.log("[setGameClock][scheduleUpdate] ->" + [progressTime]);
-                    progressBar.progress = progress;
-                })
-            )))
+            this.m_curProgressBar = this._gameView.m_timeProgress[viewID];
+            this.m_curProgressTime = time;
+            // var progressTime = time;
+            // var self = this;
+            // var progressBar = this._gameView.m_timeProgress[viewID];
+            // var callFunc = cc.callFunc(function () {
+            //     progressTime -= 0.05;
+            //     var progress = 1.0 * progressTime / zjh_cmd.TIME_START_GAME;
+            //     // console.log("[setGameClock][scheduleUpdate] ->" + [progressTime]);
+            //     progressBar.progress = progress;
+            // });
+            // // progressBar.node.updateShap = function () {
+            // //     progressTime -= 0.05;
+            // //     var progress = 1.0 * progressTime / zjh_cmd.TIME_START_GAME;
+            // //     // console.log("[setGameClock][scheduleUpdate] ->" + [progressTime]);
+            // //     progressBar.progress = progress;
+            // // }
+            // progressBar.node.runAction(cc.repeatForever(cc.sequence(
+            //     cc.delayTime(0.05),
+            //     callFunc,
+            // )))
         }
     },
     //关闭计时器
@@ -142,6 +161,7 @@ cc.Class({
         if (viewID !== undefined && viewID !== GlobalDef.INVALID_CHAIR) {
             if (this._gameView.m_timeProgress[viewID]) {
                 this._gameView.m_timeProgress[viewID].progress = 0;
+                this.m_curProgressTime = 0;
                 this._gameView.m_timeProgress[viewID].node.stopAllActions();
             }
 
@@ -956,7 +976,7 @@ cc.Class({
                         })
                     })
                 ))
-                delayTime += 1.5;
+                delayTime += 4.2;
             }
         }
         //找到被淘汰的玩家
@@ -1045,7 +1065,10 @@ cc.Class({
         }
         else {
             //跟注
-            this.addScore(0);
+            this.scheduleOnce(()=> {
+                this.addScore(0);
+            },1.0);
+            // this.addScore(0);
             return true;
         }
     },
@@ -1359,7 +1382,11 @@ cc.Class({
         AudioMng.playSFX(szKey);
     },
     // called every frame, uncomment this function to activate update callback
-    // update: function (dt) {
-
-    // },
+    update: function (dt) {
+        if (this.m_curProgressTime > 0) {
+            this.m_curProgressTime -= dt;
+            var progress = 1.0 * this.m_curProgressTime / zjh_cmd.TIME_START_GAME;
+            this.m_curProgressBar.progress = progress;
+        }
+    },
 });

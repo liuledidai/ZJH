@@ -22,7 +22,7 @@
         <key>dataFormat</key>
         <string>cocos2d</string>
         <key>textureFileName</key>
-        <filename>../assets/Texture/TheNewTexture/gameUserInfo.png</filename>
+        <filename>../assets/resources/res/gameUserInfo.png</filename>
         <key>flipPVR</key>
         <false/>
         <key>ditherType</key>
@@ -111,7 +111,7 @@
             <enum type="AndEngine::MagFilter">MagLinear</enum>
         </struct>
         <key>dataFileName</key>
-        <filename>../assets/Texture/TheNewTexture/gameUserInfo.plist</filename>
+        <filename>../assets/resources/res/gameUserInfo.plist</filename>
         <key>multiPack</key>
         <false/>
         <key>mainExtension</key>

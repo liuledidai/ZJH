@@ -147,6 +147,19 @@ cc.Class({
             cardType.active = false;
         }
 
+        this.m_userChatNode = [];
+        //用户聊天
+        for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
+            this.m_userChatNode[index] = {};
+            //根节点
+            this.m_userChatNode[index].area = cc.find("Canvas/chatView/userChatNode_" + index);
+            //气泡节点
+            this.m_userChatNode[index].view = cc.find("game_chat_bg",this.m_userChatNode[index].area);
+            this.m_userChatNode[index].view.active = false;
+            //表情节点
+            this.m_userChatNode[index].emotion = cc.find("game_chat_emotion",this.m_userChatNode[index].area);
+            this.m_userChatNode[index].emotion.active = false;
+        }
         //底部按钮
         this.m_nodeBottom.active = false;
         this.nodeChipPool = this.node.getChildByName("nodeChipPool");
@@ -267,6 +280,7 @@ cc.Class({
         // compareView.runAction(cc.sequence(cc.delayTime(3.0), cc.callFunc(function () {
         //     callback();
         // })));
+        var timeBegin = Date.now();
         var firstView = this._scene.switchViewChairID(firstuser.wChairID);
         var secondView = this._scene.switchViewChairID(seconduser.wChairID);
         var fileName = "YX_bipai";
@@ -385,6 +399,9 @@ cc.Class({
                                 this.stopCompareCard();
                                 if (typeof(callback) == "function") {
                                     callback();
+                                    // console.timeEnd("compare");
+                                    var timeEnd = Date.now();
+                                    console.log("[compare] ",timeBegin,timeEnd, timeEnd-timeBegin);
                                 }
                             })
                         ))
@@ -757,6 +774,56 @@ cc.Class({
                         pnode.destroy();
                     })
                 ))
+            });
+        }
+    },
+    showUserChat: function (viewID, message) {
+        console.log("[GameView][showUserChat]",message);
+        if (this.m_userChatNode[viewID] && cc.isValid(this.m_userChatNode[viewID].area)) {
+            this.m_userChatNode[viewID].area.stopAllActions();
+            this.m_userChatNode[viewID].view.active = false;
+            this.m_userChatNode[viewID].emotion.active = false;
+        }
+        else {
+            return;
+        }
+        if (cc.isValid(this.m_userChatNode[viewID].view)) {
+            let chatView = this.m_userChatNode[viewID].view;
+            chatView.active = true;
+            var label = chatView.getComponentInChildren(cc.Label);
+            label.string = message;
+            this.m_userChatNode[viewID].area.runAction(cc.sequence(
+                cc.delayTime(3.0),
+                cc.callFunc(()=>{
+                    chatView.active = false;
+                }),
+            ))
+        }
+    },
+    showUserEmotion: function (viewID, index) {
+        console.log("[GameView][showUserEmotion]",index);
+        if (this.m_userChatNode[viewID] && cc.isValid(this.m_userChatNode[viewID].area)) {
+            this.m_userChatNode[viewID].area.stopAllActions();
+            this.m_userChatNode[viewID].view.active = false;
+            this.m_userChatNode[viewID].emotion.active = false;
+        }
+        else {
+            return;
+        }
+        if (cc.isValid(this.m_userChatNode[viewID].emotion)) {
+            let chatEmotion = this.m_userChatNode[viewID].emotion;
+            chatEmotion.active = true;
+            var fileName = "jjh_biaoqing";
+            var animName = "cartoon_" + GlobalFun.PrefixInteger(index,2);
+            GlobalFun.playEffects(chatEmotion, {
+                fileName: fileName,
+                anim: animName,
+                loop: false,
+                remove: false,
+                callback: () => {
+                    console.log("[bug]",cc.isValid(chatEmotion));
+                    chatEmotion.active = false;
+                },
             });
         }
     },

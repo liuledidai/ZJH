@@ -1,6 +1,7 @@
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
+var ChatDef = require("ChatDef");
 
 var AudioMng = require("AudioMng");
 var GameModel = cc.Class({
@@ -46,6 +47,7 @@ var GameModel = cc.Class({
         cc.director.on("onExitRoom",this.onExitRoom,this);
         cc.director.on("onExitTable",this.onExitTable,this);
         cc.director.on("OnSubMoblieGift",this.OnSubMoblieGift,this);
+        cc.director.on("OnEventChatMsg",this.OnEventChatMsg,this);
     },
     onDisable: function (params) {
         console.log("[GameModel][onDisable]");
@@ -57,6 +59,8 @@ var GameModel = cc.Class({
         cc.director.off("onExitRoom",this.onExitRoom,this);
         cc.director.off("onExitTable",this.onExitTable,this);
         cc.director.off("OnSubMoblieGift",this.OnSubMoblieGift,this);
+        cc.director.off("OnEventChatMsg",this.OnEventChatMsg,this);
+        
     },
     //初始化游戏数据
     onInitGameEngine: function () {
@@ -297,6 +301,9 @@ var GameModel = cc.Class({
     sendTextChat: function(msg, tagetUser, color) {
         this._gameFrame.sendTextChat(msg, tagetUser, color);
     },
+    sendChatMsg: function (chatType, wTableID, wChairID, msg) {
+        this._gameFrame.sendChatMsg(chatType, wTableID, wChairID, msg);
+    },
     sendGift: function (wRecvChairID, cbGiftID, count, password) {
         this._gameFrame.sendGift(wRecvChairID, cbGiftID, count, password);
     },
@@ -319,6 +326,47 @@ var GameModel = cc.Class({
     //计时器响应
     onEventGameClockInfo: function (chair, time, clockID) {
         
+    },
+    //文字表情聊天
+    OnEventChatMsg: function (params) {
+        var tableChat = params.detail.tableChat;
+        var viewID = this.switchViewChairID(tableChat.wChairID);
+        console.log(viewID);
+        console.log(JSON.stringify(tableChat, null, " "));
+        var chatType = tableChat.cbType;
+        if (chatType == ChatDef.ChatType.Emotion) {
+            var index = parseInt(tableChat.cbBuffer);
+            console.log("[OnEventChatMsg]", chatType, index);
+            if (this._gameView && this._gameView.showUserEmotion) {
+                this._gameView.showUserEmotion(viewID, index);
+            }
+        }
+        else if (chatType == ChatDef.ChatType.QuickChat) {
+            var index = parseInt(tableChat.cbBuffer);
+            console.log("[OnEventChatMsg]", chatType, index);
+            var soundName = "sfx_chat_" + index;
+            AudioMng.playSFX(soundName);
+            var userItem = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), tableChat.wChairID);
+            if (!userItem) {
+                return;
+            }
+            if (userItem.cbGender == GlobalDef.GENDER_GIRL) {
+                index -= 9;
+            }
+            if (index >= 0 && index < 9) {
+                var msg = ChatDef.quickChatMsg[index];
+                if (this._gameView && this._gameView.showUserChat) {
+                    this._gameView.showUserChat(viewID, msg);
+                }
+            }
+        }
+        else {
+            var msg = tableChat.cbBuffer;
+            console.log("[OnEventChatMsg]", chatType, msg);
+            if (this._gameView && this._gameView.showUserChat) {
+                this._gameView.showUserChat(viewID, msg);
+            }
+        }
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

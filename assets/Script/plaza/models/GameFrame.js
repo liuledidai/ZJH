@@ -6,6 +6,7 @@ var zjh_cmd = require("CMD_ZaJinHua");
 var GlobalUserData = require("GlobalUserData");
 var GameServerItem = require("GameServerItem");
 var GlobalDef = require("GlobalDef");
+var ChatDef = require("ChatDef");
 var GlobalFun = require("GlobalFun");
 var GameUserItem = require("GameUserItem");
 cc.Class({
@@ -150,6 +151,7 @@ cc.Class({
                 [game_cmd.SUB_GR_USER_INVITE]: this.OnSocketSubUserInvite,
                 [game_cmd.SUB_GR_QUERY_GOLD]: this.OnSocketSubQueryGold,
                 [game_cmd.SUB_GR_PRESEND_QUERY]: this.OnSocketSubPresentQuery,
+                [GlobalDef.SUB_GF_QUICKPHRASE_DOWN]: this.OnSocketQuickPhraseDown,
                 [game_cmd.SUB_GR_PRESENT_ERROR]: function (sub, pData) {
                     console.log("SUB_GR_PRESENT_ERROR");
                     // this.OnSocketSubUserCome(sub,pData);
@@ -630,6 +632,32 @@ cc.Class({
     OnSocketSubPresentQuery: function (sub,pData) {
         console.log("[GameFrame][OnSocketSubPresentQuery]");
     },
+    OnSocketQuickPhraseDown: function (sub,pData) {
+        console.log("[GameFrame][OnSocketQuickPhraseDown]");
+                //         //用户文字表情聊天
+        // struct CMD_GF_TableChat
+        // {
+        //     WORD                                wTableID;						//桌子号
+        //     WORD                                wChairID;						//椅子号
+        //     WORD                                wBufferSize;                    //实际长度
+        //     BYTE                                cbType;                         //聊天类型 1表情，2固定文字，3文字
+        //     BYTE                                cbBuffer[256];                  //文字或者索引
+        // };
+        var tableChat = {};
+        tableChat.wTableID = pData.readword();
+        tableChat.wChairID = pData.readword();
+        tableChat.wBufferSize = pData.readword();
+        tableChat.cbType = pData.readbyte();
+        if (tableChat.cbType == ChatDef.ChatType.Emotion || tableChat.cbType == ChatDef.ChatType.QuickChat) {
+            tableChat.cbBuffer = pData.readword();
+        }
+        else {
+            tableChat.cbBuffer = pData.readstring(256);
+        }
+        cc.director.emit("OnEventChatMsg",{
+            tableChat:tableChat,
+        });
+    },
     OnGamePresentMessage: function (sub,pData) {
         console.log("[GameFrame][OnGamePresentMessage]");
         if(sub == GlobalDef.SUB_GF_PRESENT_RESULT) {
@@ -781,6 +809,42 @@ cc.Class({
 
 
         // this.sendSocketData(sitData);
+
+        this.sendSocketData(data);
+    },
+    //聊天（文字、表情）
+    sendChatMsg: function (chatType, wTableID, wChairID, msg) {
+        //         //用户文字表情聊天
+        // struct CMD_GF_TableChat
+        // {
+        //     WORD                                wTableID;						//桌子号
+        //     WORD                                wChairID;						//椅子号
+        //     WORD                                wBufferSize;                    //实际长度
+        //     BYTE                                cbType;                         //聊天类型 1表情，2固定文字，3文字
+        //     BYTE                                cbBuffer[256];                  //文字或者索引
+        // };
+        var wBufferSize = 256;
+        // if (typeof(msg) == "number") {
+        //     wBufferSize = 2;
+        // }
+        // else {
+        //     wBufferSize = 256;
+        // }
+        var data = CCmd_Data.create();
+        data.setcmdinfo(game_cmd.MDM_GR_USER, GlobalDef.SUB_GF_QUICKPHRASE_UP);
+        data.pushword(wTableID);
+        data.pushword(wChairID);
+        data.pushword(wBufferSize);
+        data.pushbyte(chatType);
+        if (typeof(msg) == "number") {
+            data.pushword(msg);
+        }
+        else {
+            data.pushstring(msg,256);
+        }
+        //  WORD wDataSize = wBufferSize + sizeof(WORD)*3 + sizeof(BYTE);
+        var sendSize = wBufferSize + 7;
+        data.setDataSize(sendSize);
 
         this.sendSocketData(data);
     },
