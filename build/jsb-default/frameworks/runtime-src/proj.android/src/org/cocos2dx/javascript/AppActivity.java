@@ -37,6 +37,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.app.AlertDialog;
 
+import android.util.Log;
+
 import org.cocos2dx.javascript.DeviceModule;
 
 public class AppActivity extends Cocos2dxActivity {
@@ -45,6 +47,17 @@ public class AppActivity extends Cocos2dxActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+         // Workaround in https://stackoverflow.com/questions/16283079/re-launch-of-activity-on-home-button-but-only-the-first-time/16447508
+        // if (!isTaskRoot()) {
+        //     // Android launched another instance of the root activity into an existing task
+        //     //  so just quietly finish and go away, dropping the user back into the activity
+        //     //  at the top of the stack (ie: the last state of this task)
+        //     finish();
+        //     Log.w("AppActivity", "[Workaround] Ignore the activity started from icon!");
+        //     return;
+        // }
+        
         app = this;
         SDKWrapper.getInstance().init(this);
         DeviceModule.setContext(this);
