@@ -82,7 +82,7 @@ cc.Class({
             if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
                 var response = xhr.responseText;
                 console.log(response);
-                cc.director.emit("onChangeUserFaceSuccess");
+                cc.director.emit("onUserChanged");
                 var value = JSON.parse(response);
                 if (value.msg !== undefined) {
                     GlobalFun.showToast(value.msg);

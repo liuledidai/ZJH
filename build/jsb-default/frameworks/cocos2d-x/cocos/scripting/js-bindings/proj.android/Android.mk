@@ -52,7 +52,8 @@ LOCAL_SRC_FILES := ../auto/jsb_cocos2dx_extension_auto.cpp \
                    ../manual/platform/android/CCJavascriptJavaBridge.cpp \
                    ../auto/jsb_jsbTest_auto.cpp \
                    ../auto/jsb_ClientSocket_auto.cpp \
-                   ../auto/jsb_CCmd_Data_auto.cpp
+                   ../auto/jsb_CCmd_Data_auto.cpp \
+                   ../auto/jsb_JCBridge_auto.cpp
 
 LOCAL_CFLAGS := -DCOCOS2D_JAVASCRIPT
 

@@ -67,7 +67,8 @@ cc.Class({
         userFaceAtals: {
             default: null,
             type: cc.SpriteAtlas,
-        }
+        },
+        m_Button_activity: cc.Button,
     },
 
     // use this for initialization
@@ -165,6 +166,36 @@ cc.Class({
                 var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0,0,tex.width,tex.height));
                 this.m_Image_userFace.spriteFrame = spriteFrame;
             })
+            this.m_Button_activity.node.active = true;
+            var redPoint = cc.find("redPoint",this.m_Button_activity.node);
+            var loginData = GlobalUserData.activityData.login;
+            var shareData = GlobalUserData.activityData.share;
+            if (!loginData || !shareData) {
+                redPoint.active = false;
+                return;
+            }
+            //登录
+            var loginNum = parseInt(loginData.number);
+            var current = parseInt(loginData.current);
+            var gamecount = parseInt(loginData.gamecount);
+            var loginTime = parseInt(loginData.time);
+            //分享
+            var shareNum = parseInt(shareData.number);
+
+            if (shareNum > 0) {
+                redPoint.active = true;
+            }
+            else if (loginNum > 0) {
+                if (loginTime > GlobalFun.getServerTime() || gamecount > current) {
+                    redPoint.active = false;
+                }
+                else {
+                    redPoint.active = true;
+                }
+            }
+            else {
+                redPoint.active = false;
+            }
         }
         else {
             this.m_Label_name.string = GlobalUserData.szNickName;
@@ -173,7 +204,7 @@ cc.Class({
                 faceID = 1;
             }
             this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
-
+            this.m_Button_activity.node.active = false;
         }
         
         // this.refreshRoomList();
@@ -271,22 +302,16 @@ cc.Class({
         console.log("[PlazaView][refreshData] " + paramString);
     },
     onEnable: function () {
-        cc.director.on('onChangeUserFaceSuccess', this.onChangeUserFaceSuccess, this);
-        cc.director.on('onChangeNameSuccess', this.onChangeUserFaceSuccess, this);
-        cc.director.on('onBankSuccess', this.onBankSuccess, this);
-        cc.director.on('onGuestBindSuccess', this.onGuestBindSuccess, this);
         cc.director.on('onLogonRoom', this.onLogonRoom, this);
         cc.director.on("onUserChanged", this.onUserChanged,this);
+        cc.director.on("onPlazaRefreshUI",this.refreshUI,this);
         console.log("[PlazaView][onEnable]");
 
     },
     onDisable: function () {
-        cc.director.off('onChangeUserFaceSuccess', this.onChangeUserFaceSuccess, this);
-        cc.director.off('onChangeNameSuccess', this.onChangeUserFaceSuccess, this);
-        cc.director.off('onBankSuccess', this.onBankSuccess, this);
-        cc.director.off('onGuestBindSuccess', this.onGuestBindSuccess, this);
         cc.director.off('onLogonRoom', this.onLogonRoom, this);
         cc.director.off("onUserChanged", this.onUserChanged,this);
+        cc.director.off("onPlazaRefreshUI",this.refreshUI,this);
         console.log("[PlazaView][onDisable]");
     },
     onLogonRoom: function (params) {
@@ -308,25 +333,8 @@ cc.Class({
             },
         })
     },
-    onChangeUserFaceSuccess: function () {
-        // var faceID = GlobalUserData.wFaceID;
-        // if (faceID <= 0 || faceID > 8) {
-        //     faceID = 1;
-        // }
-        // this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID-1));
-        this.refreshData();
-    },
     onUserChanged: function () {
         this.refreshData();
-    },
-    onChangeNameSuccess: function (params) {
-        this.refreshUI();
-    },
-    onBankSuccess: function (params) {
-        this.refreshUI();
-    },
-    onGuestBindSuccess: function (params) {
-        this.refreshUI();
     },
     onClickSetting: function () {
         if (cc.isValid(this._settingView) === false) {

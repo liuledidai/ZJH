@@ -11,6 +11,7 @@
 #include "jsb_jsbTest_auto.hpp"
 #include "jsb_ClientSocket_auto.hpp"
 #include "jsb_CCmd_Data_auto.hpp"
+#include "jsb_JCBridge_auto.hpp"
 #include "scripting/js-bindings/auto/jsb_cocos2dx_extension_auto.hpp"
 #include "scripting/js-bindings/manual/ui/jsb_cocos2dx_ui_manual.h"
 #include "scripting/js-bindings/manual/cocostudio/jsb_cocos2dx_studio_manual.h"
@@ -84,6 +85,7 @@ int js_module_register()
     sc->addRegisterCallback(register_all_jsbTest);
     sc->addRegisterCallback(register_all_ClientSocket);
     sc->addRegisterCallback(register_all_CCmd_Data);
+    sc->addRegisterCallback(register_all_JCBridge);
     
     // XmlHttpRequest can be commented out to reduce the package
     sc->addRegisterCallback(MinXmlHttpRequest::_js_register);

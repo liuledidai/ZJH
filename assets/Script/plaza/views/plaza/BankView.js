@@ -247,7 +247,7 @@ cc.Class({
                     if (value.insurescore !== undefined) {
                         GlobalUserData.llInsureScore = Number(value.insurescore);
                     }
-                    cc.director.emit("onBankSuccess");
+                    cc.director.emit("onPlazaRefreshUI");
                     self.refreshUI();
                 }
                 GlobalFun.showToast(value.msg);
@@ -321,7 +321,7 @@ cc.Class({
                                             num:Number(value.exchange),
                                         })
                                     }
-                                    cc.director.emit("onBankSuccess");
+                                    cc.director.emit("onPlazaRefreshUI");
                                     self.refreshUI();
                                 }
                                 else {

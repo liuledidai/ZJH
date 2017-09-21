@@ -311,6 +311,65 @@ GlobalFun.sendRequest = function sendRequest(params) {
     xhr.send(paramString);
 };
 
+GlobalFun.getNowTimeSeconds = function getNowTimeSeconds() {
+    var nowTime = Math.floor(Date.now() / 1000);
+    return nowTime;
+};
+
+GlobalFun.getTimeTable = function getTimeTable(t) {
+    var ret = {};
+    t = Number(t);
+    if (isNaN(t)) {
+        return ret;
+    }
+    var time = new Date(t);
+    ret.year = time.getFullYear();
+    ret.month = time.getMonth();
+    ret.day = time.getDay();
+    ret.date = time.getDate();
+    ret.hour = time.getHours();
+    ret.minute = time.getMinutes();
+    ret.second = time.getSeconds();
+
+    return ret;
+};
+
+GlobalFun.getNowTimeTable = function getNowTimeTable() {
+    return GlobalFun.getTimeTable(GlobalFun.getNowTimeSeconds());
+};
+
+GlobalFun.getServerTime = function getServerTime() {
+    var serverTime = GlobalFun.getNowTimeSeconds() + (GlobalUserData._gameServerDifftime || 0);
+    return serverTime;
+};
+
+GlobalFun.getTimeBeforeString = function getTimeBeforeString(iTime) {
+    iTime = GlobalFun.getServerTime() - iTime;
+    if (iTime < 0) {
+        iTime = 0;
+    }
+    return GlobalFun.getTimeStr(iTime);
+};
+
+GlobalFun.getTimeStr = function getTimeStr(iTime) {
+    if (iTime < 0) {
+        iTime = 0;
+    }
+    var timeStr = "";
+    var nHour = Math.floor(iTime / 3600);
+    iTime %= 3600;
+    timeStr = timeStr + GlobalFun.PrefixInteger(nHour,2) + ":";
+
+    var nMinute = Math.floor(iTime / 60);
+    iTime %= 60;
+    timeStr = timeStr + GlobalFun.PrefixInteger(nMinute,2) + ":";
+
+    var nSecond = Math.floor(iTime);
+    timeStr = timeStr + GlobalFun.PrefixInteger(nSecond,2);
+
+    return timeStr;
+}
+
 GlobalFun.getsign = function getsign(params) {
     params = params + "key=fgr7hk5ds35h30hnj7hwas4gfy6sj78x";//加入key
     return cc.md5Encode(params).toLowerCase();

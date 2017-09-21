@@ -147,6 +147,9 @@
 		B38AD56B1B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.h in Headers */ = {isa = PBXBuildFile; fileRef = B38AD5691B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.h */; };
 		B38AD56E1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B38AD56C1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.cpp */; };
 		B38AD56F1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = B38AD56D1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.hpp */; };
+		B60C9AE81F725D4900F552B7 /* jsb_JCBridge_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60C9AE61F725D4900F552B7 /* jsb_JCBridge_auto.cpp */; };
+		B60C9AE91F725D4900F552B7 /* jsb_JCBridge_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = B60C9AE71F725D4900F552B7 /* jsb_JCBridge_auto.hpp */; };
+		B60C9AEA1F725EB100F552B7 /* jsb_JCBridge_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B60C9AE61F725D4900F552B7 /* jsb_JCBridge_auto.cpp */; };
 		B61047E41ED4132400E646DC /* jsb_jsbTest_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61047E21ED4132400E646DC /* jsb_jsbTest_auto.cpp */; };
 		B61047E51ED4132400E646DC /* jsb_jsbTest_auto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61047E21ED4132400E646DC /* jsb_jsbTest_auto.cpp */; };
 		B61047E61ED4132400E646DC /* jsb_jsbTest_auto.hpp in Headers */ = {isa = PBXBuildFile; fileRef = B61047E31ED4132400E646DC /* jsb_jsbTest_auto.hpp */; };
@@ -281,6 +284,8 @@
 		B38AD5691B1D384A0057DD7F /* jsb_cocos2dx_experimental_video_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jsb_cocos2dx_experimental_video_manual.h; path = experimental/jsb_cocos2dx_experimental_video_manual.h; sourceTree = "<group>"; };
 		B38AD56C1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_cocos2dx_experimental_video_auto.cpp; sourceTree = "<group>"; };
 		B38AD56D1B1D38700057DD7F /* jsb_cocos2dx_experimental_video_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_cocos2dx_experimental_video_auto.hpp; sourceTree = "<group>"; };
+		B60C9AE61F725D4900F552B7 /* jsb_JCBridge_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_JCBridge_auto.cpp; sourceTree = "<group>"; };
+		B60C9AE71F725D4900F552B7 /* jsb_JCBridge_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_JCBridge_auto.hpp; sourceTree = "<group>"; };
 		B61047E21ED4132400E646DC /* jsb_jsbTest_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_jsbTest_auto.cpp; sourceTree = "<group>"; };
 		B61047E31ED4132400E646DC /* jsb_jsbTest_auto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jsb_jsbTest_auto.hpp; sourceTree = "<group>"; };
 		B61048B01ED586E400E646DC /* jsb_ClientSocket_auto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsb_ClientSocket_auto.cpp; sourceTree = "<group>"; };
@@ -378,6 +383,8 @@
 				BAFF7DE71D6196D40051B92F /* js_bindings_chipmunk_functions.h */,
 				4DFA4C0E1CBCC49000E3B736 /* jsb_creator_auto.cpp */,
 				4DFA4C0F1CBCC49000E3B736 /* jsb_creator_auto.hpp */,
+				B60C9AE61F725D4900F552B7 /* jsb_JCBridge_auto.cpp */,
+				B60C9AE71F725D4900F552B7 /* jsb_JCBridge_auto.hpp */,
 				B6F9331D1ED6A82200B3DEDB /* jsb_CCmd_Data_auto.cpp */,
 				B6F9331E1ED6A82200B3DEDB /* jsb_CCmd_Data_auto.hpp */,
 				B61047E21ED4132400E646DC /* jsb_jsbTest_auto.cpp */,
@@ -591,6 +598,7 @@
 				1A119ED118BDF19200352BAA /* js_bindings_config.h in Headers */,
 				BA127E711D791E21002C5B50 /* js_bindings_chipmunk_functions.h in Headers */,
 				1A119EF918BDF19200352BAA /* jsb_websocket.h in Headers */,
+				B60C9AE91F725D4900F552B7 /* jsb_JCBridge_auto.hpp in Headers */,
 				BAFF7DE81D6196D40051B92F /* js_bindings_chipmunk_auto_classes_registration.h in Headers */,
 				B6F933211ED6A82200B3DEDB /* jsb_CCmd_Data_auto.hpp in Headers */,
 				1A119E9118BDF19200352BAA /* jsb_cocos2dx_extension_auto.hpp in Headers */,
@@ -766,6 +774,7 @@
 				1A119EF718BDF19200352BAA /* jsb_websocket.cpp in Sources */,
 				1A119ED318BDF19200352BAA /* js_bindings_core.cpp in Sources */,
 				1A119EC118BDF19200352BAA /* js_bindings_ccbreader.cpp in Sources */,
+				B60C9AE81F725D4900F552B7 /* jsb_JCBridge_auto.cpp in Sources */,
 				1A119EFB18BDF19200352BAA /* XMLHTTPRequest.cpp in Sources */,
 				BA127E6F1D791E21002C5B50 /* js_bindings_chipmunk_functions.cpp in Sources */,
 				A60A9D4C1C2008F60070800A /* js_bindings_chipmunk_registration.cpp in Sources */,
@@ -807,6 +816,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B60C9AEA1F725EB100F552B7 /* jsb_JCBridge_auto.cpp in Sources */,
 				0541A75B19738AD200E45470 /* JavaScriptObjCBridge.mm in Sources */,
 				1A119E8A18BDF19200352BAA /* jsb_cocos2dx_builder_auto.cpp in Sources */,
 				BA4F598C1E28DE4A003F5096 /* js_network_manual.cpp in Sources */,

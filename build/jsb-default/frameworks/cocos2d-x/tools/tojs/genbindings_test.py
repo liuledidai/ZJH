@@ -155,6 +155,7 @@ def main():
                     'TCPSocket.ini': ('TCPSocket', 'jsb_TCPSocket_auto'),
                     'ClientSocket.ini': ('ClientSocket', 'jsb_ClientSocket_auto'),
                     'CCmd_Data.ini': ('CCmd_Data', 'jsb_CCmd_Data_auto'),
+                    'JCBridge.ini': ('JCBridge', 'jsb_JCBridge_auto'),
                     }
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root

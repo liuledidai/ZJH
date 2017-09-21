@@ -59,7 +59,7 @@
       </dict>
     </dict>
     <key>CFBundleIdentifier</key>
-    <string>org.jjh.zjh</string>
+    <string>com.jjhgame.zhajinhua</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
@@ -95,7 +95,7 @@
         <string>weixin</string>
         <key>CFBundleURLSchemes</key>
         <array>
-          <string>wx8831d4d3e8e7bf45</string>
+          <string>wxb0eac5c9cf4f866d</string>
         </array>
       </dict>
     </array>

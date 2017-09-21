@@ -61,7 +61,7 @@ cc.Class({
         if (sub === plaza_cmd.SUB_GP_LOGON_SUCCESS_MOBILE){
             GlobalUserData.onLoadData(pData);
             var bRememberPwd = cc.sys.localStorage.getItem("bRememberPwd");
-            if(GlobalUserData.isGuest !== true) {
+            if(GlobalUserData.cbUserType == GlobalDef.USER_TYPE_ACCOUNT) {
                 GlobalUserData.szPassWord = cc.md5Encode(this._szPassword);
                 if (bRememberPwd == 'true') {
                     cc.sys.localStorage.setItem('account', this._szAccount);
@@ -146,11 +146,11 @@ cc.Class({
         logonData.pushdword(1);
         logonData.pushstring(this._szAccount,32);
         // logonData.pushstring("25d55ad283aa400af464c76d713c07ad",33);
-        if (GlobalUserData.isGuest) {
-            logonData.pushstring(this._szPassword,33);
-        }
-        else{
+        if (GlobalUserData.cbUserType == GlobalDef.USER_TYPE_ACCOUNT) {
             logonData.pushstring(cc.md5Encode(this._szPassword),33);
+        }
+        else {
+            logonData.pushstring(this._szPassword,33);
         }
         logonData.pushstring("",33);
         logonData.pushstring("",32);

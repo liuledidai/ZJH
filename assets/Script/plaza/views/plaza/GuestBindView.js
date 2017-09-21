@@ -116,7 +116,7 @@ cc.Class({
                     GlobalUserData.szPassWord = cc.md5Encode(szPwd);
                     GlobalUserData.isGuest = false;
                     // GlobalFun.showToast("帐号绑定成功，您可以用正式帐号登录游戏了");
-                    cc.director.emit("onGuestBindSuccess");
+                    cc.director.emit("onPlazaRefreshUI");
                     self.onClose();
                     GlobalFun.showAlert({
                         message: "帐号绑定成功，您可以用正式帐号登录游戏了",

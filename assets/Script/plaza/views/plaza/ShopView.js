@@ -34,6 +34,7 @@ cc.Class({
         console.log("[ShopView][onLoad] " + JSON.stringify(GlobalUserData.shopData));
     },
     refreshUI: function (params) {
+        if (!GlobalUserData.shopData) return;
         var shopDataArray = GlobalUserData.shopData.shop.base
         this.shopItemList.content.removeAllChildren();
         for (var index = 0; index < shopDataArray.length; index++) {

@@ -57,7 +57,7 @@ var GlobalUserData = {
             // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.serverData, null, ' '));
         });
         GlobalUserData.activityData = {};
-        
+
         this.roomList = [];
         var music_setting =  JSON.parse(cc.sys.localStorage.getItem('music_setting') || "{}");
         var effect_setting =  JSON.parse(cc.sys.localStorage.getItem('effect_setting') || "{}");
@@ -87,6 +87,9 @@ var GlobalUserData = {
     },
     getUserServer: function (serverName) {
         // return GlobalUserData.serverData[GlobalDef.GUEST][serverName];
+        if (!GlobalUserData.serverData) {
+            return;
+        }
         if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST) {
             return GlobalUserData.serverData[GlobalDef.GUEST][serverName];
         }
@@ -202,5 +205,5 @@ var GlobalUserData = {
         return roomList;
     },
 };
-
+GlobalUserData.init();
 module.exports = GlobalUserData;

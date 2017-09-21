@@ -3,6 +3,7 @@ var GlobalDef = require("GlobalDef");
 var GlobalUserData = require("GlobalUserData");
 var zjh_cmd = require("CMD_ZaJinHua");
 var MultiPlatform = require("MultiPlatform");
+var MissionWeiXin = require("MissionWeiXin");
 var AudioMng = require("AudioMng");
 cc.Class({
     extends: cc.Component,
@@ -387,7 +388,46 @@ cc.Class({
 
     onShowWxLogon: function () {
         AudioMng.playButton();
-        MultiPlatform.showAlert(MultiPlatform.getAppVersion(),MultiPlatform.getIpAddress());
+        // MultiPlatform.showAlert(MultiPlatform.getAppVersion(),MultiPlatform.getIpAddress());
+        // MissionWeiXin.doWeiXinLogin()
+        GlobalUserData.cbUserType = GlobalDef.USER_TYPE_WEIXIN;
+        GlobalUserData.szAccount = cc.sys.localStorage.getItem("WXaccount") || "";
+        GlobalUserData.szPassword = cc.sys.localStorage.getItem("WXpassword") || "";
+        GlobalUserData.szRegAccount = cc.sys.localStorage.getItem("WXregAccount") || "";
+        var self = this;
+        if (GlobalUserData.szAccount != "" &&
+            GlobalUserData.szPassword != "" &&
+            GlobalUserData.szRegAccount != "") {
+            GlobalFun.showLoadingView({
+                closeEvent: "LogonFinish",
+                loadfunc: function () {
+                    cc.director.preloadScene("PlazaScene", function () {
+                        cc.log("PlazaScene scene preloaded");
+                        self._logonFrame.onLogonByAccount(GlobalUserData.szAccounts, GlobalUserData.szPassWord);
+                    });
+                },
+                closefunc: function () {
+                    cc.director.loadScene("PlazaScene");
+                },
+            })
+            return;
+        }
+        MissionWeiXin.doWeiXinLogin(() => {
+            GlobalFun.showLoadingView({
+                closeEvent: "LogonFinish",
+                loadfunc: function () {
+                    cc.director.preloadScene("PlazaScene", function () {
+                        cc.log("PlazaScene scene preloaded");
+                        self._logonFrame.onLogonByAccount(GlobalUserData.szAccounts, GlobalUserData.szPassWord);
+                    });
+                },
+                closefunc: function () {
+                    cc.director.loadScene("PlazaScene");
+                },
+            })
+        });
+        
+        console.log("[LogonScene][clickWeiXinLogin]");
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

@@ -2,6 +2,7 @@ var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
+var MissionWeiXin = require("MissionWeiXin");
 cc.Class({
     extends: cc.Component,
 
@@ -43,6 +44,14 @@ cc.Class({
             this.refreshUI();
         },0.5);
     },
+    onEnable: function name(params) {
+        cc.director.on("WXShareSuccess",this.onWxShareSuccess,this);
+        cc.director.on("WXShareFail",this.onWxShareFail,this);
+    },
+    onDisable: function name(params) {
+        cc.director.off("WXShareSuccess",this.onWxShareSuccess,this);
+        cc.director.off("WXShareFail",this.onWxShareFail,this);
+    },
     close: function () {
         this.node.removeFromParent();
         this.node.destroy();
@@ -67,15 +76,25 @@ cc.Class({
         else {
             this.m_Label_turn.string = current + "/" + gamecount;
         }
+        //时间
+        var timeStr = GlobalFun.getTimeStr(loginTime- GlobalFun.getServerTime());
+        // console.log(GlobalFun.getServerTime(),GlobalFun.getNowTimeSeconds(),timeStr);
+        if (timeStr == "00:00:00") {
+            // console.log("已完成");
+            this.m_Label_time.string = "已完成";
+        }
+        else {
+            this.m_Label_time.string = timeStr;
+        }
 
-        if (loginNum > 0 && current >= gamecount && loginTime == 0) {
+        if (loginNum > 0 && current >= gamecount && timeStr == "00:00:00") {
             this.m_Button_get.interactable = true;
         }
         else {
             this.m_Button_get.interactable = false;
         }
 
-        if (loginTime <= 0) {
+        if (loginNum <= 0) {
             this.m_Label_complete.node.active = true;
             this.m_Label_gold.string = "0";
             this.m_Label_turn.string = "今日已完成";
@@ -131,9 +150,9 @@ cc.Class({
                     if (value.gold !== undefined) {
                         GlobalFun.showAwardView({
                             num: value.gold,
-                            // callback: () => {
-                            //     this.close();
-                            // }
+                            callback: () => {
+                                cc.director.emit("onPlazaRefreshUI");
+                            }
                         })
                     }
                 }
@@ -183,7 +202,12 @@ cc.Class({
         this.requestLoginActivity();
     },
     onShareActivity: function () {
-        GlobalFun.showToast("微信分享");
+        // GlobalFun.showToast("微信分享");
+        var url = "https://www.jjhgame.com/softdown";
+        var title = "《集结号拼三张》:集结号送福利啦，还不快来下载领取！";
+        var des = "";
+        var shareType = MissionWeiXin.SHARE_MOMENTS;
+        MissionWeiXin.shareUrlWeixin(url, title, des, shareType);
     },
 
     onWxShareSuccess: function () {
@@ -192,7 +216,8 @@ cc.Class({
         },0.3);
     },
 
-    onWxShareFail: function (error) {
+    onWxShareFail: function (params) {
+        var error = params.detail || params;
         this.scheduleOnce(()=> {
             GlobalFun.showToast(error || "");
         },0.3);
