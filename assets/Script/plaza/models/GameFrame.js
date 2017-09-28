@@ -34,6 +34,7 @@ cc.Class({
         this._tableStatus = {};
         this._wTableID = GlobalDef.INVALID_TABLE;
         this._wChairID = GlobalDef.INVALID_CHAIR;
+        this._reConnectCount = 0;
     },
     onLogonRoom: function (roomInfo) {
         this._roomInfo = roomInfo;
@@ -57,6 +58,51 @@ cc.Class({
         this.init();
         cc.director.emit("LoadingViewOnConnect",{message:"正在连接游戏房间..."});
         this.sendLogonPacket();
+    },
+    onConnectTimeout: function () {
+        console.log("[GameFrame][onConnectTimeout]");
+    },
+    onConnectFaild: function () {
+        console.log("[GameFrame][onConnectFaild]");
+        if (cc.isValid(cc.Canvas.instance.node) && cc.isValid(cc.find("LoadingView",cc.Canvas.instance.node))) {
+            console.log("[GameFrame][onConnectFaild] loadingview exist");
+            this.onConnectKickOut();
+            this._reConnectCount = 0;
+            return;
+        }
+        if (!cc.director.getScheduler().isScheduled(this.reConnect,this)) {
+            cc.director.getScheduler().schedule(this.reConnect, this, 5.0, cc.macro.REPEAT_FOREVER, 0, false);
+        }  
+    },
+    onConnectKickOut: function () {
+        console.log("[GameFrame][onConnectKickOut]");
+        if (cc.isValid(cc.Canvas.instance.node) && cc.isValid(cc.find("LoadingView",cc.Canvas.instance.node))) {
+            console.log("[GameFrame][onConnectKickOut] loadingview exist");
+            return;
+        }
+        GlobalFun.showAlert({
+            message:"服务器连接异常，退出房间稍后再重试",
+            btn:[
+                {
+                    name:"确定",
+                    callback:()=>{
+                        cc.director.emit("onExitRoom");
+                    }
+                }
+            ]
+        })
+    },
+    reConnect: function () {
+        console.log("[GameFrame][reConnect] _reConnectCount",this._reConnectCount);
+        if (this._reConnectCount < 5) {
+            this.onLogonRoom(this._roomInfo);
+        }
+        else {
+            this._reConnectCount = 0;
+            this.onConnectKickOut();
+        }
+        this._reConnectCount++;
+        cc.director.getScheduler().unschedule(this.reConnect,this) 
     },
     onSocketEvent: function(main,sub,pData) {
         console.log("[GameFrame][onSocketEvent] pData len = " + pData.getDataSize());
@@ -115,6 +161,7 @@ cc.Class({
         else if(sub === game_cmd.SUB_GR_LOGON_FINISH){
             // cc.director.loadScene("GameScene");
             cc.director.emit("LoadingViewOnLogonFinish",{message:"正在进入游戏..."});
+            this._reConnectCount = 0;
             this.onSocketLogonFinish();
             console.log("[GameFrame][OnSocketMainLogon] Logon Finish");
         }
@@ -616,6 +663,17 @@ cc.Class({
         // };
         var szFailedDescribe = pData.readstring(256);
         console.log("[GameFrame][OnSocketSubSitFailed] " + szFailedDescribe);
+        GlobalFun.showAlert({
+            message: szFailedDescribe,
+            btn: [
+                {
+                    name: "确定",
+                    callback: function () {
+                        cc.director.emit("onExitRoom")
+                    }
+                }
+            ],
+        })
     },
     OnSocketSubChat: function (sub,pData) {
         console.log("[GameFrame][OnSocketSubChat]");

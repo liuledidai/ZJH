@@ -36,7 +36,10 @@ cc.Class({
 
     // use this for initialization
     onLoad: function () {
-        if (GlobalUserData.cbUserType == GlobalDef.USER_TYPE_WEIXIN) {
+        var faceID = GlobalUserData.getUserFaceID();
+        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+
+        if (GlobalUserData.cbUserType == GlobalDef.USER_TYPE_WEIXIN && GlobalUserData.szWeChatImgURL) {
             this.m_Label_account.string = GlobalUserData.szWeChatNickName;
             cc.loader.load({url:GlobalUserData.szWeChatImgURL,type:"png"},(err,tex)=>{
                 if (err) {
@@ -49,11 +52,6 @@ cc.Class({
         }
         else {
             this.m_Label_account.string = GlobalUserData.szNickName || GlobalUserData.szAccounts;
-            var faceID = this._faceID || GlobalUserData.wFaceID;
-            if (faceID <= 0 || faceID > 8) {
-                faceID = 1;
-            }
-            this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
         }
         
         this.onRefreshEffect();
@@ -97,6 +95,14 @@ cc.Class({
                     name: "确定",
                     callback: () => {
                         GlobalUserData.szUserGUID = undefined;
+                        //清空微信授权登录数据
+                        cc.sys.localStorage.setItem("WXaccount","");
+                        cc.sys.localStorage.setItem("WXpassword","");
+                        cc.sys.localStorage.setItem("WXregAccount","");
+
+                        cc.sys.localStorage.setItem("token", "");
+                        cc.sys.localStorage.setItem("openid", "");
+
                         var GameFrameNode = cc.director.getScene().getChildByName("GameFrame");
                         if (GameFrameNode) {
                             console.log("[SettingView][onClickSwitchAccount] 获取GameFrame 所在节点 并取消为常驻节点");

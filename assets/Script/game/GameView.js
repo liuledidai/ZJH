@@ -5,8 +5,9 @@ var zjh_cmd = require("CMD_ZaJinHua");
 var GameModel = require("GameModel");
 var GameLogic = require("GameLogic");
 var AudioMng = require("AudioMng");
+var SceneBase = require("SceneBase");
 cc.Class({
-    extends: cc.Component,
+    extends: SceneBase,
 
     properties: {
         // foo: {
@@ -91,6 +92,7 @@ cc.Class({
         //计时器
         this.m_timeProgress = [];
         this.m_rcCompare = [];
+        this.m_reConnect = [];
         var userHeadList = this.node.getChildByName("m_Panel_center").getChildByName("m_userhead").children;
         for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
             var userNode = cc.instantiate(this.userInfacePrefab);
@@ -109,10 +111,10 @@ cc.Class({
             this.m_userHead[index].bg.active = false;
             let idx = index;
             userNode.on(cc.Node.EventType.TOUCH_END, () => {
-                this.onShowUserInfo(idx, true);
+                this.onShowUserInfo(idx);
             }, this)
             this.m_userHead[index].bg.on(cc.Node.EventType.TOUCH_END, () => {
-                this.onShowUserInfo(idx, false);
+                this.onShowUserInfo(idx);
             }, this)
 
             //计时器
@@ -120,6 +122,8 @@ cc.Class({
             this.m_timeProgress[index].progress = 0;
             this.m_rcCompare[index] = this.node.getChildByName("flagCompare").children[index];
             this.m_rcCompare[index].active = false;
+            this.m_reConnect[index] = this.node.getChildByName("flagReConnect").children[index];
+            this.m_reConnect[index].active = false;
         }
         this.m_userCard = [];
         //用户手牌
@@ -154,10 +158,10 @@ cc.Class({
             //根节点
             this.m_userChatNode[index].area = cc.find("Canvas/chatView/userChatNode_" + index);
             //气泡节点
-            this.m_userChatNode[index].view = cc.find("game_chat_bg",this.m_userChatNode[index].area);
+            this.m_userChatNode[index].view = cc.find("game_chat_bg", this.m_userChatNode[index].area);
             this.m_userChatNode[index].view.active = false;
             //表情节点
-            this.m_userChatNode[index].emotion = cc.find("game_chat_emotion",this.m_userChatNode[index].area);
+            this.m_userChatNode[index].emotion = cc.find("game_chat_emotion", this.m_userChatNode[index].area);
             this.m_userChatNode[index].emotion.active = false;
         }
         //底部按钮
@@ -166,7 +170,13 @@ cc.Class({
         this.bAutoFollow = false;
     },
     onEnable: function () {
-
+        this._super();
+    },
+    onDisable: function () {
+        this._super();
+    },
+    onDestroy: function () {
+        this._super();  
     },
     onResetView: function () {
         this.bAutoFollow = false;
@@ -190,6 +200,7 @@ cc.Class({
             this.setUserGiveUp(i, false);
             this.setUserCard(i, undefined);
             this.clearCard(i);
+            this.setUserReConnect(i, false);
         }
     },
 
@@ -229,13 +240,19 @@ cc.Class({
         if (userItem) {
             this.playUserAnim("wait", viewID, userItem);
             this.m_flagReady[viewID].active = (GlobalDef.US_READY === userItem.cbUserStatus);
+            this.setUserReConnect(viewID, (GlobalDef.US_OFFLINE === userItem.cbUserStatus));
             this.m_userHead[viewID].bg.active = true;
-            this.m_userHead[viewID].name.string = userItem.szName;
+            var szNickName = userItem.szName;
+            if (userItem.cbUserType === GlobalDef.USER_TYPE_WEIXIN) {
+                szNickName = userItem.szWeChatNickName || szNickName;
+            }
+            this.m_userHead[viewID].name.string = szNickName;
             this.m_userHead[viewID].score.string = userItem.lScore;
             this.m_userHead[viewID].userItem = userItem;
         }
         else {
             this.m_flagReady[viewID].active = false;
+            this.setUserReConnect(viewID, false);
             this.m_userHead[viewID].name.string = "";
             this.m_userHead[viewID].score.string = "";
             this.m_userHead[viewID].bg.active = false;
@@ -285,23 +302,23 @@ cc.Class({
         var secondView = this._scene.switchViewChairID(seconduser.wChairID);
         var fileName = "YX_bipai";
         var animName = "YX_bipai_0";
-        var leftPos = cc.p(-450,100);
-        var rightPos = cc.p(250,-20);
-        var firstPos,secondPos;
+        var leftPos = cc.p(-450, 100);
+        var rightPos = cc.p(250, -20);
+        var firstPos, secondPos;
         if (firstView + secondView < 3) {
             if (firstView < secondView) {
-                [firstPos,secondPos] = [leftPos,rightPos];
+                [firstPos, secondPos] = [leftPos, rightPos];
             }
             else {
-                [firstPos,secondPos] = [rightPos,leftPos];
+                [firstPos, secondPos] = [rightPos, leftPos];
             }
         }
         else {
             if (firstView < secondView) {
-                [firstPos,secondPos] = [rightPos,leftPos];
+                [firstPos, secondPos] = [rightPos, leftPos];
             }
             else {
-                [firstPos,secondPos] = [leftPos,rightPos];
+                [firstPos, secondPos] = [leftPos, rightPos];
             }
         }
         if (firstPos == leftPos) {
@@ -311,7 +328,7 @@ cc.Class({
             else {
                 animName = "YX_bipai_0";
             }
-        } 
+        }
         else {
             if (bfirstwin) {
                 animName = "YX_bipai_0";
@@ -337,9 +354,9 @@ cc.Class({
             }
         }
         for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
-            this.firstcardnode[i].setPosition((firstView === zjh_cmd.MY_VIEWID && 80 || 35) * i,0);
+            this.firstcardnode[i].setPosition((firstView === zjh_cmd.MY_VIEWID && 80 || 35) * i, 0);
             this.firstcardnode[i].setScale((firstView === zjh_cmd.MY_VIEWID && 1.0 || 0.7));
-            this.secondcardnode[i].setPosition((secondView === zjh_cmd.MY_VIEWID && 80 || 35) * i,0);
+            this.secondcardnode[i].setPosition((secondView === zjh_cmd.MY_VIEWID && 80 || 35) * i, 0);
             this.secondcardnode[i].setScale((secondView === zjh_cmd.MY_VIEWID && 1.0 || 0.7));
         }
         this.firstCompareNode.setScale(1.0);
@@ -349,7 +366,7 @@ cc.Class({
         this.firstCompareNode.active = true;
         this.secondCompareNode.active = true;
         this.m_userCard[firstView].area.active = false;
-        this.m_userCard[secondView].area.active = false;        
+        this.m_userCard[secondView].area.active = false;
         compareView.stopAllActions();
 
         this.firstCompareNode.runAction(cc.sequence(
@@ -382,26 +399,26 @@ cc.Class({
                         this.secondCompareNode.setPosition(secondPos);
                         this.firstCompareNode.runAction(cc.sequence(
                             cc.spawn(
-                                cc.scaleTo(0.2,1.0),
+                                cc.scaleTo(0.2, 1.0),
                                 cc.moveTo(0.2, this.ptCard[firstView]),
                             ),
                             cc.delayTime(0.3),
                         ))
                         this.secondCompareNode.runAction(cc.sequence(
                             cc.spawn(
-                                cc.scaleTo(0.2,1.0),
+                                cc.scaleTo(0.2, 1.0),
                                 cc.moveTo(0.2, this.ptCard[secondView]),
                             ),
                             cc.delayTime(0.3),
-                            cc.callFunc(()=>{
+                            cc.callFunc(() => {
                                 this.m_userCard[firstView].area.active = true;
-                                this.m_userCard[secondView].area.active = true; 
+                                this.m_userCard[secondView].area.active = true;
                                 this.stopCompareCard();
-                                if (typeof(callback) == "function") {
+                                if (typeof (callback) == "function") {
                                     callback();
                                     // console.timeEnd("compare");
                                     var timeEnd = Date.now();
-                                    console.log("[compare] ",timeBegin,timeEnd, timeEnd-timeBegin);
+                                    console.log("[compare] ", timeBegin, timeEnd, timeEnd - timeBegin);
                                 }
                             })
                         ))
@@ -409,7 +426,7 @@ cc.Class({
                 });
             }),
         ))
-        
+
     },
     //底注显示
     setCellScore: function (cellScore) {
@@ -444,6 +461,17 @@ cc.Class({
         }
         this.m_Image_banker.active = true;
         this.m_Image_banker.setPosition(this.ptBanker[viewID]);
+    },
+    setUserReConnect: function (viewID, isReConnect) {
+        this.m_reConnect[viewID].active = isReConnect;
+        this.m_reConnect[viewID].stopAllActions();
+        if (isReConnect) {
+            this.m_reConnect[viewID].runAction(cc.repeatForever(cc.sequence(
+                cc.fadeIn(1.0),
+                cc.delayTime(1.0),
+                cc.fadeOut(1.0),
+            )));
+        }
     },
     //下注总额
     setAllTableScore: function (score) {
@@ -641,12 +669,12 @@ cc.Class({
 
         // }
         var firstUser = {
-            wChairID:0,
+            wChairID: 0,
         }
         var seconduser = {
-            wChairID:1,
+            wChairID: 1,
         }
-        this.compareCard(firstUser,seconduser,undefined,undefined,true);
+        this.compareCard(firstUser, seconduser, undefined, undefined, true);
     },
     //赢得筹码
     winTheChip: function (wWinner, score) {
@@ -778,7 +806,7 @@ cc.Class({
         }
     },
     showUserChat: function (viewID, message) {
-        console.log("[GameView][showUserChat]",message);
+        console.log("[GameView][showUserChat]", message);
         if (this.m_userChatNode[viewID] && cc.isValid(this.m_userChatNode[viewID].area)) {
             this.m_userChatNode[viewID].area.stopAllActions();
             this.m_userChatNode[viewID].view.active = false;
@@ -794,14 +822,14 @@ cc.Class({
             label.string = message;
             this.m_userChatNode[viewID].area.runAction(cc.sequence(
                 cc.delayTime(3.0),
-                cc.callFunc(()=>{
+                cc.callFunc(() => {
                     chatView.active = false;
                 }),
             ))
         }
     },
     showUserEmotion: function (viewID, index) {
-        console.log("[GameView][showUserEmotion]",index);
+        console.log("[GameView][showUserEmotion]", index);
         if (this.m_userChatNode[viewID] && cc.isValid(this.m_userChatNode[viewID].area)) {
             this.m_userChatNode[viewID].area.stopAllActions();
             this.m_userChatNode[viewID].view.active = false;
@@ -814,14 +842,14 @@ cc.Class({
             let chatEmotion = this.m_userChatNode[viewID].emotion;
             chatEmotion.active = true;
             var fileName = "jjh_biaoqing";
-            var animName = "cartoon_" + GlobalFun.PrefixInteger(index,2);
+            var animName = "cartoon_" + GlobalFun.PrefixInteger(index, 2);
             GlobalFun.playEffects(chatEmotion, {
                 fileName: fileName,
                 anim: animName,
                 loop: false,
                 remove: false,
                 callback: () => {
-                    console.log("[bug]",cc.isValid(chatEmotion));
+                    console.log("[bug]", cc.isValid(chatEmotion));
                     chatEmotion.active = false;
                 },
             });
@@ -904,11 +932,12 @@ cc.Class({
         console.log(params);
         this._scene.addScore(params);
     },
-    onShowUserInfo: function (index, isSelf) {
+    onShowUserInfo: function (index) {
         console.log("[GameView][onShowUserInfo] index = " + index);
         // this._scene.onShowUserInfo(index);
         var userItem = this.m_userHead[index].userItem;
         var self = this;
+        var isSelf = userItem.dwUserID == GlobalUserData.dwUserID;
         var ViewName = "GameUserInfoView";
         if (isSelf) {
             ViewName = "GameSelfInfoView";

@@ -36,12 +36,19 @@ GlobalFun.ActionShowTanChuang = function ActionShowTanChuang(widget, cb) {
  *      }
  *      ]
  * }
+ * tag: 设置tag的弹窗唯一不叠加
  * @param {*} context 
  */
 GlobalFun.showAlert = function showAlert(params, context) {
     context = context || cc.Canvas.instance.node;
     if (cc.isValid(context) === false) {
         return;
+    }
+    if (params.tag) {
+        if (cc.isValid(cc.find(params.tag,context))) {
+            console.log("[GlobalFun.showAlert]tag ",params.tag);
+            return;
+        }
     }
     cc.loader.loadRes("prefab/AlertView", function (err, AlertPrefab) {
         if (err) {
@@ -50,6 +57,9 @@ GlobalFun.showAlert = function showAlert(params, context) {
         }
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(AlertPrefab);
+            if (params.tag) {
+                newNode.name = params.tag;
+            }
             context.addChild(newNode, ZORDER.AlertOrder);
             newNode.getComponent("AlertView").init(params);
             GlobalFun.ActionShowTanChuang(cc.find("commonBg", newNode));
@@ -117,6 +127,7 @@ GlobalFun.showLoadingView = function showLoadingView(params, context) {
         }
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(res);
+            newNode.name = "LoadingView";
             newNode.getComponent("LoadingView").init(params);
             context.addChild(newNode, ZORDER.LoadingOrder);
         }

@@ -20,7 +20,7 @@ public class Native extends Cocos2dxHelper
 	
 	 public static void LoginWX(String APP_ID,String AppSecret)
 	  {
-		 Log.w("shisanshui","LoginWX");
+		 Log.w("zhajinhua","LoginWX");
 		 Intent intent = new Intent(Cocos2dxActivity.getContext(), WXEntryActivity.class);
 		 intent.putExtra(WXEntryActivity.ReqWxLogin,"wxlogin");
 		 Cocos2dxActivity.getContext().startActivity(intent);

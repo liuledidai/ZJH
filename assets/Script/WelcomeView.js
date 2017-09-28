@@ -1,6 +1,7 @@
 var AudioMng = require("AudioMng");
+var SceneBase = require("SceneBase");
 cc.Class({
-    extends: cc.Component,
+    extends: SceneBase,
 
     properties: {
         // foo: {
@@ -59,11 +60,13 @@ cc.Class({
         })
     },
     onEnable: function () {
+        this._super();
         cc.game.on(cc.game.EVENT_HIDE, this._pausedCallback, this);
         cc.game.on(cc.game.EVENT_SHOW, this._restoreCallback, this);
         console.log("[WelcomeView][onEnable]");
     },
     onDisable: function () {
+        this._super();
         cc.game.off(cc.game.EVENT_HIDE, this._pausedCallback, this);
         cc.game.off(cc.game.EVENT_SHOW, this._restoreCallback, this);
         console.log("[WelcomeView][onDisable]");

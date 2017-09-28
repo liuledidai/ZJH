@@ -1,3 +1,4 @@
+var SceneBase = require("SceneBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
@@ -12,7 +13,7 @@ var bindText = "<size=32><color=#B35B1B>尊敬的用户，你当前为【游客�
                                                         《集结号拼三张》团队</c></size>\
 "
 cc.Class({
-    extends: cc.Component,
+    extends: SceneBase,
 
     properties: {
         // foo: {
@@ -130,6 +131,7 @@ cc.Class({
         // this.refreshTimeAndNetworkInfo();
     },
     onDestroy: function () {
+        this._super();
         cc.director.getScheduler().unschedule(this.refreshTimeAndNetworkInfo, this);
         AudioMng.stopMusic();
         cc.sys.garbageCollect();
@@ -156,18 +158,26 @@ cc.Class({
         this.m_Label_userCharm.string = GlobalUserData.dwLoveLiness;
         
         this.m_Label_ID.string = "ID" + GlobalUserData.dwUserID;
+        var faceID = GlobalUserData.getUserFaceID();
+        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
         if (GlobalUserData.cbUserType == GlobalDef.USER_TYPE_WEIXIN) {
-            this.m_Label_name.string = GlobalUserData.szWeChatNickName;
-            cc.loader.load({url:GlobalUserData.szWeChatImgURL,type:"png"},(err,tex)=>{
-                if (err) {
-                    console.log(err.message || err);
-                    return;
-                }
-                var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0,0,tex.width,tex.height));
-                this.m_Image_userFace.spriteFrame = spriteFrame;
-            })
+            this.m_Label_name.string = GlobalUserData.szWeChatNickName || GlobalUserData.szNickName;
+            if (!GlobalUserData.szWeChatImgURL) {
+                // this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+            }
+            else {
+                cc.loader.load({ url: GlobalUserData.szWeChatImgURL, type: "png" }, (err, tex) => {
+                    if (err) {
+                        console.log(err.message || err);
+                        return;
+                    }
+                    var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0, 0, tex.width, tex.height));
+                    this.m_Image_userFace.spriteFrame = spriteFrame;
+                })
+            }
+
             this.m_Button_activity.node.active = true;
-            var redPoint = cc.find("redPoint",this.m_Button_activity.node);
+            var redPoint = cc.find("redPoint", this.m_Button_activity.node);
             var loginData = GlobalUserData.activityData.login;
             var shareData = GlobalUserData.activityData.share;
             if (!loginData || !shareData) {
@@ -199,11 +209,6 @@ cc.Class({
         }
         else {
             this.m_Label_name.string = GlobalUserData.szNickName;
-            var faceID = GlobalUserData.wFaceID;
-            if (faceID <= 0 || faceID > 8) {
-                faceID = 1;
-            }
-            this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
             this.m_Button_activity.node.active = false;
         }
         
@@ -302,6 +307,7 @@ cc.Class({
         console.log("[PlazaView][refreshData] " + paramString);
     },
     onEnable: function () {
+        this._super();
         cc.director.on('onLogonRoom', this.onLogonRoom, this);
         cc.director.on("onUserChanged", this.onUserChanged,this);
         cc.director.on("onPlazaRefreshUI",this.refreshUI,this);
@@ -309,6 +315,7 @@ cc.Class({
 
     },
     onDisable: function () {
+        this._super();
         cc.director.off('onLogonRoom', this.onLogonRoom, this);
         cc.director.off("onUserChanged", this.onUserChanged,this);
         cc.director.off("onPlazaRefreshUI",this.refreshUI,this);

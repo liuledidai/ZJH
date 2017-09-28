@@ -69,6 +69,8 @@ cc.Class({
         var dwUserID = GlobalUserData.dwUserID;
         var cbGender = GlobalUserData.cbGender || 1;
         var cbUserType = GlobalUserData.cbUserType;
+        var faceID = GlobalUserData.getUserFaceID();
+        this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
         if (cbUserType === GlobalDef.USER_TYPE_GUEST) {
             this.m_Button_binding.node.active = true;
             this.m_Button_changepwd.node.active = false;
@@ -84,8 +86,8 @@ cc.Class({
             this.m_Button_changepwd.node.active = true;
             this.m_Button_changeface.node.active = true;
         }
-
-        if (cbUserType == GlobalDef.USER_TYPE_WEIXIN) {
+        
+        if (cbUserType == GlobalDef.USER_TYPE_WEIXIN && GlobalUserData.szWeChatImgURL) {
             szNickName = GlobalUserData.szWeChatNickName;
             cc.loader.load({url:GlobalUserData.szWeChatImgURL,type:"png"},(err,tex)=>{
                 if (err) {
@@ -97,11 +99,7 @@ cc.Class({
             })
         }
         else {
-            var faceID = this._faceID || GlobalUserData.wFaceID;
-            if (faceID <= 0 || faceID > 8) {
-                faceID = 1;
-            }
-            this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+            // this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
         }
 
         this.m_Label_userGold.string = llGameScore;
@@ -160,7 +158,7 @@ cc.Class({
                         var szNickName = value.nickname;
                         self.m_Label_userName.string = szNickName;
                         GlobalUserData.szNickName = szNickName;
-                        cc.director.emit("onChangeNameSuccess");
+                        cc.director.emit("onPlazaRefreshUI");
                     }
                 }
                 if (value.msg !== undefined) {

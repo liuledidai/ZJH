@@ -43,7 +43,7 @@ import org.cocos2dx.javascript.DeviceModule;
 
 public class AppActivity extends Cocos2dxActivity {
 
-    private static AppActivity app = null;
+    public static AppActivity app = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

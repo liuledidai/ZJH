@@ -67,6 +67,25 @@ var BaseFrame = cc.Class({
       this.onCloseSocket();
       cc.director.emit("LoadingViewError",{msg:"服务器连接异常，请稍后重试",type:GlobalDef.SMT_CLOSE_GAME});
       //todo...
+      var sub = pData.getsub();
+      if (sub == 1) {
+          this.onConnectTimeout();
+      }
+      else if (sub == 2) {
+          this.onConnectFaild();
+      }
+      else if (sub == 3) {
+          this.onConnectKickOut();
+      }
+    },
+    onConnectTimeout: function () {
+        console.log("[BaseFrame][onConnectTimeout]")
+    },
+    onConnectFaild: function () {
+        console.log("[BaseFrame][onConnectFaild]")    
+    },
+    onConnectKickOut: function () {
+        console.log("[BaseFrame][onConnectKickOut]")
     },
     onCreateSocket: function(szUrl,nPort){
         if(this._socket !== undefined)

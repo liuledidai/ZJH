@@ -30,8 +30,91 @@ cc.Class({
 
     // use this for initialization
     onLoad: function () {
+         //初始化IAP
+        this.sdkboxInit();
         this.refreshUI();
         console.log("[ShopView][onLoad] " + JSON.stringify(GlobalUserData.shopData));
+    },
+    sdkboxInit: function (params) {
+        if (cc.sys.os !== cc.sys.OS_IOS) return;
+        sdkbox.IAP.setListener({
+            onSuccess : (product) => {
+                //Purchase success
+                console.log("sdkbox.IAP.onSuccess",JSON.stringify(product));
+                this.verifyReceipt(product.receiptCipheredPayload);
+            },
+            onFailure : function (product, msg) {
+                //Purchase failed
+                //msg is the error message
+                console.log("sdkbox.IAP.onFailure")
+                GlobalFun.showToast(msg);
+            },
+            onCanceled : function (product) {
+                //Purchase was canceled by user
+                console.log("sdkbox.IAP.onCanceled")
+            },
+            onRestored : function (product) {
+                //Purchase restored
+                console.log("sdkbox.IAP.onRestored")
+            },
+            onProductRequestSuccess : function (products) {
+                //Returns you the data for all the iap products
+                //You can get each item using following method
+                console.log("sdkbox.IAP.onProductRequestSuccess")
+                for (var i = 0; i < products.length; i++) {
+                    // loop
+                    console.log(JSON.stringify(products[i]));
+                }
+                cc.director.emit("iapInitCompleted");
+                GlobalUserData.isIapInit = true;
+            },
+            onProductRequestFailure : function (msg) {
+                console.log("sdkbox.IAP.onProductRequestFailure")
+                GlobalFun.showToast("获取产品信息失败，请退出重试");
+                //When product refresh request fails.
+            }
+        });
+
+        if (GlobalUserData.isIapInit) {
+            sdkbox.IAP.refresh();
+            return;
+        }
+        //初始化IAP
+        GlobalFun.showPopWaiting(cc.director.getScene(),{
+            closeEvent: "iapInitCompleted",
+            callBackFunc: function () {
+                console.log("[ShopView][sdkboxInit] callbackfunc");
+            },
+            waitingTime:8,
+        });
+        // var json = { 
+        //     "ios": {
+        //         "iap": {
+        //             "items": {
+        //                 "com.jjhgame.zhajinhua.tier9": {
+        //                     "id": "com.jjhgame.zhajinhua.tier9"
+        //                 },
+        //                 "com.jjhgame.zhajinhua.tier13": {
+        //                     "id": "com.jjhgame.zhajinhua.tier13"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // };
+        var jsConfig = {
+            "ios": {
+                "iap": {
+                    "items": {}
+                }
+            }
+        }
+        var shopDataArray = GlobalUserData.shopData.shop.base;
+        for (var i = 0; i < shopDataArray.length; i++) {
+            var name = shopDataArray[i]["id"];
+            jsConfig.ios.iap.items[name] = {};
+            jsConfig.ios.iap.items[name]["id"] = name;
+        }
+        sdkbox.IAP.init(JSON.stringify(jsConfig));
     },
     refreshUI: function (params) {
         if (!GlobalUserData.shopData) return;
@@ -91,6 +174,9 @@ cc.Class({
             this.onInCharge({ goodsID: goodsID })
         }
     },
+    onPayResult: function (params) {
+        
+    },
     onInCharge: function (args) {
         console.log("[ShopView][onInCharge]");
         var goodsID = args.goodsID;
@@ -126,7 +212,7 @@ cc.Class({
             callback:(value)=>{
                 if (value.status == 1) {
                     if (value.returnpaytype == "8") {
-                        GlobalFun.showToast("苹果内支付");
+                        sdkbox.IAP.purchase(value.productid);
                     }
                     else {
                         var productid = value.id;
@@ -136,88 +222,46 @@ cc.Class({
                         cc.sys.openURL(reqUrl);
                     }
                 }
-                GlobalFun.showAlert({message:value.msg});
+                else {
+                    GlobalFun.showAlert({message:value.msg});
+                }
+                
             }
         })
+    },
+    verifyReceipt: function (receipt) {
+        // var receipt = receipt;
+        var params = {};
+        params["userid"] = GlobalUserData.dwUserID;
+        params["receipt"] = receipt;
+        params["kindid"] = zjh_cmd.KIND_ID;
+        params["user_identity"] = MultiPlatform.getMachineID() || "";
+        params["channelid"] = GlobalDef.CHANNELID_center;
 
-        // if (cc.sys.os == cc.sys.OS_ANDROID) {
-        //     params["userid"] = GlobalUserData.dwUserID;
-        //     params["goods_name"] = itemVal.name;
-        //     params["goods_num"] = "1";
-        //     params["remark"] = "zhajinhuaGame";
-        //     params["goods_note"] = "集结号拼三张";
-        //     params["user_ip"] = MultiPlatform.getIpAddress() || "127.0.0.1";//todo
-        //     params["user_identity"] = MultiPlatform.getMachineID() || "usertoken";//todo
-        //     params["productid"] = itemVal.id;
-        //     params["os"] = "1";
-        //     params["versionnum"] = MultiPlatform.getAppVersion() || "1.1";
-        //     params["channelid"] = GlobalDef.CHANNELID_center;
-        //     params["pay_amt"] = itemVal.price;
+        var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);
+        url += "/HZMobile/IOSVerify3_0.ashx";
+        var paramString = GlobalFun.buildRequestParam(params);
+        GlobalFun.sendRequest({
+            url:url,
+            paramString:paramString,
+            callback:(value)=>{
+                if (value.status) {
+                    if (value.productidlist !== undefined) {
 
-        //     var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
-        //     url += "/HZMobile/PayInit2_0.ashx";
-        //     params["url"] = url;
-
-        //     this.onChoosePaytype(params);
-        // }
-        // else if (cc.sys.os == cc.sys.OS_IOS) {
-        //     params["userid"] = GlobalUserData.dwUserID;
-        //     params["goods_name"] = itemVal.name;
-        //     params["goods_num"] = "1";
-        //     params["remark"] = "zhajinhuaGame";
-        //     params["goods_note"] = "集结号拼三张";
-        //     params["user_ip"] = MultiPlatform.getIpAddress() || "127.0.0.1";//todo
-        //     params["user_identity"] = MultiPlatform.getMachineID() || "usertoken";//todo
-        //     params["pay_type"] = "8";
-        //     params["productid"] = itemVal.id;
-        //     params["os"] = "2";
-        //     params["versionnum"] = MultiPlatform.getAppVersion() || "1.1";
-        //     params["channelid"] = GlobalDef.CHANNELID_center;
-
-        //     if (GlobalUserData.isOpenIAP) {
-        //         params["pay_amt"] = itemVal.iosprice;
-        //         var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
-        //         url += "/HZMobile/PayInit2_0.ashx";
-        //         var paramString = GlobalFun.buildRequestParam(params);
-        //         var xhr = new XMLHttpRequest();
-        //         var self = this;
-        //         xhr.onreadystatechange = function () {
-        //             if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
-        //                 var response = xhr.responseText;
-        //                 console.log(response);
-        //                 var value = JSON.parse(response);
-        //                 if (value.status == 1) {
-        //                     if (value.errorcode == 10026) {
-        //                         GlobalUserData.isOpenIAP = false;
-        //                         self.refreshUI();
-        //                     }
-        //                 }
-        //                 else {
-        //                     if (value.msg !== undefined) {
-        //                         GlobalFun.showToast(value.msg);
-        //                     }
-        //                 }
-        //                 cc.director.emit("ShopCompleted");
-        //             }
-        //         };
-        //         GlobalFun.showPopWaiting(cc.director.getScene(), {
-        //             closeEvent: "ShopCompleted",
-        //             callBackFunc: function () {
-        //                 console.log("[ShopView][onInCharge] callbackfunc");
-        //             },
-        //         });
-        //         xhr.open("POST", url, true);
-        //         // xhr.setRequestHeader("Content-Type","application/json");
-        //         xhr.send(paramString);
-        //         // this.onChoosePaytype(params);
-
-        //     }
-        //     else {
-        //         params["pay_amt"] = itemVal.price;
-        //         this.onChoosePaytype(params);
-        //     }
-        // }
-        // // this.onChoosePaytype(params);
+                    }
+                    if (value.score !== undefined) {
+                        GlobalUserData.llGameScore = Number(value.score);
+                    }
+                    if (value.insurescore !== undefined) {
+                        GlobalUserData.llInsureScore = Number(value.insurescore);
+                    }
+                    cc.director.emit("PlazaRefreshUI");
+                }
+                GlobalFun.showAlert({
+                    message: value.msg,
+                })
+            },
+        })
     },
     onChoosePaytype: function (params) {
         console.log("[ShopView][onChoosePaytype]")

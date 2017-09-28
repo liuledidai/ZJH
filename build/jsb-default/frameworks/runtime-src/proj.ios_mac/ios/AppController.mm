@@ -25,6 +25,7 @@
 
 #import <UIKit/UIKit.h>
 #import "cocos2d.h"
+#import "ScriptingCore.h"
 
 #import "AppController.h"
 #import "AppDelegate.h"
@@ -32,7 +33,9 @@
 #import "platform/ios/CCEAGLView-ios.h"
 
 #import <Foundation/Foundation.h>
-
+#include "../../Classes/libs/Platform/MissionWeiXin.h"
+#include "WXApi.h"
+#import "WXApiManager.h"
 @implementation AppController
 
 #pragma mark -
@@ -83,6 +86,9 @@ static AppDelegate s_sharedApplication;
     cocos2d::GLView *glview = cocos2d::GLViewImpl::createWithEAGLView(eaglView);
     cocos2d::Director::getInstance()->setOpenGLView(glview);
 
+    
+    [WXApi registerApp:@kWX_APP_ID withDescription:@kWX_DESCRIBE];
+    
     cocos2d::Application::getInstance()->run();
     return YES;
 }
@@ -139,6 +145,47 @@ static AppDelegate s_sharedApplication;
 
 - (void)dealloc {
     [super dealloc];
+}
+
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url
+{
+    return  [WXApi handleOpenURL:url delegate:[WXApiManager sharedManager]];
+}
+
+//iOS9以下
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    if ([url.scheme isEqualToString:@"zhajapay"])
+    {
+        //        const char* para = [url.absoluteString UTF8String];
+        //        const char* pStr = strstr(para,"?");
+        //        std::string text = pStr+1;
+        //
+        //        std::vector<std::string> kVector = JJParamUntil::split(text,"&");
+        //        std::map<std::string, std::string> paraMap;
+        //
+        //        for (int index = 0; index < kVector.size(); index++)
+        //        {
+        //            std::vector<std::string> tmp = JJParamUntil::split(kVector[index],"=");
+        //            if (tmp.size() == 2)
+        //            {
+        //                paraMap[tmp[0]] = tmp[1];
+        //            }
+        //        }
+        //
+        //        if (paraMap["type"].compare("wappay")==0)
+        //        {
+        //            int action = atoi(paraMap["action"].c_str());
+        //            cocos2d::EventDispatcher* eventDispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
+        //            eventDispatcher->dispatchCustomEvent("ENTER_GAME_PAY_RESULT",&action);
+        //        }
+        
+        return YES;
+    }
+    else
+    {
+        return [WXApi handleOpenURL:url delegate:[WXApiManager sharedManager]];
+    }
 }
 
 +(BOOL)showAlert:(NSString *)title andContent:(NSString *)content{

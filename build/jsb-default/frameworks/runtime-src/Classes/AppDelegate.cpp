@@ -19,6 +19,10 @@
 #include "base/CCEventDispatcher.h"
 
 #include "js_module_register.h"
+#ifdef SDKBOX_ENABLED
+#include "PluginIAPJS.hpp"
+#include "PluginIAPJSHelper.h"
+#endif
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS
 #include "SDKManager.h"
@@ -71,6 +75,10 @@ bool AppDelegate::applicationDidFinishLaunching()
     js_module_register();
     
     ScriptingCore* sc = ScriptingCore::getInstance();
+#ifdef SDKBOX_ENABLED
+    sc->addRegisterCallback(register_all_PluginIAPJS);
+    sc->addRegisterCallback(register_all_PluginIAPJS_helper);
+#endif
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS) && PACKAGE_AS    
     sc->addRegisterCallback(register_all_anysdk_framework);
     sc->addRegisterCallback(register_all_anysdk_manual);

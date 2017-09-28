@@ -50,9 +50,7 @@ cc.Class({
         var dwUserID = userItem.dwUserID;
         var cbGender = userItem.cbGender;
         var faceID = userItem.wFaceID;
-        if (faceID <= 0 || faceID > 8) {
-            faceID = 1;
-        }
+        faceID = GlobalUserData.getUserFaceID(faceID, cbGender);
         var szGenderImgName = "gameuser_man";
         if (cbGender == 1) {
             szGenderImgName = "gameuser_man";
@@ -61,29 +59,27 @@ cc.Class({
             szGenderImgName = "gameuser_woman";
         }
         this.m_Image_gender.spriteFrame = this.gameUserAtlas.getSpriteFrame(szGenderImgName);
-
-        if (userItem.cbUserType === GlobalDef.USER_TYPE_WEIXIN) {
-            szNickName = userItem.szWeChatNickName;
-            cc.loader.load({url:userItem.szWeChatImgURL,type:"png"},(err,tex)=>{
-                if (err) {
-                    console.log(err.message || err);
-                    return;
-                }
-                var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0,0,tex.width,tex.height));
-                this.m_Image_userface.spriteFrame = spriteFrame;
-            })
-        } 
-        else {
-            this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
-        }
-
         this.m_Label_name.string = szNickName;
         this.m_Label_gold.string = szGold;
         this.m_Label_charm.string = szCharm;
         this.m_Label_ID.string = dwUserID;
-
+        this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
         this._presentData = GlobalUserData.presentData;
         this.refreshPresentList();
+        if (userItem.cbUserType === GlobalDef.USER_TYPE_WEIXIN) {
+            this.m_Label_name.string = userItem.szWeChatNickName || szNickName;
+            cc.loader.load({ url: userItem.szWeChatImgURL, type: "png" }, (err, tex) => {
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0, 0, tex.width, tex.height));
+                this.m_Image_userface.spriteFrame = spriteFrame;
+            })
+        }
+        else {
+            // this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+        }
     },
     refreshPresentList: function () {
         var itemList = this._presentData['present']['base'];

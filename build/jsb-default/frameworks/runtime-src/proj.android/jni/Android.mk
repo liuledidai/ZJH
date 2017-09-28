@@ -24,15 +24,14 @@ FILE_LIST += $(wildcard $(LOCAL_PATH)/../../Classes/Game/NetWork/*.cpp)
 
 LOCAL_SRC_FILES := $(FILE_LIST:$(LOCAL_PATH)/%=%)
 
-# LOCAL_SRC_FILES := hellojavascript/main.cpp \
-# 				   ../../Classes/AppDelegate.cpp \
-# 				   ../../Classes/SDKManager.cpp \
-# 				   ../../Classes/jsb_anysdk_basic_conversions.cpp \
-# 				   ../../Classes/manualanysdkbindings.cpp \
-# 				   ../../Classes/jsb_anysdk_protocols_auto.cpp
+# LOCAL_SRC_FILES
 
+LOCAL_CPPFLAGS := -DSDKBOX_ENABLED \
+-DSDKBOX_COCOS_CREATOR
+LOCAL_LDLIBS := -landroid \
+-llog
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes
-# LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes
+# LOCAL_C_INCLUDES
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../Classes/libs
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../Classes/libs/JsonBox
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../Classes/libs/JsonBox/include
@@ -43,11 +42,17 @@ LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../Classes/Game/Common
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../Classes/Game/NetWork
 
 LOCAL_STATIC_LIBRARIES := cocos2d_js_static
-LOCAL_WHOLE_STATIC_LIBRARIES := PluginProtocolStatic
+LOCAL_WHOLE_STATIC_LIBRARIES := PluginProtocolStatic \
+PluginIAP \
+sdkbox
 
-LOCAL_EXPORT_CFLAGS := -DCOCOS2D_DEBUG=2 -DCOCOS2D_JAVASCRIPT
+LOCAL_EXPORT_CFLAGS := -DCOCOS2D_DEBUG=2 \
+-DCOCOS2D_JAVASCRIPT
 
 include $(BUILD_SHARED_LIBRARY)
+$(call import-add-path, $(LOCAL_PATH))
 
 
 $(call import-module, scripting/js-bindings/proj.android)
+$(call import-module, ./sdkbox)
+$(call import-module, ./pluginiap)

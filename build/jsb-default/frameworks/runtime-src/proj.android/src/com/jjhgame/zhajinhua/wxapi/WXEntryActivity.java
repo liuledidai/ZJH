@@ -26,6 +26,7 @@ import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
+import org.cocos2dx.javascript.AppActivity;
 
 
 public class WXEntryActivity extends Activity implements IWXAPIEventHandler{
@@ -256,32 +257,42 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler{
 
 	@Override
 	public void onResp(BaseResp resp) {
-		Log.d(Tag,"onResp(BaseReq resp) !!!!!!!");
+		Log.d(Tag,"onResp BaseReq resp  !!!!!!!");
 		//微信分享
-	    if (resp.getType() == ConstantsAPI.COMMAND_SENDMESSAGE_TO_WX){
-	    	Native.WxShareResultCallback(resp.errCode);
-	    }
-	    //微信登录
-	    if (resp.getType() == ConstantsAPI.COMMAND_SENDAUTH){
-			switch (resp.errCode) {
-			case BaseResp.ErrCode.ERR_OK:
-				SendAuth.Resp newResp = (SendAuth.Resp) resp;
-			    
-				if (newResp.state.toString().equals(GMAE_TAG)){
-				    Native.WxLoginGetAccessToken(newResp.code);
-				}
-				break;
-			case BaseResp.ErrCode.ERR_USER_CANCEL:
-			    Native.WxLoginGetFailToken("用户取消操作");
-				break;
-			case BaseResp.ErrCode.ERR_AUTH_DENIED:
-			    Native.WxLoginGetFailToken("微信认证失败");
-				break;
-			default:
-			    Native.WxLoginGetFailToken("未知错误");
-				break;
-			}	
-	    }
+		final BaseResp tmpresp = resp;
+		AppActivity.app.runOnGLThread(new Runnable() {
+			@Override
+            public void run() {
+				if (tmpresp.getType() == ConstantsAPI.COMMAND_SENDMESSAGE_TO_WX){
+			    	Native.WxShareResultCallback(tmpresp.errCode);
+			    }
+			    //微信登录
+			    if (tmpresp.getType() == ConstantsAPI.COMMAND_SENDAUTH){
+					switch (tmpresp.errCode) {
+					case BaseResp.ErrCode.ERR_OK:
+						SendAuth.Resp newResp = (SendAuth.Resp) tmpresp;
+						if (newResp.state.toString().equals(GMAE_TAG)){
+						    Native.WxLoginGetAccessToken(newResp.code);
+						}
+						break;
+					case BaseResp.ErrCode.ERR_USER_CANCEL:
+						AppActivity.app.runOnGLThread(new Runnable() {
+				            @Override
+				            public void run() {
+				            	Native.WxLoginGetFailToken("用户取消操作");
+				            }
+				        });
+						break;
+					case BaseResp.ErrCode.ERR_AUTH_DENIED:
+					    Native.WxLoginGetFailToken("微信认证失败");
+						break;
+					default:
+					    Native.WxLoginGetFailToken("未知错误");
+						break;
+					}	
+			    }
+			}
+		});
 	}
 	
 	private String buildTransaction(final String type) {

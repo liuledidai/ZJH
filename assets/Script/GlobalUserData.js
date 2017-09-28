@@ -1,6 +1,7 @@
 var AudioMng = require("AudioMng");
 var plaza_cmd = require("CMD_Plaza");
 var GlobalDef = require("GlobalDef");
+var GlobalFun = require("GlobalFun");
 var GlobalUserData = {
     wFaceID: undefined,					//头像索引
     cbGender: undefined,						//用户性别
@@ -96,6 +97,14 @@ var GlobalUserData = {
         else {
             return GlobalUserData.serverData[GlobalDef.ACCOUNT][serverName];
         }
+    },
+    getUserFaceID: function (faceid, gender) {
+        var faceID = faceid || GlobalUserData.wFaceID;
+        var cbGender = gender || GlobalUserData.cbGender;
+        if (faceID <= 0 || faceID > 8) {
+            faceID = cbGender == GlobalDef.GENDER_GIRL && 8 || 1;
+        }
+        return faceID;
     },
     setMusicAble: function (able) {
         this.bMusicAble = able;
@@ -205,5 +214,20 @@ var GlobalUserData = {
         return roomList;
     },
 };
+if(cc.sys.os == cc.sys.OS_ANDROID){ 
+    //
+    cc.eventManager.addListener({ 
+    event: cc.EventListener.KEYBOARD, 
+    onKeyPressed: function(keyCode, event){ 
+    if (keyCode == cc.KEY.back) { 
+    cc.director.end(); 
+    } 
+    },
+    onKeyReleased:function(keyCode,event){
+    
+                }
+            }, this);
+        }
+
 GlobalUserData.init();
 module.exports = GlobalUserData;

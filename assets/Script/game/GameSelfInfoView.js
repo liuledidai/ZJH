@@ -22,7 +22,7 @@ cc.Class({
         m_Image_gender: cc.Sprite,
         gameUserAtlas: cc.SpriteAtlas,
         userFaceAtals: cc.SpriteAtlas,
-        
+
     },
 
     // use this for initialization
@@ -34,16 +34,14 @@ cc.Class({
             console.log("[GameSelfInfoView][init] userItem is undefined");
             return;
         }
-        console.log("[GameSelfInfoView] " + JSON.stringify(userItem,null,' '));
+        console.log("[GameSelfInfoView] " + JSON.stringify(userItem, null, ' '));
         var szNickName = userItem.szName;
         var szGold = userItem.lScore;
         var szCharm = userItem.lLoveliness;
         var dwUserID = userItem.dwUserID;
         var cbGender = userItem.cbGender;
         var faceID = userItem.wFaceID;
-        if (faceID <= 0 || faceID > 8) {
-            faceID = 1;
-        }
+        faceID = GlobalUserData.getUserFaceID(faceID, cbGender);
         var szGenderImgName = "gameuser_man";
         if (cbGender == 1) {
             szGenderImgName = "gameuser_man";
@@ -52,30 +50,31 @@ cc.Class({
             szGenderImgName = "gameuser_woman";
         }
         this.m_Image_gender.spriteFrame = this.gameUserAtlas.getSpriteFrame(szGenderImgName);
-
-        if (userItem.cbUserType === GlobalDef.USER_TYPE_WEIXIN) {
-            szNickName = userItem.szWeChatNickName;
-            cc.loader.load({url:userItem.szWeChatImgURL,type:"png"},(err,tex)=>{
-                if (err) {
-                    console.log(err.message || err);
-                    return;
-                }
-                var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0,0,tex.width,tex.height));
-                this.m_Image_userface.spriteFrame = spriteFrame;
-            })
-        } 
-        else {
-            this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
-        }
-
         this.m_Label_name.string = szNickName;
         this.m_Label_gold.string = szGold;
         this.m_Label_charm.string = szCharm;
         this.m_Label_ID.string = dwUserID;
+        this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+        if (userItem.cbUserType === GlobalDef.USER_TYPE_WEIXIN && GlobalUserData.szWeChatImgURL) {
+            this.m_Label_name.string = userItem.szWeChatNickName || szNickName;
+            cc.loader.load({ url: userItem.szWeChatImgURL, type: "png" }, (err, tex) => {
+                if (err) {
+                    console.log(err.message || err);
+                    return;
+                }
+                var spriteFrame = new cc.SpriteFrame(tex, cc.Rect(0, 0, tex.width, tex.height));
+                this.m_Image_userface.spriteFrame = spriteFrame;
+            })
+        }
+        else {
+            // this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
+        }
+
+
     },
     close: function () {
         this.node.removeFromParent();
-        this.node.destroy();  
+        this.node.destroy();
     },
     // called every frame, uncomment this function to activate update callback
     // update: function (dt) {

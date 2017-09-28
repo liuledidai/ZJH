@@ -224,7 +224,7 @@ cc.Class({
         var cbGameStatus = params.detail.cbGameStatus;
         var pData = params.detail.pData;
         //初始化已有玩家
-        // this.onResetGameEngine();
+        this.onResetGameEngine();
         for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
             var userItem = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), index);
             // if (userItem) {

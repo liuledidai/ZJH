@@ -5,8 +5,9 @@ var zjh_cmd = require("CMD_ZaJinHua");
 var MultiPlatform = require("MultiPlatform");
 var MissionWeiXin = require("MissionWeiXin");
 var AudioMng = require("AudioMng");
+var SceneBase = require("SceneBase");
 cc.Class({
-    extends: cc.Component,
+    extends: SceneBase,
 
     properties: {
         // foo: {
@@ -41,18 +42,21 @@ cc.Class({
         }, 0)
     },
     onEnable: function() {
+        this._super();
         cc.director.on('onLogon',this.onLogon,this);
         cc.director.on('onShowRegister',this.onShowRegister,this);
         cc.director.on('onShowLogon',this.onShowLogon,this);
         cc.director.on('onRegister',this.onRegister,this);
     },
     onDisable: function() {
+        this._super();
         cc.director.off('onLogon',this.onLogon,this);
         cc.director.off('onShowRegister',this.onShowRegister,this);
         cc.director.off('onShowLogon',this.onShowLogon,this);
         cc.director.off('onRegister',this.onRegister,this);
     },
     onDestroy: function () {
+        this._super();
         cc.sys.garbageCollect();
     },
     appUpdate: function () {
@@ -80,9 +84,8 @@ cc.Class({
             console.log("[LogonScene][appUpdate] "+xhr.readyState);
             if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
                 var response = xhr.responseText;
-                // console.log(response);
                 response =  response.replace(/[\b\f\n\r\t]/g, '');
-                // console.log(response);
+                console.log(response);
                 var value = JSON.parse(response);
                 if (value.status == 1) {
                     var version = parseFloat(value.version);
@@ -315,61 +318,6 @@ cc.Class({
                 GlobalFun.showToast("服务器连接超时，请稍候重试");
             }
         })
-        // console.log("[LogonScene][onShowVistor] params ",paramString);
-        // var xhr = new XMLHttpRequest();
-        // var self = this;
-        // xhr.onreadystatechange = function () {
-        //     console.log("[LogonScene][onShowVistor] "+xhr.readyState);
-        //     if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
-        //         var response = xhr.responseText;
-        //         console.log(response);
-        //         var value = JSON.parse(response);
-        //         if (value.status == 1) {
-        //             GlobalUserData.szAccounts = value.username;
-        //             GlobalUserData.szPassWord = value.pwd;
-        //             GlobalUserData.isGuest = true;
-        //             GlobalUserData.cbUserType = GlobalDef.USER_TYPE_GUEST;
-        //             // cc.director.loadScene("PlazaScene");
-        //             // self._logonFrame.onLogonByVisitor(GlobalUserData.szAccounts,GlobalUserData.szPassWord);
-        //             GlobalFun.showLoadingView({
-        //                 closeEvent: "LogonFinish",
-        //                 loadfunc: function () {
-        //                     cc.director.preloadScene("PlazaScene", function () {
-        //                         cc.log("PlazaScene scene preloaded");
-        //                         self._logonFrame.onLogonByVisitor(GlobalUserData.szAccounts,GlobalUserData.szPassWord);
-        //                     });
-        //                 },
-        //                 closefunc: function () {
-        //                     cc.director.loadScene("PlazaScene");
-        //                     // cc.sys.garbageCollect();
-        //                 },
-        //             })
-        //         }
-        //         else {
-        //             if(value.msg !== undefined) {
-        //                 GlobalFun.showAlert({message:value.msg});
-        //             }
-        //         }
-        //         cc.director.emit("GuestLoginCompleted");
-        //     }
-        // };
-        // GlobalFun.showPopWaiting(cc.director.getScene(),{
-        //     closeEvent: "GuestLoginCompleted",
-        //     callBackFunc: function () {
-        //         console.log("[LogonScene][onShowVistor] callbackfunc");
-        //     },
-        //     waitingTime:8,
-        // });
-        // xhr.open("POST", url, true);
-        // // xhr.setRequestHeader("Content-Type","application/json");
-        // xhr.timeout = 8000;
-        // xhr.ontimeout = function (e) {
-        //     GlobalFun.showToast("服务器连接超时，请稍候重试");
-        //     cc.director.emit("GuestLoginCompleted");
-        //     xhr.abort();
-        // }
-        // xhr.send(paramString);
-        
     },
     onShowRegister: function() {
         AudioMng.playButton();
