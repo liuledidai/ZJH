@@ -1338,11 +1338,11 @@ cc.Class({
         if (userItem) {
             cbGender = userItem.cbGender;
         }
-        if (cbGender === 1) {
-            szKey += "male_yuyin_";
+        if (cbGender == GlobalDef.GENDER_GIRL) {
+            szKey += "female_yuyin_";
         }
         else {
-            szKey += "female_yuyin_";
+            szKey += "male_yuyin_";
         }
         switch (sfxType) {
             case SoundEffectType.kSoundEffectXiaZhu:

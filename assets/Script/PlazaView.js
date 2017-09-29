@@ -235,8 +235,11 @@ cc.Class({
                 item.setPositionX(beginx + space * (index + 3));
                 PlazaScrollRing.addItem(item);
             }
-            PlazaScrollRing.init();
-            PlazaScrollRing._updateToFocus("init");
+            
+            this.scheduleOnce(()=>{
+                PlazaScrollRing.init();
+                PlazaScrollRing._updateToFocus("init");
+            })
         }
     },
     refreshData: function () {

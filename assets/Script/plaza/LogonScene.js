@@ -275,7 +275,7 @@ cc.Class({
         params["kindid"] = zjh_cmd.KIND_ID;
         params["versionnum"] = "1.1";
         // params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
-        params["useridentity"] = szMachineID || "2d4d7c95e5df0179af2466f635ca71d1";
+        params["useridentity"] = szMachineID;
         params["channelid"] = GlobalDef.CHANNELID_center;
         if (cc.sys.os == cc.sys.OS_IOS) {
             params["os"] = "2";

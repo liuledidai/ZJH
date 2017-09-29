@@ -9,7 +9,7 @@ MultiPlatform.getMachineID = function () {
     }
     else {
         console.log("[MultiPlatform][getMachineID] unsupport platform -> " + cc.sys.os);
-        return "2d4d7c95e5df0179af2466f635ca71de";
+        return "2d4d7c95e5df0179af2466f635ca711e";
     }
 };
 

@@ -43,11 +43,11 @@ cc.Class({
         var faceID = userItem.wFaceID;
         faceID = GlobalUserData.getUserFaceID(faceID, cbGender);
         var szGenderImgName = "gameuser_man";
-        if (cbGender == 1) {
-            szGenderImgName = "gameuser_man";
+        if (cbGender == GlobalDef.GENDER_GIRL) {
+            szGenderImgName = "gameuser_woman";
         }
         else {
-            szGenderImgName = "gameuser_woman";
+            szGenderImgName = "gameuser_man";
         }
         this.m_Image_gender.spriteFrame = this.gameUserAtlas.getSpriteFrame(szGenderImgName);
         this.m_Label_name.string = szNickName;

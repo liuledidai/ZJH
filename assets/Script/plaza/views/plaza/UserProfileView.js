@@ -106,12 +106,12 @@ cc.Class({
         this.m_Label_userCharm.string = dwLoveLiness;
         this.m_Label_userID.string = dwUserID;
         this.m_Label_userName.string = szNickName;
-        if (cbGender == 1) {
-            this.genderManButton.check();
+        if (cbGender == GlobalDef.GENDER_GIRL) {
+            this.genderWomanButton.check();
             console.log("this.genderManButton.isCheck = " + this.genderManButton.isChecked);
         }
         else {
-            this.genderWomanButton.check();
+            this.genderManButton.check();
             console.log("this.genderWomanButton.isCheck = " + this.genderWomanButton.isChecked);
         }
     },
