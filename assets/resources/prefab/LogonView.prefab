@@ -288,7 +288,7 @@
       "b": 255,
       "a": 255
     },
-    "_N$placeholder": "请输入帐号/手机号",
+    "_N$placeholder": "请输入账号/手机号",
     "_N$placeholderFontSize": 36,
     "_N$placeholderFontColor": {
       "__type__": "cc.Color",
@@ -2590,6 +2590,9 @@
     },
     "m_checkbox": {
       "__id__": 58
+    },
+    "m_Button_register": {
+      "__id__": 66
     }
   },
   {

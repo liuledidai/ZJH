@@ -1,8 +1,9 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -29,13 +30,14 @@ cc.Class({
         userFaceAtals: cc.SpriteAtlas,
         m_Editbox_num: cc.EditBox,
         m_Editbox_secret: cc.EditBox,
+        m_Panel_password: cc.Node,
         _selectIndex: -1,
 
     },
 
     // use this for initialization
     onLoad: function () {
-
+        this.m_Panel_password.active = false;
     },
     init: function (userItem) {
         if (userItem === undefined) {
@@ -47,7 +49,7 @@ cc.Class({
         var szNickName = userItem.szName;
         var szGold = userItem.lScore;
         var szCharm = userItem.lLoveliness;
-        var dwUserID = userItem.dwUserID;
+        var dwGameID = userItem.dwGameID;
         var cbGender = userItem.cbGender;
         var faceID = userItem.wFaceID;
         faceID = GlobalUserData.getUserFaceID(faceID, cbGender);
@@ -62,7 +64,7 @@ cc.Class({
         this.m_Label_name.string = szNickName;
         this.m_Label_gold.string = szGold;
         this.m_Label_charm.string = szCharm;
-        this.m_Label_ID.string = dwUserID;
+        this.m_Label_ID.string = dwGameID;
         this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
         this._presentData = GlobalUserData.presentData;
         this.refreshPresentList();
@@ -104,8 +106,22 @@ cc.Class({
             children[this._selectIndex].getComponent("PresentNode").setSelect(false);
         }
         this._selectIndex = idx;
+        var itemList = this._presentData['present']['base'];
         if (idx >= 0 && cc.isValid(children[idx])) {
             children[idx].getComponent("PresentNode").setSelect(true);
+            var element = itemList[idx];
+            if (element.passwd == "true") {
+                //需要密码的显示数量密码输入界面
+                this.m_Panel_password.active = true;
+            }
+            else {
+                //不需要密码的点击直接赠送
+                this.m_Panel_password.active = false;
+                this.onClickConfirm({
+                    num: 1,
+                    pwd: GlobalUserData.szPassWord
+                })
+            }
         }
     },
     onArrowLeft: function (params) {
@@ -126,17 +142,17 @@ cc.Class({
         this.node.removeFromParent();
         this.node.destroy();
     },
-    onClickConfirm: function () {
+    onClickConfirm: function (params) {
         if (this._selectIndex < 0) {
             GlobalFun.showToast("请选择您要赠送的礼物");
             return;
         }
-        var szNum = this.m_Editbox_num.string;
+        var szNum = params && params.num || this.m_Editbox_num.string;
         if (isNaN(Number(szNum)) || Number(szNum) <= 0 || Number(szNum) > 100) {
             GlobalFun.showToast("赠送的数目必须大于0且小于等于100！");
             return;
         }
-        var szPassword = this.m_Editbox_secret.string;
+        var szPassword = (params && params.pwd) || (this.m_Editbox_secret.string && cc.md5Encode(this.m_Editbox_secret.string));
         if (szPassword.length <= 0) {
             GlobalFun.showToast("密码不能为空");
             return;
@@ -144,7 +160,7 @@ cc.Class({
         var itemList = this._presentData['present']['base'];
         var itemInfo = itemList[this._selectIndex];
         if (!itemInfo) {
-            GlobalFun.showToast("礼物出差，重新选择");
+            GlobalFun.showToast("礼物出错，重新选择");
             return;
         }
         var goldVal = itemInfo.gold;
@@ -154,8 +170,20 @@ cc.Class({
         }
 
         var self = this;
+        //不需要密码的直接赠送，否则弹出二次确认框
+        if (itemInfo.passwd !== "true") {
+            cc.director.emit("sendGift", {
+                userItem: self.userItem,
+                cbGiftID: self._selectIndex,
+                count: szNum,
+                szPassword: szPassword,
+            });
+            self.close();
+            return;
+        }
         if (cc.isValid(self._confirmView) === false) {
             cc.loader.loadRes("prefab/GamePresentConfirmView", function (err, prefab) {
+                cc.loader.setAutoReleaseRecursively(prefab, true);
                 if (cc.isValid(self.node)) {
                     self._confirmView = cc.instantiate(prefab);
                     self.node.addChild(self._confirmView);

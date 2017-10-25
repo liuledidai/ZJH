@@ -13,6 +13,7 @@ var SoundEffectType = cc.Enum({
     kSoundEffectFaQiBiPai: 5,
     kSoundEffectBiPaiShiBai: 6,
     kSoundEffectQiPai: 7,
+    kSoundEffectGuZhuYiZhi: 8,
 });
 cc.Class({
     extends: GameModel,
@@ -62,7 +63,7 @@ cc.Class({
         var count= params.count;
         var szPassword= params.szPassword;
         if (userItem && userItem.wTableID === this.getMeTableID()) {
-            this.sendGift(userItem.wChairID, cbGiftID, count, cc.md5Encode(szPassword));
+            this.sendGift(userItem.wChairID, cbGiftID, count, szPassword);
         }
         else {
             GlobalFun.showToast("玩家已离开当前桌位，无法发送礼物！");
@@ -78,7 +79,21 @@ cc.Class({
     },
     onExitRoom: function () {
         this._super();
-        cc.director.loadScene("PlazaScene");
+        // cc.director.loadScene("PlazaScene");
+        GlobalFun.showLoadingView({
+            closeEvent: "PlazaSceneFinish",
+            des: "正在加载资源，请等待...",
+            loadfunc: function () {
+                cc.director.preloadScene("LoginScene", function () {
+                    cc.log("PlazaScene scene preloaded");
+                    cc.director.emit("PlazaSceneFinish");
+                });
+            },
+            closefunc: function () {
+                cc.director.loadScene("PlazaScene");
+                // cc.sys.garbageCollect();
+            },
+        })
     },
     onInitGameEngine: function () {
         this._super();
@@ -134,6 +149,7 @@ cc.Class({
             // this.onEventGameClockInfo(viewID, id);
             this.m_curProgressBar = this._gameView.m_timeProgress[viewID];
             this.m_curProgressTime = time;
+            this._gameView.m_userLight[viewID].active = true;
             // var progressTime = time;
             // var self = this;
             // var progressBar = this._gameView.m_timeProgress[viewID];
@@ -163,7 +179,9 @@ cc.Class({
                 this._gameView.m_timeProgress[viewID].progress = 0;
                 this.m_curProgressTime = 0;
                 this._gameView.m_timeProgress[viewID].node.stopAllActions();
+                this._gameView.m_timeProgress[viewID].clock_star.stopSystem();
             }
+            this._gameView.m_userLight[viewID].active = false;
 
         }
         this._super(notView);
@@ -246,6 +264,7 @@ cc.Class({
                 this._gameView.setCellScore(this.m_lCellScore);
                 // showReady();显示准备按钮
                 this._gameView.m_Button_ready.node.active = (this.getMeUserItem().cbUserStatus === GlobalDef.US_SIT);
+                this._gameView.setGameStatusFlag("ready");
                 this.setGameClock(GlobalDef.INVALID_CHAIR, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME)
                 break;
             case GlobalDef.GS_PLAYING:
@@ -292,7 +311,7 @@ cc.Class({
                 for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
                     playStatus.lTableScore[index] = pData.readint();
                 }
-                playStatus.cbHandCardData = pData.readword();
+                playStatus.cbHandCardData = [];
                 for (var index = 0; index < zjh_cmd.MAX_COUNT; index++) {
                     playStatus.cbHandCardData[index] = pData.readbyte();
                 }
@@ -316,8 +335,10 @@ cc.Class({
                     this.m_lTableScore[index] = playStatus.lTableScore[index];
                 }
                 var cardData = []
+                console.log("playStatus = ",JSON.stringify(playStatus, null, ' '));
                 for (var index = 0; index < zjh_cmd.MAX_COUNT; index++) {
                     cardData[index] = playStatus.cbHandCardData[index];
+                    console.log("[onEventGameScene][cardData]playStatus.cbHandCardData[]",index,playStatus.cbHandCardData[index]);
                 }
                 this.m_llAllTableScore = 0;
 
@@ -342,6 +363,7 @@ cc.Class({
                                 cardIndex[k] = cardData[k];//GameLogic.getCardColor(cardData[k]) * 13 + GameLogic.getCardValue(cardData[k]);
                             }
                             this._gameView.setUserCard(viewID, cardIndex);
+                            this._gameView.setUserCardType(viewID, GameLogic.getCardType(cardIndex));
                         }
                         else {
                             this._gameView.setUserCard(viewID, [0xff, 0xff, 0xff]);
@@ -368,6 +390,7 @@ cc.Class({
                 //todo
                 //控件信息
                 this._gameView.m_nodeBottom.active = false;
+                this._gameView.m_chipBG.active = false;
                 if (!playStatus.bCompareState) {
                     this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
 
@@ -441,6 +464,7 @@ cc.Class({
         //     WORD				 				wCurrentUser;						//当前玩家
         //     BYTE								cbPlayStatus[GAME_PLAYER];			//游戏状态
         // };
+        this._gameView.setGameStatusFlag("none");
         var gameStart = {};
         gameStart.lMaxScore = pData.readint();
         gameStart.lCellScore = pData.readint();
@@ -505,12 +529,14 @@ cc.Class({
             }
 
         }
-
-        this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
-
-        if (this.m_wCurrentUser === this.getMeChairID()) {
-            this.updateControl();
-        }
+        var delayTime = delayCount * 0.1 + 0.2;
+        this.scheduleOnce(() => {
+            this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
+            if (this.m_wCurrentUser === this.getMeChairID()) {
+                this.updateControl();
+            }
+        }, delayTime)
+        
         AudioMng.playSFX("sfx_addscore");
     },
     onSubAddScore: function (sub, pData) {
@@ -579,6 +605,7 @@ cc.Class({
             this.m_lCurrentTurn = addScore.lCurrentTurn;
             this._gameView.setCellTurn(this.m_lCellScore, this.m_lCurrentTurn, this.m_lMaxTurnCount);
             this.updateControl();
+            AudioMng.playSFX("sfx_oneturn");
         }
         this.m_isFirstAdd = false;
 
@@ -663,7 +690,7 @@ cc.Class({
         var secondUser = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), compareCard.wCompareUser[1]);
         this._gameView.compareCard(firstUser, secondUser, undefined, undefined, compareCard.wCompareUser[0] === this.m_wWinnerUser, function (params) {
             self.onFlushCardFinish();
-            self.playSound(SoundEffectType.kSoundEffectBiPaiShiBai, self.m_wLostUser);
+            // self.playSound(SoundEffectType.kSoundEffectBiPaiShiBai, self.m_wLostUser);
         })
         this.playSound(SoundEffectType.kSoundEffectFaQiBiPai, compareCard.wCompareUser[0]);
         AudioMng.playSFX("sfx_comparecard");
@@ -896,6 +923,7 @@ cc.Class({
         this.node.runAction(cc.sequence(cc.delayTime(5.0), cc.callFunc(function () {
             self.onResetGameEngine();
             self._gameView.m_Button_ready.node.active = true;
+            self._gameView.setGameStatusFlag("ready");
             self.setGameClock(GlobalDef.INVALID_CHAIR, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME);
             self.m_cbPlayStatus = [0, 0, 0, 0, 0];
         })))
@@ -947,7 +975,13 @@ cc.Class({
         this.m_wCurrentUser = lastAdd.wCurrentUser;
 
         var wStartLastAddUser = lastAdd.wStartLastAddUser;
-        
+        //播放孤注一掷音效
+        this.playSound(SoundEffectType.kSoundEffectGuZhuYiZhi, wStartLastAddUser);
+        //播放孤注一掷BGM
+        AudioMng.playMusic("bgm_lastadd");
+        //播放孤注一掷火焰
+        this._gameView.m_fireView.active = true;
+        this._gameView.setUserLastAdd(this.switchViewChairID(wStartLastAddUser),true);
         //播放孤注一掷动画
         GlobalFun.playEffects(this.node, {
             fileName: "yx_wlg3",
@@ -964,6 +998,7 @@ cc.Class({
                 var self = this;
                 let firstUser = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), wStartLastAddUser);
                 let secondUser = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), wCompareUser);
+                console.log("[onSubLastAdd] wCompareUser,wLostUser,wStartLastAddUser",wCompareUser,wLostUser,wStartLastAddUser);
                 this.node.runAction(cc.sequence(
                     cc.delayTime(delayTime),
                     cc.callFunc(() => {
@@ -971,8 +1006,10 @@ cc.Class({
                         AudioMng.playSFX("sfx_comparecard");
                         this._gameView.compareCard(firstUser, secondUser, undefined, undefined, wStartLastAddUser !== wLostUser, function name(params) {
                             console.log("[onSubLastAdd][onFlushCardFinish]time = ", Date.now());
-                            self.onFlushCardFinish();
-                            self.playSound(SoundEffectType.kSoundEffectBiPaiShiBai, wLostUser);
+                            // self.onFlushCardFinish()
+                            var viewID = self.switchViewChairID(wLostUser);
+                            self._gameView.setUserLose(viewID, true);
+                            // self.playSound(SoundEffectType.kSoundEffectBiPaiShiBai, wLostUser);
                         })
                     })
                 ))
@@ -988,6 +1025,8 @@ cc.Class({
                     //如果自己被淘汰
                     if (wLostUser === this.getMeChairID()) {
                         this.updateControl();
+                        this._gameView.m_chipBG.active = false;
+                        this._gameView.m_nodeBottom.active = false;
                     }
                     // this._gameView.setUserCard()
                 }
@@ -999,6 +1038,11 @@ cc.Class({
                         this.updateControl();
                     }
                     this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
+                    //结束播放孤注一掷BGM
+                    AudioMng.playMusic("bgm_room");
+                    //结束播放孤注一掷火焰
+                    this._gameView.m_fireView.active = false;
+                    this._gameView.setUserLastAdd(this.switchViewChairID(wStartLastAddUser),false);
                 })
             ))
         }
@@ -1010,6 +1054,11 @@ cc.Class({
                     cc.callFunc(()=> {
                         var data = CCmd_Data.create();
                         this.sendData(zjh_cmd.SUB_C_FINISH_FLASH, data);
+                        //结束播放孤注一掷BGM
+                        AudioMng.playMusic("bgm_room");
+                        //结束播放孤注一掷火焰
+                        this._gameView.m_fireView.active = false;
+                        this._gameView.setUserLastAdd(this.switchViewChairID(wStartLastAddUser),false);
                     })
                 ))
             }
@@ -1101,6 +1150,7 @@ cc.Class({
         if (myChair === undefined || myChair !== this.m_wCurrentUser) {
             return;
         }
+        this._gameView.m_chipBG.active = false;
         this._gameView.m_nodeBottom.active = false;
         var playerCount = this.getPlayingNum();
 
@@ -1170,6 +1220,7 @@ cc.Class({
         //删除计时器
         this.killGameClock();
         //隐藏操作按钮
+        this._gameView.m_chipBG.active = false;
         this._gameView.m_nodeBottom.active = false;
         //发送数据
         var dataBuf = CCmd_Data.create();
@@ -1241,6 +1292,11 @@ cc.Class({
     },
     //孤注一掷
     onLastAdd: function () {
+        //清理界面
+        this._gameView.m_chipBG.active = false;
+        //底部按钮
+        this._gameView.m_nodeBottom.active = false;
+
         var dataBuf = CCmd_Data.create();
         this.sendData(zjh_cmd.SUB_C_LAST_ADD, dataBuf);
         this.killGameClock();
@@ -1299,6 +1355,7 @@ cc.Class({
         }
         //孤注一掷
         this._gameView.m_Button_lastadd.interactable = bLastAdd;
+        this._gameView.m_Button_lastadd.node.getChildByName("dragon_fire").active = bLastAdd;
 
         var bCompare = (this.m_lCurrentTurn >= 1) && (!bLastAdd);
         this._gameView.m_Button_compareCard.interactable = bCompare;
@@ -1339,42 +1396,45 @@ cc.Class({
             cbGender = userItem.cbGender;
         }
         if (cbGender == GlobalDef.GENDER_GIRL) {
-            szKey += "female_yuyin_";
+            szKey += "sfx_female_yuyin_";
         }
         else {
-            szKey += "male_yuyin_";
+            szKey += "sfx_male_yuyin_";
         }
         switch (sfxType) {
-            case SoundEffectType.kSoundEffectXiaZhu:
-                szKey += "xiazhu";
-                break;
+            // case SoundEffectType.kSoundEffectXiaZhu:
+            //     szKey += "xiazhu";
+            //     break;
             case SoundEffectType.kSoundEffectGenZhu:
                 szKey += "genzhu_";
-                var randNum = GlobalFun.getRandomInt(1, 3);
+                var randNum = GlobalFun.getRandomInt(1, 2);
                 szKey += randNum;
                 break;
             case SoundEffectType.kSoundEffectJiaZhu:
                 szKey += "jiazhu_";
-                var randNum = GlobalFun.getRandomInt(1, 3);
+                var randNum = GlobalFun.getRandomInt(1, 2);
                 szKey += randNum;
                 break;
             case SoundEffectType.kSoundEffectKanPai:
                 szKey += "kanpai_";
-                var randNum = GlobalFun.getRandomInt(1, 4);
+                var randNum = GlobalFun.getRandomInt(1, 1);
                 szKey += randNum;
                 break;
             case SoundEffectType.kSoundEffectFaQiBiPai:
                 szKey += "faqibipai";
                 break;
             case SoundEffectType.kSoundEffectBiPaiShiBai:
-                szKey += "bipaishibai_";
-                var randNum = GlobalFun.getRandomInt(1, 3);
-                szKey += randNum;
+                szKey = "sfx_bipaishibai";
+                // var randNum = GlobalFun.getRandomInt(1, 3);
+                // szKey += randNum;
                 break;
             case SoundEffectType.kSoundEffectQiPai:
                 szKey += "qipai_";
-                var randNum = GlobalFun.getRandomInt(1, 4);
+                var randNum = GlobalFun.getRandomInt(1, 2);
                 szKey += randNum;
+                break;
+            case SoundEffectType.kSoundEffectGuZhuYiZhi:
+                szKey += "guzhuyizhi";
                 break;
             default:
                 break;
@@ -1385,8 +1445,44 @@ cc.Class({
     update: function (dt) {
         if (this.m_curProgressTime > 0) {
             this.m_curProgressTime -= dt;
-            var progress = 1.0 * this.m_curProgressTime / zjh_cmd.TIME_START_GAME;
+            var progress = 1.0 - 1.0 * this.m_curProgressTime / zjh_cmd.TIME_START_GAME;
             this.m_curProgressBar.progress = progress;
+            // var r = 116 + progress * (255 - 116);
+            // var g = 242 + progress * (61 - 242);
+            // var b = 79 + progress * (35 - 79);
+            // var clr = cc.color(r,g,b,255);
+            // this.m_curProgressBar.barSprite.node.color = clr;
+            if (this.m_curProgressBar.clock_star.particleCount > 0) { // check if particle has fully plaed
+                // this.m_curProgressBar.clock_star.stopSystem(); // stop particle system
+            } else {
+                this.m_curProgressBar.clock_star.resetSystem(); // restart particle system
+            }
+            //计算粒子坐标
+            var w = this.m_curProgressBar.barSprite.node.width - 30;
+            var h = this.m_curProgressBar.barSprite.node.height - 30;
+            // var sita = Math.PI * 2 * progress + ;
+            var sita1 = Math.atan(w/h);
+            var sita2 = Math.atan(h/w);
+            var sita = Math.PI * 2 * progress + sita1;
+            var px = 0;
+            var py = 0;
+            if (sita <= sita1 || sita > (2*Math.PI - sita1)) {
+                px = h/2 * Math.tan(sita);
+                py = h/2;
+            }
+            else if (sita > sita1 && sita <= sita1 + 2* sita2) {
+                px = w/2;
+                py = (w/2)/Math.tan(sita);
+            }
+            else if (sita > Math.PI - sita1 && sita <= Math.PI + sita1) {
+                px = -h/2 * Math.tan(sita);
+                py = -h/2;
+            }
+            else {
+                px = -w/2;
+                py = -(w/2)/Math.tan(sita);
+            }
+            this.m_curProgressBar.clock_star.node.setPosition(px,py);
         }
     },
 });

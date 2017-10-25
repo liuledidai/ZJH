@@ -195,10 +195,10 @@ zjh_cmd.IDI_USER_COMPARE_CARD		= 202
 zjh_cmd.IDI_DISABLE					= 203
 // *****************时间标识*****************--
 // 开始定时器
-zjh_cmd.TIME_START_GAME				= 10
+zjh_cmd.TIME_START_GAME				= 15
 // 加注定时器
-zjh_cmd.TIME_USER_ADD_SCORE			= 10
+zjh_cmd.TIME_USER_ADD_SCORE			= 15
 // 比牌定时器
-zjh_cmd.TIME_USER_COMPARE_CARD		= 10
+zjh_cmd.TIME_USER_COMPARE_CARD		= 15
 
 module.exports = zjh_cmd;

@@ -243,7 +243,8 @@ cc.Class({
                     var item = items.getContent(id);
                     if (item) {
                         // should not release these assets, even if they are static referenced in the scene.
-                        this.setAutoReleaseRecursively(uuid, false);
+                        // this.setAutoReleaseRecursively(uuid, false);
+                        this.setAutoReleaseRecursively(uuid, true);
                         results.push(item);
                     }
                 }
@@ -269,4 +270,7 @@ cc.Class({
     // update: function (dt) {
 
     // },
+    onDestroy: function () {
+
+    }
 });

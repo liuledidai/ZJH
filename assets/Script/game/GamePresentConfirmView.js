@@ -1,6 +1,7 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -27,9 +28,6 @@ cc.Class({
     onLoad: function () {
 
     },
-    onDestroy: function () {
-
-    },
     close: function (callback) {
         if (callback && typeof (callback) == "function") {
             callback();
@@ -46,14 +44,14 @@ cc.Class({
         var userItem = params.userItem;
         var sendNum = params.sendNum;
         var szNickName = userItem.szName;
-        var dwUserID = userItem.dwUserID;
+        var dwGameID = userItem.dwGameID;
         var goldVal = itemInfo.gold;
         var costGold = goldVal * sendNum;
         var llInsureScore = GlobalUserData.llInsureScore;
         var leftGold = llInsureScore - costGold;
 
         this.m_Label_nickname.string = szNickName;
-        this.m_Label_id.string = dwUserID;
+        this.m_Label_id.string = dwGameID;
         this.m_Label_presentname.string = itemInfo.name;
         this.m_Label_num.string = sendNum;
         this.m_Label_gold.string = costGold;

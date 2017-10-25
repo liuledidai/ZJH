@@ -3,6 +3,11 @@ var game_cmd = require("CMD_Game");
 var plaza_cmd = require("CMD_Plaza");
 var BaseFrame = require("BaseFrame");
 var GlobalFun = require("GlobalFun");
+window.__errorHandler = function(filename, lineno, message) {
+    // cc.log("__errorHandler ",(new Error()).stack);
+    console.log("__errorHandler",filename, lineno, message);
+    cc.log((new Error()).stack);
+};
 cc.Class({
     extends: BaseFrame,
 
@@ -20,6 +25,7 @@ cc.Class({
     },
     play: function name(params) {
         this.videoPlayer.play();
+        var a = c + d;
     },
     pause: function (params) {
         this.videoPlayer.pause();  
@@ -67,6 +73,7 @@ cc.Class({
         // this.onCreateSocket("122.226.186.38",9009);
         // this.label.string = this.text;
         console.log("[HelloWorld][onLoad]");
+        // var a = c + d;
     },
     onEnable: function (params) {
         console.log("[HelloWorld][onEnable]");

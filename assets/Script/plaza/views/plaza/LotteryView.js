@@ -1,6 +1,7 @@
+var ViewBase = require("ViewBase");
 var GlobalFun = require("GlobalFun");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -24,7 +25,7 @@ cc.Class({
 
     },
     onDestroy: function () {
-        
+        this._super();
     },
     onDisable: function () {
         

@@ -1,7 +1,10 @@
+var ViewBase = require("ViewBase");
 var GlobalDef = require("GlobalDef");
 var GlobalUserData = require("GlobalUserData");
+var GlobalFun = require("GlobalFun");
+var AudioMng = require("AudioMng");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -26,6 +29,7 @@ cc.Class({
             default: null,
             type: cc.Toggle
         },
+        m_Button_register: cc.Button,
     },
 
     // use this for initialization
@@ -49,14 +53,29 @@ cc.Class({
             }
         }
     },
+    onEnable: function () {
+        cc.director.on('appUpdateCompleted',this.onAppUpdateCompleted,this);
+    },
+    onDisable: function () {
+        cc.director.off('appUpdateCompleted',this.onAppUpdateCompleted,this);
+    },
+    onAppUpdateCompleted: function () {
+        this.m_Button_register.node.active = Boolean(GlobalUserData.isOpenRegister);
+    },
     onDestroy: function() {
-        cc.sys.garbageCollect();
+        // cc.sys.garbageCollect();
+        this._super();
         console.log("[LogonView][onDestroy]");
     },
     onLogon: function() {
+        AudioMng.playButton();
         var szAccount = this.m_editbox_account.string;
         var szPassword = this.m_editbox_password.string;
         console.log("[LogonView][onLogon] "+szAccount+" # "+szPassword);
+        if (szAccount.length <= 0 || szPassword.length <= 0) {
+            GlobalFun.showToast("账号或密码不能为空");
+            return;
+        }
         cc.director.emit("onLogon",{szAccount:szAccount,szPassword:szPassword});
     },
     onClickCloseButton: function() {

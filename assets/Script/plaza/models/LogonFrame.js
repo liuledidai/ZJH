@@ -6,6 +6,7 @@ var zjh_cmd = require("CMD_ZaJinHua");
 var GlobalUserData = require("GlobalUserData");
 var GameServerItem = require("GameServerItem");
 var GlobalDef = require("GlobalDef");
+var MultiPlatform = require("MultiPlatform");
 cc.Class({
     extends: BaseFrame,
 
@@ -138,12 +139,33 @@ cc.Class({
         }
     },
     sendLogon: function() {
+        //帐号登录
+// struct CMD_GP_LogonByAccountsMobile
+// {
+//     DWORD								dwMobileSysType;				//手机操作系统类型(1苹果系统 2安卓系统)
+//     DWORD								nWeiXinAuthID;					//微信验证 //兼容使用>1000w扫码登陆
+//     DWORD								dwMobileAppKind;				//手机APP游戏ID
+//     DWORD								dwMobileAppVersion;				//手机APP版本
+//     TCHAR								szAccounts[NAME_LEN];			//登录帐号
+//     TCHAR								szPassWord[PASS_LEN];			//登录密码
+//     TCHAR								szMobileMachine[COMPUTER_ID_LEN];//机器序列号
+//     TCHAR								szRegAccounts[NAME_LEN];        //unionid
+// };
         var logonData = CCmd_Data.create();
+        var dwMobileSysType = 1;
+        if(cc.sys.os == cc.sys.OS_ANDROID){
+            dwMobileSysType = 2;
+        }
+        else if(cc.sys.os == cc.sys.OS_IOS){
+            dwMobileSysType = 1;
+        }
         logonData.setcmdinfo(plaza_cmd.MDM_GP_LOGON_MOBILE,plaza_cmd.SUB_GP_LOGON_MOBILE);
-        logonData.pushdword(1);
-        logonData.pushdword(0);
+        logonData.pushdword(dwMobileSysType);
+        var nWeiXinAuthID = 0;
+        logonData.pushdword(nWeiXinAuthID);
         logonData.pushdword(zjh_cmd.KIND_ID);
-        logonData.pushdword(1);
+        var dwMobileAppVersion = parseInt(MultiPlatform.getAppVersion());
+        logonData.pushdword(dwMobileAppVersion);
         logonData.pushstring(this._szAccount,32);
         // logonData.pushstring("25d55ad283aa400af464c76d713c07ad",33);
         if (GlobalUserData.cbUserType == GlobalDef.USER_TYPE_ACCOUNT) {
@@ -152,8 +174,13 @@ cc.Class({
         else {
             logonData.pushstring(this._szPassword,33);
         }
-        logonData.pushstring("",33);
-        logonData.pushstring("",32);
+        var szMachineID = MultiPlatform.getMachineID();
+        logonData.pushstring(szMachineID,33);
+        var szRegAccounts = "";
+        if (GlobalUserData.cbUserType == GlobalDef.USER_TYPE_WEIXIN) {
+            szRegAccounts = GlobalUserData.szRegAccount;
+        }
+        logonData.pushstring(szRegAccounts,32);
         this.sendSocketData(logonData);
     },
     sendRegister: function() {

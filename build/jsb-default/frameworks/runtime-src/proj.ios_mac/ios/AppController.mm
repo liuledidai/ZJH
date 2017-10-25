@@ -34,6 +34,7 @@
 
 #import <Foundation/Foundation.h>
 #include "../../Classes/libs/Platform/MissionWeiXin.h"
+#include "../../Classes/libs/JJParamUntil.h"
 #include "WXApi.h"
 #import "WXApiManager.h"
 @implementation AppController
@@ -157,28 +158,33 @@ static AppDelegate s_sharedApplication;
 {
     if ([url.scheme isEqualToString:@"zhajapay"])
     {
-        //        const char* para = [url.absoluteString UTF8String];
-        //        const char* pStr = strstr(para,"?");
-        //        std::string text = pStr+1;
-        //
-        //        std::vector<std::string> kVector = JJParamUntil::split(text,"&");
-        //        std::map<std::string, std::string> paraMap;
-        //
-        //        for (int index = 0; index < kVector.size(); index++)
-        //        {
-        //            std::vector<std::string> tmp = JJParamUntil::split(kVector[index],"=");
-        //            if (tmp.size() == 2)
-        //            {
-        //                paraMap[tmp[0]] = tmp[1];
-        //            }
-        //        }
-        //
-        //        if (paraMap["type"].compare("wappay")==0)
-        //        {
-        //            int action = atoi(paraMap["action"].c_str());
-        //            cocos2d::EventDispatcher* eventDispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
-        //            eventDispatcher->dispatchCustomEvent("ENTER_GAME_PAY_RESULT",&action);
-        //        }
+                const char* para = [url.absoluteString UTF8String];
+                const char* pStr = strstr(para,"?");
+                std::string text = pStr+1;
+        
+                std::vector<std::string> kVector = JJParamUntil::split(text,"&");
+                std::map<std::string, std::string> paraMap;
+        
+                for (int index = 0; index < kVector.size(); index++)
+                {
+                    std::vector<std::string> tmp = JJParamUntil::split(kVector[index],"=");
+                    if (tmp.size() == 2)
+                    {
+                        paraMap[tmp[0]] = tmp[1];
+                    }
+                }
+        
+                if (paraMap["type"].compare("wappay")==0)
+                {
+                    NSString *action = [NSString stringWithUTF8String:paraMap["action"].c_str()];
+                    NSString *function = [NSString stringWithFormat: @"cc.game.emit('ENTER_GAME_PAY_RESULT','%@');",action];
+                    // 转为C风格字符串
+                    const char *stringFunc = [function UTF8String];
+                    // outVal 是js函数的返回值，这里我们可以不管它
+//                    jsval *outVal;
+                    // OC调用JS
+                    ScriptingCore::getInstance()->evalString(stringFunc);
+                }
         
         return YES;
     }

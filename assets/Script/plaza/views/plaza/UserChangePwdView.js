@@ -1,9 +1,10 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 require("MD5");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -41,7 +42,8 @@ cc.Class({
         console.log("[UserChangePwdView][onDisable]");
     },
     onDestroy: function () {
-        cc.sys.garbageCollect();
+        // cc.sys.garbageCollect();
+        this._super();
         console.log("[UserChangePwdView][onDestroy]");
     },
     close: function() {
@@ -120,6 +122,7 @@ cc.Class({
         var self = this;
         cc.loader.loadRes("prefab/UserProfileView", function (err, prefab) {
             var context = cc.Canvas.instance.node;
+            cc.loader.setAutoReleaseRecursively(prefab, true);
             if (cc.isValid(context)) {
                 var newNode = cc.instantiate(prefab);
                 context.addChild(newNode);

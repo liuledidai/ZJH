@@ -16,25 +16,30 @@ cc.Class({
             default: null,
             type: cc.Label,
         },
-        m_Image_waitIcon:{
+        m_Image_waitCircle:{
             default: null,
             type: cc.Node,
         },
+        m_Image_waitIcon: cc.Node,
     },
 
     // use this for initialization
     onLoad: function () {
         console.log("[PopWaitView][onLoad]");
     },
-    onInit: function (params) {
+    init: function (params) {
         this.m_waitingText = params.waitingText || "正在连接服务器，请稍候...";
-        this.m_waitingTime = params.waitingTime || 8;
+        this.m_waitingTime = params.waitingTime || 15;
         this.m_closeEvent = params.closeEvent;
         this.m_callBackFunc = params.callBackFunc;
         cc.director.on(this.m_closeEvent,this.onCloseEvent,this);
         cc.director.getScheduler().schedule(this.close, this, this.m_waitingTime);
         this.m_Label_content.string = this.m_waitingText;
-        this.m_Image_waitIcon.runAction(cc.repeatForever(cc.rotateBy(2.0,360.0)));
+        this.m_Image_waitCircle.runAction(cc.repeatForever(cc.rotateBy(2.0, 360.0)));
+        this.m_Image_waitIcon.runAction(cc.repeatForever(cc.sequence(
+            cc.spawn(cc.skewTo(1.0, 0, -10),cc.scaleTo(1.0,0,1)),
+            cc.spawn(cc.skewTo(1.0, 0, 0),cc.scaleTo(1.0,1,1))
+        )))
     },
     onCloseEvent: function (params) {
         if (typeof(this.m_callBackFunc) === "function")

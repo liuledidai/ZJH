@@ -35,6 +35,7 @@ cc.Class({
         this._wTableID = GlobalDef.INVALID_TABLE;
         this._wChairID = GlobalDef.INVALID_CHAIR;
         this._reConnectCount = 0;
+        this._reTryConnect = 0;
     },
     onLogonRoom: function (roomInfo) {
         this._roomInfo = roomInfo;
@@ -66,8 +67,8 @@ cc.Class({
         console.log("[GameFrame][onConnectFaild]");
         if (cc.isValid(cc.Canvas.instance.node) && cc.isValid(cc.find("LoadingView",cc.Canvas.instance.node))) {
             console.log("[GameFrame][onConnectFaild] loadingview exist");
-            this.onConnectKickOut();
             this._reConnectCount = 0;
+            this.onConnectKickOut();
             return;
         }
         if (!cc.director.getScheduler().isScheduled(this.reConnect,this)) {
@@ -78,6 +79,13 @@ cc.Class({
         console.log("[GameFrame][onConnectKickOut]");
         if (cc.isValid(cc.Canvas.instance.node) && cc.isValid(cc.find("LoadingView",cc.Canvas.instance.node))) {
             console.log("[GameFrame][onConnectKickOut] loadingview exist");
+            return;
+        }
+        if (this._reTryConnect < 3) {
+            this._reTryConnect ++;
+            if (!cc.director.getScheduler().isScheduled(this.reConnect,this)) {
+                cc.director.getScheduler().schedule(this.reConnect, this, 1.0, cc.macro.REPEAT_FOREVER, 0, false);
+            } 
             return;
         }
         GlobalFun.showAlert({
@@ -94,6 +102,7 @@ cc.Class({
     },
     reConnect: function () {
         console.log("[GameFrame][reConnect] _reConnectCount",this._reConnectCount);
+        cc.director.getScheduler().unschedule(this.reConnect,this) 
         if (this._reConnectCount < 5) {
             this.onLogonRoom(this._roomInfo);
         }
@@ -102,7 +111,7 @@ cc.Class({
             this.onConnectKickOut();
         }
         this._reConnectCount++;
-        cc.director.getScheduler().unschedule(this.reConnect,this) 
+        // cc.director.getScheduler().unschedule(this.reConnect,this) 
     },
     onSocketEvent: function(main,sub,pData) {
         console.log("[GameFrame][onSocketEvent] pData len = " + pData.getDataSize());
@@ -162,6 +171,7 @@ cc.Class({
             // cc.director.loadScene("GameScene");
             cc.director.emit("LoadingViewOnLogonFinish",{message:"正在进入游戏..."});
             this._reConnectCount = 0;
+            this._reTryConnect = 0;
             this.onSocketLogonFinish();
             console.log("[GameFrame][OnSocketMainLogon] Logon Finish");
         }
@@ -333,13 +343,26 @@ cc.Class({
 
                 console.log("[GameFrame][OnSocketMainSystem] message = " + message.szContent + " type = " + message.wMessageType);
                 if (bIntermet) {
-                    if (message.szContent) {
-                        cc.director.emit("LoadingViewError",{msg:message.szContent,type:GlobalDef.SMT_CLOSE_GAME});
+                    if (cc.isValid(cc.Canvas.instance.node) && cc.isValid(cc.find("LoadingView", cc.Canvas.instance.node))) {
+                        cc.director.emit("LoadingViewError", { msg: message.szContent, type: GlobalDef.SMT_CLOSE_GAME });
+                    }
+                    else {
+                        GlobalFun.showAlert({
+                            message: message.szContent,
+                            btn: [
+                                {
+                                    name: "确定",
+                                    callback: function () {
+                                        cc.director.emit("onExitRoom")
+                                    }
+                                }
+                            ],
+                        })
                     }
                     console.log("[GameFrame][OnSocketMainSystem] " + message.szContent);
                     this.onCloseSocket();
                 }
-                if (message.wMessageType & GlobalDef.SMT_EJECT) {
+                else if (message.wMessageType & GlobalDef.SMT_EJECT) {
                     // console.log("[GameFrame][OnSocketMainSystem] message = " + message.szContent + " type = " + message.wMessageType);
                     GlobalFun.showAlert({
                         message: message.szContent,

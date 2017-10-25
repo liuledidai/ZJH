@@ -54,6 +54,10 @@ cc.Class({
         }
     },
     onFocusChange: function (evName, itemNode) {
+        if (!cc.isValid(itemNode)) {
+            console.log("onFocusChange", evName," itemNode is invalid");
+            return;
+        }
         console.log("onFocusChange", evName,itemNode.getComponent("PlazaRoomItem")._index);
         // for(var i = 0;i < itemNode.childrenCount;i++){
         // var node = itemNode.children[i];

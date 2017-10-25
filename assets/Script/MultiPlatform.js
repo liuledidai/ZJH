@@ -29,7 +29,7 @@ MultiPlatform.getAppVersion = function () {
     }
     else {
         console.log("[MultiPlatform][getAppVersion] unsupport platform -> " + cc.sys.os);
-        return "";
+        return "1.0";
     }
 }
 

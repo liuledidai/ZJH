@@ -2,23 +2,9 @@ var GlobalFun = require("GlobalFun");
 var ChatDef = require("ChatDef");
 var GlobalDef = require("GlobalDef");
 var GlobalUserData = require("GlobalUserData");
-// var ChatType = cc.Enum({
-//     Face: 0,
-//     Text: 1,
-// })
-// var chatTextList = [
-//     "快点啊，都等到我花儿都谢了！",
-//     "怎么又断线了，网络怎么这么差啊！",
-//     "不要走决战到天亮！",
-//     "你的牌打得也太好了！",
-//     "你是妹妹还是哥哥啊！",
-//     "和你合作真是愉快了！",
-//     "大家好，很高兴见到各位！",
-//     "各位，真是不好意思我得离开一会。",
-//     "不要吵了,吵啥嘛吵,专心玩游戏吧！"
-// ];
+var ViewBase = require("ViewBase");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -56,9 +42,6 @@ cc.Class({
                 cc.fadeIn(0.3),
             ),
         ))
-    },
-    onDestroy: function () {
-        cc.sys.garbageCollect();
     },
     initListContent: function () {
         //快捷语列表
@@ -110,7 +93,7 @@ cc.Class({
     onQuickChat: function (idx) {
         var msg = ChatDef.quickChatMsg[idx];
         if (GlobalUserData.cbGender == GlobalDef.GENDER_GIRL) {
-            idx += 9;
+            // idx += 9;
         }
         cc.director.emit("sendChatMsg",{
             chatType:ChatDef.ChatType.QuickChat,

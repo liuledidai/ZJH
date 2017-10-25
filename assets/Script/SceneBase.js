@@ -27,11 +27,13 @@ var SceneBase = cc.Class({
     },
     onDisable: function () {
         console.log("[SceneBase] onDisable");
+        this.node.destroy();
         // cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN, this.onKeyDown, this);
         // cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP, this.onKeyUp, this);
     },
     onDestroy: function () {
         // cc.loader.releaseAll();
+        console.log("[SceneBase] onDestroy garbageCollect");
         cc.sys.garbageCollect();
     },
     onKeyDown: function (event) {

@@ -106,7 +106,7 @@ GlobalFun.showPopWaiting = function showPopWaiting(context, params) {
         }
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(PopWaitPrefab);
-            newNode.getComponent("PopWaitView").onInit(params);
+            newNode.getComponent("PopWaitView").init(params);
             context.addChild(newNode);
             GlobalFun.ActionShowTanChuang(newNode);
             console.log("showPopWaiting");
@@ -125,6 +125,7 @@ GlobalFun.showLoadingView = function showLoadingView(params, context) {
             console.log(err.message || err);
             return;
         }
+        cc.loader.setAutoReleaseRecursively(res, true);
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(res);
             newNode.name = "LoadingView";
@@ -145,6 +146,7 @@ GlobalFun.showBindView = function showBindView(context) {
             console.log(err.message || err);
             return;
         }
+        cc.loader.setAutoReleaseRecursively(prefab, true);
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(prefab);
             context.addChild(newNode);
@@ -164,6 +166,7 @@ GlobalFun.showShopView = function showShopView(context) {
             console.log(err.message || err);
             return;
         }
+        cc.loader.setAutoReleaseRecursively(prefab, true);
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(prefab);
             context.addChild(newNode);
@@ -183,6 +186,7 @@ GlobalFun.showBankView = function showBankView(context) {
             console.log(err.message || err);
             return;
         }
+        cc.loader.setAutoReleaseRecursively(prefab, true);
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(prefab);
             context.addChild(newNode);
@@ -202,6 +206,7 @@ GlobalFun.showLotteryView = function showLotteryView(params,context) {
             console.log(err.message || err);
             return;
         }
+        cc.loader.setAutoReleaseRecursively(prefab, true);
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(prefab);
             context.addChild(newNode);
@@ -222,6 +227,7 @@ GlobalFun.showAwardView = function showAwardView(params,context) {
             console.log(err.message || err);
             return;
         }
+        cc.loader.setAutoReleaseRecursively(prefab, true);
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(prefab);
             context.addChild(newNode);
@@ -242,6 +248,7 @@ GlobalFun.showRanklistView = function showRanklistView(params,context) {
             console.log(err.message || err);
             return;
         }
+        cc.loader.setAutoReleaseRecursively(prefab, true);
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(prefab);
             context.addChild(newNode);
@@ -262,6 +269,7 @@ GlobalFun.showActivityView = function showActivityView(params,context) {
             console.log(err.message || err);
             return;
         }
+        cc.loader.setAutoReleaseRecursively(prefab, true);
         if (cc.isValid(context)) {
             var newNode = cc.instantiate(prefab);
             context.addChild(newNode);
@@ -285,7 +293,7 @@ GlobalFun.sendRequest = function sendRequest(params) {
     var paramString = params.paramString;
     var callback = params.callback;
     var timeoutCallback = params.timeoutCallback;
-    var timeout = params.timeout || 8; //单位秒
+    var timeout = params.timeout || 15; //单位秒
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
         if (xhr.readyState == 4 && (xhr.status >= 200 && xhr.status < 400)) {
@@ -294,6 +302,8 @@ GlobalFun.sendRequest = function sendRequest(params) {
             try {
                 var value = JSON.parse(response);
                 if (callback !== null && typeof (callback) == "function") {
+                    value.status = value.status || value.Status;
+                    value.msg = value.msg || value.Msg;
                     callback(value);
                 }
             } catch (error) {
@@ -320,6 +330,7 @@ GlobalFun.sendRequest = function sendRequest(params) {
         xhr.abort();
     }
     xhr.send(paramString);
+    console.log("[GlobalFun.sendRequest] url,paramsString = ",url,paramString);
 };
 
 GlobalFun.getNowTimeSeconds = function getNowTimeSeconds() {
@@ -479,6 +490,7 @@ GlobalFun.playEffects = function playEffects(parent, args) {
         node.parent = parent;
         console.log("node create ", tag);
     }
+    node.active = true;
     node.setPosition(cc.p(args.x || 0, args.y || 0));
     if (args.remove === undefined) {
         args.remove = true;
@@ -503,6 +515,11 @@ GlobalFun.playEffects = function playEffects(parent, args) {
                 node.removeFromParent();
                 node.destroy();
                 console.log("[playEffects] remove 2")
+            }
+        }
+        else if (event.type === dragonBones.EventObject.FRAME_EVENT) {
+            if (typeof args.frameEventHandler === "function") {
+                args.frameEventHandler(event);
             }
         }
     }
@@ -551,6 +568,7 @@ GlobalFun.playEffects = function playEffects(parent, args) {
         else {
         }
     })
+    return node;
 };
 
 module.exports = GlobalFun;

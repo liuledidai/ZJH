@@ -22,14 +22,22 @@ cc.Class({
     onLoad: function () {
 
     },
-    init: function (chipnum) {
-        var chipColorLevel = [1,1000,10000,100000,1000000];
+    init: function (chipnum,chipLevel) {
+        /*
+        // 1: 1,2
+        // 2: 3,4
+        // 3: 6,10
+        // 4: 12
+        // 5: 20
+        */
+        var chipColorLevel = [1,3,6,12,24];
         this.chipnum = chipnum;
+        this.chipLevel = chipLevel || 1;
         this.chipLabel.string = chipnum;
         for (var i = chipColorLevel.length - 1; i >= 0; i--) {
-            var chipLevel = chipColorLevel[i];
-            if ( this.chipnum >= chipLevel ) {
-                this.chipSprite.spriteFrame = this.chipAtlas.getSpriteFrame("bigchip_" + (i + 1));
+            var level = chipColorLevel[i];
+            if ( this.chipLevel >= level ) {
+                this.chipSprite.spriteFrame = this.chipAtlas.getSpriteFrame("game_bigchip_" + (i + 1));
                 break;
             } 
         }

@@ -83,7 +83,7 @@ cc.Class({
             this._gameFrame = GameFrameNode.getComponent("GameFrame");
             // this._gameFrame.onCloseSocket();
         }
-
+        this.RoomItemPool = new cc.NodePool('RoomItemPool');
         //显示滚动消息
         var noticeMsg = cc.sys.localStorage.getItem("systemmessage") || "测试通知";
         
@@ -101,7 +101,8 @@ cc.Class({
         }
         
         AudioMng.playMusic("bgm_plaza");
-        if (GlobalUserData.isGuest) {
+        if (GlobalUserData.cbUserType == GlobalDef.USER_TYPE_GUEST && !GlobalUserData.isShowBind) {
+            GlobalUserData.isShowBind = true;
             GlobalFun.showAlert({
                 message: bindText,
                 textAlignment: cc.TextAlignment.LEFT,
@@ -134,7 +135,7 @@ cc.Class({
         this._super();
         cc.director.getScheduler().unschedule(this.refreshTimeAndNetworkInfo, this);
         AudioMng.stopMusic();
-        cc.sys.garbageCollect();
+        // cc.sys.garbageCollect();
     },
     refreshTimeAndNetworkInfo: function () {
         var timeStr = date.toTimeString().slice(0, 8);
@@ -157,7 +158,7 @@ cc.Class({
         this.m_Label_userGold.string = GlobalUserData.llGameScore;
         this.m_Label_userCharm.string = GlobalUserData.dwLoveLiness;
         
-        this.m_Label_ID.string = "ID" + GlobalUserData.dwUserID;
+        this.m_Label_ID.string = "ID:" + GlobalUserData.dwGameID;
         var faceID = GlobalUserData.getUserFaceID();
         this.m_Image_userFace.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
         if (GlobalUserData.cbUserType == GlobalDef.USER_TYPE_WEIXIN) {
@@ -221,25 +222,55 @@ cc.Class({
         var beginx = -PlazaScrollRing.node.getContentSize().width / 2;
         var space = 600;
         if (PlazaScrollRing) {
-            PlazaScrollRing.clearItem();
+            // PlazaScrollRing.clearItem();
+            for (var i = PlazaScrollRing.node.children.length - 1; i >= 0; i--) {
+                var node = PlazaScrollRing.node.children[i];
+                this.RoomItemPool.put(node);
+                console.log("[nodePool] put size",this.RoomItemPool.size());
+            }
             // PlazaScrollRing.node.getComponent(cc.Layout).enabled = true;
             for (var index = 0; index < 3; index++) {
-                var item = cc.instantiate(this.plazaRoomItem);
+                var item = null;
+                if (this.RoomItemPool.size() > 0) {
+                    item = this.RoomItemPool.get();
+                    console.log("[nodePool] get size",this.RoomItemPool.size());
+                }
+                else {
+                    item = cc.instantiate(this.plazaRoomItem);
+                }
                 item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
                 item.setPositionX(beginx + space * index);
                 PlazaScrollRing.addItem(item);
             }
             for (var index = 0; index < 3; index++) {
-                var item = cc.instantiate(this.plazaRoomItem);
+                var item = null;
+                if (this.RoomItemPool.size() > 0) {
+                    item = this.RoomItemPool.get();
+                    console.log("[nodePool] get size",this.RoomItemPool.size());
+                }
+                else {
+                    item = cc.instantiate(this.plazaRoomItem);
+                }
                 item.getComponent("PlazaRoomItem").init({ index: index + 1, roomInfo: roomList[index] });
                 item.setPositionX(beginx + space * (index + 3));
                 PlazaScrollRing.addItem(item);
             }
-            
+            PlazaScrollRing.init();
+            PlazaScrollRing._updateToFocus("init");
             this.scheduleOnce(()=>{
-                PlazaScrollRing.init();
-                PlazaScrollRing._updateToFocus("init");
-            })
+                // PlazaScrollRing.init();
+                var initRoomID = 0;
+                if (GlobalUserData.llGameScore < 10000) {
+                    initRoomID = 3;
+                }
+                else if (GlobalUserData.llGameScore < 100000) {
+                    initRoomID = 1;
+                }
+                else {
+                    initRoomID = 2;
+                }
+                PlazaScrollRing.setFocusid(initRoomID);
+            });
         }
     },
     refreshData: function () {
@@ -369,6 +400,7 @@ cc.Class({
         var self = this;
         if (cc.isValid(self._serviceView) === false) {
             cc.loader.loadRes("prefab/ServiceView", function (err, ServicePrefab) {
+                cc.loader.setAutoReleaseRecursively(ServicePrefab, true);
                 if (cc.isValid(self.node)) {
                     self._serviceView = cc.instantiate(ServicePrefab);
                     self.node.addChild(self._serviceView);
@@ -394,6 +426,7 @@ cc.Class({
         var self = this;
         if (cc.isValid(self._ruleView) === false) {
             cc.loader.loadRes("prefab/RuleView", function (err, Prefab) {
+                cc.loader.setAutoReleaseRecursively(Prefab, true);
                 if (cc.isValid(self.node)) {
                     self._ruleView = cc.instantiate(Prefab);
                     self.node.addChild(self._ruleView);

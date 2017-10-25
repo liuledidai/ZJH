@@ -1,7 +1,8 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalDef = require("GlobalDef");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -38,7 +39,7 @@ cc.Class({
         var szNickName = userItem.szName;
         var szGold = userItem.lScore;
         var szCharm = userItem.lLoveliness;
-        var dwUserID = userItem.dwUserID;
+        var dwGameID = userItem.dwGameID;
         var cbGender = userItem.cbGender;
         var faceID = userItem.wFaceID;
         faceID = GlobalUserData.getUserFaceID(faceID, cbGender);
@@ -53,7 +54,7 @@ cc.Class({
         this.m_Label_name.string = szNickName;
         this.m_Label_gold.string = szGold;
         this.m_Label_charm.string = szCharm;
-        this.m_Label_ID.string = dwUserID;
+        this.m_Label_ID.string = dwGameID;
         this.m_Image_userface.spriteFrame = this.userFaceAtals.getSpriteFrame("userface_" + (faceID - 1));
         if (userItem.cbUserType === GlobalDef.USER_TYPE_WEIXIN && GlobalUserData.szWeChatImgURL) {
             this.m_Label_name.string = userItem.szWeChatNickName || szNickName;

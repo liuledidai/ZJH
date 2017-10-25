@@ -1,8 +1,9 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -98,7 +99,8 @@ cc.Class({
         console.log("[UserFaceView][onChangeUserFace] " + paramString);
     },
     onDestroy: function () {
-        cc.sys.garbageCollect();
+        // cc.sys.garbageCollect();
+        this._super();
         console.log("[UserFaceView][onDestroy]");
     },
     onClickCloseButton: function () {

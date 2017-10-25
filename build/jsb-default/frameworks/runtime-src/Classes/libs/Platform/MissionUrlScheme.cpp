@@ -8,6 +8,7 @@
 
 #include "MissionUrlScheme.h"
 #include "../../../Classes/libs/JJParamUntil.h"
+#include "ScriptingCore.h"
 
 MissionUrlScheme* MissionUrlScheme::m_pMissionUrlScheme = NULL;
 
@@ -60,12 +61,20 @@ void MissionUrlScheme::openAppByUrlCallback(const char* str)
     }
     else if(action.compare("wappay") == 0)
     {
-        int action = atoi(param.c_str());
-        cocos2d::EventDispatcher* eventDispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
-        eventDispatcher->dispatchCustomEvent("ENTER_GAME_PAY_RESULT",&action);
+//        int action = atoi(param.c_str());
+//        cocos2d::EventDispatcher* eventDispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
+//        eventDispatcher->dispatchCustomEvent("ENTER_GAME_PAY_RESULT",&action);
+//        NSString *action = [NSString stringWithUTF8String:paraMap["action"].c_str()];
+//        NSString *function = [NSString stringWithFormat: @"cc.game.emit('ENTER_GAME_PAY_RESULT','%@');",action];
+        char function[64] = {0};
+        sprintf(function, "cc.game.emit('ENTER_GAME_PAY_RESULT','%s');",param.c_str());
+        // 转为C风格字符串
+        const char *stringFunc = function;
+        // outVal 是js函数的返回值，这里我们可以不管它
+        //                    jsval *outVal;
+        // OC调用JS
+        ScriptingCore::getInstance()->evalString(stringFunc);
     }
-    
-    
     if (m_pUrlOpenAppSink)
     {
         m_pUrlOpenAppSink->openAppByUrlCallback(action, param);

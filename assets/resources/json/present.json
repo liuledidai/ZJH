@@ -3,73 +3,115 @@
     "base": [
       {
         "icon": "present_icon_01.png",
-        "name": "香吻",
-        "gold": "10000",
-        "display": "10,000",
-        "charm": "+1"
+        "name": "红唇",
+        "gold": "0",
+        "display": "0",
+        "charm": "+0",
+        "passwd": "false"
       },
       {
         "icon": "present_icon_02.png",
         "name": "臭鸡蛋",
-        "gold": "10000",
-        "display": "10,000",
-        "charm": "+1"
+        "gold": "0",
+        "display": "0",
+        "charm": "+0",
+        "passwd": "false"
       },
       {
         "icon": "present_icon_03.png",
-        "name": "干杯吧朋友",
-        "gold": "10000",
-        "display": "10,000",
-        "charm": "+1"
+        "name": "红酒",
+        "gold": "10",
+        "display": "10",
+        "charm": "+0",
+        "passwd": "false"
       },
       {
         "icon": "present_icon_04.png",
-        "name": "鲜花",
-        "gold": "10000",
-        "display": "10,000",
-        "charm": "+1"
+        "name": "板砖",
+        "gold": "10",
+        "display": "10",
+        "charm": "+0",
+        "passwd": "false"
       },
       {
         "icon": "present_icon_05.png",
-        "name": "爱神之箭",
-        "gold": "100000",
-        "display": "100,000",
-        "charm": "+10"
+        "name": "玫瑰",
+        "gold": "50",
+        "display": "50",
+        "charm": "+0",
+        "passwd": "false"
       },
       {
         "icon": "present_icon_06.png",
-        "name": "好多钱",
-        "gold": "500000",
-        "display": "500,000",
-        "charm": "+50"
+        "name": "脸盆",
+        "gold": "50",
+        "display": "50",
+        "charm": "+0",
+        "passwd": "false"
       },
       {
         "icon": "present_icon_07.png",
-        "name": "钻戒",
-        "gold": "1000000",
-        "display": "1,000,000",
-        "charm": "+100"
+        "name": "鞋底",
+        "gold": "100",
+        "display": "100",
+        "charm": "+0",
+        "passwd": "false"
       },
       {
         "icon": "present_icon_08.png",
-        "name": "板砖",
-        "gold": "20000",
-        "display": "20,000",
-        "charm": "-2"
+        "name": "斧头",
+        "gold": "100",
+        "display": "100",
+        "charm": "+0",
+        "passwd": "false"
       },
       {
         "icon": "present_icon_09.png",
-        "name": "泼水",
-        "gold": "20000",
-        "display": "20,000",
-        "charm": "-2"
+        "name": "小鸡",
+        "gold": "100",
+        "display": "100",
+        "charm": "+0",
+        "passwd": "false"
       },
       {
         "icon": "present_icon_10.png",
-        "name": "拖鞋",
-        "gold": "20000",
-        "display": "20,000",
-        "charm": "-2"
+        "name": "加特林",
+        "gold": "1000",
+        "display": "1,000",
+        "charm": "+0",
+        "passwd": "false"
+      },
+      {
+        "icon": "present_icon_11.png",
+        "name": "十万伏特",
+        "gold": "1000",
+        "display": "1,000",
+        "charm": "+0",
+        "passwd": "false"
+      },
+      {
+        "icon": "present_icon_12.png",
+        "name": "丘比特",
+        "gold": "10000",
+        "display": "10,000",
+        "charm": "+1",
+        "passwd": "true"
+      },
+      {
+        "icon": "present_icon_13.png",
+        "name": "美金",
+        "gold": "100000",
+        "display": "100,000",
+        "charm": "+10",
+        "passwd": "true"
+      },
+      {
+        "icon": "present_icon_14.png",
+        "name": "钻石",
+        "gold": "500000",
+        "display": "500,000",
+        "charm": "+50",
+        "passwd": "true"
       }
     ]
   }

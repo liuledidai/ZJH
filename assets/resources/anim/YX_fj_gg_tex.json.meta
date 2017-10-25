@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "3606eb8b-e0ac-4b90-92a8-9ce1fdeeb27d",
+  "atlasJson": "{\"imagePath\":\"YX_fj_gg_tex.png\",\"width\":1024,\"SubTexture\":[{\"width\":255,\"y\":1,\"height\":148,\"name\":\"jjh_nn_fj_guangquan\",\"x\":673},{\"width\":670,\"y\":1,\"height\":220,\"name\":\"jjh_nn_fj_guangxiao\",\"x\":1},{\"width\":255,\"y\":151,\"height\":148,\"name\":\"jjh_nn_fj_guangquan1\",\"x\":673}],\"height\":512,\"name\":\"YX_fj_gg\"}",
+  "texture": "22486539-70de-48e9-9c2a-c79664ff3952",
+  "subMetas": {}
+}

@@ -71,14 +71,6 @@ cc.Class({
             default: [],
             type: cc.Vec2,
         },
-        m_LookCard: {
-            default: [],
-            type: cc.Node,
-        },
-        m_GiveUp: {
-            default: [],
-            type: cc.Node,
-        },
     },
 
     // use this for initialization
@@ -91,9 +83,14 @@ cc.Class({
         this.m_userHead = [];
         //计时器
         this.m_timeProgress = [];
+        //灯光
+        this.m_userLight = [];
         this.m_rcCompare = [];
         this.m_reConnect = [];
+        this.m_userState = [];
         var userHeadList = this.node.getChildByName("m_Panel_center").getChildByName("m_userhead").children;
+        var lightView = cc.find("Canvas/lightView");
+        var flagUserState = cc.find("Canvas/flagUserState");
         for (var index = 0; index < zjh_cmd.GAME_PLAYER; index++) {
             var userNode = cc.instantiate(this.userInfacePrefab);
             this.node.getChildByName("nodePlayer").addChild(userNode);
@@ -106,8 +103,12 @@ cc.Class({
 
             this.m_userHead[index] = {};
             this.m_userHead[index].name = userHeadList[index].getChildByName("m_Label_username").getComponent(cc.Label);
-            this.m_userHead[index].score = userHeadList[index].getChildByName("game_gold_back").children[0].getComponent(cc.Label);
+            this.m_userHead[index].score = userHeadList[index].getChildByName("m_Label_score").getComponent(cc.Label);
             this.m_userHead[index].bg = userHeadList[index];
+            this.m_userHead[index].fire = userHeadList[index].getChildByName("dragon_fire");
+            this.m_userHead[index].score_star = userHeadList[index].getChildByName("score_star").getComponent(cc.ParticleSystem);
+            this.m_userHead[index].score_star.stopSystem();
+            this.m_userHead[index].fire.active = false;
             this.m_userHead[index].bg.active = false;
             let idx = index;
             userNode.on(cc.Node.EventType.TOUCH_END, () => {
@@ -120,10 +121,21 @@ cc.Class({
             //计时器
             this.m_timeProgress[index] = userHeadList[index].getComponent(cc.ProgressBar);
             this.m_timeProgress[index].progress = 0;
+            this.m_timeProgress[index].clock_star = userHeadList[index].getChildByName("clock_star").getComponent(cc.ParticleSystem);
+            if (this.m_timeProgress[index].clock_star) {
+                this.m_timeProgress[index].clock_star.stopSystem();
+            }
             this.m_rcCompare[index] = this.node.getChildByName("flagCompare").children[index];
             this.m_rcCompare[index].active = false;
             this.m_reConnect[index] = this.node.getChildByName("flagReConnect").children[index];
             this.m_reConnect[index].active = false;
+            //灯光
+            this.m_userLight[index] = lightView.children[index];
+            this.m_userLight[index].active = false;
+
+            //用户状态：已看牌，弃牌，比牌输
+            this.m_userState[index] = flagUserState.children[index];
+            this.m_userState[index].active = false;
         }
         this.m_userCard = [];
         //用户手牌
@@ -138,7 +150,7 @@ cc.Class({
                 this.m_userCard[index].card[j] = cardNode;
                 cardPanel.addChild(cardNode);
                 cardNode.setPosition(this.ptCard[index].x + (index === zjh_cmd.MY_VIEWID && 80 || 35) * j, this.ptCard[index].y);
-                cardNode.setScale((index === zjh_cmd.MY_VIEWID && 1.0 || 0.7));
+                cardNode.setScale((index === zjh_cmd.MY_VIEWID && 1.0 || 0.9));
                 var cardItem = cardNode.getComponent("CardItem");
                 cardItem.showCardBack();
                 cardNode.active = false;
@@ -147,7 +159,7 @@ cc.Class({
             cardPanel.addChild(cardType);
             this.m_userCard[index].cardType = cardType;
             cardType.setPosition(this.ptCard[index].x + (index === zjh_cmd.MY_VIEWID && 80 || 35),
-                this.ptCard[index].y - (index === zjh_cmd.MY_VIEWID && 50 || 60));
+                this.ptCard[index].y - (index === zjh_cmd.MY_VIEWID && 70 || 60));
             cardType.active = false;
         }
 
@@ -164,10 +176,17 @@ cc.Class({
             this.m_userChatNode[index].emotion = cc.find("game_chat_emotion", this.m_userChatNode[index].area);
             this.m_userChatNode[index].emotion.active = false;
         }
+        //孤注一掷
+        this.m_fireView = cc.find("Canvas/fireView");
+        this.m_fireView.active = false;
         //底部按钮
         this.m_nodeBottom.active = false;
+        this.m_chipBG.active = false;
         this.nodeChipPool = this.node.getChildByName("nodeChipPool");
         this.bAutoFollow = false;
+
+        //筹码缓存池
+        this.ChipItemPool = new cc.NodePool('ChipItemPool');
     },
     onEnable: function () {
         this._super();
@@ -185,13 +204,14 @@ cc.Class({
         this.m_Button_ready.node.active = false;
         this.m_nodeBottom.active = false;
         this.m_chipBG.active = false;
+        this.m_fireView.active = false;
         this.setBanker(GlobalDef.INVALID_CHAIR);
         this.setAllTableScore(0);
         this.setCompareCard(false);
         this.cleanAllJettons();
         this.stopCompareCard();
         this.setMaxCellScore(0);
-
+        // this.setGameStatusFlag();
 
         for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
             this.setLookCard(i, false);
@@ -201,6 +221,9 @@ cc.Class({
             this.setUserCard(i, undefined);
             this.clearCard(i);
             this.setUserReConnect(i, false);
+            this.m_userLight[i].active = false;
+            this.setUserLastAdd(i,false);
+            this.m_userHead[i].score_star.stopSystem();
         }
     },
 
@@ -268,16 +291,25 @@ cc.Class({
     },
     //筹码移动
     playerJetton: function (wViewChairID, num, notani) {
-        if (!num || num < 1 /*|| !this.m_lCellScore || this.m_lCellScore < 1*/) {
+        if (!num || num < 1 || !this.m_lCellScore || this.m_lCellScore < 1) {
             console.log("[GameView][playerJetton] num is invalid");
             return;
         }
+        var level = Math.ceil(num/this.m_lCellScore);
+        console.log("[GameView][playerJetton] num,this.m_lCellScore,level",num,this.m_lCellScore,level);
         //加注动作
         this.playUserAnim("chip", wViewChairID);
-        var chip = cc.instantiate(this.chipPrefab);
+        var chip;
+        if (this.ChipItemPool.size() > 0) {
+            // console.log("[ChipItemPool] size ",this.ChipItemPool.size());
+            chip = this.ChipItemPool.get();
+        }
+        else {
+            chip = cc.instantiate(this.chipPrefab);
+        }
         this.nodeChipPool.addChild(chip);
         var chipItem = chip.getComponent("ChipItem");
-        chipItem.init(num);
+        chipItem.init(num,level);
         chip.setPosition(this.ptPlayer[wViewChairID]);
         var x = Math.random() * 200 - 100;
         var y = Math.random() * 100 - 50;
@@ -355,9 +387,9 @@ cc.Class({
         }
         for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
             this.firstcardnode[i].setPosition((firstView === zjh_cmd.MY_VIEWID && 80 || 35) * i, 0);
-            this.firstcardnode[i].setScale((firstView === zjh_cmd.MY_VIEWID && 1.0 || 0.7));
+            this.firstcardnode[i].setScale((firstView === zjh_cmd.MY_VIEWID && 1.0 || 0.9));
             this.secondcardnode[i].setPosition((secondView === zjh_cmd.MY_VIEWID && 80 || 35) * i, 0);
-            this.secondcardnode[i].setScale((secondView === zjh_cmd.MY_VIEWID && 1.0 || 0.7));
+            this.secondcardnode[i].setScale((secondView === zjh_cmd.MY_VIEWID && 1.0 || 0.9));
         }
         this.firstCompareNode.setScale(1.0);
         this.secondCompareNode.setScale(1.0);
@@ -367,7 +399,7 @@ cc.Class({
         this.secondCompareNode.active = true;
         this.m_userCard[firstView].area.active = false;
         this.m_userCard[secondView].area.active = false;
-        compareView.stopAllActions();
+        // compareView.stopAllActions();
 
         this.firstCompareNode.runAction(cc.sequence(
             cc.scaleTo(0.2, 1.5),
@@ -389,6 +421,12 @@ cc.Class({
                     anim: animName,
                     tag: fileName + animName,
                     loop: false,
+                    frameEventHandler: (event) => {
+                        console.log("frameEventHandler ",event.detail.name)
+                        if (event.detail.name === "YX_bipai_sy1") {
+                            AudioMng.playSFX("sfx_bipaishibai");
+                        }
+                    },
                     callback: () => {
                         // this.stopCompareCard();
                         this.firstCompareNode.active = true;
@@ -439,7 +477,7 @@ cc.Class({
         }
     },
     setCellTurn: function (cellScore, turnCount, maxTurn) {
-        var text = "底注:" + cellScore + " 轮数:" + (turnCount + 1) + "/" + maxTurn;
+        var text = "底注:" + cellScore + "      第 " + (turnCount + 1) + "/" + maxTurn + " 局";
         this.m_Label_cellTurn.node.active = true;
         this.m_Label_cellTurn.string = text;
     },
@@ -460,7 +498,11 @@ cc.Class({
             return;
         }
         this.m_Image_banker.active = true;
-        this.m_Image_banker.setPosition(this.ptBanker[viewID]);
+        var x = this.m_userHead[viewID].bg.width / 2 - 15;
+        var y = this.m_userHead[viewID].bg.height / 2 - 15;
+        var _pos = this.m_userHead[viewID].bg.convertToWorldSpaceAR(new cc.Vec2(x, y));
+        var pos = this.node.convertToNodeSpaceAR(_pos);
+        this.m_Image_banker.setPosition(pos);//this.ptBanker[viewID]
     },
     setUserReConnect: function (viewID, isReConnect) {
         this.m_reConnect[viewID].active = isReConnect;
@@ -471,6 +513,27 @@ cc.Class({
                 cc.delayTime(1.0),
                 cc.fadeOut(1.0),
             )));
+        }
+    },
+    setGameStatusFlag: function (status) {
+        console.log("[GameView][setGameStatusFlag]",status);
+        var statusFlag = cc.find("Canvas/gameStatusFlag");
+        if (cc.isValid(statusFlag)) {
+            
+            if (status == null || status == "none") {
+                statusFlag.active = false;
+            }
+            else {
+                statusFlag.active = true;
+                for (var i = 0; i < statusFlag.children.length; i++) {
+                    var element = statusFlag.children[i];
+                    element.active = false;
+                }
+                var flagNode = cc.find("m_Image_status_" + status,statusFlag);
+                if (cc.isValid(flagNode)) {
+                    flagNode.active = true;
+                }
+            }
         }
     },
     //下注总额
@@ -491,7 +554,10 @@ cc.Class({
             // if (viewID !== )
         }
         else {
-
+            var userItem = this.m_userHead[viewID].userItem;
+            if (userItem) {
+                this.m_userHead[viewID].score.string = (userItem.lScore - score);
+            }
         }
     },
     //发牌
@@ -508,7 +574,7 @@ cc.Class({
         spriteCard.active = true;
         spriteCard.opacity = 0;
         spriteCard.stopAllActions();
-        spriteCard.setScale((viewID === zjh_cmd.MY_VIEWID) && 1.0 || 0.7);
+        spriteCard.setScale((viewID === zjh_cmd.MY_VIEWID) && 1.0 || 0.9);
         spriteCard.setPosition(0, 0);
         cardItem.showCardBack();
         spriteCard.runAction(
@@ -531,7 +597,10 @@ cc.Class({
         // if (viewID === zjh_cmd.MY_VIEWID) {
         //     return;
         // }
-        this.m_LookCard[viewID].active = bLook;
+        this.m_userState[viewID].active = bLook;
+        if (bLook) {
+            this.m_userState[viewID].getComponent(cc.Sprite).spriteFrame = this.gameAtlas.getSpriteFrame("game_label_look_card");
+        }
     },
     //弃牌状态
     setUserGiveUp: function (viewID, bGiveup) {
@@ -541,10 +610,9 @@ cc.Class({
             var cardNode = nodeCard.card[i];
             cardNode.active = true;
         }
-        this.m_GiveUp[viewID].active = bGiveup;
-        this.m_GiveUp[viewID].getComponentInChildren(cc.Label).string = "弃牌";
+        this.m_userState[viewID].active = bGiveup;
         if (bGiveup) {
-            this.setLookCard(viewID, false);
+            this.m_userState[viewID].getComponent(cc.Sprite).spriteFrame = this.gameAtlas.getSpriteFrame("game_label_out_card");
         }
     },
     //比牌输状态
@@ -554,10 +622,15 @@ cc.Class({
             var cardNode = nodeCard.card[i];
             cardNode.active = true;
         }
-        this.m_GiveUp[viewID].active = bLose;
-        this.m_GiveUp[viewID].getComponentInChildren(cc.Label).string = "比牌输";
+        this.m_userState[viewID].active = bLose;
         if (bLose) {
-            this.setLookCard(viewID, false);
+            this.m_userState[viewID].getComponent(cc.Sprite).spriteFrame = this.gameAtlas.getSpriteFrame("game_label_lose_card");
+        }
+    },
+    //孤注一掷状态
+    setUserLastAdd: function (viewID, bLastAdd) {
+        if (this.m_userHead[viewID]) {
+            this.m_userHead[viewID].fire.active = bLastAdd;
         }
     },
     //清理牌
@@ -568,7 +641,7 @@ cc.Class({
             var cardNode = nodeCard.card[i];
             cardNode.active = false;
         }
-        this.m_GiveUp[viewID].active = false;
+        this.m_userState[viewID].active = false;
     },
     //显示牌值
     setUserCard: function (viewID, cardData) {
@@ -621,9 +694,13 @@ cc.Class({
         }
     },
     showCardTypeAnim: function (cardType, callback) {
+        var gender = "_male";
+        if (GlobalUserData.cbGender == GlobalDef.GENDER_GIRL) {
+            gender = "_female";
+        }
         switch (cardType) {
             case GameLogic.CT_JIN_HUA:
-                AudioMng.playSFX("sfx_jinhua");
+                AudioMng.playSFX("sfx_jinhua" + gender);
                 GlobalFun.playEffects(this.node, {
                     fileName: "jinhuabaoziths",
                     anim: "yx_tonghua",
@@ -632,7 +709,7 @@ cc.Class({
                 });
                 break;
             case GameLogic.CT_SHUN_JIN:
-                AudioMng.playSFX("sfx_shunjin");
+                AudioMng.playSFX("sfx_shunjin" + gender);
                 GlobalFun.playEffects(this.node, {
                     fileName: "jinhuabaoziths",
                     anim: "yx_tonghuashun",
@@ -641,7 +718,7 @@ cc.Class({
                 });
                 break;
             case GameLogic.CT_BAO_ZI:
-                AudioMng.playSFX("sfx_baozi");
+                AudioMng.playSFX("sfx_baozi" + gender);
                 GlobalFun.playEffects(this.node, {
                     fileName: "jinhuabaoziths",
                     anim: "yx_baozi",
@@ -658,9 +735,9 @@ cc.Class({
         }
     },
     winScore: function name(params) {
-        // for (var index = 0; index < 4; index++) {
-        //     this.winTheChip(index,index + 2000);
-        // }
+        for (var index = 0; index < 4; index++) {
+            this.winTheChip(index,index + 2000);
+        }
         // this.showSendPresent(0,0,1,1);
         // for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
         //     // for (var j = i + 1; j < zjh_cmd.GAME_PLAYER; j++) {
@@ -668,31 +745,58 @@ cc.Class({
         //     // }
 
         // }
-        var firstUser = {
-            wChairID: 0,
-        }
-        var seconduser = {
-            wChairID: 1,
-        }
-        this.compareCard(firstUser, seconduser, undefined, undefined, true);
+        // var firstUser = {
+        //     wChairID: 0,
+        // }
+        // var seconduser = {
+        //     wChairID: 1,
+        // }
+        // this.compareCard(firstUser, seconduser, undefined, undefined, true);
     },
     //赢得筹码
     winTheChip: function (wWinner, score) {
         this.playUserAnim("collect", wWinner);
         var children = this.nodeChipPool.children;
         var delayTime = 0.1 * children.length + 0.4;
+        var _pos = this.m_userHead[wWinner].bg.convertToWorldSpaceAR(cc.v2(0,0));
+        var pos = this.nodeChipPool.convertToNodeSpaceAR(_pos);
         for (var i = 0; i < children.length; i++) {
             var element = children[i];
             element.runAction(cc.sequence(
                 cc.delayTime(0.1 * (children.length - i)),
-                cc.moveTo(0.4, this.ptPlayer[wWinner]).easing(cc.easeOut(0.4)),
-                cc.callFunc(function (node) {
-                    AudioMng.playSFX("sfx_addscore");
-                    node.destroy();
+                cc.moveTo(0.4, pos).easing(cc.easeOut(0.4)),
+                cc.callFunc((node)=> {
+                    AudioMng.playSFX("sfx_gold_fly");
+                    // node.destroy();
+                    this.ChipItemPool.put(node);
                 })
             )
             )
         }
+        this.m_userHead[wWinner].bg.runAction(cc.sequence(
+            cc.delayTime(0.4),
+            cc.callFunc(() => {
+                GlobalFun.playEffects(this.m_userHead[wWinner].bg, {
+                    fileName: "YX_fj_gg",
+                    anim: "YX_fj_gg",
+                    loop: false,
+                    remove: false,
+                    callback: () => {
+                        this.m_userHead[wWinner].bg.runAction(cc.sequence(
+                            cc.delayTime(0.5),
+                            cc.callFunc(() => {
+                                this.m_userHead[wWinner].score_star.stopSystem();
+                            })
+                        ))
+                    }
+                })
+            }),
+            cc.delayTime(0.5),
+            cc.callFunc(()=>{
+                this.m_userHead[wWinner].score_star.resetSystem();
+            })
+        ))
+        
         //显示赢家积分
         var self = this;
         this.node.runAction(cc.sequence(
@@ -703,11 +807,14 @@ cc.Class({
                         console.log(err.message || err);
                         return;
                     }
+                    cc.loader.setAutoReleaseRecursively(prefab, true);
                     var label = cc.instantiate(prefab);
-                    label.setPosition(self.ptCard[wWinner].x + (wWinner === zjh_cmd.MY_VIEWID && 80 || 35), self.ptCard[wWinner].y);
-                    self.node.getChildByName("nodePlayer").addChild(label);
+                    // label.setPosition(self.ptCard[wWinner].x + (wWinner === zjh_cmd.MY_VIEWID && 80 || 35), self.ptCard[wWinner].y);
+                    label.setPosition(pos.x, pos.y - 90);
+                    self.node.addChild(label);
                     label.getComponent(cc.Label).string = "+" + score;
                     label.opacity = 0;
+                    AudioMng.playSFX("sfx_addscore_2");
                     label.runAction(cc.sequence(
                         cc.spawn(
                             cc.moveBy(0.4, 0, 90),
@@ -743,13 +850,14 @@ cc.Class({
             var icon = presentData[cbGiftID].icon;
             var charm = presentData[cbGiftID].charm * wGiftCount;
             var presentView = cc.find("Canvas/presentView");
-            var fileName = "jjh_liwu1_10";
-            var animName = "jjh_liwu_" + GlobalFun.PrefixInteger(cbGiftID + 1, 2);
+            var fileName = "jjh_liwu";
+            var animName = "jjh_liwu_" + GlobalFun.PrefixInteger(cbGiftID, 2);
             cc.loader.loadRes("res/gameUserInfo", cc.SpriteAtlas, (err, atlas) => {
                 if (err) {
                     console.log(err.message || err);
                     return;
                 }
+                cc.loader.setAutoReleaseRecursively(atlas, true)
                 var node = new cc.Node("present");
                 var sprite = node.addComponent(cc.Sprite);
                 var frame = atlas.getSpriteFrame(icon.split('.')[0]);
@@ -770,11 +878,15 @@ cc.Class({
                             y: recvPoint.y,
                             callback: () => {
                                 // 显示魅力
+                                if (charm <= 0) {
+                                    return;
+                                }
                                 cc.loader.loadRes("prefab/charmLabel", function (err, prefab) {
                                     if (err) {
                                         console.log(err.message || err);
                                         return;
                                     }
+                                    cc.loader.setAutoReleaseRecursively(prefab, true);
                                     var label = cc.instantiate(prefab);
                                     label.setPosition(recvPoint.x, recvPoint.y - 90);
                                     presentView.addChild(label);
@@ -886,6 +998,7 @@ cc.Class({
         var self = this;
         if (cc.isValid(self._chatView) === false) {
             cc.loader.loadRes("prefab/GameChatView", function (err, chatPrefab) {
+                cc.loader.setAutoReleaseRecursively(chatPrefab, true);
                 if (cc.isValid(self.node)) {
                     self._chatView = cc.instantiate(chatPrefab);
                     self.node.addChild(self._chatView);
@@ -898,6 +1011,7 @@ cc.Class({
         var self = this;
         if (cc.isValid(self._settingView) === false) {
             cc.loader.loadRes("prefab/GameSettingView", function (err, settingPrefab) {
+                cc.loader.setAutoReleaseRecursively(settingPrefab, true);
                 if (cc.isValid(self.node)) {
                     self._settingView = cc.instantiate(settingPrefab);
                     self.node.addChild(self._settingView);
@@ -937,13 +1051,14 @@ cc.Class({
         // this._scene.onShowUserInfo(index);
         var userItem = this.m_userHead[index].userItem;
         var self = this;
-        var isSelf = userItem.dwUserID == GlobalUserData.dwUserID;
+        var isSelf = userItem.dwUserID == GlobalUserData.dwUserID || GlobalUserData.cbUserType == GlobalDef.USER_TYPE_GUEST;
         var ViewName = "GameUserInfoView";
         if (isSelf) {
             ViewName = "GameSelfInfoView";
         }
         if (cc.isValid(self._gameUserInfoView) === false) {
             cc.loader.loadRes("prefab/" + ViewName, function (err, UserInfoPrefab) {
+                cc.loader.setAutoReleaseRecursively(UserInfoPrefab, true);
                 if (cc.isValid(self.node)) {
                     self._gameUserInfoView = cc.instantiate(UserInfoPrefab);
                     self.node.addChild(self._gameUserInfoView);

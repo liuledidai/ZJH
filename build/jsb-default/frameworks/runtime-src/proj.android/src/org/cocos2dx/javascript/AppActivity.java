@@ -34,6 +34,8 @@ import org.cocos2dx.javascript.SDKWrapper;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import org.cocos2dx.javascript.Native;
 import android.content.res.Configuration;
 import android.app.AlertDialog;
 
@@ -61,6 +63,25 @@ public class AppActivity extends Cocos2dxActivity {
         app = this;
         SDKWrapper.getInstance().init(this);
         DeviceModule.setContext(this);
+
+        Intent intent = getIntent();
+		Uri data = intent.getData();
+        Log.d("zhajapay","onCreate");
+		if (data != null) {
+			if (data.getScheme().equals("zhajapay")) {
+				final String param = data.getQuery();
+                Log.d("zhajapay",param);
+				if (param != null) {
+                    app.runOnGLThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Native.OpenAppByUrlCallback(param);
+                        }
+                    });
+					
+				}
+			}
+		}
     }
 	
     @Override
@@ -102,6 +123,22 @@ public class AppActivity extends Cocos2dxActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         SDKWrapper.getInstance().onNewIntent(intent);
+        Uri data = intent.getData();
+        Log.d("zhajapay","onNewIntent");
+		if (data != null) {
+			if (data.getScheme().equals("zhajapay")) {
+				final String param = data.getQuery();
+                Log.d("zhajapay",param);
+				if (param != null) {
+					app.runOnGLThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Native.OpenAppByUrlCallback(param);
+                        }
+                    });
+				}
+			}
+		}
     }
 
     @Override

@@ -29,7 +29,7 @@ cc.Class({
         var charm = params.charm;
         this.m_Image_present.spriteFrame = this.presentAtlas.getSpriteFrame(icon.split('.')[0]);
         this.m_Label_charm.string = "魅力" + charm;
-        this.m_Label_price.string = gold;
+        this.m_Label_price.string = params.display;
     },
     setSelect: function (bSelect) {
         this.m_Image_select.active = bSelect;

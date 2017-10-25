@@ -101,6 +101,7 @@
 		B61048001ED41BB400E646DC /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61047F51ED41BB400E646DC /* tools.cpp */; };
 		B61048AA1ED56D3700E646DC /* ClientSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61048A81ED56D3700E646DC /* ClientSocket.cpp */; };
 		B61048AB1ED56D3700E646DC /* ClientSocket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B61048A81ED56D3700E646DC /* ClientSocket.cpp */; };
+		B61866311F8F537E005E28C0 /* KeychainAccessGroups.plist in Resources */ = {isa = PBXBuildFile; fileRef = B61866301F8F5374005E28C0 /* KeychainAccessGroups.plist */; };
 		B624F1FF1F4D6B17002A2963 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = B624F1FE1F4D6B17002A2963 /* Reachability.m */; };
 		B624F2011F4D6CA0002A2963 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B624F2001F4D6CA0002A2963 /* CoreTelephony.framework */; };
 		B62C4CAC1F2201C600B24B0D /* CHKeychain.m in Sources */ = {isa = PBXBuildFile; fileRef = B62C4CA91F2201C600B24B0D /* CHKeychain.m */; };
@@ -326,6 +327,7 @@
 		B61048A11ED41DB200E646DC /* typedef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = typedef.h; sourceTree = "<group>"; };
 		B61048A81ED56D3700E646DC /* ClientSocket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientSocket.cpp; sourceTree = "<group>"; };
 		B61048A91ED56D3700E646DC /* ClientSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientSocket.h; sourceTree = "<group>"; };
+		B61866301F8F5374005E28C0 /* KeychainAccessGroups.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = KeychainAccessGroups.plist; path = ios/KeychainAccessGroups.plist; sourceTree = SOURCE_ROOT; };
 		B624F1FD1F4D6B17002A2963 /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = ios/Reachability.h; sourceTree = "<group>"; };
 		B624F1FE1F4D6B17002A2963 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reachability.m; path = ios/Reachability.m; sourceTree = "<group>"; };
 		B624F2001F4D6CA0002A2963 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS10.2.sdk/System/Library/Frameworks/CoreTelephony.framework; sourceTree = DEVELOPER_DIR; };
@@ -694,6 +696,7 @@
 				B624F1FD1F4D6B17002A2963 /* Reachability.h */,
 				B624F1FE1F4D6B17002A2963 /* Reachability.m */,
 				B62C4CA91F2201C600B24B0D /* CHKeychain.m */,
+				B61866301F8F5374005E28C0 /* KeychainAccessGroups.plist */,
 				B62C4CAA1F2201C600B24B0D /* DeviceModule.h */,
 				B66C95071F6BCA7C00E6900B /* Default-568h@2x.png */,
 				B66C95081F6BCA7C00E6900B /* Default-667h@2x.png */,
@@ -799,6 +802,11 @@
 				TargetAttributes = {
 					A922753C1517C094001B78AA = {
 						DevelopmentTeam = GZVX6L999D;
+						SystemCapabilities = {
+							com.apple.Keychain = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -878,6 +886,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B61866311F8F537E005E28C0 /* KeychainAccessGroups.plist in Resources */,
 				BAF426FB19484B3E002B22EF /* script in Resources */,
 				1AE159EC18C9DF3600FCA372 /* project.json in Resources */,
 				1AD7E0A818C9DB93004817A6 /* main.js in Resources */,
@@ -1100,6 +1109,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_ENTITLEMENTS = ios/KeychainAccessGroups.plist;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = GZVX6L999D;
@@ -1141,6 +1151,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_ENTITLEMENTS = ios/KeychainAccessGroups.plist;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
 				DEVELOPMENT_TEAM = GZVX6L999D;

@@ -1,6 +1,7 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -32,10 +33,6 @@ cc.Class({
     onRefreshEffect: function () {
         // this.m_Button_effect_switch_off.node.active = !GlobalUserData.bEffectAble;
         this.m_Button_effect_switch_on.node.active = GlobalUserData.bEffectAble;
-    },
-    onDestroy: function () {
-        cc.sys.garbageCollect();
-        console.log("[SettingView][onDestroy]");
     },
     onClickCloseButton: function() {
         // this.node.active = false;  

@@ -1,9 +1,10 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 require("MD5");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -66,7 +67,7 @@ cc.Class({
         var szNickName = GlobalUserData.szNickName || GlobalUserData.szAccounts;
         var llGameScore = GlobalUserData.llGameScore;
         var dwLoveLiness = GlobalUserData.dwLoveLiness;
-        var dwUserID = GlobalUserData.dwUserID;
+        var dwGameID = GlobalUserData.dwGameID;
         var cbGender = GlobalUserData.cbGender || 1;
         var cbUserType = GlobalUserData.cbUserType;
         var faceID = GlobalUserData.getUserFaceID();
@@ -104,7 +105,7 @@ cc.Class({
 
         this.m_Label_userGold.string = llGameScore;
         this.m_Label_userCharm.string = dwLoveLiness;
-        this.m_Label_userID.string = dwUserID;
+        this.m_Label_userID.string = dwGameID;
         this.m_Label_userName.string = szNickName;
         if (cbGender == GlobalDef.GENDER_GIRL) {
             this.genderWomanButton.check();
@@ -122,7 +123,8 @@ cc.Class({
         console.log("[UserProfileView][onDisable]");
     },
     onDestroy: function () {
-        cc.sys.garbageCollect();
+        // cc.sys.garbageCollect();
+        this._super();
         console.log("[UserProfileView][onDestroy]");
     },
     close: function () {
@@ -185,6 +187,7 @@ cc.Class({
         var self = this;
         self.onClickCloseButton();
         cc.loader.loadRes("prefab/UserChangePwdView", function (err, prefab) {
+            cc.loader.setAutoReleaseRecursively(prefab, true);
             var context = cc.Canvas.instance.node;
             if (cc.isValid(context)) {
                 var newNode = cc.instantiate(prefab);
@@ -197,6 +200,7 @@ cc.Class({
         var self = this;
         self.onClickCloseButton();
         cc.loader.loadRes("prefab/GuestBindView", function (err, prefab) {
+            cc.loader.setAutoReleaseRecursively(prefab, true);
             var context = cc.Canvas.instance.node;
             if (cc.isValid(context)) {
                 var newNode = cc.instantiate(prefab);

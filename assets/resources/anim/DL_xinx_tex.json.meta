@@ -1,0 +1,7 @@
+{
+  "ver": "1.0.0",
+  "uuid": "7b4b35ee-ef1c-4ef8-8dc2-a608ec3aabef",
+  "atlasJson": "{\"width\":256,\"imagePath\":\"DL_xinx_tex.png\",\"height\":512,\"name\":\"DL_xinx\",\"SubTexture\":[{\"width\":3,\"y\":228,\"height\":165,\"name\":\"DL_hts\",\"x\":230},{\"width\":3,\"y\":108,\"height\":186,\"name\":\"DL_wjxs\",\"x\":225},{\"width\":3,\"y\":108,\"height\":112,\"name\":\"DL_hxs\",\"x\":230},{\"width\":3,\"y\":108,\"height\":92,\"name\":\"Dl_mhs\",\"x\":235},{\"width\":2,\"y\":1,\"height\":309,\"name\":\"Dl_fks\",\"x\":240},{\"width\":89,\"y\":119,\"height\":99,\"name\":\"DL_meihua\",\"x\":1},{\"width\":115,\"y\":1,\"height\":105,\"name\":\"DL_heitao\",\"x\":123},{\"width\":100,\"y\":108,\"height\":118,\"name\":\"DL_fangkuai\",\"x\":123},{\"width\":96,\"y\":220,\"height\":84,\"name\":\"DL_hongxin\",\"x\":1},{\"width\":120,\"y\":1,\"height\":116,\"name\":\"DL_wujiaox\",\"x\":1},{\"frameX\":-1,\"y\":119,\"frameY\":-1,\"frameWidth\":32,\"width\":29,\"frameHeight\":32,\"height\":29,\"name\":\"DL_xx1\",\"x\":92}]}",
+  "texture": "4bdc14a4-bd8b-4c8d-bbdf-dfd176fc9ec7",
+  "subMetas": {}
+}

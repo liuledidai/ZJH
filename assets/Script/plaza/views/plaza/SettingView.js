@@ -1,8 +1,9 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalDef = require("GlobalDef");
 var GlobalFun = require("GlobalFun");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -66,7 +67,7 @@ cc.Class({
         this.m_Button_effect_switch_on.node.active = GlobalUserData.bEffectAble;
     },
     onDestroy: function () {
-        cc.sys.garbageCollect();
+        this._super();
         console.log("[SettingView][onDestroy]");
     },
     onClickCloseButton: function() {
@@ -95,6 +96,7 @@ cc.Class({
                     name: "确定",
                     callback: () => {
                         GlobalUserData.szUserGUID = undefined;
+                        GlobalUserData.isShowBind = false;
                         //清空微信授权登录数据
                         cc.sys.localStorage.setItem("WXaccount","");
                         cc.sys.localStorage.setItem("WXpassword","");
@@ -108,7 +110,21 @@ cc.Class({
                             console.log("[SettingView][onClickSwitchAccount] 获取GameFrame 所在节点 并取消为常驻节点");
                             cc.game.removePersistRootNode(GameFrameNode);
                         }
-                        cc.director.loadScene("LoginScene");
+                        // cc.director.loadScene("LoginScene");
+                        GlobalFun.showLoadingView({
+                            closeEvent: "LoginSceneFinish",
+                            des: "正在加载资源，请等待...",
+                            loadfunc: function () {
+                                cc.director.preloadScene("LoginScene", function () {
+                                    cc.log("LoginScene scene preloaded");
+                                    cc.director.emit("LoginSceneFinish");
+                                });
+                            },
+                            closefunc: function () {
+                                cc.director.loadScene("LoginScene");
+                                // cc.sys.garbageCollect();
+                            },
+                        })
                     }
                 }
             ],

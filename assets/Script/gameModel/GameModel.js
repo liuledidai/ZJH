@@ -114,7 +114,7 @@ var GameModel = cc.Class({
         }
     },
     onExitRoom: function () {
-        this._gameFrame.sendStandupPacket();
+        // this._gameFrame.sendStandupPacket();
         this._gameFrame.sendLeftGamePacket();
         // this._gameFrame.onCloseSocket();
         this.killGameClock();  
@@ -184,6 +184,9 @@ var GameModel = cc.Class({
         // console.log("[GameModel][onClockUpdata] chair = " + this._ClockChair + " time = " + this._ClockTime + " id = " + this._ClockID);
         if (this._ClockID !== GlobalDef.INVALID_ITEM) {
             this._ClockTime = this._ClockTime - 1;
+            if (this._ClockTime <= 5) {
+                AudioMng.playSFX("sfx_clock");
+            }
             var ret = this.onEventGameClockInfo(this._ClockChair, this._ClockTime, this._ClockID);
             if (ret === true || this._ClockTime < 1) {
                 console.log("[GameModel][onClockUpdata] [ret,clocktime] = " + [ret,this._ClockTime]);
@@ -344,16 +347,22 @@ var GameModel = cc.Class({
         else if (chatType == ChatDef.ChatType.QuickChat) {
             var index = parseInt(tableChat.cbBuffer);
             console.log("[OnEventChatMsg]", chatType, index);
-            var soundName = "sfx_chat_" + index;
-            AudioMng.playSFX(soundName);
+            var soundName = "sfx_chat_";
+            // AudioMng.playSFX(soundName);
             var userItem = this._gameFrame.getTableUserItem(this._gameFrame.getTableID(), tableChat.wChairID);
             if (!userItem) {
                 return;
             }
             if (userItem.cbGender == GlobalDef.GENDER_GIRL) {
-                index -= 9;
+                // index -= 9;
+                soundName = soundName + "female_";
             }
-            if (index >= 0 && index < 9) {
+            else {
+                soundName = soundName + "male_";
+            }
+            soundName += index;
+            AudioMng.playSFX(soundName);
+            if (ChatDef.quickChatMsg[index]) {
                 var msg = ChatDef.quickChatMsg[index];
                 if (this._gameView && this._gameView.showUserChat) {
                     this._gameView.showUserChat(viewID, msg);

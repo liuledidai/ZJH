@@ -1,10 +1,11 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
 var MissionWeiXin = require("MissionWeiXin");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {

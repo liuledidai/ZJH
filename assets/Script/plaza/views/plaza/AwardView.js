@@ -1,5 +1,6 @@
+var ViewBase = require("ViewBase");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {

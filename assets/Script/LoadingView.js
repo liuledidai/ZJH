@@ -26,6 +26,7 @@ cc.Class({
         this._loadfunc = params.loadfunc;
         this._closefunc = params.closefunc;
         this._connectDes = params.des || "正在连接游戏服务器...";
+        this.m_Label_des.string = this._connectDes;
         cc.director.on(this._closeEvent, this.close, this);
         cc.director.on("LoadingViewError", this.showMessageBox, this);
         cc.director.on("LoadingViewOnConnect", this.onConnected, this);

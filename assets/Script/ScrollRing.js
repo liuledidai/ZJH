@@ -47,6 +47,11 @@ cc.Class({
         }
     },
     start:function(){
+        console.log("_updateToFocus _bIssetFocusid = ",this._bIssetFocusid)
+        if (this._bIssetFocusid) {
+            // console.log("_updateToFocus _bIssetFocusid = ",this._bIssetFocusid)
+            return;
+        }
         console.log("_updateToFocus start");
         if(this.isFocusMode && this._bIsInit){
             this._updateToFocus("init");
@@ -309,7 +314,7 @@ cc.Class({
             }
         }else{
             focusChanged = this._focusid !== focusid;
-            if(focusChanged)this.onFocusChange("loseFocus",this.node.children[this._focusid]);
+            if(focusChanged && this._focusid >= 0)this.onFocusChange("loseFocus",this.node.children[this._focusid]);
             this._focusid = focusid;
         }
         
@@ -398,6 +403,7 @@ cc.Class({
         child.setPosition(pt);
     },
     setFocusid:function(focusid){
+        this._bIssetFocusid = true;
         this._updateToFocus(focusid);
     },
     onClickItem:function(itemNode){

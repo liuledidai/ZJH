@@ -1,3 +1,4 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
@@ -5,7 +6,7 @@ var zjh_cmd = require("CMD_ZaJinHua");
 require("MD5");
 
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -53,15 +54,20 @@ cc.Class({
         this.radioButtonClicked(this.radioButton[this._selectIndex]);
     },
     refreshUI: function () {
-        if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST) {
+        //账号登陆用户隐藏初始密码
+        if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_ACCOUNT) {
+            this.m_Label_bankPwd.node.active = false;
+        }
+        else {
             this.m_Label_bankPwd.node.active = true;
-            //游客隐藏银行密码和魅力抽奖页签
+        }
+
+        //游客隐藏银行密码和魅力抽奖页签
+        if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST) {
             this.radioButton[2].node.active = false;
             this.radioButton[3].node.active = false;
         }
         else {
-            this.m_Label_bankPwd.node.active = false;
-            //游客隐藏银行密码和魅力抽奖页签
             this.radioButton[2].node.active = true;
             this.radioButton[3].node.active = true;
         }
@@ -101,7 +107,7 @@ cc.Class({
         console.log("[BankView][onDisable]");
     },
     onDestroy: function () {
-        cc.sys.garbageCollect();
+        this._super();
         console.log("[BankView][onDestroy]");
     },
     onClickCloseButton: function () {
@@ -113,6 +119,8 @@ cc.Class({
         this._selectIndex = index;
         // toggle.node.setLocalZOrder(1);
         var title = "RadioButton";
+        //账号登陆用户隐藏初始密码
+        this.m_Label_bankPwd.node.active = !(GlobalUserData.cbUserType === GlobalDef.USER_TYPE_ACCOUNT);
         switch (index) {
             case 0:
                 title += "1";
@@ -125,6 +133,8 @@ cc.Class({
                 break;
             case 3:
                 title += "4";
+                //抽奖界面隐藏初始密码
+                this.m_Label_bankPwd.node.active = false;
                 break;
 
             default:
@@ -263,7 +273,7 @@ cc.Class({
         // return;
         var szcharmCount = this.m_Editbox_charm_num.string;
         var szPassWord = this.m_Editbox_charm_pwd.string;
-        
+
         if (isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 || Number(szcharmCount) > (100)) {
             GlobalFun.showToast("您输入的魅力值不符合规定!");
             return;
@@ -318,7 +328,7 @@ cc.Class({
                                     }
                                     if (value.exchange !== undefined) {
                                         GlobalFun.showLotteryView({
-                                            num:Number(value.exchange),
+                                            num: Number(value.exchange),
                                         })
                                     }
                                     cc.director.emit("onPlazaRefreshUI");
@@ -327,7 +337,7 @@ cc.Class({
                                 else {
                                     GlobalFun.showToast(value.msg);
                                 }
-                                
+
                             }
                         };
                         xhr.open("POST", url, true);

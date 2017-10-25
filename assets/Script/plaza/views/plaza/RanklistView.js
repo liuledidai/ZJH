@@ -1,9 +1,10 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var zjh_cmd = require("CMD_ZaJinHua");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -123,6 +124,7 @@ cc.Class({
                     console.log(err.message || err);
                     return;
                 }
+                cc.loader.setAutoReleaseRecursively(prefab, true);
                 if (cc.isValid(this.m_rankListView.content)) {
                     var newNode = cc.instantiate(prefab);
                     this.m_rankListView.content.addChild(newNode);

@@ -1,10 +1,11 @@
+var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
 var GlobalFun = require("GlobalFun");
 var GlobalDef = require("GlobalDef");
 var MultiPlatform = require("MultiPlatform");
 var zjh_cmd = require("CMD_ZaJinHua");
 cc.Class({
-    extends: cc.Component,
+    extends: ViewBase,
 
     properties: {
         // foo: {
@@ -30,6 +31,7 @@ cc.Class({
 
     // use this for initialization
     onLoad: function () {
+        this._isRefreshRecharge = false;
          //初始化IAP
         this.sdkboxInit();
         this.refreshUI();
@@ -135,17 +137,46 @@ cc.Class({
     },
     _restoreCallback: function (params) {
         console.log("zhajinhua _restoreCallback");  
+        if (this._isRefreshRecharge) {
+            this._isRefreshRecharge = false;
+            cc.director.emit("onUserChanged");
+        }
+    },
+    _payResultCallback: function name(params) {
+        console.log("zhajinhua _payResultCallback");  
+        console.log(JSON.stringify(params.detail));
+        var action = params.detail;
+        if (action == "1") {
+            GlobalFun.showAlert({
+                message:"交易完成，请查收金币是否到帐",
+            });
+            if (this._isRefreshRecharge) {
+                this._isRefreshRecharge = false;
+                cc.director.emit("onUserChanged");
+            }
+        }
+        // if (action == "0") {
+        //     GlobalFun.showAlert({
+        //         message:"交易未完成，请查收金币是否到帐",
+        //     });
+        //     if (this._isRefreshRecharge) {
+        //         this._isRefreshRecharge = false;
+        //         cc.director.emit("onUserChanged");
+        //     }
+        // }
     },
     onEnable: function () {
         // cc.director.on('onInCharge',this.onInCharge,this);
         cc.game.on(cc.game.EVENT_HIDE, this._pausedCallback, this);
         cc.game.on(cc.game.EVENT_SHOW, this._restoreCallback, this);
+        cc.game.on("ENTER_GAME_PAY_RESULT",this._payResultCallback, this);
         console.log("[ShopView][onEnable]");
     },
     onDisable: function () {
         // cc.director.off('onInCharge',this.onInCharge,this);
         cc.game.off(cc.game.EVENT_HIDE, this._pausedCallback, this);
         cc.game.off(cc.game.EVENT_SHOW, this._restoreCallback, this);
+        cc.game.off("ENTER_GAME_PAY_RESULT",this._payResultCallback, this);
         console.log("[ShopView][onDisable]");
     },
     onShopItemClick: function (goodsID) {
@@ -213,8 +244,16 @@ cc.Class({
                 if (value.status == 1) {
                     if (value.returnpaytype == "8") {
                         sdkbox.IAP.purchase(value.productid);
+                        // GlobalFun.showPopWaiting(cc.director.getScene(),{
+                        //     closeEvent: "iapPurchaseCompleted",
+                        //     callBackFunc: function () {
+                        //         console.log("[ShopView][sdkboxpurchase] callbackfunc");
+                        //     },
+                        //     waitingTime:8,
+                        // });
                     }
                     else {
+                        this._isRefreshRecharge = true;
                         var productid = value.id;
                         var rechargeUrl = GlobalUserData.getUserServer(GlobalDef.RECHARGE);
                         var extraUrl = "?id=" + productid + "&appurl=zhajapay://game";
@@ -226,6 +265,9 @@ cc.Class({
                     GlobalFun.showAlert({message:value.msg});
                 }
                 
+            },
+            timeoutCallback:()=>{
+                GlobalFun.showToast("服务器连接超时，请稍候重试");
             }
         })
     },
@@ -263,24 +305,12 @@ cc.Class({
             },
         })
     },
-    onChoosePaytype: function (params) {
-        console.log("[ShopView][onChoosePaytype]")
-        cc.loader.loadRes("prefab/ChoosePayTypeView", function (err, prefab) {
-            var newNode = cc.instantiate(prefab);
-            newNode.getComponent("ChoosePayTypeView").init(params);
-            cc.director.getScene().getChildByName("Canvas").addChild(newNode);
-            GlobalFun.ActionShowTanChuang(newNode, function () {
-                console.log("[ShopView][onChoosePaytype]ActionShowTanChuang callback");
-            })
-        });
-        this.close();
-    },
     close: function () {
         this.node.removeFromParent();
         this.node.destroy();
     },
     onDestroy: function () {
-        cc.sys.garbageCollect();
+        this._super();
         console.log("[ShopView][onDestroy]");
     },
     onClickCloseButton: function () {
