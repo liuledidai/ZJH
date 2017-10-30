@@ -1,5 +1,6 @@
 var ViewBase = require("ViewBase");
 var GlobalUserData = require("GlobalUserData");
+var GlobalDef = require("GlobalDef");
 cc.Class({
     extends: ViewBase,
 
@@ -49,6 +50,9 @@ cc.Class({
         var costGold = goldVal * sendNum;
         var llInsureScore = GlobalUserData.llInsureScore;
         var leftGold = llInsureScore - costGold;
+        if (userItem.cbUserType === GlobalDef.USER_TYPE_WEIXIN) {
+            szNickName = userItem.szWeChatNickName || szNickName;
+        }
 
         this.m_Label_nickname.string = szNickName;
         this.m_Label_id.string = dwGameID;

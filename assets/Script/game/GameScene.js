@@ -138,6 +138,7 @@ cc.Class({
         this.m_wWinnerUser = GlobalDef.INVALID_CHAIR;//胜利用户
         this.m_llAllTableScore = 0;
         this.m_bLastAddOver = false;//是否孤注一掷结束
+        this.m_bIsPlay = false;
         // this.setGameClock(zjh_cmd.MY_VIEWID, zjh_cmd.IDI_START_GAME, zjh_cmd.TIME_START_GAME)
     },
     //设置计时器
@@ -289,6 +290,7 @@ cc.Class({
                 //     //状态信息
                 //     bool								bCompareState;						//比牌状态
                 //     LONG                                lCurrentTurn;                       //当前轮数
+                //     bool                             bIsPlay;                //true 掉线重入 false 中途加入
                 // };
                 var myChair = this.getMeChairID();
                 var playStatus = {};
@@ -317,6 +319,9 @@ cc.Class({
                 }
                 playStatus.bCompareState = pData.readbool();
                 playStatus.lCurrentTurn = pData.readint();
+                playStatus.bIsPlay = pData.readbool();
+
+                this.m_bIsPlay = playStatus.bIsPlay;
 
                 this.m_lMaxCellScore = playStatus.lMaxCellScore;
                 this.m_lCellScore = playStatus.lCellScore;
@@ -349,6 +354,14 @@ cc.Class({
 
                 //庄家信息
                 this._gameView.setBanker(this.switchViewChairID(this.m_wBankerUser));
+                //中途加入游戏
+                if(playStatus.bIsPlay) {
+                    //掉线重入
+                }
+                else {
+                    //中途加入
+                    this._gameView.setGameStatusFlag("wait");
+                }
 
                 for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
                     //视图位置
@@ -364,6 +377,7 @@ cc.Class({
                             }
                             this._gameView.setUserCard(viewID, cardIndex);
                             this._gameView.setUserCardType(viewID, GameLogic.getCardType(cardIndex));
+                            // this._gameView.m_Button_lookCard.node.active = false;
                         }
                         else {
                             this._gameView.setUserCard(viewID, [0xff, 0xff, 0xff]);
@@ -391,6 +405,14 @@ cc.Class({
                 //控件信息
                 this._gameView.m_nodeBottom.active = false;
                 this._gameView.m_chipBG.active = false;
+                //看牌按钮
+                if(this.m_cbPlayStatus[myChair] === 1 && this.m_bLookCard[myChair] === false ) {
+                    this._gameView.m_Button_lookCard.node.active = true;
+                }
+                else {
+                    this._gameView.m_Button_lookCard.node.active = false;
+                }
+
                 if (!playStatus.bCompareState) {
                     this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
 
@@ -489,6 +511,7 @@ cc.Class({
         this.m_isFllowAlway = false;
         this.m_bLastAddOver = false;
         this.m_bOnGame = true;
+        this.m_bIsPlay = true;
         //显示庄家
         this._gameView.setBanker(this.switchViewChairID(this.m_wBankerUser));
         //显示底分
@@ -532,6 +555,7 @@ cc.Class({
         var delayTime = delayCount * 0.1 + 0.2;
         this.scheduleOnce(() => {
             this.setGameClock(this.m_wCurrentUser, zjh_cmd.IDI_USER_ADD_SCORE, zjh_cmd.TIME_USER_ADD_SCORE);
+            this._gameView.m_Button_lookCard.node.active = true;
             if (this.m_wCurrentUser === this.getMeChairID()) {
                 this.updateControl();
             }
@@ -604,8 +628,11 @@ cc.Class({
         if (addScore.wCompareState === 0 && this.m_wCurrentUser === myChair) {
             this.m_lCurrentTurn = addScore.lCurrentTurn;
             this._gameView.setCellTurn(this.m_lCellScore, this.m_lCurrentTurn, this.m_lMaxTurnCount);
-            this.updateControl();
-            AudioMng.playSFX("sfx_oneturn");
+            this.scheduleOnce(()=>{
+                this.updateControl();
+                AudioMng.playSFX("sfx_oneturn");
+            },1.0);
+            
         }
         this.m_isFirstAdd = false;
 
@@ -635,7 +662,7 @@ cc.Class({
         console.log("[GameScene][onSubLookCard] lookCard = " + JSON.stringify(lookCard, null, ' '));
         var viewID = this.switchViewChairID(lookCard.wLookCardUser);
         //看牌动作
-        this._gameView.playUserAnim("chip",viewID);
+        this._gameView.playUserAnim("look",viewID);
 
         this._gameView.setLookCard(viewID, true);
         if (this.getMeChairID() === this.m_wCurrentUser) {
@@ -750,7 +777,7 @@ cc.Class({
         //弃牌音效
         this.playSound(SoundEffectType.kSoundEffectQiPai, wGiveUpUser);
         //弃牌动作
-        this._gameView.playUserAnim("chip",viewID);
+        this._gameView.playUserAnim("lose",viewID);
         //超时服务器自动放弃
         if (wGiveUpUser === this.getMeChairID()) {
             this.killGameClock();
@@ -758,6 +785,7 @@ cc.Class({
             this._gameView.setCompareCard(false, undefined);
             this._gameView.m_chipBG.active = false;
             this._gameView.m_nodeBottom.active = false;
+            this._gameView.m_Button_lookCard.node.active = false;
         }
     },
     onSubPlayerExit: function (sub, pData) {
@@ -818,6 +846,7 @@ cc.Class({
         this._gameView.setCompareCard(false);
         this._gameView.m_chipBG.active = false;
         this._gameView.m_nodeBottom.active = false;
+        this._gameView.m_Button_lookCard.node.active = false;
         // ......
 
         // var endShow;
@@ -855,6 +884,10 @@ cc.Class({
         ));
         //牌型动画，胜利失败动画&音效
         this._gameView.showCardTypeAnim(saveType[winner], () => {
+            //中途加入的不播放胜利失败
+            if (this.m_bIsPlay == false) {
+                return;
+            }
             if (winner === myChair) {
                 AudioMng.playSFX("sfx_gamewin");
                 GlobalFun.playEffects(this.node, {
@@ -1027,6 +1060,7 @@ cc.Class({
                         this.updateControl();
                         this._gameView.m_chipBG.active = false;
                         this._gameView.m_nodeBottom.active = false;
+                        this._gameView.m_Button_lookCard.node.active = false;
                     }
                     // this._gameView.setUserCard()
                 }
@@ -1222,6 +1256,7 @@ cc.Class({
         //隐藏操作按钮
         this._gameView.m_chipBG.active = false;
         this._gameView.m_nodeBottom.active = false;
+        this._gameView.m_Button_lookCard.node.active = false;
         //发送数据
         var dataBuf = CCmd_Data.create();
         this.sendData(zjh_cmd.SUB_C_GIVE_UP, dataBuf);
@@ -1246,10 +1281,11 @@ cc.Class({
         if (myChair === undefined || myChair == GlobalDef.INVALID_CHAIR) {
             return;
         }
-        if (this.m_wCurrentUser != myChair) {
-            return;
-        }
+        // if (this.m_wCurrentUser != myChair) {
+        //     return;
+        // }
         this.m_bLookCard[myChair] = true;
+        this._gameView.m_Button_lookCard.node.active = false;
         // ....
         // ....
         //发送消息
@@ -1296,6 +1332,7 @@ cc.Class({
         this._gameView.m_chipBG.active = false;
         //底部按钮
         this._gameView.m_nodeBottom.active = false;
+        this._gameView.m_Button_lookCard.node.active = false;
 
         var dataBuf = CCmd_Data.create();
         this.sendData(zjh_cmd.SUB_C_LAST_ADD, dataBuf);
@@ -1333,7 +1370,7 @@ cc.Class({
         var maxAddScore = this.m_lUserMaxScore - this.m_lTableScore[myChair];
         var followScore = this.m_lCurrentTimes * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
         var followLabel = this._gameView.m_Button_follow.node.children[0].getComponent(cc.Label);
-        followLabel.string = followScore;
+        followLabel.string = GlobalFun.numberFormat(followScore);
         // if (maxAddScore < followScore) {
         // console.log("[GameScene][updateControl] [this.m_lUserMaxScore, this.m_lTableScore[myChair], followScore]" + [this.m_lUserMaxScore, this.m_lTableScore[myChair], followScore])
         this._gameView.m_Button_follow.interactable = !(maxAddScore < followScore);
@@ -1361,7 +1398,7 @@ cc.Class({
         this._gameView.m_Button_compareCard.interactable = bCompare;
         var compareLabel = this._gameView.m_Button_compareCard.node.children[0].getComponent(cc.Label);
         // compareLabel.node.active = bCompare;
-        compareLabel.string = compareScore;
+        compareLabel.string = GlobalFun.numberFormat(compareScore);
         //加注按钮
         var bCanAdd = false;
         var children = this._gameView.m_chipBG.children;
@@ -1371,7 +1408,7 @@ cc.Class({
             var bHide = !bLastAdd && (element > this.m_lCurrentTimes);
             var lScore = element * this.m_lCellScore * (this.m_bLookCard[myChair] && 2 || 1);
             var scoreLabel = children[i].children[0].getComponent(cc.Label);
-            scoreLabel.string = lScore;
+            scoreLabel.string = GlobalFun.numberFormat(lScore);
             children[i].getComponent(cc.Button).enableAutoGrayEffect = true;
             children[i].getComponent(cc.Button).interactable = bHide;
             bCanAdd = bCanAdd || (bHide && maxAddScore >= lScore);

@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "4250d92f-c0ae-4d64-885f-1f322b9cb79d",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "girl2_lose07": {
+      "ver": "1.0.3",
+      "uuid": "4f90b4dd-e35e-4366-a8cc-50659336fd67",
+      "rawTextureUuid": "4250d92f-c0ae-4d64-885f-1f322b9cb79d",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": -0.5,
+      "offsetY": -19,
+      "trimX": 110,
+      "trimY": 133,
+      "width": 291,
+      "height": 284,
+      "rawWidth": 512,
+      "rawHeight": 512,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

@@ -63,7 +63,7 @@ cc.Class({
             default: [],
             type: cc.Vec2,
         },
-        ptBanker: {
+        ptChair: {
             default: [],
             type: cc.Vec2,
         },
@@ -96,8 +96,11 @@ cc.Class({
             this.node.getChildByName("nodePlayer").addChild(userNode);
             this.m_Node_player[index] = userNode;
             userNode.setPosition(this.ptPlayer[index]);
-            userNode.rotation = index * (-90);
-            // userNode.getComponentInChildren("UserInfaceItem").playerAnimate("wait",index,{cbGender:(Math.floor(index/2) + 1)});
+            // userNode.rotation = index * (-90);
+            if (index == zjh_cmd.GAME_PLAYER -1) {
+                userNode.setScaleX(-1);
+            }
+            // userNode.getComponentInChildren("UserInfaceItem").playerAnimate("idle",index,{cbGender:(Math.floor(index/2) + 1)});
             // userNode.setScale(1.5);
             userNode.active = false;
 
@@ -181,6 +184,7 @@ cc.Class({
         this.m_fireView.active = false;
         //底部按钮
         this.m_nodeBottom.active = false;
+        this.m_Button_lookCard.node.active = false;
         this.m_chipBG.active = false;
         this.nodeChipPool = this.node.getChildByName("nodeChipPool");
         this.bAutoFollow = false;
@@ -203,6 +207,7 @@ cc.Class({
         this.m_Button_cancelfollow.node.active = this.bAutoFollow;
         this.m_Button_ready.node.active = false;
         this.m_nodeBottom.active = false;
+        this.m_Button_lookCard.node.active = false;
         this.m_chipBG.active = false;
         this.m_fireView.active = false;
         this.setBanker(GlobalDef.INVALID_CHAIR);
@@ -245,7 +250,7 @@ cc.Class({
             }
             else {
                 this.m_Progress_time.node.active = true;
-                this.m_Progress_time.node.setPosition(0, 60);
+                // this.m_Progress_time.node.setPosition(0, 60);
                 // this.m_Progress_time.progress = progress;
                 this.m_Label_time.string = time.toString();
             }
@@ -261,7 +266,7 @@ cc.Class({
         console.log("[GameView][onUpdateUser] viewID = " + viewID + " userItem = " + JSON.stringify(userItem, null, ' '));
         this.m_Node_player[viewID].active = (userItem !== undefined);
         if (userItem) {
-            this.playUserAnim("wait", viewID, userItem);
+            if (this.m_userHead[viewID].bg.active == false) {this.playUserAnim("idle", viewID, userItem)};
             this.m_flagReady[viewID].active = (GlobalDef.US_READY === userItem.cbUserStatus);
             this.setUserReConnect(viewID, (GlobalDef.US_OFFLINE === userItem.cbUserStatus));
             this.m_userHead[viewID].bg.active = true;
@@ -310,9 +315,9 @@ cc.Class({
         this.nodeChipPool.addChild(chip);
         var chipItem = chip.getComponent("ChipItem");
         chipItem.init(num,level);
-        chip.setPosition(this.ptPlayer[wViewChairID]);
-        var x = Math.random() * 200 - 100;
-        var y = Math.random() * 100 - 50;
+        chip.setPosition(this.ptChair[wViewChairID]);
+        var x = Math.random() * 400 - 200;
+        var y = (Math.random() * 100 - 50);
         console.log("[GameView][playerJetton] [x,y] = " + [x, y]);
         chip.runAction(cc.moveTo(0.4, cc.p(x, y)).easing(cc.easeOut(0.5)));
         // }
@@ -332,7 +337,7 @@ cc.Class({
         var timeBegin = Date.now();
         var firstView = this._scene.switchViewChairID(firstuser.wChairID);
         var secondView = this._scene.switchViewChairID(seconduser.wChairID);
-        var fileName = "YX_bipai";
+        var fileName = "YX_PK_backup";
         var animName = "YX_bipai_0";
         var leftPos = cc.p(-450, 100);
         var rightPos = cc.p(250, -20);
@@ -404,12 +409,20 @@ cc.Class({
         this.firstCompareNode.runAction(cc.sequence(
             cc.scaleTo(0.2, 1.5),
             cc.delayTime(0.5),
-            cc.moveTo(0.2, firstPos)
+            cc.spawn(
+                cc.moveTo(0.2, firstPos),
+                cc.scaleTo(0.2,0.85)
+            )
+            // cc.moveTo(0.2, firstPos)
         ))
         this.secondCompareNode.runAction(cc.sequence(
             cc.scaleTo(0.2, 1.5),
             cc.delayTime(0.5),
-            cc.moveTo(0.2, secondPos)
+            cc.spawn(
+                cc.moveTo(0.2, secondPos),
+                cc.scaleTo(0.2,0.85)
+            )
+            // cc.moveTo(0.2, secondPos)
         ))
         compareView.runAction(cc.sequence(
             cc.delayTime(0.9),
@@ -423,7 +436,7 @@ cc.Class({
                     loop: false,
                     frameEventHandler: (event) => {
                         console.log("frameEventHandler ",event.detail.name)
-                        if (event.detail.name === "YX_bipai_sy1") {
+                        if (event.detail.name === "YX_bipai_sy1" || event.detail.name === "YX_bipai_sy0") {
                             AudioMng.playSFX("sfx_bipaishibai");
                         }
                     },
@@ -431,8 +444,10 @@ cc.Class({
                         // this.stopCompareCard();
                         this.firstCompareNode.active = true;
                         this.secondCompareNode.active = true;
-                        this.firstCompareNode.setScale(1.5);
-                        this.secondCompareNode.setScale(1.5);
+                        // this.firstCompareNode.setScale(1.5);
+                        // this.secondCompareNode.setScale(1.5);
+                        this.firstCompareNode.setScale(0.85);
+                        this.secondCompareNode.setScale(0.85);
                         this.firstCompareNode.setPosition(firstPos);
                         this.secondCompareNode.setPosition(secondPos);
                         this.firstCompareNode.runAction(cc.sequence(
@@ -502,7 +517,7 @@ cc.Class({
         var y = this.m_userHead[viewID].bg.height / 2 - 15;
         var _pos = this.m_userHead[viewID].bg.convertToWorldSpaceAR(new cc.Vec2(x, y));
         var pos = this.node.convertToNodeSpaceAR(_pos);
-        this.m_Image_banker.setPosition(pos);//this.ptBanker[viewID]
+        this.m_Image_banker.setPosition(pos);
     },
     setUserReConnect: function (viewID, isReConnect) {
         this.m_reConnect[viewID].active = isReConnect;
@@ -735,9 +750,9 @@ cc.Class({
         }
     },
     winScore: function name(params) {
-        for (var index = 0; index < 4; index++) {
-            this.winTheChip(index,index + 2000);
-        }
+        // for (var index = 0; index < 4; index++) {
+        //     this.winTheChip(index,index + 2000);
+        // }
         // this.showSendPresent(0,0,1,1);
         // for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
         //     // for (var j = i + 1; j < zjh_cmd.GAME_PLAYER; j++) {
@@ -745,17 +760,17 @@ cc.Class({
         //     // }
 
         // }
-        // var firstUser = {
-        //     wChairID: 0,
-        // }
-        // var seconduser = {
-        //     wChairID: 1,
-        // }
-        // this.compareCard(firstUser, seconduser, undefined, undefined, true);
+        var firstUser = {
+            wChairID: 1,
+        }
+        var seconduser = {
+            wChairID: 0,
+        }
+        this.compareCard(firstUser, seconduser, undefined, undefined, true);
     },
     //赢得筹码
     winTheChip: function (wWinner, score) {
-        this.playUserAnim("collect", wWinner);
+        this.playUserAnim("win", wWinner);
         var children = this.nodeChipPool.children;
         var delayTime = 0.1 * children.length + 0.4;
         var _pos = this.m_userHead[wWinner].bg.convertToWorldSpaceAR(cc.v2(0,0));
@@ -844,8 +859,8 @@ cc.Class({
         else {
             var sendViewID = this._scene.switchViewChairID(wSendChairID);
             var recvViewID = this._scene.switchViewChairID(wRecvChairID);
-            var sendPoint = this.ptPlayer[sendViewID];
-            var recvPoint = this.ptPlayer[recvViewID];
+            var sendPoint = this.ptChair[sendViewID];
+            var recvPoint = this.ptChair[recvViewID];
             var presentData = GlobalUserData.presentData['present']['base'];
             var icon = presentData[cbGiftID].icon;
             var charm = presentData[cbGiftID].charm * wGiftCount;

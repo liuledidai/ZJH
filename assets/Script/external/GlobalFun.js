@@ -461,6 +461,19 @@ GlobalFun.getRandomInt = function getRandomInt(min, max) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
+//格式化数字 超过1w的返回 xx.xx万 保留2位小数
+GlobalFun.numberFormat = function numberFormat(num,suffix) {
+    var ret = "";
+    suffix = suffix || "万";
+    if (num >= 10000) {
+        var tmp = num/10000;
+        ret = parseFloat(tmp.toFixed(2)) + suffix;
+    }
+    else {
+        ret = num;
+    }
+    return ret;
+};
 /* args {
     fileName,
     *anim,

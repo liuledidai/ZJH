@@ -2758,17 +2758,17 @@
       "__id__": 63
     },
     "_enabled": true,
-    "_armatureName": "jjh_nn_fj_gg",
-    "_animationName": "YX_fj_gg",
+    "_armatureName": "YX_PK",
+    "_animationName": "YX_bipai_1",
     "playTimes": -1,
     "_N$dragonAsset": {
-      "__uuid__": "43cdfb41-63a8-46a4-a30e-0e5a887224ad"
+      "__uuid__": "fd45f031-b3a0-471e-a65a-b16e70a0fa80"
     },
     "_N$dragonAtlasAsset": {
-      "__uuid__": "3606eb8b-e0ac-4b90-92a8-9ce1fdeeb27d"
+      "__uuid__": "dd071f21-ced8-40a4-b7af-794d045fd703"
     },
     "_N$_defaultArmatureIndex": 0,
-    "_N$_animationIndex": 1,
+    "_N$_animationIndex": 2,
     "_N$timeScale": 1,
     "_N$debugBones": false
   },

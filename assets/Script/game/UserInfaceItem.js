@@ -1,128 +1,184 @@
 var GlobalFun = require("GlobalFun");
-var people =
+var peopleCfg =
     {
         "base": [
             [
                 {
-                    "wait1": {
-                        "image": "res/people/people_1_1",
-                        "frame": 17
-                    },
-                    "wait2": {
-                        "image": "res/people/people_1_5",
-                        "frame": 16
-                    },
-                    "wait3": {
-                        "image": "res/people/people_1_6",
-                        "frame": 31
+                    "idle": {
+                        "image": "res/people/boy0_idle",
+                        "frame": 9
                     },
                     "chip": {
-                        "image": "res/people/people_1_2",
-                        "frame": 24
+                        "image": "res/people/boy0_chip",
+                        "frame": 14
                     },
                     "lose": {
-                        "image": "res/people/people_1_3",
-                        "frame": 20
+                        "image": "res/people/boy0_lose",
+                        "frame": 13
                     },
                     "win": {
-                        "image": "res/people/people_1_4",
-                        "frame": 15
+                        "image": "res/people/boy0_win",
+                        "frame": 10
                     },
-                    "collect": {
-                        "image": "res/people/people_1_7",
-                        "frame": 21
+                    "look": {
+                        "image": "res/people/boy0_look",
+                        "frame": 19
                     }
                 },
                 {
-                    "wait1": {
-                        "image": "res/people/people_2_1",
-                        "frame": 17
-                    },
-                    "wait2": {
-                        "image": "res/people/people_2_5",
-                        "frame": 20
-                    },
-                    "wait3": {
-                        "image": "res/people/people_2_6",
-                        "frame": 30
+                    "idle": {
+                        "image": "res/people/boy1_idle",
+                        "frame": 9
                     },
                     "chip": {
-                        "image": "res/people/people_2_2",
-                        "frame": 24
+                        "image": "res/people/boy1_chip",
+                        "frame": 14
                     },
                     "lose": {
-                        "image": "res/people/people_2_3",
-                        "frame": 24
+                        "image": "res/people/boy1_lose",
+                        "frame": 13
                     },
                     "win": {
-                        "image": "res/people/people_2_4",
-                        "frame": 28
+                        "image": "res/people/boy1_win",
+                        "frame": 10
                     },
-                    "collect": {
-                        "image": "res/people/people_2_7",
-                        "frame": 23
+                    "look": {
+                        "image": "res/people/boy1_look",
+                        "frame": 19
+                    }
+                },
+                {
+                    "idle": {
+                        "image": "res/people/boy2_idle",
+                        "frame": 9
+                    },
+                    "chip": {
+                        "image": "res/people/boy2_chip",
+                        "frame": 12
+                    },
+                    "lose": {
+                        "image": "res/people/boy2_lose",
+                        "frame": 10
+                    },
+                    "win": {
+                        "image": "res/people/boy2_win",
+                        "frame": 15
+                    },
+                    "look": {
+                        "image": "res/people/boy2_look",
+                        "frame": 15
+                    }
+                },
+                {
+                    "idle": {
+                        "image": "res/people/boy1_idle",
+                        "frame": 9
+                    },
+                    "chip": {
+                        "image": "res/people/boy1_chip",
+                        "frame": 14
+                    },
+                    "lose": {
+                        "image": "res/people/boy1_lose",
+                        "frame": 13
+                    },
+                    "win": {
+                        "image": "res/people/boy1_win",
+                        "frame": 10
+                    },
+                    "look": {
+                        "image": "res/people/boy1_look",
+                        "frame": 19
                     }
                 }
             ],
             [
                 {
-                    "wait1": {
-                        "image": "res/people/people_3_1",
-                        "frame": 17
-                    },
-                    "wait2": {
-                        "image": "res/people/people_3_5",
-                        "frame": 45
-                    },
-                    "wait3": {
-                        "image": "res/people/people_3_6",
-                        "frame": 33
+                    "idle": {
+                        "image": "res/people/girl0_idle",
+                        "frame": 9
                     },
                     "chip": {
-                        "image": "res/people/people_3_2",
-                        "frame": 21
+                        "image": "res/people/girl0_chip",
+                        "frame": 11
                     },
                     "lose": {
-                        "image": "res/people/people_3_3",
-                        "frame": 37
+                        "image": "res/people/girl0_lose",
+                        "frame": 17
                     },
                     "win": {
-                        "image": "res/people/people_3_4",
-                        "frame": 28
+                        "image": "res/people/girl0_win",
+                        "frame": 11
                     },
-                    "collect": {
-                        "image": "res/people/people_3_7",
-                        "frame": 26
+                    "look": {
+                        "image": "res/people/girl0_look",
+                        "frame": 17
                     }
                 },
                 {
-                    "wait1": {
-                        "image": "res/people/people_4_1",
-                        "frame": 17
-                    },
-                    "wait2": {
-                        "image": "res/people/people_4_5",
-                        "frame": 15
-                    },
-                    "wait3": {
-                        "image": "res/people/people_4_6",
-                        "frame": 30
+                    "idle": {
+                        "image": "res/people/girl1_idle",
+                        "frame": 9
                     },
                     "chip": {
-                        "image": "res/people/people_4_2",
-                        "frame": 22
+                        "image": "res/people/girl1_chip",
+                        "frame": 11
                     },
                     "lose": {
-                        "image": "res/people/people_4_3",
-                        "frame": 33
+                        "image": "res/people/girl1_lose",
+                        "frame": 17
                     },
                     "win": {
-                        "image": "res/people/people_4_4",
-                        "frame": 19
+                        "image": "res/people/girl1_win",
+                        "frame": 11
                     },
-                    "collect": {
-                        "image": "res/people/people_4_7",
-                        "frame": 19
+                    "look": {
+                        "image": "res/people/girl1_look",
+                        "frame": 17
+                    }
+                },
+                {
+                    "idle": {
+                        "image": "res/people/girl2_idle",
+                        "frame": 9
+                    },
+                    "chip": {
+                        "image": "res/people/girl2_chip",
+                        "frame": 11
+                    },
+                    "lose": {
+                        "image": "res/people/girl2_lose",
+                        "frame": 17
+                    },
+                    "win": {
+                        "image": "res/people/girl2_win",
+                        "frame": 11
+                    },
+                    "look": {
+                        "image": "res/people/girl2_look",
+                        "frame": 17
+                    }
+                },
+                {
+                    "idle": {
+                        "image": "res/people/girl1_idle",
+                        "frame": 9
+                    },
+                    "chip": {
+                        "image": "res/people/girl1_chip",
+                        "frame": 11
+                    },
+                    "lose": {
+                        "image": "res/people/girl1_lose",
+                        "frame": 17
+                    },
+                    "win": {
+                        "image": "res/people/girl1_win",
+                        "frame": 11
+                    },
+                    "look": {
+                        "image": "res/people/girl1_look",
+                        "frame": 17
                     }
                 }
             ]
@@ -159,10 +215,10 @@ cc.Class({
         if (this.m_userItem && this.m_userItem.cbGender) {
             gender = this.m_userItem.cbGender - 1;
         }
-        var index = viewID % 2;
-        if (szAnim == "wait") {
-            szAnim = szAnim + GlobalFun.getRandomInt(1, 3);
-        }
+        var index = viewID;
+        // if (szAnim == "wait") {
+        //     szAnim = szAnim + GlobalFun.getRandomInt(1, 3);
+        // }
         var animName = "";
         if (gender == 0) {
             animName = "male_" + index + "_" + szAnim;
@@ -170,14 +226,14 @@ cc.Class({
         else {
             animName = "female_" + index + "_" + szAnim;
         }
-        var pVal = people["base"][gender][index][szAnim];
+        var pVal = peopleCfg["base"][gender][index][szAnim];
         if (pVal == null) {
             console.log("people is null",gender,index,szAnim);
             return;
         }
         var urls = [];
         for (var i = 0; i < pVal.frame; i++) {
-            var str = pVal.image + "_" + GlobalFun.PrefixInteger(i + 1, 2);
+            var str = pVal.image + GlobalFun.PrefixInteger(i + 1, 2);
             urls.push(str);
         }
         if (animation.getAnimationState(animName)) {
@@ -203,11 +259,13 @@ cc.Class({
                 // });
             })
         }
+        var act = ["idle","win","lose","look","chip"];
         this.node.stopAllActions();
         this.node.runAction(cc.sequence(
             cc.delayTime(GlobalFun.getRandomInt(5, 10)),
             cc.callFunc(()=>{
-                this.playerAnimate("wait",viewID,userItem);
+                this.playerAnimate("idle",viewID,userItem);
+                // this.playerAnimate(act[GlobalFun.getRandomInt(0, 4)],viewID,userItem);
             }),
         ));
     },

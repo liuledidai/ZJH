@@ -1,3 +1,4 @@
+var GlobalFun = require("GlobalFun");
 cc.Class({
     extends: cc.Component,
 
@@ -30,10 +31,11 @@ cc.Class({
         // 4: 12
         // 5: 20
         */
+        // chipnum = chipnum * 1000;
         var chipColorLevel = [1,3,6,12,24];
         this.chipnum = chipnum;
         this.chipLevel = chipLevel || 1;
-        this.chipLabel.string = chipnum;
+        this.chipLabel.string = GlobalFun.numberFormat(chipnum);
         for (var i = chipColorLevel.length - 1; i >= 0; i--) {
             var level = chipColorLevel[i];
             if ( this.chipLevel >= level ) {

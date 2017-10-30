@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "10de39b2-298e-4c36-9e90-545896701115",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "girl2_look13": {
+      "ver": "1.0.3",
+      "uuid": "44f0c7c2-8d29-4c45-8bc7-2387b77a5103",
+      "rawTextureUuid": "10de39b2-298e-4c36-9e90-545896701115",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 12,
+      "offsetY": 14,
+      "trimX": 147,
+      "trimY": 85,
+      "width": 242,
+      "height": 314,
+      "rawWidth": 512,
+      "rawHeight": 512,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}

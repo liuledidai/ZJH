@@ -7,106 +7,106 @@
             <key>userface_0.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{236,704},{232,232}}</string>
+                <string>{{235,701},{233,231}}</string>
                 <key>offset</key>
-                <string>{0,-5}</string>
+                <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{11,17},{232,232}}</string>
+                <string>{{0,0},{233,231}}</string>
                 <key>sourceSize</key>
-                <string>{254,256}</string>
+                <string>{233,231}</string>
             </dict>
             <key>userface_1.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,704},{232,232}}</string>
+                <string>{{2,701},{233,231}}</string>
                 <key>offset</key>
-                <string>{0,-5}</string>
+                <string>{0,0}</string>
                 <key>rotated</key>
-                <false/>
+                <true/>
                 <key>sourceColorRect</key>
-                <string>{{11,17},{232,232}}</string>
+                <string>{{0,0},{233,231}}</string>
                 <key>sourceSize</key>
-                <string>{254,256}</string>
+                <string>{233,231}</string>
             </dict>
             <key>userface_2.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{236,470},{232,232}}</string>
+                <string>{{237,468},{233,231}}</string>
                 <key>offset</key>
-                <string>{0,-4}</string>
+                <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{11,16},{232,232}}</string>
+                <string>{{0,0},{233,231}}</string>
                 <key>sourceSize</key>
-                <string>{254,256}</string>
+                <string>{233,231}</string>
             </dict>
             <key>userface_3.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{237,2},{233,232}}</string>
+                <string>{{2,468},{233,231}}</string>
                 <key>offset</key>
-                <string>{-1,-5}</string>
+                <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{10,17},{233,232}}</string>
+                <string>{{0,0},{233,231}}</string>
                 <key>sourceSize</key>
-                <string>{255,256}</string>
+                <string>{233,231}</string>
             </dict>
             <key>userface_4.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,470},{232,232}}</string>
+                <string>{{237,235},{233,231}}</string>
                 <key>offset</key>
-                <string>{0,-5}</string>
+                <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{11,17},{232,232}}</string>
+                <string>{{0,0},{233,231}}</string>
                 <key>sourceSize</key>
-                <string>{254,256}</string>
+                <string>{233,231}</string>
             </dict>
             <key>userface_5.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{236,236},{232,232}}</string>
+                <string>{{2,235},{233,231}}</string>
                 <key>offset</key>
-                <string>{-1,-5}</string>
+                <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{10,17},{232,232}}</string>
+                <string>{{0,0},{233,231}}</string>
                 <key>sourceSize</key>
-                <string>{254,256}</string>
+                <string>{233,231}</string>
             </dict>
             <key>userface_6.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,236},{232,232}}</string>
+                <string>{{237,2},{233,231}}</string>
                 <key>offset</key>
-                <string>{0,-4}</string>
+                <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{11,16},{232,232}}</string>
+                <string>{{0,0},{233,231}}</string>
                 <key>sourceSize</key>
-                <string>{254,256}</string>
+                <string>{233,231}</string>
             </dict>
             <key>userface_7.png</key>
             <dict>
                 <key>frame</key>
-                <string>{{2,2},{233,232}}</string>
+                <string>{{2,2},{233,231}}</string>
                 <key>offset</key>
-                <string>{-1,-5}</string>
+                <string>{0,0}</string>
                 <key>rotated</key>
                 <false/>
                 <key>sourceColorRect</key>
-                <string>{{10,17},{233,232}}</string>
+                <string>{{0,0},{233,231}}</string>
                 <key>sourceSize</key>
-                <string>{255,256}</string>
+                <string>{233,231}</string>
             </dict>
         </dict>
         <key>metadata</key>
@@ -118,7 +118,7 @@
             <key>size</key>
             <string>{512,1024}</string>
             <key>smartupdate</key>
-            <string>$TexturePacker:SmartUpdate:d1fc787d11beb0a17af647d6d51cea8c:1/1$</string>
+            <string>$TexturePacker:SmartUpdate:e60101ab5eaefa5b9a74e255d547c2dc:1/1$</string>
             <key>textureFileName</key>
             <string>userface.png</string>
         </dict>

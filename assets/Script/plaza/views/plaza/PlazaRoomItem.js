@@ -42,7 +42,7 @@ cc.Class({
         this.m_Image_col.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_back_" + (this._index));
         // this.m_Image_title.spriteFrame = this.plazaAtalas.getSpriteFrame("plaza_image_room_down_" + (this._index));
         if (this._roomInfo && this._roomInfo.lLimitScore) {
-            this.m_Label_scoreLimit.string = "准入:" + this._roomInfo.lLimitScore;
+            this.m_Label_scoreLimit.string = "准入:" + GlobalFun.numberFormat(this._roomInfo.lLimitScore);
         }
         else {
             this.m_Label_scoreLimit.string = "暂未开放";

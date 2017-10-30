@@ -181,6 +181,7 @@ cc.Class({
             szRegAccounts = GlobalUserData.szRegAccount;
         }
         logonData.pushstring(szRegAccounts,32);
+        console.log("[logonData] size = ",logonData.getDataSize());
         this.sendSocketData(logonData);
     },
     sendRegister: function() {

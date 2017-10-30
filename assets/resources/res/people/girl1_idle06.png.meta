@@ -1,0 +1,30 @@
+{
+  "ver": "1.0.0",
+  "uuid": "5ddf4ecb-e253-4f63-8a12-9181b84d5a38",
+  "type": "sprite",
+  "wrapMode": "clamp",
+  "filterMode": "bilinear",
+  "subMetas": {
+    "girl1_idle06": {
+      "ver": "1.0.3",
+      "uuid": "3e3a1a19-0156-4c39-a86c-12e570dbf0e1",
+      "rawTextureUuid": "5ddf4ecb-e253-4f63-8a12-9181b84d5a38",
+      "trimType": "auto",
+      "trimThreshold": 1,
+      "rotated": false,
+      "offsetX": 88.5,
+      "offsetY": -18.5,
+      "trimX": 214,
+      "trimY": 82,
+      "width": 261,
+      "height": 385,
+      "rawWidth": 512,
+      "rawHeight": 512,
+      "borderTop": 0,
+      "borderBottom": 0,
+      "borderLeft": 0,
+      "borderRight": 0,
+      "subMetas": {}
+    }
+  }
+}
