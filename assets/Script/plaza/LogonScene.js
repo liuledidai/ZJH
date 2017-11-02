@@ -64,7 +64,7 @@ cc.Class({
         var url = GlobalUserData.serverData[GlobalDef.INIT]; //GlobalDef.httpInitUrl;
         var params = {};
         params["kindid"] = zjh_cmd.KIND_ID;
-        params["version"] = "1.1";
+        params["version"] = MultiPlatform.getAppVersion();
         // params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
         params["mobilemachine"] = szMachineID || "2d4d7c95e5df0179af2466f635ca71de";
         params["schannelid"] = "AppStore";
@@ -273,7 +273,7 @@ cc.Class({
         url += "/HZMobile/GuestLogin.ashx";
         var params = {};
         params["kindid"] = zjh_cmd.KIND_ID;
-        params["versionnum"] = "1.1";
+        params["versionnum"] = MultiPlatform.getAppVersion();
         // params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
         params["useridentity"] = szMachineID;
         params["channelid"] = GlobalDef.CHANNELID_center;

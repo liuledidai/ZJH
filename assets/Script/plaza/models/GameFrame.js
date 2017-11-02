@@ -9,6 +9,7 @@ var GlobalDef = require("GlobalDef");
 var ChatDef = require("ChatDef");
 var GlobalFun = require("GlobalFun");
 var GameUserItem = require("GameUserItem");
+var MultiPlatform = require("MultiPlatform");
 cc.Class({
     extends: BaseFrame,
 
@@ -780,11 +781,12 @@ cc.Class({
             dwMobileSysType = 2;
         }
         logonData.pushdword(dwMobileSysType);
-
-        logonData.pushdword(1);
+        var appVersion = parseInt(MultiPlatform.getAppVersion());
+        logonData.pushdword(appVersion);
         logonData.pushstring(GlobalUserData.szPassWord,33);
         console.log("[GameFrame][sendLogonPacket] password = " + GlobalUserData.szPassWord);
-        logonData.pushstring("",33);
+        var szMobileMachine = MultiPlatform.getMachineID();
+        logonData.pushstring(szMobileMachine,33);
         this.sendSocketData(logonData);
         // //手机登陆
         // struct CMD_GR_LogonByUserIDMobile

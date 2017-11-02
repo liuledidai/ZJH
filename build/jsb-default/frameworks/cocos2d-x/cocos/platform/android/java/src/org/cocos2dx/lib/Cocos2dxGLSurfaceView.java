@@ -208,6 +208,7 @@ public class Cocos2dxGLSurfaceView extends GLSurfaceView {
             imm.hideSoftInputFromWindow(view.getWindowToken(),0);
             this.requestFocus();
             mSoftKeyboardShown = false;
+            return true;
         }
 
         for (int i = 0; i < pointerNumber; i++) {

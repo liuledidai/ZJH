@@ -582,9 +582,9 @@
       "height": 908
     },
     "_children": [],
-    "_rotationX": -44.30000000000011,
-    "_rotationY": -44.30000000000011,
-    "_scaleX": 1,
+    "_rotationX": 89.69999999999987,
+    "_rotationY": 89.69999999999987,
+    "_scaleX": -1,
     "_scaleY": 1,
     "_position": {
       "__type__": "cc.Vec2",
@@ -1155,8 +1155,8 @@
     "m_arrow_back": {
       "__id__": 14
     },
-    "arrow_times": 6,
-    "arrow_rounds": 10
+    "arrow_times": 3,
+    "arrow_rounds": 4
   },
   {
     "__type__": "cc.PrefabInfo",

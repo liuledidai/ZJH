@@ -665,7 +665,7 @@ cc.Class({
         this._gameView.playUserAnim("look",viewID);
 
         this._gameView.setLookCard(viewID, true);
-        if (this.getMeChairID() === this.m_wCurrentUser) {
+        if (this.getMeChairID() === lookCard.wLookCardUser && this.getMeChairID() === this.m_wCurrentUser) {
             this.updateControl();
         }
         console.log("[GameScene][onSubLookCard] [lookCard.wLookCardUser,this.getMeChairID()] = " + [lookCard.wLookCardUser, this.getMeChairID()]);

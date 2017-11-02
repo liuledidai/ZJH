@@ -6,6 +6,12 @@ var GameModel = require("GameModel");
 var GameLogic = require("GameLogic");
 var AudioMng = require("AudioMng");
 var SceneBase = require("SceneBase");
+var CONST_VALUE = {
+    MY_CARD_DIS: 100,
+    OTHER_CARD_DIS: 35,
+    MY_CARD_SCALE: 1.0,
+    OTHER_CARD_SCALE: 0.9,
+};
 cc.Class({
     extends: SceneBase,
 
@@ -152,8 +158,8 @@ cc.Class({
                 var cardNode = cc.instantiate(this.cardPrefab);
                 this.m_userCard[index].card[j] = cardNode;
                 cardPanel.addChild(cardNode);
-                cardNode.setPosition(this.ptCard[index].x + (index === zjh_cmd.MY_VIEWID && 80 || 35) * j, this.ptCard[index].y);
-                cardNode.setScale((index === zjh_cmd.MY_VIEWID && 1.0 || 0.9));
+                cardNode.setPosition(this.ptCard[index].x + (index === zjh_cmd.MY_VIEWID && CONST_VALUE.MY_CARD_DIS || CONST_VALUE.OTHER_CARD_DIS) * j, this.ptCard[index].y);
+                cardNode.setScale((index === zjh_cmd.MY_VIEWID && CONST_VALUE.MY_CARD_SCALE || CONST_VALUE.OTHER_CARD_SCALE));
                 var cardItem = cardNode.getComponent("CardItem");
                 cardItem.showCardBack();
                 cardNode.active = false;
@@ -161,7 +167,7 @@ cc.Class({
             var cardType = cc.instantiate(this.cardTypePrefab);
             cardPanel.addChild(cardType);
             this.m_userCard[index].cardType = cardType;
-            cardType.setPosition(this.ptCard[index].x + (index === zjh_cmd.MY_VIEWID && 80 || 35),
+            cardType.setPosition(this.ptCard[index].x + (index === zjh_cmd.MY_VIEWID && CONST_VALUE.MY_CARD_DIS || CONST_VALUE.OTHER_CARD_DIS),
                 this.ptCard[index].y - (index === zjh_cmd.MY_VIEWID && 70 || 60));
             cardType.active = false;
         }
@@ -229,6 +235,7 @@ cc.Class({
             this.m_userLight[i].active = false;
             this.setUserLastAdd(i,false);
             this.m_userHead[i].score_star.stopSystem();
+            this.m_userCard[i].area.active = true;
         }
     },
 
@@ -391,10 +398,10 @@ cc.Class({
             }
         }
         for (var i = 0; i < zjh_cmd.MAX_COUNT; i++) {
-            this.firstcardnode[i].setPosition((firstView === zjh_cmd.MY_VIEWID && 80 || 35) * i, 0);
-            this.firstcardnode[i].setScale((firstView === zjh_cmd.MY_VIEWID && 1.0 || 0.9));
-            this.secondcardnode[i].setPosition((secondView === zjh_cmd.MY_VIEWID && 80 || 35) * i, 0);
-            this.secondcardnode[i].setScale((secondView === zjh_cmd.MY_VIEWID && 1.0 || 0.9));
+            this.firstcardnode[i].setPosition((firstView === zjh_cmd.MY_VIEWID && CONST_VALUE.MY_CARD_DIS || CONST_VALUE.OTHER_CARD_DIS) * i, 0);
+            this.firstcardnode[i].setScale((firstView === zjh_cmd.MY_VIEWID && CONST_VALUE.MY_CARD_SCALE || CONST_VALUE.OTHER_CARD_SCALE));
+            this.secondcardnode[i].setPosition((secondView === zjh_cmd.MY_VIEWID && CONST_VALUE.MY_CARD_DIS || CONST_VALUE.OTHER_CARD_DIS) * i, 0);
+            this.secondcardnode[i].setScale((secondView === zjh_cmd.MY_VIEWID && CONST_VALUE.MY_CARD_SCALE || CONST_VALUE.OTHER_CARD_SCALE));
         }
         this.firstCompareNode.setScale(1.0);
         this.secondCompareNode.setScale(1.0);
@@ -601,7 +608,7 @@ cc.Class({
                 }),
                 cc.spawn(
                     cc.fadeIn(0.1),
-                    cc.moveTo(0.2, self.ptCard[viewID].x + ((viewID === zjh_cmd.MY_VIEWID) && 80 || 35) * index, self.ptCard[viewID].y),
+                    cc.moveTo(0.2, self.ptCard[viewID].x + ((viewID === zjh_cmd.MY_VIEWID) && CONST_VALUE.MY_CARD_DIS || CONST_VALUE.OTHER_CARD_DIS) * index, self.ptCard[viewID].y),
                 )
             )
         )
@@ -646,6 +653,10 @@ cc.Class({
     setUserLastAdd: function (viewID, bLastAdd) {
         if (this.m_userHead[viewID]) {
             this.m_userHead[viewID].fire.active = bLastAdd;
+        }
+        //牌区域显示
+        for (var i = 0; i < zjh_cmd.GAME_PLAYER; i++) {
+            this.m_userCard[i].area.active = true;
         }
     },
     //清理牌

@@ -193,18 +193,20 @@ cc.Class({
         else if(cc.sys.os == cc.sys.OS_IOS){
             dwMobileSysType = 1;
         }
+        var dwMobileAppVersion = parseInt(MultiPlatform.getAppVersion());
+        var szMachineID = MultiPlatform.getMachineID();
         registerData.setcmdinfo(plaza_cmd.MDM_GP_LOGON_MOBILE,plaza_cmd.SUB_GP_REGISTER_MOBILE);
         registerData.pushword(1);
         registerData.pushbyte(1);
         registerData.pushdword(dwMobileSysType);
         registerData.pushdword(zjh_cmd.KIND_ID);
-        registerData.pushdword(1);
+        registerData.pushdword(dwMobileAppVersion);
         registerData.pushstring(this._szRegAccount,32);
         registerData.pushstring(cc.md5Encode(this._szRegPassword),33);
         registerData.pushstring(this._szMobilePhone,32);
         registerData.pushstring(this._szNickName,32);
         registerData.pushstring(this._szMobileAuth,32);
-        registerData.pushstring("",33);
+        registerData.pushstring(szMachineID,33);
         this.sendSocketData(registerData);
         // struct CMD_GP_RegisterAccountsMoblie
         // {

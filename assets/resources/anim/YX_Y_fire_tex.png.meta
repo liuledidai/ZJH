@@ -5,7 +5,7 @@
   "wrapMode": "clamp",
   "filterMode": "bilinear",
   "subMetas": {
-    "YX_Y_fire_tex": {
+    "YX_Y_Fire_tex": {
       "ver": "1.0.3",
       "uuid": "2d840f0b-bd6c-4191-b400-ab465c416ff6",
       "rawTextureUuid": "cf6763a9-a34e-4510-87c6-fcb81cb07102",
@@ -13,13 +13,13 @@
       "trimThreshold": 1,
       "rotated": false,
       "offsetX": -9.5,
-      "offsetY": 21.5,
+      "offsetY": 12,
       "trimX": 1,
-      "trimY": 1,
+      "trimY": 2,
       "width": 1003,
-      "height": 467,
+      "height": 996,
       "rawWidth": 1024,
-      "rawHeight": 512,
+      "rawHeight": 1024,
       "borderTop": 0,
       "borderBottom": 0,
       "borderLeft": 0,

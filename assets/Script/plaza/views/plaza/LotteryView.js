@@ -1,5 +1,6 @@
 var ViewBase = require("ViewBase");
 var GlobalFun = require("GlobalFun");
+var AudioMng = require("AudioMng");
 cc.Class({
     extends: ViewBase,
 
@@ -16,8 +17,8 @@ cc.Class({
         // ...
         m_arrow: cc.Node,
         m_arrow_back: cc.Node,
-        arrow_times: 6,
-        arrow_rounds: 10,
+        arrow_times: 3,
+        arrow_rounds: 4,
     },
 
     // use this for initialization
@@ -56,11 +57,13 @@ cc.Class({
         var ang = (360 - this.m_arrow.rotation) + this.arrow_rounds * 360 + distAng;
         var rotate = cc.rotateBy(this.arrow_times,ang);
         this.node.stopAllActions();
+        AudioMng.playSFX("sfx_returnning");
         this.m_arrow.runAction(cc.sequence(
             rotate.easing(cc.easeCubicActionOut(this.arrow_times)),
             cc.callFunc(() => {
                 this.m_arrow_back.runAction(cc.sequence(
-                    cc.fadeOut(0.2),
+                    cc.fadeOut(2.2),
+                    cc.delayTime(1.0),
                     cc.callFunc(() => {
                         GlobalFun.showAwardView({
                             num: this.szNum,

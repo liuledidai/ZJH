@@ -1,5 +1,5 @@
 /****************************************************************************
-Copyright (c) 2013-2014 Chukong Technologies Inc.
+Copyright (c) 2013-2017 Chukong Technologies Inc.
 
 http://www.cocos2d-x.org
 
@@ -41,8 +41,8 @@ THE SOFTWARE.
 #include <android/api-level.h>
 #include <jni.h>
 
-#define LOG_TAG "main"
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
+#define  LOG_TAG    "main"
+#define  LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
 
 void cocos_android_app_init(JNIEnv* env) __attribute__((weak));
 
@@ -56,32 +56,32 @@ extern "C"
 #if __ANDROID_API__ > 19
 #include <signal.h>
 #include <dlfcn.h>
-  typedef __sighandler_t (*bsd_signal_func_t)(int, __sighandler_t);
-  bsd_signal_func_t bsd_signal_func = NULL;
+    typedef __sighandler_t (*bsd_signal_func_t)(int, __sighandler_t);
+    bsd_signal_func_t bsd_signal_func = NULL;
 
-  __sighandler_t bsd_signal(int s, __sighandler_t f) {
-    if (bsd_signal_func == NULL) {
-      // For now (up to Android 7.0) this is always available 
-      bsd_signal_func = (bsd_signal_func_t) dlsym(RTLD_DEFAULT, "bsd_signal");
+    __sighandler_t bsd_signal(int s, __sighandler_t f) {
+        if (bsd_signal_func == NULL) {
+            // For now (up to Android 7.0) this is always available 
+            bsd_signal_func = (bsd_signal_func_t) dlsym(RTLD_DEFAULT, "bsd_signal");
 
-      if (bsd_signal_func == NULL) {
-        __android_log_assert("", "bsd_signal_wrapper", "bsd_signal symbol not found!");
-      }
+            if (bsd_signal_func == NULL) {
+                __android_log_assert("", "bsd_signal_wrapper", "bsd_signal symbol not found!");
+            }
+        }
+        return bsd_signal_func(s, f);
     }
-
-    return bsd_signal_func(s, f);
-  }
 #endif // __ANDROID_API__ > 19
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
     JniHelper::setJavaVM(vm);
+
     cocos_android_app_init(JniHelper::getEnv());
 
     return JNI_VERSION_1_4;
 }
 
-JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv* env, jobject thiz, jint w, jint h)
+JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv*  env, jobject thiz, jint w, jint h)
 {
     auto director = cocos2d::Director::getInstance();
     auto glview = director->getOpenGLView();
@@ -100,8 +100,10 @@ JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeInit(JNIEnv* env, jo
         cocos2d::DrawPrimitives::init();
         cocos2d::VolatileTextureMgr::reloadAllTextures();
 
-        cocos2d::EventCustom recreatedEvent(EVENT_RENDERER_RECREATED);
-        director->getEventDispatcher()->dispatchEvent(&recreatedEvent);
+        cocos2d::EventCustom* recreatedEvent = new (std::nothrow) cocos2d::EventCustom(EVENT_RENDERER_RECREATED);
+        director->getEventDispatcher()->dispatchEvent(recreatedEvent);
+        recreatedEvent->release();
+
         director->setGLDefaultValues();
     }
     cocos2d::network::_preloadJavaDownloaderClass();
@@ -130,4 +132,3 @@ JNIEXPORT void Java_org_cocos2dx_lib_Cocos2dxRenderer_nativeOnSurfaceChanged(JNI
 }
 
 #endif // CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID
-

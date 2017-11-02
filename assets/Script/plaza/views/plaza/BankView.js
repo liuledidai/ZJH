@@ -54,8 +54,8 @@ cc.Class({
         this.radioButtonClicked(this.radioButton[this._selectIndex]);
     },
     refreshUI: function () {
-        //账号登陆用户隐藏初始密码
-        if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_ACCOUNT) {
+        //账号登陆用户隐藏初始密码 & 魅力抽奖界面不显示密码
+        if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_ACCOUNT || this._selectIndex == 3) {
             this.m_Label_bankPwd.node.active = false;
         }
         else {
@@ -81,7 +81,7 @@ cc.Class({
         this.m_Label_get_bankGold.string = szInsureCount;
         this.m_Label_save_bankGold.string = szInsureCount;
 
-        this.m_Label_lottery_gold.string = szGoldCount;
+        this.m_Label_lottery_gold.string = szInsureCount;
         this.m_Label_lottery_charm.string = szCharmCount;
         this.m_Label_lottery_num.string = szLottryNum;
 
@@ -120,7 +120,7 @@ cc.Class({
         // toggle.node.setLocalZOrder(1);
         var title = "RadioButton";
         //账号登陆用户隐藏初始密码
-        this.m_Label_bankPwd.node.active = !(GlobalUserData.cbUserType === GlobalDef.USER_TYPE_ACCOUNT);
+        this.m_Label_bankPwd.node.active = !(GlobalUserData.cbUserType === GlobalDef.USER_TYPE_ACCOUNT || this._selectIndex == 3);
         switch (index) {
             case 0:
                 title += "1";
@@ -134,7 +134,7 @@ cc.Class({
             case 3:
                 title += "4";
                 //抽奖界面隐藏初始密码
-                this.m_Label_bankPwd.node.active = false;
+                // this.m_Label_bankPwd.node.active = false;
                 break;
 
             default:
@@ -286,7 +286,7 @@ cc.Class({
             GlobalFun.showToast("您的魅力值不足!");
             return;
         }
-        var tipText = "<color=#971a01>确定消耗" + szcharmCount + "点魅力值,进行招财进宝？</c>";
+        var tipText = "<color=#971a01>确定消耗" + szcharmCount + "点魅力值,进行魅力抽奖？</c>";
         GlobalFun.showAlert({
             message: tipText,
             // textAlignment: cc.TextAlignment.LEFT,
