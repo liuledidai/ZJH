@@ -208,7 +208,12 @@ var GlobalUserData = {
         for (var index = 0; index < this.roomList.length; index++) {
             var element = this.roomList[index];
             if (element.wKindID == wKindID) {
-                roomList.push(element);
+                if (element.cbRoomLevel > 0) {
+                    roomList[element.cbRoomLevel - 1] = element;
+                }
+                else {
+                    roomList.push(element);
+                }
             }
         }
         return roomList;

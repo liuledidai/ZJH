@@ -223,7 +223,7 @@ cc.Class({
         params["goods_name"] = itemVal.name;
         params["user_identity"] = MultiPlatform.getMachineID() || "";
         params["productid"] = itemVal.id;
-        params["versionnum"] = MultiPlatform.getAppVersion() || "1.0";
+        params["versionnum"] = MultiPlatform.getAppVersion();
         params["channelid"] = GlobalDef.CHANNELID_center;
         params["pay_amt"] = itemVal.price;
         if (cc.sys.os == cc.sys.OS_IOS) {

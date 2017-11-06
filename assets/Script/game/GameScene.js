@@ -860,11 +860,11 @@ cc.Class({
                     this._gameView.setUserCard(viewID, gameEnd.cbCardData[i]);
                 }
                 if (gameEnd.lGameScore[i] > 0) {
-                    this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i]);
+                    // this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i]);
                     this._gameView.setUserCardType(viewID, saveType[i], "win_");
                 }
                 else {
-                    this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i])
+                    // this._gameView.setUserTableScore(viewID, gameEnd.lGameScore[i])
                     this._gameView.setUserCardType(viewID, saveType[i], "lose_");
                 }
             }
