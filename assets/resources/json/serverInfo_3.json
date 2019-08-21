@@ -1,0 +1,46 @@
+{
+    "server": {
+        "test": {
+            "init": "http://183.131.154.8:8091/Handle/hz/init.ashx",
+            "guest": {
+                "interface": "http://119.3.5.124:8006/Handle",
+                "forgetPassword": "http://119.3.5.124:8006/Pages/HZNewGame/GetBackPwd.html",
+                "userCenter": "http://119.3.5.124:8006/Handle",
+                "recharge": "http://thzinterfacepay.jjhgame.com/pay/hz/WapGuestPay.aspx",
+                "loginUrl": "119.3.5.124",
+                "loginIP": "119.3.5.124",
+                "loginPort": "9008"
+            },
+            "account": {
+                "interface": "http://thzinterface.jjhgame.com/Handle",
+                "forgetPassword": "http://thzinterface.jjhgame.com/Pages/HZNewGame/GetBackPwd.html",
+                "userCenter": "http://thzinterface.jjhgame.com/Handle",
+                "recharge": "http://thzinterfacepay.jjhgame.com/pay/hz/wappay.aspx",
+                "loginUrl": "183.131.154.8",
+                "loginIP": "183.131.154.8",
+                "loginPort": "9008"
+            }
+        },
+        "release": {
+            "init": "http://ver.jjhgame.com/Handle/hz/init.ashx",
+            "guest": {
+                "interface": "http://hzguest.jjhgame.com/Handle",
+                "forgetPassword": "http://hzinterface.jjhgame.com/Pages/HZNewGame/GetBackPwd.html",
+                "userCenter": "http://hzguest.jjhgame.com/Handle",
+                "recharge": "http://pay.jjhgame.com/pay/hz/WapGuestPay.aspx",
+                "loginUrl": "122.228.8.173",
+                "loginIP": "122.228.8.173",
+                "loginPort": "9008"
+            },
+            "account": {
+                "interface": "http://hzinterface.jjhgame.com/Handle",
+                "forgetPassword": "http://hzinterface.jjhgame.com/Pages/HZNewGame/GetBackPwd.html",
+                "userCenter": "http://f.jjhgame.com/Handle",
+                "recharge": "http://pay.jjhgame.com/pay/hz/wappay.aspx",
+                "loginUrl": "122.226.186.127",
+                "loginIP": "122.226.186.127",
+                "loginPort": "9008"
+            }
+        }
+    }
+}

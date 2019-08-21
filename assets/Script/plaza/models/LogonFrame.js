@@ -132,7 +132,8 @@ cc.Class({
                 //     console.log('pGameServer.' + prop, '=', pGameServer[prop]);
                 // }
                 GlobalUserData.roomList.push(pGameServer);
-                // console.log(pGameServer);
+                // JSON.stringify(GlobalUserData.shopData, null, ' '
+                console.log("pGameServer = " + JSON.stringify(pGameServer, null, ' '));
                 break;
             default:
                 break;

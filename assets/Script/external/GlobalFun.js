@@ -365,6 +365,14 @@ GlobalFun.getServerTime = function getServerTime() {
     return serverTime;
 };
 
+GlobalFun.getDeadlineTime = function getDeadlineTime() {
+    return GlobalUserData._gameDeadlinetime || 0;
+};
+
+GlobalFun.setDeadlineTime = function setDeadlineTime(lefttime) {
+    GlobalUserData._gameDeadlinetime = Math.floor(GlobalFun.getNowTimeSeconds() + (Number(lefttime) || 0));
+};
+
 GlobalFun.getTimeBeforeString = function getTimeBeforeString(iTime) {
     iTime = GlobalFun.getServerTime() - iTime;
     if (iTime < 0) {

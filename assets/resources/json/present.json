@@ -3,6 +3,7 @@
     "base": [
       {
         "icon": "present_icon_01.png",
+        "id": "0",
         "name": "红唇",
         "gold": "0",
         "display": "0",
@@ -11,6 +12,7 @@
       },
       {
         "icon": "present_icon_02.png",
+        "id": "1",
         "name": "臭鸡蛋",
         "gold": "0",
         "display": "0",
@@ -19,6 +21,7 @@
       },
       {
         "icon": "present_icon_03.png",
+        "id": "2",
         "name": "红酒",
         "gold": "10",
         "display": "10",
@@ -27,6 +30,7 @@
       },
       {
         "icon": "present_icon_04.png",
+        "id": "3",
         "name": "板砖",
         "gold": "10",
         "display": "10",
@@ -35,6 +39,7 @@
       },
       {
         "icon": "present_icon_05.png",
+        "id": "4",
         "name": "玫瑰",
         "gold": "50",
         "display": "50",
@@ -43,6 +48,7 @@
       },
       {
         "icon": "present_icon_06.png",
+        "id": "5",
         "name": "脸盆",
         "gold": "50",
         "display": "50",
@@ -51,6 +57,7 @@
       },
       {
         "icon": "present_icon_07.png",
+        "id": "6",
         "name": "鞋底",
         "gold": "100",
         "display": "100",
@@ -58,15 +65,8 @@
         "passwd": "false"
       },
       {
-        "icon": "present_icon_08.png",
-        "name": "斧头",
-        "gold": "100",
-        "display": "100",
-        "charm": "+0",
-        "passwd": "false"
-      },
-      {
         "icon": "present_icon_09.png",
+        "id": "8",
         "name": "小鸡",
         "gold": "100",
         "display": "100",
@@ -75,6 +75,7 @@
       },
       {
         "icon": "present_icon_10.png",
+        "id": "9",
         "name": "加特林",
         "gold": "1000",
         "display": "1,000",
@@ -83,6 +84,7 @@
       },
       {
         "icon": "present_icon_11.png",
+        "id": "10",
         "name": "十万伏特",
         "gold": "1000",
         "display": "1,000",
@@ -91,6 +93,7 @@
       },
       {
         "icon": "present_icon_12.png",
+        "id": "11",
         "name": "丘比特",
         "gold": "10000",
         "display": "10,000",
@@ -99,6 +102,7 @@
       },
       {
         "icon": "present_icon_13.png",
+        "id": "12",
         "name": "美金",
         "gold": "100000",
         "display": "100,000",
@@ -107,6 +111,7 @@
       },
       {
         "icon": "present_icon_14.png",
+        "id": "13",
         "name": "钻石",
         "gold": "500000",
         "display": "500,000",

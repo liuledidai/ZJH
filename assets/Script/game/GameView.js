@@ -872,7 +872,7 @@ cc.Class({
             var recvViewID = this._scene.switchViewChairID(wRecvChairID);
             var sendPoint = this.ptChair[sendViewID];
             var recvPoint = this.ptChair[recvViewID];
-            var presentData = GlobalUserData.presentData['present']['base'];
+            var presentData = GlobalUserData.presentList;
             var icon = presentData[cbGiftID].icon;
             var charm = presentData[cbGiftID].charm * wGiftCount;
             var presentView = cc.find("Canvas/presentView");

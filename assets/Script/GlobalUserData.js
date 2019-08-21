@@ -49,8 +49,21 @@ var GlobalUserData = {
         });
         cc.loader.loadRes("json/present", function (err, content) {
             // console.log(content);
-            GlobalUserData.presentData = content;
-            // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.presentData, null, ' '));
+            if (err) {
+                console.log(err.message || err);
+                return;
+            }
+            if (content != null) {
+                GlobalUserData.presentData = content;
+                GlobalUserData.presentList = {};
+                let itemList = GlobalUserData.presentData['present']['base'];
+                for (var i = 0; i < itemList.length; i++) {
+                    var item = itemList[i];
+                    GlobalUserData.presentList[item.id] = item;
+                }
+                // console.log("[GlobalUserData][init] "+JSON.stringify(GlobalUserData.presentData, null, ' '));
+            }
+            
         });
         cc.loader.loadRes("json/serverInfo", function (err, content) {
             // console.log(content);

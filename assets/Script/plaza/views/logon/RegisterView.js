@@ -1,6 +1,7 @@
  require("MD5");
  var ViewBase = require("ViewBase");
  var GlobalDef = require("GlobalDef");
+ var zjh_cmd = require("CMD_ZaJinHua");
  var GlobalFun = require("GlobalFun");
  var GlobalUserData = require("GlobalUserData");
  var MultiPlatform = require("MultiPlatform");
@@ -102,7 +103,18 @@
 
             params = params + "\"Sign\":\"" + cc.md5Encode(szSign) + "\",";
             params = params + "\"ChannelID\":\"" + GlobalDef.CHANNELID_center + "\",";
+            params = params + "\"kindid\":\"" + zjh_cmd.KIND_ID + "\",";
+            params = params + "\"fkindid\":\"" + zjh_cmd.KIND_ID + "01" + "\",";
             params = params + "\"Mobile\":\"" + szAccount + "\",";
+
+            var szOS = "";
+            if(cc.sys.os == cc.sys.OS_ANDROID){
+                szOS = "1";
+            }
+            else {
+                szOS = "2";
+            }
+            params = params + "\"os\":\"" + szOS + "\",";
             params = params + "\"MachineNumber\":\"" + szMachineID + "\",";
             params = params + "\"Code\":\"" + szMobileAuth + "\"}";
 

@@ -81,7 +81,7 @@ cc.Class({
             GlobalFun.showToast("密码长度为6-16位!");
             return;
         }
-        var url = GlobalUserData.getUserServer(GlobalDef.USERCENTER);//GlobalDef.httpBaseUrl;
+        var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
         // url += "/hz/hzUpdatePassWord.ashx";
         url += "/hz/hzUpdatePassWord3_0.ashx";
         var params = {};

@@ -68,7 +68,7 @@ cc.Class({
         var loginNum = parseInt(loginData.number);
         var current = parseInt(loginData.current);
         var gamecount = parseInt(loginData.gamecount);
-        var loginTime = parseInt(loginData.time);
+        // var loginTime = parseInt(loginData.time);
 
         this.m_Label_gold.string = loginData.gold;
         if (current >= gamecount) {
@@ -78,7 +78,7 @@ cc.Class({
             this.m_Label_turn.string = current + "/" + gamecount;
         }
         //时间
-        var timeStr = GlobalFun.getTimeStr(loginTime- GlobalFun.getServerTime());
+        var timeStr = GlobalFun.getTimeStr(GlobalFun.getDeadlineTime()- GlobalFun.getNowTimeSeconds());
         // console.log(GlobalFun.getServerTime(),GlobalFun.getNowTimeSeconds(),timeStr);
         if (timeStr == "00:00:00") {
             // console.log("已完成");
@@ -133,6 +133,7 @@ cc.Class({
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;
         params["kindid"] = zjh_cmd.KIND_ID;
+        params["fkindid"] = zjh_cmd.KIND_ID + "01";
         var paramString = GlobalFun.buildRequestParam(params);
         GlobalFun.sendRequest({
             url:url,
@@ -169,6 +170,7 @@ cc.Class({
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;
         params["kindid"] = zjh_cmd.KIND_ID;
+        params["fkindid"] = zjh_cmd.KIND_ID + "01";
         var paramString = GlobalFun.buildRequestParam(params);
         GlobalFun.sendRequest({
             url:url,
@@ -177,6 +179,7 @@ cc.Class({
                 if (value.status == 1) {
                     if (value.login !== undefined) {
                         GlobalUserData.activityData.login = value.login;
+                        GlobalFun.setDeadlineTime(GlobalUserData.activityData.login.leftTime);
                     }
                     if (value.score !== undefined) {
                         GlobalUserData.llGameScore = Number(value.score);
@@ -187,9 +190,9 @@ cc.Class({
                     if (value.gold !== undefined) {
                         GlobalFun.showAwardView({
                             num: value.gold,
-                            // callback: () => {
-                            //     this.close();
-                            // }
+                            callback: () => {
+                                cc.director.emit("onPlazaRefreshUI");
+                            }
                         })
                     }
                 }

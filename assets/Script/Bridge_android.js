@@ -41,4 +41,9 @@ Bridge_android.showAlert = function (title,message) {
     var ret = jsb.reflection.callStaticMethod(BRIDGE_CLASS,"showAlert",sigs,title,message);
     return ret;
 };
+
+Bridge_android.isInstallWx = function () {
+    return true;
+}
+
 module.exports = Bridge_android;

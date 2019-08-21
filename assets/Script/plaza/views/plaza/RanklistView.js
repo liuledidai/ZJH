@@ -46,9 +46,6 @@ cc.Class({
         this.m_Image_nothing.node.active = true;
         this.m_rankListView.node.active = false;
         this.m_Panel_myInfo.active = false;
-        if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST) {
-            return;
-        }
         this.requestRankInfo(this._selectIndex);
     },
     requestRankInfo: function (idx) {
@@ -62,6 +59,9 @@ cc.Class({
             url += "/hz/hzUserCharts.ashx";
             this.m_Label_title_gold.string = "金币";
             this.m_Label_my_golddes.string = "我的金币："
+        }
+        if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST) {
+            return;
         }
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;

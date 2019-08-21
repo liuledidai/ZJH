@@ -56,5 +56,6 @@
 + (NSString *) getAppVersion;
 + (float) getBatteryLevel;
 + (NSString *)getNetconnType;
++ (BOOL) isInstallWx;
 
 @end

@@ -34,7 +34,7 @@
                 "price": "40"
             },
             {
-                "id": "com.jjhgame.zhajinhua.tier9",
+                "id": "com.jjhgame.zhajinhua.tier9.1",
                 "icon": "shop_icon_3.png",
                 "name": "60万金币",
                 "give": "31万",
@@ -50,7 +50,7 @@
                 "price": "68"
             },
             {
-                "id": "com.jjhgame.zhajinhua.tier12",
+                "id": "com.jjhgame.zhajinhua.tier12.1",
                 "icon": "shop_icon_4.png",
                 "name": "78万金币",
                 "give": "44万",

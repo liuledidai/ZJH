@@ -1,42 +1,42 @@
 {
     "server": {
         "test": {
-            "init": "http://tver.jjhgame.com/Handle/hz/init.ashx",
+            "init": "https://thzinter.jjhgame.com/Handle/v1/GameHall/Init.ashx",
             "guest": {
-                "interface": "http://thzguest.jjhgame.com/Handle",
-                "forgetPassword": "http://thzguestu.jjhgame.com/Pages/HZNewGame/GetBackPwd.html",
-                "userCenter": "http://thzguest.jjhgame.com/Handle",
-                "recharge": "http://thzguestpay.jjhgame.com/pay/hz/WapGuestPay.aspx",
-                "loginUrl": "183.146.209.139",
-                "loginIP": "183.146.209.139",
-                "loginPort": "9008"
+                "interface": "http://192.168.83.237:8808/Handle",
+                "forgetPassword": "http://192.168.83.237:8808/Pages/HZNewGame/GetBackPwd.html",
+                "userCenter": "http://thzinterface.jjhgame.com/Handle",
+                "recharge": "https://thzinterfacepay.jjhgame.com/pay/hz/WapGuestPay.aspx",
+                "loginUrl": "192.168.83.237",
+                "loginIP": "192.168.83.237",
+                "loginPort": "8808"
             },
             "account": {
-                "interface": "http://thzinterface.jjhgame.com/Handle",
-                "forgetPassword": "http://thzinterfaceu.jjhgame.com/Pages/HZNewGame/GetBackPwd.html",
-                "userCenter": "http://thzinterface.jjhgame.com/Handle",
-                "recharge": "http://thzinterfacepay.jjhgame.com/pay/hz/wappay.aspx",
-                "loginUrl": "183.131.154.8",
-                "loginIP": "183.131.154.8",
+                "interface": "https://thzinterface.jjhgame.com/Handle",
+                "forgetPassword": "http://192.168.83.237:8808/Pages/HZNewGame/GetBackPwd.html",
+                "userCenter": "https://thzinterface.jjhgame.com/Handle",
+                "recharge": "https://thzinterfacepay.jjhgame.com/pay/hz/wappay.aspx",
+                "loginUrl": "183.131.74.146",
+                "loginIP": "183.131.74.146",
                 "loginPort": "9008"
             }
         },
         "release": {
-            "init": "http://ver.jjhgame.com/Handle/hz/init.ashx",
+            "init": "https://ver.jjhgame.com/Handle/hz/init.ashx",
             "guest": {
-                "interface": "http://hzguest.jjhgame.com/Handle",
-                "forgetPassword": "http://hzinterface.jjhgame.com/Pages/HZNewGame/GetBackPwd.html",
-                "userCenter": "http://hzguest.jjhgame.com/Handle",
-                "recharge": "http://pay.jjhgame.com/pay/hz/WapGuestPay.aspx",
+                "interface": "https://hzguest.jjhgame.com/Handle",
+                "forgetPassword": "https://hzinterface.jjhgame.com/Pages/HZNewGame/GetBackPwd.html",
+                "userCenter": "https://hzguest.jjhgame.com/Handle",
+                "recharge": "https://pay.jjhgame.com/pay/hz/WapGuestPay.aspx",
                 "loginUrl": "122.228.8.173",
                 "loginIP": "122.228.8.173",
                 "loginPort": "9008"
             },
             "account": {
-                "interface": "http://hzinterface.jjhgame.com/Handle",
-                "forgetPassword": "http://hzinterface.jjhgame.com/Pages/HZNewGame/GetBackPwd.html",
-                "userCenter": "http://f.jjhgame.com/Handle",
-                "recharge": "http://pay.jjhgame.com/pay/hz/wappay.aspx",
+                "interface": "https://hzinterface.jjhgame.com/Handle",
+                "forgetPassword": "https://hzinterface.jjhgame.com/Pages/HZNewGame/GetBackPwd.html",
+                "userCenter": "https://f.jjhgame.com/Handle",
+                "recharge": "https://pay.jjhgame.com/pay/hz/wappay.aspx",
                 "loginUrl": "122.226.186.127",
                 "loginIP": "122.226.186.127",
                 "loginPort": "9008"

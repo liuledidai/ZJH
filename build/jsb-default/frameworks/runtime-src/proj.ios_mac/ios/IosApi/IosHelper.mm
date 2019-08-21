@@ -47,7 +47,8 @@ void IosHelper::shareWithWeixinCircleTxt(const char * pTitle,const char * pDescr
     message.messageExt = title;
     message.messageAction = title;
     
-    [message setThumbImage:[UIImage imageNamed:@"ui/weixin_share_icon.png"]];
+    NSString *imageName = [[[[NSBundle mainBundle] infoDictionary]valueForKeyPath:@"CFBundleIcons.CFBundlePrimaryIcon.CFBundleIconFiles"] lastObject];
+    [message setThumbImage:[UIImage imageNamed:imageName]];
     
     WXWebpageObject *ext = [WXWebpageObject object];
     ext.webpageUrl = [NSString stringWithCString:pUrl encoding:NSUTF8StringEncoding];
@@ -72,7 +73,8 @@ void IosHelper::shareWithWeixinFriendTxt(const char * pTitle,const char * pDescr
     message.messageExt = title;
     message.messageAction = title;
     
-    [message setThumbImage:[UIImage imageNamed:@"weixin_share_icon.png"]];
+    NSString *imageName = [[[[NSBundle mainBundle] infoDictionary]valueForKeyPath:@"CFBundleIcons.CFBundlePrimaryIcon.CFBundleIconFiles"] lastObject];
+    [message setThumbImage:[UIImage imageNamed:imageName]];
     
     WXWebpageObject *ext = [WXWebpageObject object];
     ext.webpageUrl = [NSString stringWithCString:pUrl encoding:NSUTF8StringEncoding];
@@ -177,7 +179,9 @@ void IosHelper::shareWithWeixinFriendApp(const char * pTxt)
     message.title = @"好友邀请您一起玩集结号十三水！！！";
     message.description = @"房间号123132";
     message.messageAction = @"<action>dotaliTest</action>";
-    [message setThumbImage:[UIImage imageNamed:@"weixin_share_icon.png"]];
+    
+    NSString *imageName = [[[[NSBundle mainBundle] infoDictionary]valueForKeyPath:@"CFBundleIcons.CFBundlePrimaryIcon.CFBundleIconFiles"] lastObject];
+    [message setThumbImage:[UIImage imageNamed:imageName]];
     
     message.mediaObject = ext;
     

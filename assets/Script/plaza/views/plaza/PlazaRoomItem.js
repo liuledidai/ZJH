@@ -120,7 +120,7 @@ cc.Class({
             })
         }
         else {
-            var tipText = "进入房间需要"+ this._roomInfo.lLimitScore + "金豆,您的金豆不足,请充值!"
+            var tipText = "进入房间需要"+ this._roomInfo.lLimitScore + "金币,您的金币不足,请充值!"
             var btncallback = GlobalFun.showShopView;
             var btnName = "充值";
             if (GlobalUserData.cbUserType === GlobalDef.USER_TYPE_GUEST) {
@@ -141,7 +141,7 @@ cc.Class({
                     }
                     else {
                         // todo
-                        params["os"] = "2";//"1";
+                        params["os"] = "1";//"1";
                     }
                     var paramString = GlobalFun.buildRequestParam(params);
                     GlobalFun.sendRequest({

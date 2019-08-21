@@ -220,6 +220,7 @@ cc.Class({
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;
         params["kindid"] = zjh_cmd.KIND_ID;
+        params["fkindid"] = zjh_cmd.KIND_ID + "01";
         params["goods_name"] = itemVal.name;
         params["user_identity"] = MultiPlatform.getMachineID() || "";
         params["productid"] = itemVal.id;
@@ -277,6 +278,7 @@ cc.Class({
         params["userid"] = GlobalUserData.dwUserID;
         params["receipt"] = receipt;
         params["kindid"] = zjh_cmd.KIND_ID;
+        params["fkindid"] = zjh_cmd.KIND_ID + "01";
         params["user_identity"] = MultiPlatform.getMachineID() || "";
         params["channelid"] = GlobalDef.CHANNELID_center;
 

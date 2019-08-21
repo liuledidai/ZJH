@@ -12,6 +12,7 @@
 #import "Reachability.h"
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#import "IosHelper.h"
 
 #define kKeyChainServiceName    @"AccountKeyChainServiceName"
 #define accessGroupName         @"GZVX6L999D.JJHGameAppFamily"
@@ -175,6 +176,11 @@ NSString * const KEY_USERTOKEN = @"com.jjhgame.app.token";
     }
     
     return netconnType;
+}
+
++(BOOL) isInstallWx
+{
+    return IosHelper::isInstallWx();
 }
 
 @end

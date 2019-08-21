@@ -15,8 +15,10 @@ var GlobalDef = {
     MAX_CHAT_LEN: 128,								//聊天长度
     LIMIT_CHAT_TIMES: 1200,							//限时聊天
 
+    BuildCode: "_build2018020101",//构建版本 格式 build + 2018(年份) + （0110）日期 （01）递增号码
     //测试服务器地址
     Environment: "test",                            //服务器环境
+    
     // Environment: "release",                            //服务器环境
     INIT: "init",
     GUEST: "guest",

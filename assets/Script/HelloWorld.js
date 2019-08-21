@@ -24,8 +24,18 @@ cc.Class({
         }
     },
     play: function name(params) {
-        this.videoPlayer.play();
-        var a = c + d;
+        // this.videoPlayer.play();
+        // var a = c + d;
+        var path = "res/people"
+        cc.loader.loadResDir(path,cc.SpriteFrame,function(err,frames,urls){
+            if (err) {
+                console.log(err.message || err);
+                return;
+            }
+            else {
+                console.log("success",frames.length);
+            }
+        });
     },
     pause: function (params) {
         this.videoPlayer.pause();  
@@ -85,6 +95,7 @@ cc.Class({
     update: function (dt) {
 
     },
+
     // play: function (params) {
     //     console.log("play");
     //     // var node = new cc.Node();

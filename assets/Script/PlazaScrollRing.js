@@ -104,7 +104,7 @@ cc.Class({
         //     cc.director.emit("onLogonRoom",{roomInfo:roominfo});
         // }
         // else {
-        //     // GlobalFun.showToast("进入房间需要"+ roominfo.lLimitScore + "金豆,您的金豆不足,请充值!");
+        //     // GlobalFun.showToast("进入房间需要"+ roominfo.lLimitScore + "金币,您的金币不足,请充值!");
         // }
     },
     // called every frame, uncomment this function to activate update callback

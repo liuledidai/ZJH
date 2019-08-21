@@ -37,4 +37,9 @@ Bridge_ios.showAlert = function (title,message) {
     return ret;
 };
 
+Bridge_ios.isInstallWx = function () {
+    var ret = jsb.reflection.callStaticMethod(DEVICE_MODULE,"isInstallWx");
+    return ret;
+}
+
 module.exports = Bridge_ios;

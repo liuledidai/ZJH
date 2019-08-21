@@ -160,16 +160,17 @@ cc.Class({
     onClickConfirm: function (params) {
         var url = GlobalUserData.getUserServer(GlobalDef.INTERFACE);//GlobalDef.httpBaseUrl;
         var params = {};
+        var re = /\./;
         if (this._selectIndex == 0) {
             var szGoldCount = this.m_Editbox_get_gold.string;
             var szPassWord = this.m_Editbox_get_bankPwd.string;
-            var re = /./;
+            // var re = /\./;
             if (szGoldCount.length <= 0 || szPassWord.length <= 0) {
                 console.log("[BankView][onClickConfirm] 金额或密码不能为空！");
                 GlobalFun.showToast("金额或密码不能为空!");
                 return;
             }
-            if (isNaN(Number(szGoldCount)) || Number(szGoldCount) <= 0 || Number(szGoldCount) > (GlobalUserData.llInsureScore)) {
+            if (re.exec(szGoldCount) != null || isNaN(Number(szGoldCount)) || Number(szGoldCount) <= 0 || Number(szGoldCount) > (GlobalUserData.llInsureScore)) {
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出银行的金额限制！");
                 GlobalFun.showToast("数值不合法或超出银行的金额限制!");
@@ -192,7 +193,7 @@ cc.Class({
                 GlobalFun.showToast("金额不能为空！");
                 return;
             }
-            if (isNaN(Number(szGoldCount)) || Number(szGoldCount) <= 0 || Number(szGoldCount) > Number(GlobalUserData.llGameScore)) {
+            if (re.exec(szGoldCount) != null || isNaN(Number(szGoldCount)) || Number(szGoldCount) <= 0 || Number(szGoldCount) > Number(GlobalUserData.llGameScore)) {
                 //todo
                 console.log("[BankView][onClickConfirm] 数值不合法或超出身上金额！");
                 GlobalFun.showToast("数值不合法或超出身上金额！");
@@ -273,8 +274,8 @@ cc.Class({
         // return;
         var szcharmCount = this.m_Editbox_charm_num.string;
         var szPassWord = this.m_Editbox_charm_pwd.string;
-
-        if (isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 || Number(szcharmCount) > (100)) {
+        var re = /\./;
+        if (re.exec(szcharmCount) != null || isNaN(Number(szcharmCount)) || Number(szcharmCount) <= 0 || Number(szcharmCount) > (100)) {
             GlobalFun.showToast("您输入的魅力值不符合规定!");
             return;
         }
@@ -352,7 +353,12 @@ cc.Class({
         this.m_Editbox_charm_num.string = num;
     },
     onClickSaveAll: function (params) {
-        this.m_Editbox_save_gold.string = GlobalUserData.llGameScore;
+        if (Number(GlobalUserData.llGameScore) > 2000.0) {
+            this.m_Editbox_save_gold.string = GlobalUserData.llGameScore - 2000.0;
+        }
+        else {
+            GlobalFun.showToast("随身金币至少保留2000");
+        }  
     },
     onClickGetAll: function (params) {
         this.m_Editbox_get_gold.string = GlobalUserData.llInsureScore;

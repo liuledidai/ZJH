@@ -169,12 +169,13 @@ cc.Class({
             return;
         }
 
+        var _giftid = itemInfo.id;
         var self = this;
         //不需要密码的直接赠送，否则弹出二次确认框
         if (itemInfo.passwd !== "true") {
             cc.director.emit("sendGift", {
                 userItem: self.userItem,
-                cbGiftID: self._selectIndex,
+                cbGiftID: _giftid,
                 count: szNum,
                 szPassword: szPassword,
             });
@@ -194,7 +195,7 @@ cc.Class({
                         callback: () => {
                             cc.director.emit("sendGift", {
                                 userItem: self.userItem,
-                                cbGiftID: self._selectIndex,
+                                cbGiftID: _giftid,
                                 count: szNum,
                                 szPassword: szPassword,
                             });

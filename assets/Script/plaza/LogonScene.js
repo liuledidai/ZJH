@@ -37,8 +37,17 @@ cc.Class({
         AudioMng.playMusic("bgm_plaza");
         this._logonFrame = this.node.getComponent("LogonFrame");
         this._logonView = cc.find("Canvas/LogonView");
+        this.m_Label_version = cc.find("Canvas/m_Label_version").getComponent(cc.Label);
+        this.m_Label_version.string = "version:" + GlobalDef.Environment + "_v" + MultiPlatform.getAppVersion() + GlobalDef.BuildCode;
+        this.m_Button_WxLogin = cc.find("Canvas/layout/login_btn_weixin_login");
+        if (MultiPlatform.isInstallWx()) {
+            this.m_Button_WxLogin.active = true;
+        }
+        else {
+            this.m_Button_WxLogin.active = false;
+        }
         this.scheduleOnce(() => {
-            this.appUpdate();
+            // this.appUpdate();
         }, 0)
     },
     onEnable: function() {
@@ -64,6 +73,7 @@ cc.Class({
         var url = GlobalUserData.serverData[GlobalDef.INIT]; //GlobalDef.httpInitUrl;
         var params = {};
         params["kindid"] = zjh_cmd.KIND_ID;
+        params["fkindid"] = zjh_cmd.KIND_ID + "01";
         params["version"] = MultiPlatform.getAppVersion();
         // params["useridentity"] = "2d4d7c95e5df0179af2466f635ca71de";
         params["mobilemachine"] = szMachineID || "2d4d7c95e5df0179af2466f635ca71de";
@@ -74,7 +84,7 @@ cc.Class({
         }
         else {
             // todo
-            params["os"] = "2";//"1";
+            params["os"] = "1";//"1";
         }
         var paramString = GlobalFun.buildRequestParam(params);
         console.log("[LogonScene][appUpdate] params ",paramString);
@@ -104,7 +114,7 @@ cc.Class({
                             ]
                         })
                     }
-                    else if (version > curVersion) {
+                    else if (version > curVersion && cc.sys.isMobile) {
                         var isForceUpdate = parseInt(value.isforceupdate);
                         var description = value.description;
                         var szUrl = value.url;
@@ -282,7 +292,7 @@ cc.Class({
         }
         else {
             // todo
-            params["os"] = "2";//"1";
+            params["os"] = "1";//"1";
         }
         var self = this;
         var paramString = GlobalFun.buildRequestParam(params);

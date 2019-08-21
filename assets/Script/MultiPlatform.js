@@ -29,7 +29,7 @@ MultiPlatform.getAppVersion = function () {
     }
     else {
         console.log("[MultiPlatform][getAppVersion] unsupport platform -> " + cc.sys.os);
-        return "1.0";
+        return "2.0";
     }
 }
 
@@ -65,4 +65,12 @@ MultiPlatform.showAlert = function (title,message) {
     }
 };
 
+MultiPlatform.isInstallWx = function () {
+    if (PLATFORM[cc.sys.os] && PLATFORM[cc.sys.os].isInstallWx) {
+        return PLATFORM[cc.sys.os].isInstallWx();
+    }
+    else {
+        return false;
+    }
+}
 module.exports = MultiPlatform;

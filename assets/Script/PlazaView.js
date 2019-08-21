@@ -189,7 +189,7 @@ cc.Class({
             var loginNum = parseInt(loginData.number);
             var current = parseInt(loginData.current);
             var gamecount = parseInt(loginData.gamecount);
-            var loginTime = parseInt(loginData.time);
+            var loginTime = GlobalFun.getDeadlineTime();//parseInt(loginData.time);
             //分享
             var shareNum = parseInt(shareData.number);
 
@@ -197,7 +197,7 @@ cc.Class({
                 redPoint.active = true;
             }
             else if (loginNum > 0) {
-                if (loginTime > GlobalFun.getServerTime() || gamecount > current) {
+                if (loginTime > GlobalFun.getNowTimeSeconds() || gamecount > current) {
                     redPoint.active = false;
                 }
                 else {
@@ -279,6 +279,8 @@ cc.Class({
         url += "/hz/hzGameUserInfo3_0.ashx";
         var params = {};
         params["userid"] = GlobalUserData.dwUserID;
+        params["kindid"] = zjh_cmd.KIND_ID;
+        params["fkindid"] = zjh_cmd.KIND_ID + "01";
         var paramString = GlobalFun.buildRequestParam(params);
         var xhr = new XMLHttpRequest();
         var self = this;
@@ -326,6 +328,7 @@ cc.Class({
                     //活动数据
                     if (value.activity !== undefined) {
                         GlobalUserData.activityData = value.activity;
+                        GlobalFun.setDeadlineTime(GlobalUserData.activityData.login.leftTime)
                         console.log("activityData = ",JSON.stringify(value.activity, null, " "));
                     }
                     if (value.difference !== undefined) {
